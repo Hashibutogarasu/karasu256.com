@@ -1,9 +1,10 @@
-"use client";
+'use client';
 
-import { FC } from "react";
-import { BlogCard } from "./BlogCard";
-import { useBlogs } from "../hooks/useBlogs";
-import { useCircularProgress } from "../hooks/useCircularProgress";
+import { FC } from 'react';
+import { BlogCard } from './BlogCard';
+import { useBlogs } from '../hooks/useBlogs';
+import { useCircularProgress } from '../hooks/useCircularProgress';
+import Link from 'next/link';
 
 interface BlogListProps {
   limit?: number;
@@ -11,11 +12,7 @@ interface BlogListProps {
   className?: string;
 }
 
-export const BlogList: FC<BlogListProps> = ({
-  limit = 10,
-  category,
-  className = "",
-}) => {
+export const BlogList: FC<BlogListProps> = ({ limit = 10, category, className = '' }) => {
   const { ProgressComponent } = useCircularProgress();
   const { blogs, isLoading, error, totalCount } = useBlogs({
     limit,
@@ -55,8 +52,8 @@ export const BlogList: FC<BlogListProps> = ({
             key={blog.id}
             id={blog.id}
             title={blog.title}
-            description={blog.content.substring(0, 100).replace(/<[^>]*>/g, "")}
-            category={blog.category || "未分類"}
+            description={blog.content.substring(0, 100).replace(/<[^>]*>/g, '')}
+            category={blog.category || '未分類'}
             publishedAt={blog.publishedAt}
             eyecatch={blog.eyecatch}
           />
@@ -65,12 +62,9 @@ export const BlogList: FC<BlogListProps> = ({
 
       {totalCount > blogs.length && (
         <div className="mt-8 text-center">
-          <a
-            href="/blogs"
-            className="inline-block px-6 py-2 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition-colors"
-          >
+          <Link href="/blogs" className="inline-block px-6 py-2 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition-colors">
             もっと見る ({blogs.length}/{totalCount})
-          </a>
+          </Link>
         </div>
       )}
     </div>

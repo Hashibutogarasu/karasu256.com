@@ -3,32 +3,22 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import { useCircularProgress } from '@/hooks/useCircularProgress';
 import { useBlog } from '@/hooks/useBlog';
 import useCategory from '@/hooks/useCategory';
-import { BlogPost } from '@/types/microcms';
 
-interface BlogDetailPageProps {
-  params: {
-    category: string;
-    contentId: string;
-  };
-}
-
-export default function BlogDetailPage({ params }: BlogDetailPageProps) {
-  const [categoryValue, setCategoryValue] = useState<string>('');
-  const [contentIdValue, setContentIdValue] = useState<string>('');
+export default function BlogDetailPage() {
+  const params = useParams();
+  const categoryParam = params.category as string;
+  const contentIdParam = params.contentId as string;
+  const [categoryValue, setCategoryValue] = useState<string>(categoryParam || '');
+  const [contentIdValue, setContentIdValue] = useState<string>(contentIdParam || '');
   const { ProgressComponent, startLoading, stopLoading } = useCircularProgress(true);
-
   useEffect(() => {
-    const initParams = async () => {
-      const resolvedParams = await Promise.resolve(params);
-      setCategoryValue(resolvedParams.category);
-      setContentIdValue(resolvedParams.contentId);
-    };
-
-    initParams();
-  }, [params]);
+    setCategoryValue(categoryParam);
+    setContentIdValue(contentIdParam);
+  }, [categoryParam, contentIdParam]);
 
   const {
     blog,
