@@ -11,38 +11,35 @@ const Header = async () => {
   const accountsUrl = process.env.NEXT_PUBLIC_ACCOUNTS_URL;
 
   return (
-    <header className="w-full py-4 px-6 flex justify-between items-center border-b border-gray-200">
-      <div className="font-bold text-xl">
-        <Link href="/" className="hover:text-gray-600 transition-colors">
+    <header className="w-full border-b border-border bg-background">
+      <div className="flex h-12 items-center justify-between px-6">
+        <Link href="/" className="text-sm font-semibold text-foreground hover:text-muted-foreground transition-colors">
           Karasu Lab
         </Link>
-      </div>
-      <nav>
-        <ul className="flex gap-6 items-center">
-          <li>
-            <Link href="/blogs" className="hover:text-gray-600 transition-colors">
-              Blog
-            </Link>
-          </li>
-          <li>
+        <nav>
+          <ul className="flex items-center gap-4">
             {user ? (
-              <Link
-                href={`${accountsUrl}/dashboard`}
-                className="text-sm hover:text-gray-600 transition-colors"
-              >
-                Account
-              </Link>
+              <li>
+                <Link
+                  href={`${accountsUrl}/dashboard`}
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Account
+                </Link>
+              </li>
             ) : (
-              <Link
-                href={accountsUrl ?? "#"}
-                className="text-sm hover:text-gray-600 transition-colors"
-              >
-                Sign In
-              </Link>
+              <li>
+                <Link
+                  href={accountsUrl ?? "#"}
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Sign In
+                </Link>
+              </li>
             )}
-          </li>
-        </ul>
-      </nav>
+          </ul>
+        </nav>
+      </div>
     </header>
   );
 };
