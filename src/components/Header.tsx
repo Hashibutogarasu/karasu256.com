@@ -11,35 +11,27 @@ const Header = async () => {
   const accountsUrl = process.env.NEXT_PUBLIC_ACCOUNTS_URL;
 
   return (
-    <header className="w-full border-b border-border bg-background">
-      <div className="flex h-12 items-center justify-between px-6">
-        <Link href="/" className="text-sm font-semibold text-foreground hover:text-muted-foreground transition-colors">
+    <header className="w-full py-4 px-6 flex justify-between items-center border-b border-gray-200">
+      <div className="font-bold text-xl">
+        <Link href="/" className="hover:text-gray-600 transition-colors">
           Karasu Lab
         </Link>
-        <nav>
-          <ul className="flex items-center gap-4">
-            {user ? (
-              <li>
-                <Link
-                  href={`${accountsUrl}/dashboard`}
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Account
-                </Link>
-              </li>
-            ) : (
-              <li>
-                <Link
-                  href={accountsUrl ?? "#"}
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Sign In
-                </Link>
-              </li>
-            )}
-          </ul>
-        </nav>
       </div>
+      <nav>
+        <ul className="flex gap-6">
+          <li>
+            {user ? (
+              <Link href={`${accountsUrl}/dashboard`} className="hover:text-gray-600 transition-colors">
+                Account
+              </Link>
+            ) : (
+              <Link href={accountsUrl ?? "#"} className="hover:text-gray-600 transition-colors">
+                Sign In
+              </Link>
+            )}
+          </li>
+        </ul>
+      </nav>
     </header>
   );
 };
