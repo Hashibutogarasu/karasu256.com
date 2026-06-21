@@ -1,0 +1,3 @@
+[submodule "apps/accounts"]
+	path = apps/accounts
+	url = https://github.com/Hashibutogarasu/accounts.karasu256.com.git
