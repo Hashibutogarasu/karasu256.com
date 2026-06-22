@@ -16,11 +16,11 @@ export function AuthButton({ accountsUrl, uid }: AuthButtonProps) {
     return (
       <Button
         variant="ghost"
-        size="icon"
+        size="icon-lg"
         onClick={() => { window.location.href = `${accountsUrl}/settings`; }}
         aria-label="Account settings"
       >
-        <Identicon value={uid} size={24} />
+        <Identicon value={uid} size={40} />
       </Button>
     );
   }
