@@ -1,15 +1,15 @@
 import Link from "next/link";
 import { getSessionUser } from "@/lib/auth";
-import { buttonVariants } from "@karasu/ui";
+import { AuthButton } from "@/components/auth-button";
 
 /**
- * Site-wide header. Reads the Firebase session cookie to show an "Account"
- * link when authenticated, or "Sign In" when not. All auth actions are
- * delegated to accounts.karasu256.com — no auth pages live on this app.
+ * Site-wide header. Reads the Firebase session cookie to show an identicon
+ * button when authenticated, or a sign-in button when not. All auth actions
+ * are delegated to accounts.karasu256.com — no auth pages live on this app.
  */
 const Header = async () => {
   const user = await getSessionUser();
-  const accountsUrl = process.env.NEXT_PUBLIC_ACCOUNTS_URL;
+  const accountsUrl = process.env.NEXT_PUBLIC_ACCOUNTS_URL ?? "#";
 
   return (
     <header className="w-full py-4 px-6 flex justify-between items-center border-b border-gray-200">
@@ -21,25 +21,7 @@ const Header = async () => {
       <nav>
         <ul className="flex gap-6">
           <li>
-            {user ? (
-              <Link
-                href={`${accountsUrl}/settings`}
-                className={buttonVariants({ variant: "ghost", size: "sm" })}
-                data-slot="button"
-                data-variant="ghost"
-              >
-                Account
-              </Link>
-            ) : (
-              <Link
-                href={accountsUrl ?? "#"}
-                className={buttonVariants({ variant: "ghost", size: "sm" })}
-                data-slot="button"
-                data-variant="ghost"
-              >
-                Sign In
-              </Link>
-            )}
+            <AuthButton accountsUrl={accountsUrl} uid={user?.uid ?? null} />
           </li>
         </ul>
       </nav>
