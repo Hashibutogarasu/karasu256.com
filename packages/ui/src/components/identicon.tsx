@@ -20,7 +20,6 @@ export function Identicon({ value, size = 64, className }: IdenticonProps) {
     <div
       className={cn("rounded-full overflow-hidden shrink-0", className)}
       style={{ width: size, height: size }}
-      // jdenticon generates the SVG — no user-controlled HTML is injected.
       dangerouslySetInnerHTML={{ __html: svg }}
     />
   );

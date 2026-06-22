@@ -21,7 +21,12 @@ const Header = async () => {
       <nav>
         <ul className="flex gap-6">
           <li>
-            <AuthButton accountsUrl={accountsUrl} uid={user?.uid ?? null} />
+            <AuthButton
+        accountsUrl={accountsUrl}
+        uid={user?.uid ?? null}
+        signInLabel="Sign In"
+        accountLabel="Account settings"
+      />
           </li>
         </ul>
       </nav>

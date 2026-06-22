@@ -20,7 +20,7 @@
     ],
     "paths": {
       "@/*": ["./src/*"],
-      "@karasu/ui": ["./packages/ui/src/index.ts"]
+      "@Hashibutogarasu/ui": ["./packages/ui/src/index.ts"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "eslint.config.mjs", ".eslintrc.json"],
