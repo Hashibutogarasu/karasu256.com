@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Identicon } from "@Hashibutogarasu/ui";
+import { Button, Identicon } from "@karasu/ui";
 
 interface AuthButtonProps {
   accountsUrl: string;
@@ -18,15 +18,14 @@ interface AuthButtonProps {
 export function AuthButton({ accountsUrl, uid, signInLabel, accountLabel }: AuthButtonProps) {
   if (uid) {
     return (
-      <Button
-        variant="ghost"
-        size="icon"
-        className="rounded-full overflow-hidden p-0"
+      <button
+        type="button"
+        className="block p-0 bg-transparent border-0 cursor-pointer rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
         onClick={() => { window.location.href = `${accountsUrl}/settings`; }}
         aria-label={accountLabel}
       >
-        <Identicon value={uid} size={32} />
-      </Button>
+        <Identicon value={uid} size={36} className="border border-border [&>svg]:block" />
+      </button>
     );
   }
 

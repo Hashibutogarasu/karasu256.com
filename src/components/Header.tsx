@@ -12,7 +12,7 @@ const Header = async () => {
   const accountsUrl = process.env.NEXT_PUBLIC_ACCOUNTS_URL ?? "#";
 
   return (
-    <header className="w-full py-4 px-6 flex justify-between items-center border-b border-gray-200">
+    <header className="w-full py-2 px-6 flex justify-between items-center border-b border-border">
       <div className="font-bold text-xl">
         <Link href="/" className="hover:text-gray-600 transition-colors">
           Karasu Lab
@@ -24,8 +24,8 @@ const Header = async () => {
             <AuthButton
         accountsUrl={accountsUrl}
         uid={user?.uid ?? null}
-        signInLabel="Sign In"
-        accountLabel="Account settings"
+        signInLabel="サインイン"
+        accountLabel="アカウント設定"
       />
           </li>
         </ul>
