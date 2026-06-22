@@ -22,11 +22,21 @@ const Header = async () => {
         <ul className="flex gap-6">
           <li>
             {user ? (
-              <Link href={`${accountsUrl}/settings`} className={buttonVariants({ variant: "ghost", size: "sm" })}>
+              <Link
+                href={`${accountsUrl}/settings`}
+                className={buttonVariants({ variant: "ghost", size: "sm" })}
+                data-slot="button"
+                data-variant="ghost"
+              >
                 Account
               </Link>
             ) : (
-              <Link href={accountsUrl ?? "#"} className={buttonVariants({ variant: "ghost", size: "sm" })}>
+              <Link
+                href={accountsUrl ?? "#"}
+                className={buttonVariants({ variant: "ghost", size: "sm" })}
+                data-slot="button"
+                data-variant="ghost"
+              >
                 Sign In
               </Link>
             )}

@@ -1,0 +1,65 @@
+@layer base {
+  [data-slot="button"][data-variant="default"] {
+    --btn-current-fg: var(--color-primary-foreground);
+    --btn-hover-bg: var(--color-primary-foreground);
+    --btn-hover-fg: var(--color-primary);
+  }
+  [data-slot="button"][data-variant="secondary"] {
+    --btn-current-fg: var(--color-secondary-foreground);
+    --btn-hover-bg: var(--color-secondary-foreground);
+    --btn-hover-fg: var(--color-secondary);
+  }
+  [data-slot="button"][data-variant="outline"] {
+    --btn-current-fg: var(--color-foreground);
+    --btn-hover-bg: var(--color-foreground);
+    --btn-hover-fg: var(--color-background);
+  }
+  [data-slot="button"][data-variant="ghost"] {
+    --btn-current-fg: var(--color-foreground);
+    --btn-hover-bg: var(--color-muted);
+    --btn-hover-fg: var(--color-foreground);
+  }
+  [data-slot="button"][data-variant="destructive"] {
+    --btn-current-fg: var(--color-destructive);
+    --btn-hover-bg: var(--color-destructive);
+    --btn-hover-fg: var(--color-primary-foreground);
+  }
+
+  [data-slot="button"]:not([data-variant="link"]) {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    color: var(--btn-current-fg);
+    transition:
+      color 1ms linear calc(var(--btn-wipe-duration, 300ms) * 0.5),
+      border-color 150ms ease,
+      box-shadow 150ms ease,
+      transform 100ms ease,
+      opacity 150ms ease;
+  }
+
+  [data-slot="button"]:not([data-variant="link"])::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-color: var(--btn-hover-bg);
+    transform: translateX(-101%);
+    transition: transform var(--btn-wipe-duration, 300ms) ease;
+    pointer-events: none;
+  }
+
+  [data-slot="button"]:not([data-variant="link"]):hover,
+  [data-slot="button"]:not([data-variant="link"])[aria-expanded="true"] {
+    color: var(--btn-hover-fg);
+  }
+
+  [data-slot="button"]:not([data-variant="link"]):hover::before,
+  [data-slot="button"]:not([data-variant="link"])[aria-expanded="true"]::before {
+    transform: translateX(0);
+  }
+
+  [data-slot="tabs-trigger"] {
+    transition: all 150ms ease, color 1ms linear 120ms;
+  }
+}
