@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getSessionUser } from "@/lib/auth";
+import { buttonVariants } from "@karasu/ui";
 
 /**
  * Site-wide header. Reads the Firebase session cookie to show an "Account"
@@ -21,11 +22,11 @@ const Header = async () => {
         <ul className="flex gap-6">
           <li>
             {user ? (
-              <Link href={`${accountsUrl}/dashboard`} className="hover:text-gray-600 transition-colors">
+              <Link href={`${accountsUrl}/settings`} className={buttonVariants({ variant: "ghost", size: "sm" })}>
                 Account
               </Link>
             ) : (
-              <Link href={accountsUrl ?? "#"} className="hover:text-gray-600 transition-colors">
+              <Link href={accountsUrl ?? "#"} className={buttonVariants({ variant: "ghost", size: "sm" })}>
                 Sign In
               </Link>
             )}
