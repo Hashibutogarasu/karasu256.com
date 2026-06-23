@@ -25,12 +25,27 @@
     --btn-hover-fg: var(--color-primary-foreground);
   }
 
+  /*
+   * Wipe animation via background-position instead of ::before + z-index.
+   * The gradient's right half is transparent so the element's background-color
+   * (set by Tailwind variant classes) shows through at rest.
+   * On hover the left half (--btn-hover-bg) slides into view.
+   * This keeps the effect entirely within the background layer — no stacking
+   * context is created, so the button can never obscure toasts or other overlays.
+   */
   [data-slot="button"]:not([data-variant="link"]) {
     position: relative;
-    overflow: hidden;
-    isolation: isolate;
     color: var(--btn-current-fg);
+    background-image: linear-gradient(
+      to right,
+      var(--btn-hover-bg, transparent) 50%,
+      transparent 50%
+    );
+    background-repeat: no-repeat;
+    background-size: 202% 100%;
+    background-position: right center;
     transition:
+      background-position var(--btn-wipe-duration, 300ms) ease,
       color 1ms linear calc(var(--btn-wipe-duration, 300ms) * 0.5),
       border-color 150ms ease,
       box-shadow 150ms ease,
@@ -38,25 +53,10 @@
       opacity 150ms ease;
   }
 
-  [data-slot="button"]:not([data-variant="link"])::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background-color: var(--btn-hover-bg);
-    transform: translateX(-101%);
-    transition: transform var(--btn-wipe-duration, 300ms) ease;
-    pointer-events: none;
-  }
-
   [data-slot="button"]:not([data-variant="link"]):hover,
   [data-slot="button"]:not([data-variant="link"])[aria-expanded="true"] {
     color: var(--btn-hover-fg);
-  }
-
-  [data-slot="button"]:not([data-variant="link"]):hover::before,
-  [data-slot="button"]:not([data-variant="link"])[aria-expanded="true"]::before {
-    transform: translateX(0);
+    background-position: left center;
   }
 
   [data-slot="tabs-trigger"] {
