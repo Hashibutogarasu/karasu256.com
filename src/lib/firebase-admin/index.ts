@@ -1,7 +1,7 @@
 import { cert, getApps, initializeApp, type App } from "firebase-admin/app";
 import { getAuth as getAdminAuthSdk } from "firebase-admin/auth";
 
-const APP_NAME = "karasu-web-admin";
+const APP_NAME = "@Hashibutogarasu/karasu256.com-admin";
 
 function getAdminApp(): App {
   const existing = getApps().find((a) => a.name === APP_NAME);
@@ -19,7 +19,7 @@ function getAdminApp(): App {
 }
 
 /**
- * Returns the Firebase Admin Auth instance for karasu-web.
+ * Returns the Firebase Admin Auth instance for @Hashibutogarasu/karasu256.com.
  * Initializes the named app on first call using server-side environment variables.
  * Uses a distinct app name to avoid collisions with apps/accounts in the same process.
  */

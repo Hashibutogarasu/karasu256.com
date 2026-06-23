@@ -1,0 +1,22 @@
+{
+  "header": {
+    "signIn": "サインイン",
+    "accountMenuLabel": "アカウントメニュー",
+    "settings": "設定",
+    "signOut": "サインアウト"
+  },
+  "settings": {
+    "title": "設定",
+    "sections": {
+      "profile": "プロフィール"
+    },
+    "signOut": "サインアウト",
+    "profile": {
+      "title": "プロフィール",
+      "email": "メールアドレス",
+      "uid": "ユーザーID",
+      "accountSettings": "アカウント設定",
+      "accountSettingsDescription": "プロフィール・セキュリティ・アカウント連携の設定は Karasu Lab アカウントポータルで管理します。"
+    }
+  }
+}

@@ -20,4 +20,12 @@ export {
   tabsListVariants,
 } from "./components/tabs";
 export { Toaster } from "./components/sonner";
+export { toast } from "./lib/toast";
 export { Identicon } from "./components/identicon";
+export {
+  SettingsSidebar,
+  SettingsSidebarLayout,
+  type SidebarNavItem,
+  type SettingsSidebarProps,
+  type SettingsSidebarLayoutProps,
+} from "./components/settings-sidebar";

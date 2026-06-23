@@ -1,11 +1,10 @@
 import Link from "next/link";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUser } from "@/lib/firebase-session";
 import { AuthButton } from "@/components/auth-button";
 
 /**
- * Site-wide header. Reads the Firebase session cookie to show an identicon
- * button when authenticated, or a sign-in button when not. All auth actions
- * are delegated to accounts.karasu256.com — no auth pages live on this app.
+ * Site-wide header. Reads the NextAuth session (backed by Firebase) to show
+ * an account menu when authenticated, or a sign-in button when not.
  */
 const Header = async () => {
   const user = await getSessionUser();
@@ -22,11 +21,10 @@ const Header = async () => {
         <ul className="flex gap-6">
           <li>
             <AuthButton
-        accountsUrl={accountsUrl}
-        uid={user?.uid ?? null}
-        signInLabel="サインイン"
-        accountLabel="アカウント設定"
-      />
+              accountsUrl={accountsUrl}
+              uid={user?.uid ?? null}
+              email={user?.email ?? null}
+            />
           </li>
         </ul>
       </nav>
