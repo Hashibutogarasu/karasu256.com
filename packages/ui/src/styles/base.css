@@ -1,34 +1,45 @@
 @layer base {
   [data-slot="button"][data-variant="default"] {
+    --btn-current-bg: var(--color-primary);
     --btn-current-fg: var(--color-primary-foreground);
     --btn-hover-bg: var(--color-primary-foreground);
     --btn-hover-fg: var(--color-primary);
   }
   [data-slot="button"][data-variant="secondary"] {
+    --btn-current-bg: var(--color-secondary);
     --btn-current-fg: var(--color-secondary-foreground);
     --btn-hover-bg: var(--color-secondary-foreground);
     --btn-hover-fg: var(--color-secondary);
   }
   [data-slot="button"][data-variant="outline"] {
+    --btn-current-bg: var(--color-background);
     --btn-current-fg: var(--color-foreground);
     --btn-hover-bg: var(--color-foreground);
     --btn-hover-fg: var(--color-background);
   }
   [data-slot="button"][data-variant="ghost"] {
+    --btn-current-bg: transparent;
     --btn-current-fg: var(--color-foreground);
     --btn-hover-bg: var(--color-muted);
     --btn-hover-fg: var(--color-foreground);
   }
   [data-slot="button"][data-variant="destructive"] {
+    --btn-current-bg: color-mix(in oklch, var(--color-destructive) 10%, transparent);
     --btn-current-fg: var(--color-destructive);
     --btn-hover-bg: var(--color-destructive);
     --btn-hover-fg: var(--color-primary-foreground);
   }
 
+  @media (prefers-color-scheme: dark) {
+    [data-slot="button"][data-variant="destructive"] {
+      --btn-current-bg: color-mix(in oklch, var(--color-destructive) 20%, transparent);
+    }
+  }
+
   /*
    * Wipe animation via background-position instead of ::before + z-index.
-   * The gradient's right half is transparent so the element's background-color
-   * (set by Tailwind variant classes) shows through at rest.
+   * Both gradient halves use explicit opaque CSS variables so background-color
+   * is never needed — eliminating corner bleed artifacts at rounded edges.
    * On hover the left half (--btn-hover-bg) slides into view.
    * This keeps the effect entirely within the background layer — no stacking
    * context is created, so the button can never obscure toasts or other overlays.
@@ -39,9 +50,10 @@
     background-image: linear-gradient(
       to right,
       var(--btn-hover-bg, transparent) 50%,
-      transparent 50%
+      var(--btn-current-bg, transparent) 50%
     );
     background-repeat: no-repeat;
+    background-origin: border-box;
     background-size: 202% 100%;
     background-position: right center;
     transition:
