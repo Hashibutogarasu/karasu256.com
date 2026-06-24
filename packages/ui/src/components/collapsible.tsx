@@ -29,11 +29,10 @@ function CollapsibleTrigger({ className, ...props }: CollapsiblePrimitive.Trigge
   )
 }
 
-function CollapsiblePanel({ className, ...props }: CollapsiblePrimitive.Panel.Props) {
+function CollapsiblePanel({ ...props }: CollapsiblePrimitive.Panel.Props) {
   return (
     <CollapsiblePrimitive.Panel
       data-slot="collapsible-panel"
-      className={cn("overflow-hidden", className)}
       {...props}
     />
   )

@@ -1,6 +1,8 @@
 export { Button, buttonVariants, type ButtonProps } from "./components/button";
 export { Container } from "./components/container";
 export { Collapsible, CollapsibleTrigger, CollapsiblePanel, CollapsibleChevron } from "./components/collapsible";
+export { AnimatedList, AnimatedListItem } from "./components/animated-list";
+export { AnimatedPanel } from "./components/animated-panel";
 export { Dialog, DialogPortal, DialogBackdrop, DialogPopup, DialogTitle, DialogClose } from "./components/dialog";
 export {
   Card,
