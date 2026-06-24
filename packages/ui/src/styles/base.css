@@ -63,3 +63,8 @@
     transition: all 150ms ease, color 1ms linear 120ms;
   }
 }
+
+@keyframes toast-progress {
+  from { transform: scaleX(1); }
+  to   { transform: scaleX(0); }
+}
