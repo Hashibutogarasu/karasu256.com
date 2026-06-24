@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useTranslation } from "react-i18next";
-import { Badge, DeleteIconButton } from "@Hashibutogarasu/ui";
+import { Badge, DeleteIconButton, SettingsItem } from "@Hashibutogarasu/ui";
 import type { OAuthClientSummary, SectionMeta } from "@/lib/api/developer";
 
 interface OAuthClientRowProps {
@@ -25,7 +25,7 @@ export function OAuthClientRow({ client, sections, onDelete }: OAuthClientRowPro
   );
 
   return (
-    <div className="flex items-start justify-between gap-4 rounded-lg border border-border px-4 py-3">
+    <SettingsItem className="flex items-start justify-between gap-4">
       <div className="flex items-start gap-3 min-w-0">
         {client.iconUrl && (
           <Image
@@ -60,6 +60,6 @@ export function OAuthClientRow({ client, sections, onDelete }: OAuthClientRowPro
         onClick={() => onDelete(client.id)}
         className="shrink-0"
       />
-    </div>
+    </SettingsItem>
   );
 }

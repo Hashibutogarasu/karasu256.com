@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslation } from "react-i18next";
-import { DeleteIconButton } from "@Hashibutogarasu/ui";
+import { DeleteIconButton, SettingsItem } from "@Hashibutogarasu/ui";
 import type { ApiKeySummary } from "@/lib/api/developer";
 
 interface ApiKeyRowProps {
@@ -17,7 +17,7 @@ export function ApiKeyRow({ apiKey, onDelete }: ApiKeyRowProps) {
   const { t } = useTranslation();
 
   return (
-    <div className="flex items-center justify-between gap-4 rounded-lg border border-border px-4 py-3">
+    <SettingsItem className="flex items-center justify-between gap-4">
       <div className="min-w-0 space-y-0.5">
         <p className="text-sm font-medium truncate">{apiKey.name}</p>
         <p className="text-xs text-muted-foreground font-mono">{apiKey.keyPrefix}…</p>
@@ -35,6 +35,6 @@ export function ApiKeyRow({ apiKey, onDelete }: ApiKeyRowProps) {
         aria-label={t("settings.developer.delete")}
         onClick={() => onDelete(apiKey.id)}
       />
-    </div>
+    </SettingsItem>
   );
 }

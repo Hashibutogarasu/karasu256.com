@@ -40,3 +40,4 @@ export { Badge, badgeVariants, type BadgeProps } from "./components/badge";
 export { SettingsAccordion, type SettingsAccordionProps } from "./components/settings-accordion";
 export { ConfirmDialog, type ConfirmDialogProps } from "./components/confirm-dialog";
 export { DeleteIconButton, type DeleteIconButtonProps } from "./components/delete-icon-button";
+export { SettingsItem } from "./components/settings-item";
