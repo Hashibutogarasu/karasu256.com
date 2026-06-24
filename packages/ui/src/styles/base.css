@@ -68,3 +68,39 @@
   from { transform: scaleX(1); }
   to   { transform: scaleX(0); }
 }
+
+@keyframes dialog-backdrop-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes dialog-backdrop-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+@keyframes dialog-popup-in {
+  from { opacity: 0; scale: 0.95; }
+  to   { opacity: 1; scale: 1; }
+}
+
+@keyframes dialog-popup-out {
+  from { opacity: 1; scale: 1; }
+  to   { opacity: 0; scale: 0.95; }
+}
+
+[data-slot="dialog-backdrop"] {
+  animation: dialog-backdrop-out 150ms ease forwards;
+}
+
+[data-slot="dialog-backdrop"][data-open] {
+  animation: dialog-backdrop-in 150ms ease forwards;
+}
+
+[data-slot="dialog-popup"] {
+  animation: dialog-popup-out 150ms ease forwards;
+}
+
+[data-slot="dialog-popup"][data-open] {
+  animation: dialog-popup-in 150ms ease forwards;
+}
