@@ -28,6 +28,11 @@
       "noClients": "No OAuth clients",
       "noKeys": "No API keys",
       "delete": "Delete",
+      "deleteConfirm": {
+        "title": "Are you sure?",
+        "description": "This will permanently delete \"{{name}}\". This action cannot be undone.",
+        "cancel": "Cancel"
+      },
       "created": "Created",
       "lastUsed": "Last used",
       "neverUsed": "Never used",

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { Button, SettingsAccordion } from "@Hashibutogarasu/ui";
+import { Button, ConfirmDialog, SettingsAccordion } from "@Hashibutogarasu/ui";
 import {
   deleteApiKey,
   deleteOAuthClient,
@@ -21,6 +21,10 @@ import { OAuthClientRow } from "./oauth-client-row";
 import { CreateApiKeyDialog } from "./create-api-key-dialog";
 import { CreateOAuthClientDialog } from "./create-oauth-client-dialog";
 
+type PendingDelete =
+  | { type: "client"; id: string; name: string }
+  | { type: "key"; id: string; name: string };
+
 /**
  * Developer settings section. Manages OAuth clients and API keys with
  * collapsible lists and creation dialogs.
@@ -33,6 +37,7 @@ export function DeveloperSection() {
   const [sections, setSections] = useState<SectionMeta[]>([]);
   const [clientDialogOpen, setClientDialogOpen] = useState(false);
   const [keyDialogOpen, setKeyDialogOpen] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState<PendingDelete | null>(null);
 
   useEffect(() => {
     void Promise.all([
@@ -50,14 +55,15 @@ export function DeveloperSection() {
     setKeys((prev) => [key, ...prev]);
   }
 
-  async function handleDeleteClient(id: string) {
-    await deleteOAuthClient(id);
-    setClients((prev) => prev.filter((c) => c.id !== id));
-  }
-
-  async function handleDeleteKey(id: string) {
-    await deleteApiKey(id);
-    setKeys((prev) => prev.filter((k) => k.id !== id));
+  async function confirmDelete() {
+    if (!pendingDelete) return;
+    if (pendingDelete.type === "client") {
+      await deleteOAuthClient(pendingDelete.id);
+      setClients((prev) => prev.filter((c) => c.id !== pendingDelete.id));
+    } else {
+      await deleteApiKey(pendingDelete.id);
+      setKeys((prev) => prev.filter((k) => k.id !== pendingDelete.id));
+    }
   }
 
   return (
@@ -88,7 +94,9 @@ export function DeveloperSection() {
                 key={c.id}
                 client={c}
                 sections={sections}
-                onDelete={handleDeleteClient}
+                onDelete={(id) =>
+                  setPendingDelete({ type: "client", id, name: c.name })
+                }
               />
             ))
           )}
@@ -115,7 +123,13 @@ export function DeveloperSection() {
             </p>
           ) : (
             keys.map((k) => (
-              <ApiKeyRow key={k.id} apiKey={k} onDelete={handleDeleteKey} />
+              <ApiKeyRow
+                key={k.id}
+                apiKey={k}
+                onDelete={(id) =>
+                  setPendingDelete({ type: "key", id, name: k.name })
+                }
+              />
             ))
           )}
         </div>
@@ -131,6 +145,17 @@ export function DeveloperSection() {
         open={keyDialogOpen}
         onOpenChange={setKeyDialogOpen}
         onCreated={handleKeyCreated}
+      />
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        onOpenChange={(open) => { if (!open) setPendingDelete(null); }}
+        title={t("settings.developer.deleteConfirm.title")}
+        description={t("settings.developer.deleteConfirm.description", {
+          name: pendingDelete?.name ?? "",
+        })}
+        confirmLabel={t("settings.developer.delete")}
+        cancelLabel={t("settings.developer.deleteConfirm.cancel")}
+        onConfirm={confirmDelete}
       />
     </div>
   );

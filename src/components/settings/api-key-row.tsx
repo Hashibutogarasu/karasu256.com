@@ -1,8 +1,7 @@
 "use client";
 
-import { Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { Button } from "@Hashibutogarasu/ui";
+import { DeleteIconButton } from "@Hashibutogarasu/ui";
 import type { ApiKeySummary } from "@/lib/api/developer";
 
 interface ApiKeyRowProps {
@@ -31,14 +30,11 @@ export function ApiKeyRow({ apiKey, onDelete }: ApiKeyRowProps) {
             : t("settings.developer.neverUsed")}
         </p>
       </div>
-      <Button
-        variant="ghost"
+      <DeleteIconButton
         size="icon"
         aria-label={t("settings.developer.delete")}
         onClick={() => onDelete(apiKey.id)}
-      >
-        <Trash2 />
-      </Button>
+      />
     </div>
   );
 }

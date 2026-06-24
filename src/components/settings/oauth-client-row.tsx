@@ -1,9 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { Badge, Button } from "@Hashibutogarasu/ui";
+import { Badge, DeleteIconButton } from "@Hashibutogarasu/ui";
 import type { OAuthClientSummary, SectionMeta } from "@/lib/api/developer";
 
 interface OAuthClientRowProps {
@@ -55,15 +54,12 @@ export function OAuthClientRow({ client, sections, onDelete }: OAuthClientRowPro
           </div>
         </div>
       </div>
-      <Button
-        variant="ghost"
+      <DeleteIconButton
         size="icon"
         aria-label={t("settings.developer.delete")}
         onClick={() => onDelete(client.id)}
         className="shrink-0"
-      >
-        <Trash2 />
-      </Button>
+      />
     </div>
   );
 }
