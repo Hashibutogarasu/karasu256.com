@@ -71,6 +71,25 @@
         "copySecret": "Copy secret",
         "copyKey": "Copy API key",
         "done": "Done"
+      },
+      "menu": "Menu",
+      "testClient": "Test client",
+      "test": {
+        "title": "Test {{name}}",
+        "description": "Opens the authorization page in a popup. After you approve, the dialog exchanges the code for a token and verifies the result.",
+        "run": "Start test",
+        "runAgain": "Run again",
+        "running": "Exchanging token…",
+        "allPassed": "All steps passed",
+        "waitingForAuth": "Waiting for you to authorize in the popup…",
+        "popupBlocked": "Popup was blocked. Allow popups for this site and try again.",
+        "popupClosed": "Popup was closed before authorization completed.",
+        "noCallbackUri": "No callback URI is registered for this client.",
+        "steps": {
+          "authorize": "Authorize on consent page",
+          "access_token": "Exchange for access token",
+          "profile": "Fetch profile"
+        }
       }
     }
   },

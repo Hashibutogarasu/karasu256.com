@@ -41,3 +41,12 @@ export { SettingsAccordion, type SettingsAccordionProps } from "./components/set
 export { ConfirmDialog, type ConfirmDialogProps } from "./components/confirm-dialog";
 export { DeleteIconButton, type DeleteIconButtonProps } from "./components/delete-icon-button";
 export { SettingsItem } from "./components/settings-item";
+export {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuPortal,
+  DropdownMenuPositioner,
+  DropdownMenuPopup,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "./components/dropdown-menu";

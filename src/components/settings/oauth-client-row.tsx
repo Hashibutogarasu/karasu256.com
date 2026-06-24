@@ -1,23 +1,36 @@
 "use client";
 
 import Image from "next/image";
-import { Pencil } from "lucide-react";
+import { MoreHorizontal, Pencil, Play, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { Badge, Button, DeleteIconButton, SettingsItem } from "@Hashibutogarasu/ui";
+import {
+  Badge,
+  Button,
+  DropdownMenu,
+  DropdownMenuItem,
+  DropdownMenuPopup,
+  DropdownMenuPortal,
+  DropdownMenuPositioner,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  SettingsItem,
+} from "@Hashibutogarasu/ui";
 import type { OAuthClientSummary, SectionMeta } from "@/lib/api/developer";
 
 interface OAuthClientRowProps {
   client: OAuthClientSummary;
   sections: SectionMeta[];
+  onTest: (client: OAuthClientSummary) => void;
   onEdit: (client: OAuthClientSummary) => void;
   onDelete: (id: string) => void;
 }
 
 /**
  * Displays a single OAuth client row with icon, name, callback URIs,
- * permission badges, an edit button, and a delete button.
+ * permission badges, a dedicated edit button, and a three-dot menu for
+ * additional actions (test, delete).
  */
-export function OAuthClientRow({ client, sections, onEdit, onDelete }: OAuthClientRowProps) {
+export function OAuthClientRow({ client, sections, onTest, onEdit, onDelete }: OAuthClientRowProps) {
   const { t } = useTranslation();
 
   const grantedSections = sections.filter(
@@ -62,6 +75,7 @@ export function OAuthClientRow({ client, sections, onEdit, onDelete }: OAuthClie
           </div>
         </div>
       </div>
+
       <div className="flex items-center gap-1 shrink-0">
         <Button
           size="icon"
@@ -71,11 +85,34 @@ export function OAuthClientRow({ client, sections, onEdit, onDelete }: OAuthClie
         >
           <Pencil className="size-4" />
         </Button>
-        <DeleteIconButton
-          size="icon"
-          aria-label={t("settings.developer.delete")}
-          onClick={() => onDelete(client.id)}
-        />
+
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={
+              <Button size="icon" variant="ghost" aria-label={t("settings.developer.menu")}>
+                <MoreHorizontal className="size-4" />
+              </Button>
+            }
+          />
+          <DropdownMenuPortal>
+            <DropdownMenuPositioner align="end" side="bottom" sideOffset={4}>
+              <DropdownMenuPopup>
+                <DropdownMenuItem onClick={() => onTest(client)}>
+                  <Play className="size-4" />
+                  {t("settings.developer.testClient")}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="text-destructive focus:text-destructive hover:text-destructive"
+                  onClick={() => onDelete(client.id)}
+                >
+                  <Trash2 className="size-4" />
+                  {t("settings.developer.delete")}
+                </DropdownMenuItem>
+              </DropdownMenuPopup>
+            </DropdownMenuPositioner>
+          </DropdownMenuPortal>
+        </DropdownMenu>
       </div>
     </SettingsItem>
   );

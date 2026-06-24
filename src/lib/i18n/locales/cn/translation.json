@@ -71,6 +71,25 @@
         "copySecret": "复制密钥",
         "copyKey": "复制 API 密钥",
         "done": "完成"
+      },
+      "menu": "菜单",
+      "testClient": "测试客户端",
+      "test": {
+        "title": "测试 {{name}}",
+        "description": "在弹出窗口中打开授权页面。批准后，将交换授权码并验证结果。",
+        "run": "开始测试",
+        "runAgain": "重新运行",
+        "running": "正在交换令牌…",
+        "allPassed": "所有步骤均已通过",
+        "waitingForAuth": "正在等待您在弹出窗口中授权…",
+        "popupBlocked": "弹出窗口被阻止，请允许此网站的弹出窗口后重试。",
+        "popupClosed": "授权完成前弹出窗口已关闭。",
+        "noCallbackUri": "此客户端未注册回调 URI。",
+        "steps": {
+          "authorize": "在授权页面批准",
+          "access_token": "交换访问令牌",
+          "profile": "获取用户资料"
+        }
       }
     }
   },
