@@ -1,3 +1,13 @@
 export { users, type User, type NewUser } from "./users";
 export { oauthClients, type OAuthClient, type NewOAuthClient } from "./oauth-clients";
 export { apiKeys, type ApiKey, type NewApiKey } from "./api-keys";
+export {
+  oauthAuthorizationCodes,
+  type OAuthAuthorizationCode,
+  type NewOAuthAuthorizationCode,
+} from "./oauth-authorization-codes";
+export {
+  oauthAccessTokens,
+  type OAuthAccessToken,
+  type NewOAuthAccessToken,
+} from "./oauth-access-tokens";

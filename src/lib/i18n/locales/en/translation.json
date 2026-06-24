@@ -9,6 +9,7 @@
     "title": "Settings",
     "sections": {
       "profile": "Profile",
+      "other": "Other",
       "developer": "Developer"
     },
     "signOut": "Sign out",
@@ -19,14 +20,28 @@
       "accountSettings": "Account settings",
       "accountSettingsDescription": "Manage your profile, security, and connected accounts in the Karasu Lab account portal."
     },
+    "other": {
+      "title": "Other settings",
+      "authorizedApps": "Authorized apps",
+      "noAuthorizedApps": "No authorized apps",
+      "lastUsed": "Last used",
+      "revoke": "Revoke",
+      "revokeConfirm": {
+        "title": "Revoke access?",
+        "description": "This will revoke access for \"{{name}}\". The app will not be able to access your data until you authorize it again.",
+        "cancel": "Cancel"
+      }
+    },
     "developer": {
       "title": "Developer settings",
       "oauthClients": "OAuth clients",
       "apiKeys": "API keys",
       "createClient": "Create OAuth client",
+      "editClient": "Edit OAuth client",
       "createKey": "Create API key",
       "noClients": "No OAuth clients",
       "noKeys": "No API keys",
+      "edit": "Edit",
       "delete": "Delete",
       "deleteConfirm": {
         "title": "Are you sure?",
@@ -40,12 +55,14 @@
       "keyPrefix": "Key prefix",
       "dialog": {
         "clientName": "Client name",
-        "callbackUri": "Callback URI",
+        "callbackUris": "Callback URIs",
+        "callbackUrisHelp": "One URI per line",
         "icon": "Icon",
         "permissions": "Permissions",
         "read": "Read",
         "write": "Write",
         "create": "Create",
+        "save": "Save",
         "cancel": "Cancel",
         "secretNotice": "This secret will only be shown once. Store it in a safe place.",
         "keyNotice": "This API key will only be shown once. Store it in a safe place.",
@@ -55,6 +72,14 @@
         "copyKey": "Copy API key",
         "done": "Done"
       }
+    }
+  },
+  "oauth": {
+    "authorize": {
+      "subtitle": "is requesting access to the following permissions",
+      "permissionsLabel": "Requested permissions",
+      "approve": "Authorize",
+      "deny": "Deny"
     }
   },
   "permissions": {

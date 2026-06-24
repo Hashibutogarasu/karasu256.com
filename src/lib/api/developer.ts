@@ -2,7 +2,7 @@ export interface OAuthClientSummary {
   id: string;
   name: string;
   iconUrl: string | null;
-  callbackUri: string;
+  callbackUris: string[];
   permissions: number;
   createdAt: string;
 }
@@ -39,7 +39,7 @@ export async function listOAuthClients(): Promise<OAuthClientSummary[]> {
 
 export async function createOAuthClient(input: {
   name: string;
-  callbackUri: string;
+  callbackUris: string[];
   iconUrl?: string;
   permissions: number;
 }): Promise<OAuthClientCreated> {
@@ -50,6 +50,24 @@ export async function createOAuthClient(input: {
   });
   if (!res.ok) throw new Error("Failed to create OAuth client");
   return res.json() as Promise<OAuthClientCreated>;
+}
+
+export async function updateOAuthClient(
+  id: string,
+  input: Partial<{
+    name: string;
+    callbackUris: string[];
+    iconUrl: string | null;
+    permissions: number;
+  }>,
+): Promise<OAuthClientSummary> {
+  const res = await fetch(`/api/oauth/clients/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  if (!res.ok) throw new Error("Failed to update OAuth client");
+  return res.json() as Promise<OAuthClientSummary>;
 }
 
 export async function deleteOAuthClient(id: string): Promise<void> {

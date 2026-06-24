@@ -17,7 +17,7 @@ export async function GET() {
       id: oauthClients.id,
       name: oauthClients.name,
       iconUrl: oauthClients.iconUrl,
-      callbackUri: oauthClients.callbackUri,
+      callbackUris: oauthClients.callbackUris,
       permissions: oauthClients.permissions,
       createdAt: oauthClients.createdAt,
     })
@@ -35,13 +35,20 @@ export async function POST(request: NextRequest) {
   if (typeof body !== "object" || body === null) {
     return NextResponse.json({ error: "Invalid body" }, { status: 400 });
   }
-  const { name, callbackUri, iconUrl, permissions } = body as Record<string, unknown>;
+  const { name, callbackUris, iconUrl, permissions } = body as Record<string, unknown>;
 
   if (typeof name !== "string" || !name.trim()) {
     return NextResponse.json({ error: "name is required" }, { status: 400 });
   }
-  if (typeof callbackUri !== "string" || !callbackUri.trim()) {
-    return NextResponse.json({ error: "callbackUri is required" }, { status: 400 });
+  if (
+    !Array.isArray(callbackUris) ||
+    callbackUris.length === 0 ||
+    !callbackUris.every((u) => typeof u === "string" && u.trim())
+  ) {
+    return NextResponse.json(
+      { error: "callbackUris must be a non-empty array of strings" },
+      { status: 400 },
+    );
   }
   if (typeof permissions !== "number" || !Number.isInteger(permissions)) {
     return NextResponse.json({ error: "permissions must be an integer" }, { status: 400 });
@@ -56,7 +63,7 @@ export async function POST(request: NextRequest) {
     .values({
       userId: user.uid,
       name: name.trim(),
-      callbackUri: callbackUri.trim(),
+      callbackUris: (callbackUris as string[]).map((u) => u.trim()),
       iconUrl: typeof iconUrl === "string" ? iconUrl.trim() || null : null,
       secretHash,
       permissions: BigInt(permissions),
@@ -65,7 +72,7 @@ export async function POST(request: NextRequest) {
       id: oauthClients.id,
       name: oauthClients.name,
       iconUrl: oauthClients.iconUrl,
-      callbackUri: oauthClients.callbackUri,
+      callbackUris: oauthClients.callbackUris,
       permissions: oauthClients.permissions,
       createdAt: oauthClients.createdAt,
     });

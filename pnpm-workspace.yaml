@@ -11,3 +11,4 @@ allowBuilds:
   protobufjs: true
   esbuild: true
   workerd: true
+  '@swc/core': true

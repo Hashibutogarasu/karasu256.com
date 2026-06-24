@@ -1,21 +1,23 @@
 "use client";
 
 import Image from "next/image";
+import { Pencil } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { Badge, DeleteIconButton, SettingsItem } from "@Hashibutogarasu/ui";
+import { Badge, Button, DeleteIconButton, SettingsItem } from "@Hashibutogarasu/ui";
 import type { OAuthClientSummary, SectionMeta } from "@/lib/api/developer";
 
 interface OAuthClientRowProps {
   client: OAuthClientSummary;
   sections: SectionMeta[];
+  onEdit: (client: OAuthClientSummary) => void;
   onDelete: (id: string) => void;
 }
 
 /**
- * Displays a single OAuth client row with icon, name, callback URI,
- * permission badges, and a delete button.
+ * Displays a single OAuth client row with icon, name, callback URIs,
+ * permission badges, an edit button, and a delete button.
  */
-export function OAuthClientRow({ client, sections, onDelete }: OAuthClientRowProps) {
+export function OAuthClientRow({ client, sections, onEdit, onDelete }: OAuthClientRowProps) {
   const { t } = useTranslation();
 
   const grantedSections = sections.filter(
@@ -38,7 +40,13 @@ export function OAuthClientRow({ client, sections, onDelete }: OAuthClientRowPro
         )}
         <div className="min-w-0 space-y-1">
           <p className="text-sm font-medium truncate">{client.name}</p>
-          <p className="text-xs text-muted-foreground truncate">{client.callbackUri}</p>
+          <div className="space-y-0.5">
+            {client.callbackUris.map((uri) => (
+              <p key={uri} className="text-xs text-muted-foreground truncate font-mono">
+                {uri}
+              </p>
+            ))}
+          </div>
           <div className="flex flex-wrap gap-1">
             {grantedSections.map((s) => {
               const hasRead = (client.permissions & s.readMask) !== 0;
@@ -54,12 +62,21 @@ export function OAuthClientRow({ client, sections, onDelete }: OAuthClientRowPro
           </div>
         </div>
       </div>
-      <DeleteIconButton
-        size="icon"
-        aria-label={t("settings.developer.delete")}
-        onClick={() => onDelete(client.id)}
-        className="shrink-0"
-      />
+      <div className="flex items-center gap-1 shrink-0">
+        <Button
+          size="icon"
+          variant="ghost"
+          aria-label={t("settings.developer.edit")}
+          onClick={() => onEdit(client)}
+        >
+          <Pencil className="size-4" />
+        </Button>
+        <DeleteIconButton
+          size="icon"
+          aria-label={t("settings.developer.delete")}
+          onClick={() => onDelete(client.id)}
+        />
+      </div>
     </SettingsItem>
   );
 }

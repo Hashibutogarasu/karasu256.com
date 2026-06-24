@@ -20,6 +20,7 @@ import { ApiKeyRow } from "./api-key-row";
 import { OAuthClientRow } from "./oauth-client-row";
 import { CreateApiKeyDialog } from "./create-api-key-dialog";
 import { CreateOAuthClientDialog } from "./create-oauth-client-dialog";
+import { EditOAuthClientDialog } from "./edit-oauth-client-dialog";
 
 type PendingDelete =
   | { type: "client"; id: string; name: string }
@@ -27,7 +28,7 @@ type PendingDelete =
 
 /**
  * Developer settings section. Manages OAuth clients and API keys with
- * collapsible lists and creation dialogs.
+ * collapsible lists and creation/edit dialogs.
  */
 export function DeveloperSection() {
   const { t } = useTranslation();
@@ -36,6 +37,7 @@ export function DeveloperSection() {
   const [keys, setKeys] = useState<ApiKeySummary[]>([]);
   const [sections, setSections] = useState<SectionMeta[]>([]);
   const [clientDialogOpen, setClientDialogOpen] = useState(false);
+  const [editingClient, setEditingClient] = useState<OAuthClientSummary | null>(null);
   const [keyDialogOpen, setKeyDialogOpen] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<PendingDelete | null>(null);
 
@@ -49,6 +51,10 @@ export function DeveloperSection() {
 
   function handleClientCreated(client: OAuthClientCreated) {
     setClients((prev) => [client, ...prev]);
+  }
+
+  function handleClientUpdated(updated: OAuthClientSummary) {
+    setClients((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
   }
 
   function handleKeyCreated(key: ApiKeyCreated) {
@@ -94,6 +100,7 @@ export function DeveloperSection() {
                 key={c.id}
                 client={c}
                 sections={sections}
+                onEdit={setEditingClient}
                 onDelete={(id) =>
                   setPendingDelete({ type: "client", id, name: c.name })
                 }
@@ -141,6 +148,15 @@ export function DeveloperSection() {
         sections={sections}
         onCreated={handleClientCreated}
       />
+      {editingClient && (
+        <EditOAuthClientDialog
+          open={editingClient !== null}
+          onOpenChange={(open) => { if (!open) setEditingClient(null); }}
+          client={editingClient}
+          sections={sections}
+          onUpdated={handleClientUpdated}
+        />
+      )}
       <CreateApiKeyDialog
         open={keyDialogOpen}
         onOpenChange={setKeyDialogOpen}

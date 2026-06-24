@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Code2, User } from "lucide-react";
+import { Code2, Layers, User } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
   SettingsSidebar,
@@ -14,6 +14,7 @@ import { signOutAction } from "@/app/actions/auth";
 
 const NAV_ITEMS_DEFS = [
   { href: "/settings/profile", icon: User, labelKey: "settings.sections.profile" },
+  { href: "/settings/other", icon: Layers, labelKey: "settings.sections.other" },
   { href: "/settings/developer", icon: Code2, labelKey: "settings.sections.developer" },
 ] as const;
 

@@ -31,6 +31,7 @@ interface CreateOAuthClientDialogProps {
 /**
  * Dialog for creating a new OAuth client. Handles icon upload to the image API,
  * permission bitmask construction, and displays the raw secret once after creation.
+ * Accepts multiple callback URIs, one per line.
  */
 export function CreateOAuthClientDialog({
   open,
@@ -42,7 +43,7 @@ export function CreateOAuthClientDialog({
   const imageApiUrl = process.env.NEXT_PUBLIC_IMAGE_API_URL ?? "";
 
   const [name, setName] = useState("");
-  const [callbackUri, setCallbackUri] = useState("");
+  const [callbackUrisText, setCallbackUrisText] = useState("");
   const [iconUrl, setIconUrl] = useState("");
   const [iconPreview, setIconPreview] = useState("");
   const [permissions, setPermissions] = useState(0);
@@ -52,8 +53,15 @@ export function CreateOAuthClientDialog({
   const [copied, setCopied] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  function parseUris(text: string): string[] {
+    return text
+      .split("\n")
+      .map((u) => u.trim())
+      .filter(Boolean);
+  }
+
   function toggleMask(mask: number) {
-    setPermissions((prev) => (prev & mask) !== 0 ? prev & ~mask : prev | mask);
+    setPermissions((prev) => ((prev & mask) !== 0 ? prev & ~mask : prev | mask));
   }
 
   async function handleIconChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -81,7 +89,7 @@ export function CreateOAuthClientDialog({
   function handleClose() {
     onOpenChange(false);
     setName("");
-    setCallbackUri("");
+    setCallbackUrisText("");
     setIconUrl("");
     setIconPreview("");
     setPermissions(0);
@@ -91,11 +99,13 @@ export function CreateOAuthClientDialog({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    const uris = parseUris(callbackUrisText);
+    if (uris.length === 0) return;
     setLoading(true);
     try {
       const result = await createOAuthClient({
         name: name.trim(),
-        callbackUri: callbackUri.trim(),
+        callbackUris: uris,
         iconUrl: iconUrl || undefined,
         permissions,
       });
@@ -111,6 +121,8 @@ export function CreateOAuthClientDialog({
     await navigator.clipboard.writeText(created.secret);
     setCopied(true);
   }
+
+  const uris = parseUris(callbackUrisText);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -134,16 +146,21 @@ export function CreateOAuthClientDialog({
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="callback-uri">
-                  {t("settings.developer.dialog.callbackUri")}
+                <Label htmlFor="callback-uris">
+                  {t("settings.developer.dialog.callbackUris")}
                 </Label>
-                <Input
-                  id="callback-uri"
-                  type="url"
-                  value={callbackUri}
-                  onChange={(e) => setCallbackUri(e.target.value)}
+                <textarea
+                  id="callback-uris"
+                  value={callbackUrisText}
+                  onChange={(e) => setCallbackUrisText(e.target.value)}
+                  rows={3}
+                  placeholder="https://example.com/callback"
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono resize-none focus:outline-none focus:ring-2 focus:ring-ring"
                   required
                 />
+                <p className="text-xs text-muted-foreground">
+                  {t("settings.developer.dialog.callbackUrisHelp")}
+                </p>
               </div>
 
               <div className="space-y-1.5">
@@ -221,7 +238,7 @@ export function CreateOAuthClientDialog({
                 />
                 <Button
                   type="submit"
-                  disabled={loading || !name.trim() || !callbackUri.trim()}
+                  disabled={loading || !name.trim() || uris.length === 0}
                 >
                   {t("settings.developer.dialog.create")}
                 </Button>
