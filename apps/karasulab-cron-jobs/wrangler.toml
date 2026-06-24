@@ -2,5 +2,8 @@ name = "karasulab-cron-jobs"
 main = "src/index.ts"
 compatibility_date = "2025-06-24"
 
+[observability]
+enabled = true
+
 [triggers]
-crons = ["0 * * * *"]
+crons = ["* * * * *"]
