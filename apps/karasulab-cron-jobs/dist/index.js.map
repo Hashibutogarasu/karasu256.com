@@ -1,8 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../src/index.ts"],
-  "sourceRoot": "dist",
-  "sourcesContent": ["export default {\n  async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext): Promise<void> {\n    console.log(`Cron triggered: ${event.cron} at ${new Date(event.scheduledTime).toISOString()}`);\n  },\n} satisfies ExportedHandler<Env>;\n"],
-  "mappings": ";AAAA,IAAO,gBAAQ;AAAA,EACb,MAAM,UAAU,OAAuB,KAAU,KAAsC;AACrF,YAAQ,IAAI,mBAAmB,MAAM,IAAI,OAAO,IAAI,KAAK,MAAM,aAAa,EAAE,YAAY,CAAC,EAAE;AAAA,EAC/F;AACF;",
-  "names": []
-}
