@@ -8,7 +8,8 @@
   "settings": {
     "title": "設定",
     "sections": {
-      "profile": "プロフィール"
+      "profile": "プロフィール",
+      "developer": "デベロッパー"
     },
     "signOut": "サインアウト",
     "profile": {
@@ -17,6 +18,50 @@
       "uid": "ユーザーID",
       "accountSettings": "アカウント設定",
       "accountSettingsDescription": "プロフィール・セキュリティ・アカウント連携の設定は Karasu Lab アカウントポータルで管理します。"
+    },
+    "developer": {
+      "title": "デベロッパー設定",
+      "oauthClients": "OAuth クライアント",
+      "apiKeys": "API キー",
+      "createClient": "OAuth クライアントを作成",
+      "createKey": "API キーを作成",
+      "noClients": "OAuth クライアントがありません",
+      "noKeys": "API キーがありません",
+      "delete": "削除",
+      "created": "作成日",
+      "lastUsed": "最終使用日",
+      "neverUsed": "未使用",
+      "callbackUri": "コールバック URI",
+      "keyPrefix": "キープレフィックス",
+      "dialog": {
+        "clientName": "クライアント名",
+        "callbackUri": "コールバック URI",
+        "icon": "アイコン",
+        "permissions": "権限",
+        "read": "読み取り",
+        "write": "書き込み",
+        "create": "作成",
+        "cancel": "キャンセル",
+        "secretNotice": "このシークレットは一度しか表示されません。安全な場所に保存してください。",
+        "keyNotice": "この API キーは一度しか表示されません。安全な場所に保存してください。",
+        "keyName": "キー名",
+        "upload": "アップロード",
+        "copySecret": "シークレットをコピー",
+        "copyKey": "API キーをコピー",
+        "done": "閉じる"
+      }
+    }
+  },
+  "permissions": {
+    "sections": {
+      "profile": {
+        "label": "プロフィール",
+        "description": "プロフィール情報の読み取り・更新"
+      },
+      "images": {
+        "label": "画像",
+        "description": "画像のアップロード・管理"
+      }
     }
   }
 }

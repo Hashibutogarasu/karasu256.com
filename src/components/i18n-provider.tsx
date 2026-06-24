@@ -2,13 +2,17 @@
 
 import i18n from "i18next";
 import { I18nextProvider, initReactI18next } from "react-i18next";
+import en from "@/lib/i18n/locales/en.json";
 import ja from "@/lib/i18n/locales/ja.json";
 
 if (!i18n.isInitialized) {
   i18n.use(initReactI18next).init({
     lng: "ja",
-    fallbackLng: "ja",
-    resources: { ja: { translation: ja } },
+    fallbackLng: "en",
+    resources: {
+      en: { translation: en },
+      ja: { translation: ja },
+    },
     interpolation: { escapeValue: false },
   });
 }

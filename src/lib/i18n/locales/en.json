@@ -1,0 +1,67 @@
+{
+  "header": {
+    "signIn": "Sign in",
+    "accountMenuLabel": "Account menu",
+    "settings": "Settings",
+    "signOut": "Sign out"
+  },
+  "settings": {
+    "title": "Settings",
+    "sections": {
+      "profile": "Profile",
+      "developer": "Developer"
+    },
+    "signOut": "Sign out",
+    "profile": {
+      "title": "Profile",
+      "email": "Email address",
+      "uid": "User ID",
+      "accountSettings": "Account settings",
+      "accountSettingsDescription": "Manage your profile, security, and connected accounts in the Karasu Lab account portal."
+    },
+    "developer": {
+      "title": "Developer settings",
+      "oauthClients": "OAuth clients",
+      "apiKeys": "API keys",
+      "createClient": "Create OAuth client",
+      "createKey": "Create API key",
+      "noClients": "No OAuth clients",
+      "noKeys": "No API keys",
+      "delete": "Delete",
+      "created": "Created",
+      "lastUsed": "Last used",
+      "neverUsed": "Never used",
+      "callbackUri": "Callback URI",
+      "keyPrefix": "Key prefix",
+      "dialog": {
+        "clientName": "Client name",
+        "callbackUri": "Callback URI",
+        "icon": "Icon",
+        "permissions": "Permissions",
+        "read": "Read",
+        "write": "Write",
+        "create": "Create",
+        "cancel": "Cancel",
+        "secretNotice": "This secret will only be shown once. Store it in a safe place.",
+        "keyNotice": "This API key will only be shown once. Store it in a safe place.",
+        "keyName": "Key name",
+        "upload": "Upload",
+        "copySecret": "Copy secret",
+        "copyKey": "Copy API key",
+        "done": "Done"
+      }
+    }
+  },
+  "permissions": {
+    "sections": {
+      "profile": {
+        "label": "Profile",
+        "description": "Read and update profile information"
+      },
+      "images": {
+        "label": "Images",
+        "description": "Upload and manage images"
+      }
+    }
+  }
+}

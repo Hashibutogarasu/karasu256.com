@@ -35,3 +35,6 @@ export {
   type SettingsSidebarProps,
   type SettingsSidebarLayoutProps,
 } from "./components/settings-sidebar";
+export { Checkbox } from "./components/checkbox";
+export { Badge, badgeVariants, type BadgeProps } from "./components/badge";
+export { SettingsAccordion, type SettingsAccordionProps } from "./components/settings-accordion";

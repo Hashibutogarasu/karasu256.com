@@ -11,6 +11,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@Hashibutogarasu/db": "workspace:*",
+    "drizzle-orm": "^0.44.0",
     "@Hashibutogarasu/ui": "workspace:*",
     "@Hashibutogarasu/utils": "workspace:*",
     "@base-ui/react": "^1.6.0",
