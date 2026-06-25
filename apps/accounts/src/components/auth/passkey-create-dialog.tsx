@@ -1,0 +1,99 @@
+"use client";
+
+import { useState } from "react";
+import { PlusIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import {
+  Button,
+  Input,
+  Label,
+  toast,
+  Dialog,
+  DialogPortal,
+  DialogBackdrop,
+  DialogPopup,
+  DialogTitle,
+} from "@Hashibutogarasu/ui";
+import { registerPasskey } from "@/lib/api/passkey-register";
+
+interface PasskeyCreateDialogProps {
+  /** The email address of the currently signed-in user, used as the passkey username. */
+  email: string;
+  /** Called after a passkey is successfully registered. */
+  onSuccess?: () => void;
+}
+
+/**
+ * A plus-icon button that opens a dialog for registering a new passkey.
+ *
+ * Clicking the button calls {@link e.stopPropagation} so it does not toggle
+ * any parent accordion trigger.
+ */
+export function PasskeyCreateDialog({ email, onSuccess }: PasskeyCreateDialogProps) {
+  const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await registerPasskey(email, name);
+      setName("");
+      setOpen(false);
+      toast.success(t("passkey.registered"), { duration: 1000 });
+      onSuccess?.();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <>
+      <Button
+        variant="ghost"
+        size="icon-sm"
+        aria-label={t("passkey.register")}
+        onClick={(e) => {
+          e.stopPropagation();
+          setOpen(true);
+        }}
+      >
+        <PlusIcon className="size-4" />
+      </Button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogPortal>
+          <DialogBackdrop />
+          <DialogPopup>
+            <DialogTitle>{t("passkey.register")}</DialogTitle>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="dialog-passkey-name">{t("passkey.name")}</Label>
+                <Input
+                  id="dialog-passkey-name"
+                  type="text"
+                  placeholder={t("passkey.namePlaceholder")}
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  disabled={loading}
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                  {t("dangerZone.cancel")}
+                </Button>
+                <Button type="submit" disabled={loading || !name.trim()}>
+                  {loading ? t("passkey.registering") : t("passkey.register")}
+                </Button>
+              </div>
+            </form>
+          </DialogPopup>
+        </DialogPortal>
+      </Dialog>
+    </>
+  );
+}
