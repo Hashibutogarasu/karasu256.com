@@ -5,16 +5,16 @@ import {
   oauthAccessTokens,
   oauthAuthorizationCodes,
   oauthClients,
-  users,
 } from "@Hashibutogarasu/db/schema";
 import { requireSession } from "@/lib/api/require-session";
 import { generateSecret, hashSecret } from "@/lib/crypto";
-import { hasPermission } from "@/lib/permissions/sections";
+import { OAuthApiError } from "@/lib/api/oauth-api-error";
 
 interface TestStep {
   label: string;
   success: boolean;
   data?: Record<string, unknown>;
+  /** OAuth error code passed to the client for i18n lookup. */
   error?: string;
 }
 
@@ -55,9 +55,9 @@ export async function POST(
   const code = (body as Record<string, unknown>).code as string;
   const steps: TestStep[] = [];
   let tokenId: string | undefined;
+  let currentStep: "access_token" | "profile_read" | "profile_write" = "access_token";
 
   try {
-    // Step 1 — exchange authorization code for access token
     const codeHash = await hashSecret(code);
     const [authCode] = await db
       .select({
@@ -74,8 +74,7 @@ export async function POST(
     const now = new Date();
 
     if (!authCode || authCode.clientId !== client.id || authCode.usedAt !== null || authCode.expiresAt <= now) {
-      steps.push({ label: "access_token", success: false, error: "invalid_grant" });
-      return NextResponse.json({ steps });
+      throw new OAuthApiError("invalid_grant");
     }
 
     await db
@@ -106,41 +105,46 @@ export async function POST(
       data: { token: tokenPrefix + "…", expires_in: 31536000 },
     });
 
-    // Step 2 — verify the token and fetch profile
-    const verifyHash = await hashSecret(accessToken);
-    const [tokenRow] = await db
-      .select({
-        userId: oauthAccessTokens.userId,
-        permissions: oauthAccessTokens.permissions,
-        revokedAt: oauthAccessTokens.revokedAt,
-        expiresAt: oauthAccessTokens.expiresAt,
-      })
-      .from(oauthAccessTokens)
-      .where(eq(oauthAccessTokens.tokenHash, verifyHash));
+    const origin = new URL(request.url).origin;
+    const bearerHeaders = {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    };
 
-    if (!tokenRow || tokenRow.revokedAt !== null || tokenRow.expiresAt <= new Date()) {
-      steps.push({ label: "profile", success: false, error: "Token verification failed" });
-      return NextResponse.json({ steps });
+    currentStep = "profile_read";
+    const readRes = await fetch(`${origin}/api/profile`, { headers: bearerHeaders });
+    if (!readRes.ok) {
+      throw new OAuthApiError(readRes.status === 403 ? "insufficient_scope" : "token_verification_failed");
     }
-
-    if (!hasPermission(tokenRow.permissions, "profile")) {
-      steps.push({ label: "profile", success: false, error: "insufficient_scope" });
-      return NextResponse.json({ steps });
-    }
-
-    const [profile] = await db
-      .select({ id: users.id, name: users.name })
-      .from(users)
-      .where(eq(users.id, tokenRow.userId));
-
+    const profile = (await readRes.json()) as { id: string; name: string | null };
     steps.push({
-      label: "profile",
+      label: "profile_read",
       success: true,
-      data: { id: profile?.id, name: profile?.name ?? null, permissions: Number(tokenRow.permissions) },
+      data: { id: profile.id, name: profile.name ?? null },
+    });
+
+    currentStep = "profile_write";
+    const writeRes = await fetch(`${origin}/api/profile`, {
+      method: "PATCH",
+      headers: bearerHeaders,
+      body: JSON.stringify({ name: profile.name }),
+    });
+    if (!writeRes.ok) {
+      throw new OAuthApiError(writeRes.status === 403 ? "insufficient_scope" : "token_verification_failed");
+    }
+    const updated = (await writeRes.json()) as { id: string; name: string | null };
+    steps.push({
+      label: "profile_write",
+      success: true,
+      data: { id: updated.id, name: updated.name ?? null },
     });
 
     return NextResponse.json({ steps });
-  } catch {
+  } catch (err) {
+    if (err instanceof OAuthApiError) {
+      steps.push({ label: currentStep, success: false, error: err.code });
+      return NextResponse.json({ steps });
+    }
     if (tokenId) {
       await db.delete(oauthAccessTokens).where(eq(oauthAccessTokens.id, tokenId));
     }

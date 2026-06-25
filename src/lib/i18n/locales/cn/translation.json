@@ -88,7 +88,8 @@
         "steps": {
           "authorize": "在授权页面批准",
           "access_token": "交换访问令牌",
-          "profile": "获取用户资料"
+          "profile_read": "获取用户资料",
+          "profile_write": "将显示名称写回个人资料"
         }
       }
     }
@@ -99,6 +100,12 @@
       "permissionsLabel": "请求的权限",
       "approve": "授权",
       "deny": "拒绝"
+    },
+    "errors": {
+      "invalid_grant": "授权码无效或已过期",
+      "insufficient_scope": "令牌没有所需权限",
+      "token_verification_failed": "令牌验证失败",
+      "access_denied": "访问被拒绝"
     }
   },
   "permissions": {

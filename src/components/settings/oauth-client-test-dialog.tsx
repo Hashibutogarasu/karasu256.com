@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { CheckCircle, Circle, XCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Spinner as DefaultSpinner } from "@/components/ui/spinner";
+import { useOAuthErrorMessage } from "@/lib/i18n/use-oauth-error-message";
 import {
   Button,
   Dialog,
@@ -15,7 +16,7 @@ import {
 } from "@Hashibutogarasu/ui";
 import type { OAuthClientSummary } from "@/lib/api/developer";
 
-const STEP_LABELS = ["authorize", "access_token", "profile"] as const;
+const STEP_LABELS = ["authorize", "access_token", "profile_read", "profile_write"] as const;
 type StepLabel = typeof STEP_LABELS[number];
 type StepStatus = "waiting" | "running" | "success" | "error";
 
@@ -291,6 +292,7 @@ function StepRow({
   spinner: React.ComponentType<{ className?: string }>;
 }) {
   const { t } = useTranslation();
+  const getErrorMessage = useOAuthErrorMessage();
   const labelKey = `settings.developer.test.steps.${step.label}`;
 
   return (
@@ -310,7 +312,7 @@ function StepRow({
           </div>
         )}
         {step.status === "error" && step.error && (
-          <p className="text-xs text-destructive">{step.error}</p>
+          <p className="text-xs text-destructive">{getErrorMessage(step.error)}</p>
         )}
       </div>
     </div>

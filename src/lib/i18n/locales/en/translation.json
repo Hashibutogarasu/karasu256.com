@@ -88,7 +88,8 @@
         "steps": {
           "authorize": "Authorize on consent page",
           "access_token": "Exchange for access token",
-          "profile": "Fetch profile"
+          "profile_read": "Fetch profile",
+          "profile_write": "Write display name back to profile"
         }
       }
     }
@@ -99,6 +100,12 @@
       "permissionsLabel": "Requested permissions",
       "approve": "Authorize",
       "deny": "Deny"
+    },
+    "errors": {
+      "invalid_grant": "Invalid or expired authorization code",
+      "insufficient_scope": "The token does not have the required permissions",
+      "token_verification_failed": "Token verification failed",
+      "access_denied": "Access was denied"
     }
   },
   "permissions": {

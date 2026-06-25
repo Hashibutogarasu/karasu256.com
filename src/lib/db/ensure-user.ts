@@ -1,6 +1,6 @@
 import { getDb } from "@Hashibutogarasu/db";
 import { users } from "@Hashibutogarasu/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 
 /**
  * Upserts a user row by Firebase UID and returns the persisted record.
@@ -13,7 +13,10 @@ export async function ensureUser(uid: string, name?: string | null) {
     .values({ id: uid, name: name ?? null })
     .onConflictDoUpdate({
       target: users.id,
-      set: { updatedAt: new Date() },
+      set: {
+        name: sql`COALESCE(${users.name}, EXCLUDED.name)`,
+        updatedAt: new Date(),
+      },
     })
     .returning();
   return user;

@@ -88,7 +88,8 @@
         "steps": {
           "authorize": "認可ページで承認",
           "access_token": "アクセストークンへの交換",
-          "profile": "プロフィールの取得"
+          "profile_read": "プロフィールの取得",
+          "profile_write": "表示名をプロフィールに書き戻す"
         }
       }
     }
@@ -99,6 +100,12 @@
       "permissionsLabel": "要求されている権限",
       "approve": "許可する",
       "deny": "拒否する"
+    },
+    "errors": {
+      "invalid_grant": "認可コードが無効または期限切れです",
+      "insufficient_scope": "トークンに必要な権限がありません",
+      "token_verification_failed": "トークンの検証に失敗しました",
+      "access_denied": "アクセスが拒否されました"
     }
   },
   "permissions": {
