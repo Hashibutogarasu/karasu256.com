@@ -5,12 +5,16 @@ node_modules/
 .next/
 out/
 
-# Environment variables
+# Environment variables — plain files are blocked; encrypted files are allowed
 .env
-.env.local
 .env.development.local
 .env.test.local
 .env.production.local
+# .env.local.unencrypted is the plaintext editing source (blocked by root .gitignore .env*)
+# .env.local is encrypted by dotenvx and safe to commit
+!.env.local
+# private decryption keys must never be committed
+.env.keys
 
 # Debug logs
 npm-debug.log*

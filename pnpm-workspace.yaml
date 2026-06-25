@@ -12,3 +12,4 @@ allowBuilds:
   esbuild: true
   workerd: true
   '@swc/core': true
+  simple-git-hooks: true

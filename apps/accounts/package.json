@@ -12,6 +12,7 @@
     "@Hashibutogarasu/ui": "workspace:*",
     "@Hashibutogarasu/utils": "workspace:*",
     "@base-ui/react": "^1.6.0",
+    "@dotenvx/dotenvx": "^1.75.1",
     "@fortawesome/fontawesome-svg-core": "^7.2.0",
     "@fortawesome/free-brands-svg-icons": "^7.2.0",
     "@fortawesome/free-regular-svg-icons": "^7.2.0",
