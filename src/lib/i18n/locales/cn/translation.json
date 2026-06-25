@@ -74,6 +74,13 @@
       },
       "menu": "菜单",
       "testClient": "测试客户端",
+      "rotateSecret": "重新生成密钥",
+      "rotateSecretConfirm": {
+        "title": "重新生成客户端密钥？",
+        "description": "这将立即使「{{name}}」的当前密钥失效。所有使用该密钥的应用必须更新为新密钥。",
+        "confirm": "重新生成",
+        "cancel": "取消"
+      },
       "test": {
         "title": "测试 {{name}}",
         "description": "在弹出窗口中打开授权页面。批准后，将交换授权码并验证结果。",

@@ -16,3 +16,13 @@ export {
   type OAuthAccessToken,
   type NewOAuthAccessToken,
 } from "./oauth-access-tokens";
+export {
+  providerAccounts,
+  type ProviderAccount,
+  type NewProviderAccount,
+} from "./provider-accounts";
+export {
+  providerTokens,
+  type ProviderToken,
+  type NewProviderToken,
+} from "./provider-tokens";

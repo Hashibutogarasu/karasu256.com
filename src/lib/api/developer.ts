@@ -75,6 +75,12 @@ export async function deleteOAuthClient(id: string): Promise<void> {
   if (!res.ok && res.status !== 204) throw new Error("Failed to delete OAuth client");
 }
 
+export async function rotateOAuthClientSecret(id: string): Promise<{ secret: string }> {
+  const res = await fetch(`/api/oauth/clients/${id}/secret`, { method: "POST" });
+  if (!res.ok) throw new Error("Failed to rotate client secret");
+  return res.json() as Promise<{ secret: string }>;
+}
+
 export async function listApiKeys(): Promise<ApiKeySummary[]> {
   const res = await fetch("/api/api-keys");
   if (!res.ok) throw new Error("Failed to fetch API keys");

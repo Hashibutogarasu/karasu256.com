@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { MoreHorizontal, Pencil, Play, Trash2 } from "lucide-react";
+import { KeyRound, MoreHorizontal, Pencil, Play, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
   Badge,
@@ -23,6 +23,7 @@ interface OAuthClientRowProps {
   onTest: (client: OAuthClientSummary) => void;
   onEdit: (client: OAuthClientSummary) => void;
   onDelete: (id: string) => void;
+  onRotateSecret: (client: OAuthClientSummary) => void;
 }
 
 /**
@@ -30,7 +31,7 @@ interface OAuthClientRowProps {
  * permission badges, a dedicated edit button, and a three-dot menu for
  * additional actions (test, delete).
  */
-export function OAuthClientRow({ client, sections, onTest, onEdit, onDelete }: OAuthClientRowProps) {
+export function OAuthClientRow({ client, sections, onTest, onEdit, onDelete, onRotateSecret }: OAuthClientRowProps) {
   const { t } = useTranslation();
 
   const grantedSections = sections.filter(
@@ -100,6 +101,10 @@ export function OAuthClientRow({ client, sections, onTest, onEdit, onDelete }: O
                 <DropdownMenuItem onClick={() => onTest(client)}>
                   <Play className="size-4" />
                   {t("settings.developer.testClient")}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onRotateSecret(client)}>
+                  <KeyRound className="size-4" />
+                  {t("settings.developer.rotateSecret")}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem

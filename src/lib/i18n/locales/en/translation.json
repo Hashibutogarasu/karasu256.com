@@ -74,6 +74,13 @@
       },
       "menu": "Menu",
       "testClient": "Test client",
+      "rotateSecret": "Regenerate secret",
+      "rotateSecretConfirm": {
+        "title": "Regenerate client secret?",
+        "description": "This will immediately invalidate the current secret for \"{{name}}\". Any application using it must be updated with the new secret.",
+        "confirm": "Regenerate",
+        "cancel": "Cancel"
+      },
       "test": {
         "title": "Test {{name}}",
         "description": "Opens the authorization page in a popup. After you approve, the dialog exchanges the code for a token and verifies the result.",

@@ -22,6 +22,7 @@ import { CreateApiKeyDialog } from "./create-api-key-dialog";
 import { CreateOAuthClientDialog } from "./create-oauth-client-dialog";
 import { EditOAuthClientDialog } from "./edit-oauth-client-dialog";
 import { OAuthClientTestDialog } from "./oauth-client-test-dialog";
+import { RotateSecretDialog } from "./rotate-secret-dialog";
 
 type PendingDelete =
   | { type: "client"; id: string; name: string }
@@ -41,6 +42,7 @@ export function DeveloperSection() {
   const [clientDialogOpen, setClientDialogOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<OAuthClientSummary | null>(null);
   const [testingClient, setTestingClient] = useState<OAuthClientSummary | null>(null);
+  const [rotatingClient, setRotatingClient] = useState<OAuthClientSummary | null>(null);
   const [keyDialogOpen, setKeyDialogOpen] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<PendingDelete | null>(null);
 
@@ -129,6 +131,7 @@ export function DeveloperSection() {
                 onDelete={(id) =>
                   setPendingDelete({ type: "client", id, name: c.name })
                 }
+                onRotateSecret={setRotatingClient}
               />
             ))
           )}
@@ -209,6 +212,14 @@ export function DeveloperSection() {
         onOpenChange={setKeyDialogOpen}
         onCreated={handleKeyCreated}
       />
+      {rotatingClient && (
+        <RotateSecretDialog
+          open={rotatingClient !== null}
+          onOpenChange={(open) => { if (!open) setRotatingClient(null); }}
+          clientId={rotatingClient.id}
+          clientName={rotatingClient.name}
+        />
+      )}
       <ConfirmDialog
         open={pendingDelete !== null}
         onOpenChange={(open) => { if (!open) setPendingDelete(null); }}

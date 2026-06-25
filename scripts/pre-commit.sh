@@ -11,7 +11,6 @@
 set -euo pipefail
 
 ROOT="$(git rev-parse --show-toplevel)"
-DOTENVX="$ROOT/node_modules/.bin/dotenvx"
 
 # Block .env.keys from being committed — private decryption keys must stay local.
 if git diff --cached --name-only | grep -q '\.env\.keys$'; then
@@ -20,28 +19,13 @@ if git diff --cached --name-only | grep -q '\.env\.keys$'; then
   exit 1
 fi
 
-encrypt_and_stage() {
-  local abs="$1"
-  local dir
-  dir="$(dirname "$abs")"
-  echo "pre-commit: encrypting ${abs#"$ROOT/"}"
-  (cd "$dir" && "$DOTENVX" encrypt -f "$(basename "$abs")")
-  git add "$abs"
-}
+# Sync and encrypt all .env.local.unencrypted files.
+bash "$ROOT/scripts/sync-env.sh"
 
-# Track files already handled to avoid encrypting twice.
-declare -A handled
-
-# Step 1: Scan every subproject for .env.local.unencrypted.
-# If the unencrypted file is newer than (or replaces) .env.local, sync and encrypt.
+# Stage any .env.local files that were just (re-)encrypted.
 while IFS= read -r unenc; do
   local_abs="${unenc%.unencrypted}"
-  if [ ! -f "$local_abs" ] || [ "$unenc" -nt "$local_abs" ]; then
-    echo "pre-commit: syncing ${unenc#"$ROOT/"} → ${local_abs#"$ROOT/"}"
-    cp "$unenc" "$local_abs"
-    encrypt_and_stage "$local_abs"
-    handled["$local_abs"]=1
-  fi
+  [ -f "$local_abs" ] && git add "$local_abs"
 done < <(find "$ROOT" \
   -name ".env.local.unencrypted" \
   -not -path "*/node_modules/*" \
@@ -49,11 +33,13 @@ done < <(find "$ROOT" \
   -not -path "*/.git/*" \
   -not -path "*/.turbo/*")
 
-# Step 2: Encrypt any remaining staged .env.local files not covered by step 1.
+# Also encrypt and stage any .env.local directly staged by the user.
+DOTENVX="$ROOT/node_modules/.bin/dotenvx"
 while IFS= read -r rel; do
   [[ "$rel" =~ \.env\.local$ ]] || continue
   abs="$ROOT/$rel"
   [ -f "$abs" ] || continue
-  [ "${handled[$abs]+_}" ] && continue
-  encrypt_and_stage "$abs"
+  echo "pre-commit: encrypting ${rel}"
+  (cd "$(dirname "$abs")" && "$DOTENVX" encrypt -f "$(basename "$abs")")
+  git add "$abs"
 done < <(git diff --cached --name-only)

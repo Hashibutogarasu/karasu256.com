@@ -5,7 +5,8 @@
   "packageManager": "pnpm@11.8.0",
   "scripts": {
     "dev": "dotenvx run -f .env.local -- next dev --port 3000",
-    "dev:all": "turbo dev",
+    "sync-env": "bash scripts/sync-env.sh",
+    "dev:all": "pnpm sync-env && turbo dev",
     "build": "next build",
     "start": "next start --port 3000",
     "lint": "next lint",

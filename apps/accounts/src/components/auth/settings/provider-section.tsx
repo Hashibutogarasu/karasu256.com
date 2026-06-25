@@ -1,68 +1,57 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  GithubAuthProvider,
-  GoogleAuthProvider,
-  getIdToken,
-  linkWithPopup,
-  unlink,
-} from "firebase/auth";
+import { getIdToken } from "firebase/auth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGoogle, faGithub } from "@fortawesome/free-brands-svg-icons";
 import { faLink, faLinkSlash } from "@fortawesome/free-solid-svg-icons";
 import { useTranslation } from "react-i18next";
 import { toast } from "@Hashibutogarasu/ui";
-import { useSettingsUser } from "@/components/settings/user-context";
 import { getFirebaseAuth } from "@/lib/firebase/auth";
 import { listPasskeyCredentials } from "@/lib/api/passkey-credentials";
+import { listLinkedProviders, unlinkProvider, type LinkedProvider } from "@/lib/api/providers";
 import { Button } from "@Hashibutogarasu/ui";
 
 const PROVIDERS = [
-  { id: "google.com", label: "Google", icon: faGoogle, getInstance: () => new GoogleAuthProvider() },
-  { id: "github.com", label: "GitHub", icon: faGithub, getInstance: () => new GithubAuthProvider() },
+  { id: "google", label: "Google", icon: faGoogle },
+  { id: "github", label: "GitHub", icon: faGithub },
 ] as const;
 
 /**
  * Displays linked OAuth providers (Google, GitHub) with link/unlink controls.
- * Unlinking the last provider is permitted when the user has registered passkeys,
- * since passkeys remain a valid sign-in method.
+ * Linking redirects the browser to the provider via /api/auth/connect/[provider].
+ * Unlinking removes the entry from the database without touching Firebase Auth.
+ * Unlinking the last provider is blocked when the user has no registered passkeys.
  */
 export function ProviderSection() {
   const { t } = useTranslation();
-  const { user, updateUser } = useSettingsUser();
+  const [linked, setLinked] = useState<LinkedProvider[]>([]);
   const [loading, setLoading] = useState<string | null>(null);
   const [hasPasskeys, setHasPasskeys] = useState(false);
 
   useEffect(() => {
+    void listLinkedProviders().then(setLinked).catch(() => {});
+
     const current = getFirebaseAuth().currentUser;
     if (!current) return;
-    getIdToken(current)
+    void getIdToken(current)
       .then((idToken) => listPasskeyCredentials(idToken))
       .then((creds) => setHasPasskeys(creds.length > 0))
       .catch(() => {});
   }, []);
 
-  const linkedIds = new Set(user.providerData.map((p) => p.providerId));
-  const canUnlink = user.providerData.length > 1 || hasPasskeys;
+  const linkedIds = new Set(linked.map((p) => p.provider));
+  const canUnlink = linked.length > 1 || hasPasskeys;
 
-  async function handleLink(providerId: string, getInstance: () => GoogleAuthProvider | GithubAuthProvider) {
-    setLoading(providerId);
-    try {
-      const result = await linkWithPopup(getFirebaseAuth().currentUser!, getInstance());
-      updateUser({ providerData: result.user.providerData });
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : String(err));
-    } finally {
-      setLoading(null);
-    }
+  function handleLink(providerId: string) {
+    window.location.href = `/api/auth/connect/${providerId}`;
   }
 
   async function handleUnlink(providerId: string) {
     setLoading(providerId);
     try {
-      const updated = await unlink(getFirebaseAuth().currentUser!, providerId);
-      updateUser({ providerData: updated.providerData });
+      await unlinkProvider(providerId);
+      setLinked((prev) => prev.filter((p) => p.provider !== providerId));
     } catch (err) {
       toast.error(err instanceof Error ? err.message : String(err));
     } finally {
@@ -75,7 +64,7 @@ export function ProviderSection() {
       <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
         {t("connections.title")}
       </p>
-      {PROVIDERS.map(({ id, label, icon, getInstance }) => {
+      {PROVIDERS.map(({ id, label, icon }) => {
         const isLinked = linkedIds.has(id);
         const isLoading = loading === id;
         return (
@@ -99,10 +88,10 @@ export function ProviderSection() {
                 variant="outline"
                 size="sm"
                 disabled={isLoading}
-                onClick={() => handleLink(id, getInstance)}
+                onClick={() => handleLink(id)}
               >
                 <FontAwesomeIcon icon={faLink} />
-                {isLoading ? t("connections.linking") : t("connections.link")}
+                {t("connections.link")}
               </Button>
             )}
           </div>
