@@ -85,6 +85,7 @@
         "popupBlocked": "ポップアップがブロックされました。このサイトのポップアップを許可してから再試行してください。",
         "popupClosed": "認可が完了する前にポップアップが閉じられました。",
         "noCallbackUri": "このクライアントにはコールバック URI が登録されていません。",
+        "clientSecret": "クライアントシークレット",
         "steps": {
           "authorize": "認可ページで承認",
           "access_token": "アクセストークンへの交換",
@@ -103,9 +104,11 @@
     },
     "errors": {
       "invalid_grant": "認可コードが無効または期限切れです",
+      "invalid_client": "クライアント認証情報が無効です",
       "insufficient_scope": "トークンに必要な権限がありません",
       "token_verification_failed": "トークンの検証に失敗しました",
-      "access_denied": "アクセスが拒否されました"
+      "access_denied": "アクセスが拒否されました",
+      "network_error": "ネットワークエラーが発生しました"
     }
   },
   "permissions": {

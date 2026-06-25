@@ -85,6 +85,7 @@
         "popupBlocked": "Popup was blocked. Allow popups for this site and try again.",
         "popupClosed": "Popup was closed before authorization completed.",
         "noCallbackUri": "No callback URI is registered for this client.",
+        "clientSecret": "Client secret",
         "steps": {
           "authorize": "Authorize on consent page",
           "access_token": "Exchange for access token",
@@ -103,9 +104,11 @@
     },
     "errors": {
       "invalid_grant": "Invalid or expired authorization code",
+      "invalid_client": "Invalid client credentials",
       "insufficient_scope": "The token does not have the required permissions",
       "token_verification_failed": "Token verification failed",
-      "access_denied": "Access was denied"
+      "access_denied": "Access was denied",
+      "network_error": "A network error occurred"
     }
   },
   "permissions": {

@@ -13,6 +13,8 @@ import {
   DialogPopup,
   DialogPortal,
   DialogTitle,
+  Input,
+  Label,
 } from "@Hashibutogarasu/ui";
 import type { OAuthClientSummary } from "@/lib/api/developer";
 
@@ -23,13 +25,6 @@ type StepStatus = "waiting" | "running" | "success" | "error";
 interface StepState {
   label: StepLabel;
   status: StepStatus;
-  data?: Record<string, unknown>;
-  error?: string;
-}
-
-interface ServerStep {
-  label: string;
-  success: boolean;
   data?: Record<string, unknown>;
   error?: string;
 }
@@ -46,10 +41,15 @@ function makeInitialSteps(): StepState[] {
   return STEP_LABELS.map((label) => ({ label, status: "waiting" }));
 }
 
+function failStep(label: StepLabel, error: string): (prev: StepState[]) => StepState[] {
+  return (prev) =>
+    prev.map((s) => (s.label === label ? { ...s, status: "error", error } : s));
+}
+
 /**
  * Dialog that tests the full OAuth flow for the given client by opening the
- * real authorization page in a popup window. All steps are shown upfront with
- * a status icon that reflects waiting / running / success / error state.
+ * real authorization page in a popup window. Uses only standard API endpoints:
+ * /api/oauth/token for code exchange, /api/profile for read and write.
  */
 export function OAuthClientTestDialog({
   open,
@@ -59,12 +59,13 @@ export function OAuthClientTestDialog({
 }: OAuthClientTestDialogProps) {
   const { t } = useTranslation();
   const [steps, setSteps] = useState<StepState[]>(makeInitialSteps);
+  const [secret, setSecret] = useState("");
   const popupRef = useRef<Window | null>(null);
-  const clientIdRef = useRef(client.id);
+  const clientRef = useRef(client);
+  const secretRef = useRef(secret);
 
-  useEffect(() => {
-    clientIdRef.current = client.id;
-  }, [client.id]);
+  useEffect(() => { clientRef.current = client; }, [client]);
+  useEffect(() => { secretRef.current = secret; }, [secret]);
 
   const isRunning = steps.some((s) => s.status === "running");
   const isWaitingForCode = steps[0].status === "running";
@@ -78,13 +79,7 @@ export function OAuthClientTestDialog({
       const { code, error } = event.data as { type: string; code?: string; error?: string };
 
       if (error || !code) {
-        setSteps((prev) =>
-          prev.map((s) =>
-            s.label === "authorize"
-              ? { ...s, status: "error", error: error ?? "access_denied" }
-              : s,
-          ),
-        );
+        setSteps(failStep("authorize", error ?? "access_denied"));
         return;
       }
 
@@ -98,44 +93,86 @@ export function OAuthClientTestDialog({
 
       void (async () => {
         try {
-          const res = await fetch(`/api/oauth/clients/${clientIdRef.current}/test`, {
+          const currentClient = clientRef.current;
+          const redirectUri = currentClient.callbackUris[0] ?? "";
+
+          const tokenRes = await fetch("/api/oauth/token", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ code }),
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams({
+              grant_type: "authorization_code",
+              code,
+              client_id: currentClient.id,
+              client_secret: secretRef.current,
+              redirect_uri: redirectUri,
+            }).toString(),
           });
 
-          if (!res.ok) {
-            setSteps((prev) =>
-              prev.map((s) =>
-                s.label === "access_token"
-                  ? { ...s, status: "error", error: res.statusText }
-                  : s,
-              ),
-            );
+          if (!tokenRes.ok) {
+            const body = (await tokenRes.json().catch(() => ({}))) as { error?: string };
+            setSteps(failStep("access_token", body.error ?? "invalid_grant"));
             return;
           }
 
-          const { steps: serverSteps } = (await res.json()) as { steps: ServerStep[] };
+          const { access_token: accessToken, expires_in: expiresIn } = (await tokenRes.json()) as {
+            access_token: string;
+            expires_in: number;
+          };
 
           setSteps((prev) =>
             prev.map((s) => {
-              const found = serverSteps.find((ss) => ss.label === s.label);
-              if (!found) return s;
-              return {
-                ...s,
-                status: found.success ? "success" : "error",
-                data: found.data,
-                error: found.error,
-              };
+              if (s.label === "access_token")
+                return {
+                  ...s,
+                  status: "success",
+                  data: { token: accessToken.slice(0, 12) + "…", expires_in: expiresIn },
+                };
+              if (s.label === "profile_read") return { ...s, status: "running" };
+              return s;
             }),
           );
-        } catch (err) {
+
+          const bearerHeader = { Authorization: `Bearer ${accessToken}` };
+
+          const profileRes = await fetch("/api/profile", { headers: bearerHeader });
+          if (!profileRes.ok) {
+            const body = (await profileRes.json().catch(() => ({}))) as { error?: string };
+            setSteps(failStep("profile_read", body.error ?? "token_verification_failed"));
+            return;
+          }
+
+          const profile = (await profileRes.json()) as { id: string; name: string | null };
+          setSteps((prev) =>
+            prev.map((s) => {
+              if (s.label === "profile_read")
+                return { ...s, status: "success", data: { id: profile.id, name: profile.name ?? null } };
+              if (s.label === "profile_write") return { ...s, status: "running" };
+              return s;
+            }),
+          );
+
+          const writeRes = await fetch("/api/profile", {
+            method: "PATCH",
+            headers: { ...bearerHeader, "Content-Type": "application/json" },
+            body: JSON.stringify({ name: profile.name }),
+          });
+          if (!writeRes.ok) {
+            const body = (await writeRes.json().catch(() => ({}))) as { error?: string };
+            setSteps(failStep("profile_write", body.error ?? "token_verification_failed"));
+            return;
+          }
+
+          const updated = (await writeRes.json()) as { id: string; name: string | null };
           setSteps((prev) =>
             prev.map((s) =>
-              s.label === "access_token"
-                ? { ...s, status: "error", error: String(err) }
+              s.label === "profile_write"
+                ? { ...s, status: "success", data: { id: updated.id, name: updated.name ?? null } }
                 : s,
             ),
+          );
+        } catch {
+          setSteps((prev) =>
+            prev.map((s) => (s.status === "running" ? { ...s, status: "error", error: "network_error" } : s)),
           );
         }
       })();
@@ -217,6 +254,7 @@ export function OAuthClientTestDialog({
       popupRef.current?.close();
       popupRef.current = null;
       setSteps(makeInitialSteps());
+      setSecret("");
     }
     onOpenChange(next);
   }
@@ -227,6 +265,20 @@ export function OAuthClientTestDialog({
         <DialogBackdrop />
         <DialogPopup className="max-w-md w-full p-6 space-y-4">
           <DialogTitle>{t("settings.developer.test.title", { name: client.name })}</DialogTitle>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="oauth-test-secret">
+              {t("settings.developer.test.clientSecret")}
+            </Label>
+            <Input
+              id="oauth-test-secret"
+              type="password"
+              value={secret}
+              onChange={(e) => setSecret(e.target.value)}
+              disabled={isRunning}
+              autoComplete="off"
+            />
+          </div>
 
           <div className="space-y-2">
             {steps.map((step) => (
@@ -253,7 +305,7 @@ export function OAuthClientTestDialog({
                 }
               />
             )}
-            <Button onClick={startTest} disabled={isRunning}>
+            <Button onClick={startTest} disabled={isRunning || !secret.trim()}>
               {hasStarted && !isRunning
                 ? t("settings.developer.test.runAgain")
                 : t("settings.developer.test.run")}
