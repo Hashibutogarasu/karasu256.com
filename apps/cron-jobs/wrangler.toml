@@ -1,6 +1,7 @@
 name = "cron-jobs"
 main = "src/index.ts"
 compatibility_date = "2025-06-24"
+compatibility_flags = ["nodejs_compat"]
 
 [triggers]
 crons = ["*/30 * * * *"]

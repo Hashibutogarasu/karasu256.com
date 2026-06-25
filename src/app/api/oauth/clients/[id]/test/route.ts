@@ -9,6 +9,7 @@ import {
 } from "@Hashibutogarasu/db/schema";
 import { requireSession } from "@/lib/api/require-session";
 import { generateSecret, hashSecret } from "@/lib/crypto";
+import { hasPermission } from "@/lib/permissions/sections";
 
 interface TestStep {
   label: string;
@@ -119,6 +120,11 @@ export async function POST(
 
     if (!tokenRow || tokenRow.revokedAt !== null || tokenRow.expiresAt <= new Date()) {
       steps.push({ label: "profile", success: false, error: "Token verification failed" });
+      return NextResponse.json({ steps });
+    }
+
+    if (!hasPermission(tokenRow.permissions, "profile")) {
+      steps.push({ label: "profile", success: false, error: "insufficient_scope" });
       return NextResponse.json({ steps });
     }
 

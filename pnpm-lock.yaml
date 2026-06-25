@@ -123,6 +123,9 @@ importers:
 
   apps/accounts:
     dependencies:
+      '@Hashibutogarasu/db':
+        specifier: workspace:*
+        version: link:../../packages/db
       '@Hashibutogarasu/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -246,6 +249,16 @@ importers:
         version: 5.8.3
 
   apps/cron-jobs:
+    dependencies:
+      '@Hashibutogarasu/db':
+        specifier: workspace:*
+        version: link:../../packages/db
+      drizzle-orm:
+        specifier: ^0.44.0
+        version: 0.44.7(@cloudflare/workers-types@4.20260623.1)(@opentelemetry/api@1.9.1)(gel@2.2.0)(postgres@3.4.9)
+      postgres:
+        specifier: ^3.4.7
+        version: 3.4.9
     devDependencies:
       '@cloudflare/workers-types':
         specifier: ^4.20250620.0

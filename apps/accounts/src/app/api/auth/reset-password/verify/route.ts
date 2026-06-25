@@ -1,6 +1,7 @@
 import { createHash, createHmac } from "crypto";
 import { type NextRequest, NextResponse } from "next/server";
-import { getAdminFirestore } from "@/lib/firebase-admin";
+import { eq } from "drizzle-orm";
+import { getDb, passwordResetTokens } from "@Hashibutogarasu/db";
 
 /** Name of the short-lived cookie set after a successful token verification. */
 export const RESET_SESSION_COOKIE = "password-reset-session";
@@ -24,7 +25,7 @@ export function signResetSession(uid: string): string {
  * Verifies the one-time password-reset token from the email link.
  *
  * On success:
- * - Deletes the Firestore code document so it cannot be reused.
+ * - Deletes the token row from PostgreSQL so it cannot be reused.
  * - Sets a short-lived `password-reset-session` cookie.
  */
 export async function POST(request: NextRequest) {
@@ -40,25 +41,27 @@ export async function POST(request: NextRequest) {
   }
 
   const tokenHash = createHash("sha256").update(token).digest("hex");
-  const db = getAdminFirestore();
-  const codeRef = db
-    .collection("u")
-    .doc(uid)
-    .collection("password-reset")
-    .doc(tokenHash);
+  const db = getDb();
 
-  const snap = await codeRef.get();
-  if (!snap.exists) {
+  const [row] = await db
+    .select()
+    .from(passwordResetTokens)
+    .where(eq(passwordResetTokens.tokenHash, tokenHash))
+    .limit(1);
+
+  if (!row) {
     return NextResponse.json({ error: "Invalid or expired token" }, { status: 400 });
   }
 
-  const data = snap.data()!;
-  if ((data.expiresAt as FirebaseFirestore.Timestamp).toMillis() < Date.now()) {
-    await codeRef.delete();
-    return NextResponse.json({ error: "Token has expired" }, { status: 400 });
+  if (row.userId !== uid) {
+    return NextResponse.json({ error: "Invalid or expired token" }, { status: 400 });
   }
 
-  await codeRef.delete();
+  await db.delete(passwordResetTokens).where(eq(passwordResetTokens.tokenHash, tokenHash));
+
+  if (row.expiresAt.getTime() < Date.now()) {
+    return NextResponse.json({ error: "Token has expired" }, { status: 400 });
+  }
 
   const response = NextResponse.json({ success: true });
   response.cookies.set(RESET_SESSION_COOKIE, signResetSession(uid), {

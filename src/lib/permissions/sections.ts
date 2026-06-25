@@ -1,4 +1,5 @@
 import { Section } from "@Hashibutogarasu/db";
+export { hasPermission } from "@Hashibutogarasu/db";
 
 /**
  * Built-in permission sections for OAuth clients.

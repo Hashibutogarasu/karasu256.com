@@ -1,9 +1,9 @@
 import { randomBytes, createHash } from "crypto";
 import { type NextRequest, NextResponse } from "next/server";
-import { Timestamp } from "firebase-admin/firestore";
-import { getAdminAuth, getAdminFirestore } from "@/lib/firebase-admin";
+import { getAdminAuth } from "@/lib/firebase-admin";
 import { getServerConfig } from "@/lib/config";
 import { sendPasswordResetEmail } from "@Hashibutogarasu/utils/email";
+import { getDb, passwordResetTokens } from "@Hashibutogarasu/db";
 
 /** One-time code expiry: 15 minutes. */
 const CODE_EXPIRY_MS = 15 * 60 * 1000;
@@ -21,7 +21,7 @@ function getBaseUrl(request: NextRequest): string {
 
 /**
  * Generates a one-time password-reset token, stores its SHA-256 hash in
- * Firestore, and sends a reset email via Resend.
+ * PostgreSQL, and sends a reset email via Resend.
  *
  * Returns HTTP 200 regardless of whether the email address is registered,
  * to prevent email-enumeration attacks.
@@ -49,16 +49,11 @@ export async function POST(request: NextRequest) {
   const rawToken = randomBytes(32).toString("hex");
   const tokenHash = createHash("sha256").update(rawToken).digest("hex");
 
-  await getAdminFirestore()
-    .collection("u")
-    .doc(uid)
-    .collection("password-reset")
-    .doc(tokenHash)
-    .set({
-      expiresAt: Timestamp.fromMillis(Date.now() + CODE_EXPIRY_MS),
-      used: false,
-      createdAt: Timestamp.now(),
-    });
+  await getDb().insert(passwordResetTokens).values({
+    userId: uid,
+    tokenHash,
+    expiresAt: new Date(Date.now() + CODE_EXPIRY_MS),
+  });
 
   const resetUrl = `${getBaseUrl(request)}/reset-password/confirm?uid=${uid}&token=${rawToken}`;
   const { resend } = getServerConfig();

@@ -1,3 +1,3 @@
-export { getDb } from "./client";
+export { getDb, createDb } from "./client";
 export * from "./schema";
-export { Section, getRegisteredSections, decodePermissions, type SectionMeta } from "./permissions";
+export { Section, getRegisteredSections, decodePermissions, hasPermission, type SectionMeta } from "./permissions";
