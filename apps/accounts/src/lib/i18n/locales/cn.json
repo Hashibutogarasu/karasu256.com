@@ -54,7 +54,16 @@
     "newPassword": "新密码",
     "changePassword": "更改密码",
     "changing": "更改中",
-    "passwordChanged": "密码已更改。"
+    "passwordChanged": "密码已更改。",
+    "setPassword": "设置密码",
+    "setting": "设置中",
+    "passwordSet": "密码已设置。",
+    "error": {
+      "wrong-password": "当前密码不正确。",
+      "requires-recent-login": "更改密码前请重新登录。",
+      "weak-password": "密码太短。",
+      "unknown": "发生错误，请重试。"
+    }
   },
   "connections": {
     "title": "关联账户",

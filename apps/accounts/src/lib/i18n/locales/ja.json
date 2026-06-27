@@ -54,7 +54,16 @@
     "newPassword": "新しいパスワード",
     "changePassword": "パスワードを変更",
     "changing": "変更中",
-    "passwordChanged": "パスワードを変更しました。"
+    "passwordChanged": "パスワードを変更しました。",
+    "setPassword": "パスワードを設定",
+    "setting": "設定中",
+    "passwordSet": "パスワードを設定しました。",
+    "error": {
+      "wrong-password": "現在のパスワードが正しくありません。",
+      "requires-recent-login": "パスワードを変更するには再サインインが必要です。",
+      "weak-password": "パスワードが短すぎます。",
+      "unknown": "エラーが発生しました。もう一度お試しください。"
+    }
   },
   "connections": {
     "title": "連携アカウント",
