@@ -2,18 +2,19 @@ import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { verifyRegistrationResponse } from "@simplewebauthn/server";
 import type { RegistrationResponseJSON } from "@simplewebauthn/server";
-import { getAdminDatabase } from "@/lib/firebase-admin";
+import { sql } from "drizzle-orm";
 import { getServerConfig } from "@/lib/config";
+import { getDb, users, passkeyCredentials } from "@Hashibutogarasu/db";
 
 /**
  * Verifies the WebAuthn registration response from the browser and persists
- * the new credential to Firebase Realtime Database.
+ * the new credential to the database.
  *
- * Credential data is stored at `/passkeys/{uid}/credentials/{credentialID}`.
- * A reverse-lookup index is stored at `/passkey-index/{credentialID}`.
+ * Upserts the user row before inserting the credential to satisfy the FK constraint.
+ * Credential data is stored in the `passkey_credentials` table keyed by credential ID.
  *
  * POST /api/passkey/register/verify
- * Body: `RegistrationResponseJSON` (returned by `startRegistration` on the client)
+ * Body: `{ credential: RegistrationResponseJSON, name: string }`
  */
 export async function POST(request: NextRequest) {
   const cookieStore = await cookies();
@@ -43,18 +44,21 @@ export async function POST(request: NextRequest) {
   }
 
   const { credential } = registrationInfo;
-  const credentialRecord = {
+  const db = getDb();
+
+  await db
+    .insert(users)
+    .values({ id: uid })
+    .onConflictDoUpdate({ target: users.id, set: { updatedAt: sql`now()` } });
+
+  await db.insert(passkeyCredentials).values({
     id: credential.id,
+    userId: uid,
     name,
     publicKey: Buffer.from(credential.publicKey).toString("base64url"),
     counter: credential.counter,
     transports: credential.transports ?? [],
-    createdAt: Date.now(),
-  };
-
-  const db = getAdminDatabase();
-  await db.ref(`passkeys/${uid}/credentials/${credential.id}`).set(credentialRecord);
-  await db.ref(`passkey-index/${credential.id}`).set({ uid });
+  });
 
   cookieStore.delete("passkey_challenge");
   cookieStore.delete("passkey_uid");

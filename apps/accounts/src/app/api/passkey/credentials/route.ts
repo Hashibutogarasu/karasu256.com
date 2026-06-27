@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAdminAuth, getAdminDatabase } from "@/lib/firebase-admin";
+import { eq } from "drizzle-orm";
+import { getAdminAuth } from "@/lib/firebase-admin";
+import { getDb, passkeyCredentials } from "@Hashibutogarasu/db";
 
 /** Shape of a stored passkey credential returned to the client (no public key). */
 export interface CredentialSummary {
@@ -31,20 +33,24 @@ export async function GET(request: NextRequest) {
   const uid = await resolveUid(request);
   if (!uid) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const snap = await getAdminDatabase().ref(`passkeys/${uid}/credentials`).get();
-  if (!snap.exists()) return NextResponse.json({ credentials: [] });
+  const db = getDb();
+  const rows = await db
+    .select({
+      id: passkeyCredentials.id,
+      name: passkeyCredentials.name,
+      counter: passkeyCredentials.counter,
+      transports: passkeyCredentials.transports,
+      createdAt: passkeyCredentials.createdAt,
+    })
+    .from(passkeyCredentials)
+    .where(eq(passkeyCredentials.userId, uid));
 
-  const raw = snap.val() as Record<
-    string,
-    { id: string; name: string; counter: number; transports: string[]; createdAt?: number }
-  >;
-
-  const credentials: CredentialSummary[] = Object.values(raw).map((c) => ({
-    id: c.id,
-    name: c.name,
-    counter: c.counter,
-    transports: c.transports,
-    createdAt: c.createdAt ?? null,
+  const credentials: CredentialSummary[] = rows.map((r) => ({
+    id: r.id,
+    name: r.name,
+    counter: r.counter,
+    transports: r.transports,
+    createdAt: r.createdAt ? r.createdAt.getTime() : null,
   }));
 
   return NextResponse.json({ credentials });
