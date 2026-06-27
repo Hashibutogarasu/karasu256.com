@@ -26,3 +26,8 @@ export {
   type ProviderToken,
   type NewProviderToken,
 } from "./provider-tokens";
+export {
+  passkeyCredentials,
+  type PasskeyCredential,
+  type NewPasskeyCredential,
+} from "./passkey-credentials";

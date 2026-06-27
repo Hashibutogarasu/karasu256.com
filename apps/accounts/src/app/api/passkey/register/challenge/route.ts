@@ -1,9 +1,11 @@
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { generateRegistrationOptions } from "@simplewebauthn/server";
+import { eq } from "drizzle-orm";
 import { z } from "zod";
-import { getAdminAuth, getAdminDatabase } from "@/lib/firebase-admin";
+import { getAdminAuth } from "@/lib/firebase-admin";
 import { getServerConfig } from "@/lib/config";
+import { getDb, passkeyCredentials } from "@Hashibutogarasu/db";
 
 const bodySchema = z.object({ email: z.string().email() });
 
@@ -35,11 +37,11 @@ export async function POST(request: NextRequest) {
     uid = user.uid;
   }
 
-  const db = getAdminDatabase();
-  const snapshot = await db.ref(`passkeys/${uid}/credentials`).get();
-  const existingCredentials: { id: string }[] = snapshot.exists()
-    ? Object.values(snapshot.val() as Record<string, { id: string }>).map((c) => ({ id: c.id }))
-    : [];
+  const db = getDb();
+  const existingCredentials = await db
+    .select({ id: passkeyCredentials.id })
+    .from(passkeyCredentials)
+    .where(eq(passkeyCredentials.userId, uid));
 
   const options = await generateRegistrationOptions({
     rpName: webauthn.rpName,

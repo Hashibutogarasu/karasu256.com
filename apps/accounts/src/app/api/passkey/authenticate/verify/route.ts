@@ -2,16 +2,17 @@ import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAuthenticationResponse } from "@simplewebauthn/server";
 import type { AuthenticationResponseJSON } from "@simplewebauthn/server";
-import { getAdminAuth, getAdminDatabase } from "@/lib/firebase-admin";
+import { eq } from "drizzle-orm";
+import { getAdminAuth } from "@/lib/firebase-admin";
 import { getServerConfig } from "@/lib/config";
+import { getDb, passkeyCredentials } from "@Hashibutogarasu/db";
 
 /**
  * Verifies the WebAuthn authentication response, updates the stored credential
  * counter, and returns a Firebase custom token for the authenticated user.
  *
- * The credential is looked up via `/passkey-index/{credentialID}` to resolve the uid,
- * then the stored public key and counter are fetched from
- * `/passkeys/{uid}/credentials/{credentialID}`.
+ * The credential is looked up by ID in `passkey_credentials`, which contains
+ * the associated uid directly.
  *
  * POST /api/passkey/authenticate/verify
  * Body: `AuthenticationResponseJSON` (returned by `startAuthentication` on the client)
@@ -26,24 +27,16 @@ export async function POST(request: NextRequest) {
 
   const body: AuthenticationResponseJSON = await request.json();
   const { webauthn } = getServerConfig();
-  const db = getAdminDatabase();
+  const db = getDb();
 
-  const indexSnap = await db.ref(`passkey-index/${body.id}`).get();
-  if (!indexSnap.exists()) {
+  const [stored] = await db
+    .select()
+    .from(passkeyCredentials)
+    .where(eq(passkeyCredentials.id, body.id));
+
+  if (!stored) {
     return NextResponse.json({ error: "Credential not found" }, { status: 404 });
   }
-  const { uid } = indexSnap.val() as { uid: string };
-
-  const credSnap = await db.ref(`passkeys/${uid}/credentials/${body.id}`).get();
-  if (!credSnap.exists()) {
-    return NextResponse.json({ error: "Credential data not found" }, { status: 404 });
-  }
-  const stored = credSnap.val() as {
-    id: string;
-    publicKey: string;
-    counter: number;
-    transports?: string[];
-  };
 
   const { verified, authenticationInfo } = await verifyAuthenticationResponse({
     response: body,
@@ -63,10 +56,12 @@ export async function POST(request: NextRequest) {
   }
 
   await db
-    .ref(`passkeys/${uid}/credentials/${body.id}/counter`)
-    .set(authenticationInfo.newCounter);
+    .update(passkeyCredentials)
+    .set({ counter: authenticationInfo.newCounter })
+    .where(eq(passkeyCredentials.id, body.id));
+
   cookieStore.delete("passkey_challenge");
 
-  const customToken = await getAdminAuth().createCustomToken(uid);
+  const customToken = await getAdminAuth().createCustomToken(stored.userId);
   return NextResponse.json({ customToken });
 }

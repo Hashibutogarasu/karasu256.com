@@ -1,6 +1,5 @@
 import { cert, getApps, initializeApp, type App } from "firebase-admin/app";
 import { getAuth as getAdminAuthSdk } from "firebase-admin/auth";
-import { getDatabase as getAdminDatabaseSdk } from "firebase-admin/database";
 import { getFirestore as getAdminFirestoreSdk } from "firebase-admin/firestore";
 import { getServerConfig } from "@/lib/config";
 
@@ -29,14 +28,6 @@ function getAdminApp(): App {
  */
 export function getAdminAuth() {
   return getAdminAuthSdk(getAdminApp());
-}
-
-/**
- * Returns a Firebase Admin Realtime Database instance bound to the named admin app.
- * Initializes the app on first call.
- */
-export function getAdminDatabase() {
-  return getAdminDatabaseSdk(getAdminApp());
 }
 
 /**

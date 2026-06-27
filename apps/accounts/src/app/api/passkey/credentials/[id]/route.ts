@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAdminAuth, getAdminDatabase } from "@/lib/firebase-admin";
+import { and, eq } from "drizzle-orm";
+import { getAdminAuth } from "@/lib/firebase-admin";
+import { getDb, passkeyCredentials } from "@Hashibutogarasu/db";
 
 async function resolveUid(request: NextRequest): Promise<string | null> {
   const auth = request.headers.get("Authorization");
@@ -15,8 +17,8 @@ async function resolveUid(request: NextRequest): Promise<string | null> {
 /**
  * Deletes a single passkey credential owned by the authenticated user.
  *
- * Removes both the credential record at `/passkeys/{uid}/credentials/{id}`
- * and the reverse-lookup entry at `/passkey-index/{id}`.
+ * Ownership is enforced by requiring both the credential ID and the caller's uid
+ * to match, so a user cannot delete another user's credential.
  *
  * DELETE /api/passkey/credentials/{id}
  * Authorization: Bearer {Firebase ID token}
@@ -29,17 +31,20 @@ export async function DELETE(
   if (!uid) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
-  const db = getAdminDatabase();
+  const db = getDb();
 
-  const snap = await db.ref(`passkeys/${uid}/credentials/${id}`).get();
-  if (!snap.exists()) {
+  const [existing] = await db
+    .select({ id: passkeyCredentials.id })
+    .from(passkeyCredentials)
+    .where(and(eq(passkeyCredentials.id, id), eq(passkeyCredentials.userId, uid)));
+
+  if (!existing) {
     return NextResponse.json({ error: "Credential not found" }, { status: 404 });
   }
 
-  await Promise.all([
-    db.ref(`passkeys/${uid}/credentials/${id}`).remove(),
-    db.ref(`passkey-index/${id}`).remove(),
-  ]);
+  await db
+    .delete(passkeyCredentials)
+    .where(and(eq(passkeyCredentials.id, id), eq(passkeyCredentials.userId, uid)));
 
   return NextResponse.json({ success: true });
 }
