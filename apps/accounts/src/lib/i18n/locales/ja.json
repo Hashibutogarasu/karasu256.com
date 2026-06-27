@@ -73,6 +73,14 @@
     "confirmPassword": "パスワードで確認",
     "reauthRequired": "削除前に再認証が必要です。"
   },
+  "oauthCallback": {
+    "redirecting": "リダイレクト中"
+  },
+  "oauthError": {
+    "title": "サインインに失敗しました",
+    "message": "アカウントの認証中にエラーが発生しました。もう一度お試しください。",
+    "backToSignIn": "サインインに戻る"
+  },
   "passwordStrength": {
     "weak": "弱い",
     "fair": "普通",
