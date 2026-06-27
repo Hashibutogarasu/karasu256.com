@@ -15,6 +15,19 @@ import { Label } from "@Hashibutogarasu/ui";
 import { Tabs, TabsContent, TabsList, TabsTrigger, AnimatedHeight } from "@Hashibutogarasu/ui";
 import { LocalizedPasswordStrengthIndicator } from "./localized-password-strength-indicator";
 
+const SIGN_IN_ERROR_KEYS: Record<string, string> = {
+  EMAIL_NOT_FOUND: "signIn.errorInvalidCredentials",
+  INVALID_PASSWORD: "signIn.errorInvalidCredentials",
+  INVALID_LOGIN_CREDENTIALS: "signIn.errorInvalidCredentials",
+  TOO_MANY_ATTEMPTS_TRY_LATER: "signIn.errorTooManyAttempts",
+  USER_DISABLED: "signIn.errorUserDisabled",
+}
+
+const REGISTER_ERROR_KEYS: Record<string, string> = {
+  "auth/email-already-exists": "signIn.errorEmailAlreadyExists",
+  "auth/invalid-password": "signIn.errorWeakPassword",
+}
+
 /**
  * Renders a tabbed email/password form that handles both sign-in and account
  * creation against Firebase Auth. Both tabs share the same email and password
@@ -36,7 +49,8 @@ export function EmailPasswordForm() {
       const customToken = await signInWithEmailPassword(email, password);
       await signInWithCustomToken(getFirebaseAuth(), customToken);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : String(err));
+      const code = err instanceof Error ? err.message : String(err);
+      toast.error(t(SIGN_IN_ERROR_KEYS[code] ?? code));
     } finally {
       setLoading(false);
     }
@@ -49,7 +63,8 @@ export function EmailPasswordForm() {
       const customToken = await registerWithEmailPassword(email, password);
       await signInWithCustomToken(getFirebaseAuth(), customToken);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : String(err));
+      const code = err instanceof Error ? err.message : String(err);
+      toast.error(t(REGISTER_ERROR_KEYS[code] ?? code));
     } finally {
       setLoading(false);
     }

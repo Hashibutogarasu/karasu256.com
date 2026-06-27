@@ -41,26 +41,26 @@ export async function POST(request: NextRequest) {
     const data = (await res.json()) as { localId?: string; error?: { message?: string } }
 
     if (!res.ok || !data.localId) {
-      const code = data.error?.message ?? "SIGN_IN_FAILED"
-      return NextResponse.json({ error: code }, { status: 400 })
+      return NextResponse.json({ error: data.error?.message }, { status: 400 })
     }
 
     const customToken = await adminAuth.createCustomToken(data.localId)
     return NextResponse.json({ customToken })
   }
 
-  const newUser = await adminAuth.createUser({ email: body.email, password: body.password }).catch(
-    (err: { errorInfo?: { code?: string } }) => {
-      throw Object.assign(new Error(), { code: err?.errorInfo?.code ?? "REGISTRATION_FAILED" })
-    },
-  )
+  try {
+    const newUser = await adminAuth.createUser({ email: body.email, password: body.password })
 
-  const db = getDb()
-  await db
-    .insert(users)
-    .values({ id: newUser.uid })
-    .onConflictDoUpdate({ target: users.id, set: { updatedAt: sql`now()` } })
+    const db = getDb()
+    await db
+      .insert(users)
+      .values({ id: newUser.uid })
+      .onConflictDoUpdate({ target: users.id, set: { updatedAt: sql`now()` } })
 
-  const customToken = await adminAuth.createCustomToken(newUser.uid)
-  return NextResponse.json({ customToken })
+    const customToken = await adminAuth.createCustomToken(newUser.uid)
+    return NextResponse.json({ customToken })
+  } catch (err) {
+    const code = (err as { code?: string }).code
+    return NextResponse.json({ error: code }, { status: 400 })
+  }
 }
