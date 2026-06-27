@@ -1,8 +1,9 @@
 import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
 import type { DecodedIdToken } from "firebase-admin/auth";
+import { NextResponse } from "next/server";
 import { getAdminAuth } from "@/lib/firebase-admin";
 import { SESSION_COOKIE_NAME } from "@/lib/session";
+import { unauthorized } from "@/lib/api/responses";
 
 type SessionResult =
   | { user: DecodedIdToken; error: null }
@@ -17,12 +18,12 @@ export async function requireSession(): Promise<SessionResult> {
   const store = await cookies();
   const sessionCookie = store.get(SESSION_COOKIE_NAME)?.value;
   if (!sessionCookie) {
-    return { user: null, error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) };
+    return { user: null, error: unauthorized() };
   }
   try {
     const user = await getAdminAuth().verifySessionCookie(sessionCookie, true);
     return { user, error: null };
   } catch {
-    return { user: null, error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) };
+    return { user: null, error: unauthorized() };
   }
 }
