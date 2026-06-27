@@ -51,7 +51,7 @@ export async function GET(
   }
 
   const { userId, codeVerifier } = stateCookie;
-  const redirectUri = `${request.nextUrl.origin}/api/auth/callback/${providerId}`;
+  const redirectUri = `${request.nextUrl.origin}/api/oauth-callback/${providerId}`;
 
   let tokenSet;
   let profile;

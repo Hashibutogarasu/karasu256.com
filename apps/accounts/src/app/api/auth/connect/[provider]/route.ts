@@ -41,7 +41,7 @@ export async function GET(
   const pkce = usesPkce ? await generatePKCE() : null;
 
   const origin = request.nextUrl.origin;
-  const redirectUri = `${origin}/api/auth/callback/${providerId}`;
+  const redirectUri = `${origin}/api/oauth-callback/${providerId}`;
 
   const authUrl = provider.buildAuthorizationUrl({
     redirectUri,
