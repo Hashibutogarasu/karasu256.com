@@ -6,7 +6,7 @@ import { requireSession } from "@/lib/api/require-session";
 
 /**
  * Unlinks a third-party provider from the authenticated user's account.
- * DELETE /api/auth/providers/[provider]
+ * DELETE /api/linked-providers/[provider]
  */
 export async function DELETE(
   _request: NextRequest,
