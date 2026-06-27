@@ -13,11 +13,14 @@
     "createAccount": "创建账户",
     "creatingAccount": "创建账户中",
     "or": "或",
-    "errorInvalidCredentials": "电子邮件或密码不正确",
-    "errorTooManyAttempts": "登录尝试次数过多，请稍后再试",
-    "errorUserDisabled": "此账户已被禁用",
-    "errorEmailAlreadyExists": "此电子邮件地址已被使用",
-    "errorWeakPassword": "密码太短"
+    "error": {
+      "invalid-credential": "电子邮件或密码不正确",
+      "too-many-requests": "登录尝试次数过多，请稍后再试",
+      "user-disabled": "此账户已被禁用",
+      "email-already-in-use": "此电子邮件地址已被使用",
+      "weak-password": "密码太短",
+      "unknown": "发生错误，请重试。"
+    }
   },
   "passkey": {
     "signIn": "使用通行密钥登录",

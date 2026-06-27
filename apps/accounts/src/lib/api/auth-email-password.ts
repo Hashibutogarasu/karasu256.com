@@ -1,37 +1,20 @@
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth"
+import { getFirebaseAuth } from "@/lib/firebase/auth"
+
 /**
- * Signs in an existing user with email and password.
- * Delegates credential verification to the server and returns a Firebase
- * custom token to pass to `signInWithCustomToken`.
+ * Signs in an existing user with email and password via the Firebase client SDK.
  *
- * @throws When the server rejects the credentials.
+ * @throws {FirebaseError} When authentication fails. Inspect {@link FirebaseError.code} for the cause.
  */
-export async function signInWithEmailPassword(email: string, password: string): Promise<string> {
-  const res = await fetch("/api/auth/email-password", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ action: "signin", email, password }),
-  })
-  const data = (await res.json()) as { customToken?: string; error?: string }
-  if (data.error) throw new Error(data.error)
-  if (!data.customToken) throw new Error("No custom token returned")
-  return data.customToken
+export function signInWithEmailPassword(email: string, password: string) {
+  return signInWithEmailAndPassword(getFirebaseAuth(), email, password)
 }
 
 /**
- * Creates a new account with email and password.
- * The account is created server-side via Admin SDK and a Firebase custom token
- * is returned to pass to `signInWithCustomToken`.
+ * Creates a new account with email and password via the Firebase client SDK.
  *
- * @throws When the server rejects the registration (e.g. email already in use).
+ * @throws {FirebaseError} When account creation fails. Inspect {@link FirebaseError.code} for the cause.
  */
-export async function registerWithEmailPassword(email: string, password: string): Promise<string> {
-  const res = await fetch("/api/auth/email-password", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ action: "register", email, password }),
-  })
-  const data = (await res.json()) as { customToken?: string; error?: string }
-  if (data.error) throw new Error(data.error)
-  if (!data.customToken) throw new Error("No custom token returned")
-  return data.customToken
+export function registerWithEmailPassword(email: string, password: string) {
+  return createUserWithEmailAndPassword(getFirebaseAuth(), email, password)
 }

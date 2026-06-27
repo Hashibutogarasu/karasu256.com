@@ -1,6 +1,8 @@
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
+import { sql } from "drizzle-orm";
 import { getAdminAuth } from "@/lib/firebase-admin";
+import { getDb, users } from "@Hashibutogarasu/db";
 import { buildSetCookieOptions, SESSION_DURATION_MS } from "@/lib/session";
 
 /**
@@ -18,12 +20,20 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const sessionCookie = await getAdminAuth().createSessionCookie(body.idToken, {
+    const adminAuth = getAdminAuth();
+    const decoded = await adminAuth.verifyIdToken(body.idToken);
+    const sessionCookie = await adminAuth.createSessionCookie(body.idToken, {
       expiresIn: SESSION_DURATION_MS,
     });
 
     const store = await cookies();
     store.set(buildSetCookieOptions(sessionCookie));
+
+    const db = getDb();
+    await db
+      .insert(users)
+      .values({ id: decoded.uid })
+      .onConflictDoUpdate({ target: users.id, set: { updatedAt: sql`now()` } });
 
     return NextResponse.json({ ok: true });
   } catch {
