@@ -29,7 +29,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
   session: { strategy: "jwt" },
   callbacks: {
     async signIn({ account, profile }) {
-      if (account?.type !== "oauth" || !profile) return true
+      if (!account || account.type === "credentials" || !profile) return true
 
       const cookieStore = await cookies()
       const sessionCookie = cookieStore.get(SESSION_COOKIE_NAME)?.value
