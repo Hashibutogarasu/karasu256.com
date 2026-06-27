@@ -12,7 +12,15 @@
     "signingIn": "サインイン中",
     "createAccount": "アカウント作成",
     "creatingAccount": "アカウント作成中",
-    "or": "または"
+    "or": "または",
+    "error": {
+      "invalid-credential": "メールアドレスまたはパスワードが正しくありません",
+      "too-many-requests": "ログイン試行回数が多すぎます。しばらくしてからお試しください",
+      "user-disabled": "このアカウントは無効化されています",
+      "email-already-in-use": "このメールアドレスはすでに使用されています",
+      "weak-password": "パスワードが短すぎます",
+      "unknown": "エラーが発生しました。もう一度お試しください。"
+    }
   },
   "passkey": {
     "signIn": "パスキーでサインイン",

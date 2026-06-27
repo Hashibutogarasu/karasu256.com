@@ -2,12 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { signInWithCustomToken } from "firebase/auth";
+import { FirebaseError } from "firebase/app";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRightToBracket, faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import { useTranslation } from "react-i18next";
 import { toast } from "@Hashibutogarasu/ui";
-import { getFirebaseAuth } from "@/lib/firebase/auth";
 import { signInWithEmailPassword, registerWithEmailPassword } from "@/lib/api/auth-email-password";
 import { Button } from "@Hashibutogarasu/ui";
 import { Input } from "@Hashibutogarasu/ui";
@@ -29,14 +28,18 @@ export function EmailPasswordForm() {
 
   const activeIndex = tab === "signin" ? 0 : 1;
 
+  function showAuthError(err: unknown) {
+    const code = err instanceof FirebaseError ? err.code.replace("auth/", "") : "unknown";
+    toast.error(t(`signIn.error.${code}`, { defaultValue: t("signIn.error.unknown") }));
+  }
+
   async function handleSignIn(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     try {
-      const customToken = await signInWithEmailPassword(email, password);
-      await signInWithCustomToken(getFirebaseAuth(), customToken);
+      await signInWithEmailPassword(email, password);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : String(err));
+      showAuthError(err);
     } finally {
       setLoading(false);
     }
@@ -46,10 +49,9 @@ export function EmailPasswordForm() {
     e.preventDefault();
     setLoading(true);
     try {
-      const customToken = await registerWithEmailPassword(email, password);
-      await signInWithCustomToken(getFirebaseAuth(), customToken);
+      await registerWithEmailPassword(email, password);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : String(err));
+      showAuthError(err);
     } finally {
       setLoading(false);
     }

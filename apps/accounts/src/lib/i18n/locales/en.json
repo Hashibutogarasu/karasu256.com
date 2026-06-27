@@ -12,7 +12,15 @@
     "signingIn": "Signing in",
     "createAccount": "Create account",
     "creatingAccount": "Creating account",
-    "or": "or"
+    "or": "or",
+    "error": {
+      "invalid-credential": "Incorrect email address or password",
+      "too-many-requests": "Too many failed attempts. Please try again later",
+      "user-disabled": "This account has been disabled",
+      "email-already-in-use": "This email address is already in use",
+      "weak-password": "Password is too short",
+      "unknown": "An error occurred. Please try again."
+    }
   },
   "passkey": {
     "signIn": "Sign in with passkey",
