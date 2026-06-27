@@ -8,6 +8,7 @@ import { faLink, faLinkSlash } from "@fortawesome/free-solid-svg-icons";
 import { useTranslation } from "react-i18next";
 import { toast, SettingsAccordion, SettingsItem } from "@Hashibutogarasu/ui";
 import { getFirebaseAuth } from "@/lib/firebase/auth";
+import { useSettingsUser } from "@/components/settings/user-context";
 import { listPasskeyCredentials } from "@/lib/api/passkey-credentials";
 import { listLinkedProviders, unlinkProvider, type LinkedProvider } from "@/lib/api/providers";
 import { Button } from "@Hashibutogarasu/ui";
@@ -25,6 +26,7 @@ const PROVIDERS = [
  */
 export function ProviderSection() {
   const { t } = useTranslation();
+  const { user } = useSettingsUser();
   const [linked, setLinked] = useState<LinkedProvider[]>([]);
   const [loading, setLoading] = useState<string | null>(null);
   const [hasPasskeys, setHasPasskeys] = useState(false);
@@ -41,7 +43,8 @@ export function ProviderSection() {
   }, []);
 
   const linkedIds = new Set(linked.map((p) => p.provider));
-  const canUnlink = linked.length > 1 || hasPasskeys;
+  const hasPasswordProvider = user.providerData.some((p) => p.providerId === "password");
+  const canUnlink = linked.length > 1 || hasPasskeys || hasPasswordProvider;
 
   function handleLink(providerId: string) {
     window.location.href = `/api/auth/connect/${providerId}?redirectTo=/settings/linking`;
