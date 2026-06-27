@@ -44,7 +44,7 @@ export function ProviderSection() {
   const canUnlink = linked.length > 1 || hasPasskeys;
 
   function handleLink(providerId: string) {
-    window.location.href = `/api/auth/connect/${providerId}`;
+    window.location.href = `/api/auth/connect/${providerId}?redirectTo=/settings/linking`;
   }
 
   async function handleUnlink(providerId: string) {
