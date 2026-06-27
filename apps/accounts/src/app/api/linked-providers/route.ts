@@ -6,7 +6,7 @@ import { requireSession } from "@/lib/api/require-session";
 
 /**
  * Returns the list of third-party providers linked to the authenticated user.
- * GET /api/auth/providers
+ * GET /api/linked-providers
  */
 export async function GET() {
   const { user, error } = await requireSession();
