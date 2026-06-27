@@ -1,9 +1,9 @@
 import { cookies } from "next/headers"
-import { and, eq, sql } from "drizzle-orm"
+import { and, eq } from "drizzle-orm"
 import type { Account, Profile } from "next-auth"
 import { getAdminAuth } from "@/lib/firebase-admin"
 import { getDb } from "@Hashibutogarasu/db"
-import { users, providerAccounts, providerTokens } from "@Hashibutogarasu/db/schema"
+import { providerAccounts, providerTokens } from "@Hashibutogarasu/db/schema"
 import { encryptToken } from "@/lib/crypto"
 
 function extractAvatarUrl(providerId: string, profile: Profile): string | null {
@@ -51,22 +51,19 @@ async function upsertProviderTokens(
 /**
  * Handles initial OAuth sign-in for unauthenticated users.
  *
- * Finds or creates a Firebase Auth user, upserts the `users` and
- * `provider_accounts` rows, stores a short-lived Firebase custom token in an
- * httpOnly cookie, and returns the redirect URL for the OAuth callback page.
+ * Requires the provider account to already be linked in `provider_accounts`.
+ * If no matching row is found the sign-in is rejected and the user is
+ * redirected to the error page. On success a short-lived Firebase custom token
+ * is stored in an httpOnly cookie and the user is redirected to /oauth-callback.
  */
 export async function handleOAuthSignIn(account: Account, profile: Profile): Promise<string> {
   const db = getDb()
-  const adminAuth = getAdminAuth()
 
   const providerId = account.provider
   const providerUserId = account.providerAccountId
-  const email = typeof profile.email === "string" ? profile.email : null
-  const name = typeof profile.name === "string" ? profile.name : null
-  const avatarUrl = extractAvatarUrl(providerId, profile)
 
   const [existingAccount] = await db
-    .select({ userId: providerAccounts.userId })
+    .select({ id: providerAccounts.id, userId: providerAccounts.userId })
     .from(providerAccounts)
     .where(
       and(
@@ -75,47 +72,13 @@ export async function handleOAuthSignIn(account: Account, profile: Profile): Pro
       ),
     )
 
-  let uid: string
-  if (existingAccount) {
-    uid = existingAccount.userId
-  } else if (email) {
-    try {
-      uid = (await adminAuth.getUserByEmail(email)).uid
-    } catch {
-      uid = (
-        await adminAuth.createUser({
-          email,
-          displayName: name ?? undefined,
-          photoURL: avatarUrl ?? undefined,
-        })
-      ).uid
-    }
-  } else {
-    uid = (
-      await adminAuth.createUser({
-        displayName: name ?? undefined,
-        photoURL: avatarUrl ?? undefined,
-      })
-    ).uid
+  if (!existingAccount) {
+    return "/oauth-error?reason=account_not_linked"
   }
 
-  await db
-    .insert(users)
-    .values({ id: uid, name })
-    .onConflictDoUpdate({ target: users.id, set: { updatedAt: sql`now()` } })
+  await upsertProviderTokens(existingAccount.id, account)
 
-  const [accountRow] = await db
-    .insert(providerAccounts)
-    .values({ userId: uid, provider: providerId, providerUserId, email, name, avatarUrl })
-    .onConflictDoUpdate({
-      target: [providerAccounts.provider, providerAccounts.providerUserId],
-      set: { email, name, avatarUrl, updatedAt: new Date() },
-    })
-    .returning({ id: providerAccounts.id })
-
-  await upsertProviderTokens(accountRow.id, account)
-
-  const customToken = await adminAuth.createCustomToken(uid)
+  const customToken = await getAdminAuth().createCustomToken(existingAccount.userId)
   const cookieStore = await cookies()
   cookieStore.set("oauth_custom_token", customToken, {
     httpOnly: true,
