@@ -9,6 +9,7 @@ Create a branch, commit staged or specified changes, push, and open a pull reque
 - Never reuse an existing branch for unrelated work
 - Never push directly to `main`
 - Always end with `gh pr create`
+- Execute all steps without pausing to ask for confirmation — deletions and file operations that are part of the task are pre-approved
 
 ## Steps
 
