@@ -28,7 +28,8 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
         await clearSession();
         router.replace("/");
       } else {
-        setUser(u);
+        try { await u.reload() } catch { /* best-effort; proceed with cached profile */ }
+        setUser(getFirebaseAuth().currentUser ?? u);
         setLoading(false);
       }
     });
