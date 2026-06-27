@@ -54,7 +54,16 @@
     "newPassword": "New password",
     "changePassword": "Change password",
     "changing": "Changing",
-    "passwordChanged": "Password changed."
+    "passwordChanged": "Password changed.",
+    "setPassword": "Set password",
+    "setting": "Setting",
+    "passwordSet": "Password set.",
+    "error": {
+      "wrong-password": "Current password is incorrect.",
+      "requires-recent-login": "Please sign in again before changing your password.",
+      "weak-password": "Password is too short.",
+      "unknown": "An error occurred. Please try again."
+    }
   },
   "connections": {
     "title": "Connected accounts",
