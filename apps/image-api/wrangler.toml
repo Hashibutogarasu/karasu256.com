@@ -1,0 +1,12 @@
+name = "image-api"
+main = "src/index.ts"
+compatibility_date = "2025-06-24"
+
+[[r2_buckets]]
+binding = "IMAGES"
+bucket_name = "karasu-images"
+
+[vars]
+ALLOWED_ORIGIN = "https://karasu256.com"
+CDN_BASE_URL = "https://cdn.karasu256.com"
+FIREBASE_PROJECT_ID = "karasu-lab-application"

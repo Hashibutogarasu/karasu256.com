@@ -1,8 +1,17 @@
-import Link from 'next/link';
+import Link from "next/link";
+import { getSessionUser } from "@/lib/firebase-session";
+import { AuthButton } from "@/components/auth-button";
 
-const Header = () => {
+/**
+ * Site-wide header. Reads the NextAuth session (backed by Firebase) to show
+ * an account menu when authenticated, or a sign-in button when not.
+ */
+const Header = async () => {
+  const user = await getSessionUser();
+  const accountsUrl = process.env.NEXT_PUBLIC_ACCOUNTS_URL ?? "#";
+
   return (
-    <header className="w-full py-4 px-6 flex justify-between items-center border-b border-gray-200">
+    <header className="w-full py-2 px-6 flex justify-between items-center border-b border-border">
       <div className="font-bold text-xl">
         <Link href="/" className="hover:text-gray-600 transition-colors">
           Karasu Lab
@@ -11,9 +20,11 @@ const Header = () => {
       <nav>
         <ul className="flex gap-6">
           <li>
-            <Link href="/blogs" className="hover:text-gray-600 transition-colors">
-              Blog
-            </Link>
+            <AuthButton
+              accountsUrl={accountsUrl}
+              uid={user?.uid ?? null}
+              email={user?.email ?? null}
+            />
           </li>
         </ul>
       </nav>

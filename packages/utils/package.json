@@ -1,0 +1,21 @@
+{
+  "name": "@Hashibutogarasu/utils",
+  "version": "0.1.0",
+  "private": true,
+  "exports": {
+    "./server": "./src/server/index.ts",
+    "./email": "./src/email/index.ts",
+    "./client": "./src/client/index.ts"
+  },
+  "dependencies": {
+    "@react-email/components": "^1.0.12",
+    "resend": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.1",
+    "@types/react": "^19",
+    "firebase-admin": "^14.0.0",
+    "react": "^19",
+    "typescript": "^5"
+  }
+}

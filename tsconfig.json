@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
-    "target": "ES2017",
+    "target": "ES2020",
+    "experimentalDecorators": true,
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -19,9 +20,13 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@Hashibutogarasu/db": ["./packages/db/src/index.ts"],
+      "@Hashibutogarasu/db/schema": ["./packages/db/src/schema/index.ts"],
+      "@Hashibutogarasu/ui": ["./packages/ui/src/index.ts"],
+      "@Hashibutogarasu/utils/server": ["./packages/utils/src/server/index.ts"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "eslint.config.mjs", ".eslintrc.json"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "apps/"]
 }

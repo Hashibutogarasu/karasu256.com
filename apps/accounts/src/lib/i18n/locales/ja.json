@@ -1,0 +1,98 @@
+{
+  "signIn": {
+    "title": "Karasu Lab にサインイン",
+    "tabs": {
+      "signIn": "サインイン",
+      "createAccount": "アカウント作成"
+    },
+    "email": "メールアドレス",
+    "password": "パスワード",
+    "forgotPassword": "パスワードを忘れた場合",
+    "submit": "サインイン",
+    "signingIn": "サインイン中",
+    "createAccount": "アカウント作成",
+    "creatingAccount": "アカウント作成中",
+    "or": "または"
+  },
+  "passkey": {
+    "signIn": "パスキーでサインイン",
+    "waiting": "パスキーを待機中",
+    "title": "パスキー",
+    "none": "パスキーが登録されていません。",
+    "remove": "パスキーを削除",
+    "removeConfirm": {
+      "title": "パスキーを削除しますか？",
+      "description": "「{{name}}」を削除します。この操作は取り消せません。",
+      "cancel": "キャンセル"
+    },
+    "name": "パスキー名",
+    "namePlaceholder": "例: MacBook Pro、iPhone 15",
+    "register": "パスキーを登録",
+    "registering": "登録中",
+    "registered": "パスキーを登録しました。",
+    "loadError": "パスキーの読み込みに失敗しました"
+  },
+  "settings": {
+    "title": "設定",
+    "sections": {
+      "profile": "プロフィール",
+      "security": "セキュリティ",
+      "connections": "アカウント連携"
+    },
+    "signOut": "サインアウト"
+  },
+  "profile": {
+    "title": "プロフィール",
+    "displayName": "表示名",
+    "save": "保存",
+    "saving": "保存中",
+    "saved": "表示名を保存しました。"
+  },
+  "security": {
+    "title": "セキュリティ",
+    "currentPassword": "現在のパスワード",
+    "newPassword": "新しいパスワード",
+    "changePassword": "パスワードを変更",
+    "changing": "変更中",
+    "passwordChanged": "パスワードを変更しました。"
+  },
+  "connections": {
+    "title": "連携アカウント",
+    "link": "連携",
+    "unlink": "解除",
+    "linking": "連携中",
+    "unlinking": "解除中",
+    "cannotUnlink": "最後のサインイン方法は解除できません。"
+  },
+  "dangerZone": {
+    "title": "危険な操作",
+    "deleteAccount": "アカウントを削除",
+    "cancel": "キャンセル",
+    "delete": "削除",
+    "deleting": "削除中",
+    "confirmPassword": "パスワードで確認",
+    "reauthRequired": "削除前に再認証が必要です。"
+  },
+  "passwordStrength": {
+    "weak": "弱い",
+    "fair": "普通",
+    "good": "良い",
+    "strong": "強い"
+  },
+  "resetPassword": {
+    "title": "パスワードをリセット",
+    "sendLink": "リセットリンクを送信",
+    "sending": "送信中",
+    "sent": "{{email}} にリセットリンクを送信しました。受信トレイを確認してください。",
+    "sendError": "リセットリンクの送信に失敗しました。",
+    "backToSignIn": "サインインに戻る",
+    "verifying": "リンクを確認中",
+    "invalidToken": "このリンクは無効または期限切れです。",
+    "requestAgain": "リセットリンクを再送する",
+    "newPassword": "新しいパスワード",
+    "setPassword": "パスワードを設定",
+    "setting": "設定中",
+    "setDone": "パスワードを設定しました。サインインしてください。",
+    "setError": "パスワードの設定に失敗しました。"
+  }
+}

@@ -30,8 +30,16 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files — plain files are blocked; encrypted files are allowed
 .env*
+# .env.local.unencrypted is the plaintext editing source used by the pre-commit hook;
+# it is blocked by .env* above and must never be committed.
+# .env.local is encrypted by dotenvx and safe to commit
+!.env.local
+!**/.env.local
+# private decryption keys must never be committed
+.env.keys
+**/.env.keys
 
 # vercel
 .vercel
@@ -39,3 +47,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# turborepo
+.turbo/
