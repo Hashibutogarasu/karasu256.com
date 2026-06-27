@@ -2,15 +2,13 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-} from "firebase/auth";
+import { signInWithCustomToken } from "firebase/auth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRightToBracket, faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import { useTranslation } from "react-i18next";
 import { toast } from "@Hashibutogarasu/ui";
 import { getFirebaseAuth } from "@/lib/firebase/auth";
+import { signInWithEmailPassword, registerWithEmailPassword } from "@/lib/api/auth-email-password";
 import { Button } from "@Hashibutogarasu/ui";
 import { Input } from "@Hashibutogarasu/ui";
 import { Label } from "@Hashibutogarasu/ui";
@@ -35,7 +33,8 @@ export function EmailPasswordForm() {
     e.preventDefault();
     setLoading(true);
     try {
-      await signInWithEmailAndPassword(getFirebaseAuth(), email, password);
+      const customToken = await signInWithEmailPassword(email, password);
+      await signInWithCustomToken(getFirebaseAuth(), customToken);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : String(err));
     } finally {
@@ -47,7 +46,8 @@ export function EmailPasswordForm() {
     e.preventDefault();
     setLoading(true);
     try {
-      await createUserWithEmailAndPassword(getFirebaseAuth(), email, password);
+      const customToken = await registerWithEmailPassword(email, password);
+      await signInWithCustomToken(getFirebaseAuth(), customToken);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : String(err));
     } finally {
