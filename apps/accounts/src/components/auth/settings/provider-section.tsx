@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGoogle, faGithub } from "@fortawesome/free-brands-svg-icons";
 import { faLink, faLinkSlash } from "@fortawesome/free-solid-svg-icons";
 import { useTranslation } from "react-i18next";
-import { toast } from "@Hashibutogarasu/ui";
+import { toast, SettingsAccordion, SettingsItem } from "@Hashibutogarasu/ui";
 import { getFirebaseAuth } from "@/lib/firebase/auth";
 import { listPasskeyCredentials } from "@/lib/api/passkey-credentials";
 import { listLinkedProviders, unlinkProvider, type LinkedProvider } from "@/lib/api/providers";
@@ -60,46 +60,45 @@ export function ProviderSection() {
   }
 
   return (
-    <div className="space-y-3">
-      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-        {t("connections.title")}
-      </p>
-      {PROVIDERS.map(({ id, label, icon }) => {
-        const isLinked = linkedIds.has(id);
-        const isLoading = loading === id;
-        return (
-          <div key={id} className="flex items-center justify-between">
-            <span className="flex items-center gap-2 text-sm">
-              <FontAwesomeIcon icon={icon} />
-              {label}
-            </span>
-            {isLinked ? (
-              <Button
-                variant="destructive"
-                size="sm"
-                disabled={!canUnlink || isLoading}
-                onClick={() => handleUnlink(id)}
-              >
-                <FontAwesomeIcon icon={faLinkSlash} />
-                {isLoading ? t("connections.unlinking") : t("connections.unlink")}
-              </Button>
-            ) : (
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={isLoading}
-                onClick={() => handleLink(id)}
-              >
-                <FontAwesomeIcon icon={faLink} />
-                {t("connections.link")}
-              </Button>
-            )}
-          </div>
-        );
-      })}
-      {!canUnlink && (
-        <p className="text-xs text-muted-foreground">{t("connections.cannotUnlink")}</p>
-      )}
-    </div>
+    <SettingsAccordion title={t("connections.title")}>
+      <div className="space-y-3">
+        {PROVIDERS.map(({ id, label, icon }) => {
+          const isLinked = linkedIds.has(id);
+          const isLoading = loading === id;
+          return (
+            <SettingsItem key={id} className="flex items-center justify-between">
+              <span className="flex items-center gap-2 text-sm">
+                <FontAwesomeIcon icon={icon} />
+                {label}
+              </span>
+              {isLinked ? (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  disabled={!canUnlink || isLoading}
+                  onClick={() => handleUnlink(id)}
+                >
+                  <FontAwesomeIcon icon={faLinkSlash} />
+                  {isLoading ? t("connections.unlinking") : t("connections.unlink")}
+                </Button>
+              ) : (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={isLoading}
+                  onClick={() => handleLink(id)}
+                >
+                  <FontAwesomeIcon icon={faLink} />
+                  {t("connections.link")}
+                </Button>
+              )}
+            </SettingsItem>
+          );
+        })}
+        {!canUnlink && (
+          <p className="text-xs text-muted-foreground">{t("connections.cannotUnlink")}</p>
+        )}
+      </div>
+    </SettingsAccordion>
   );
 }
