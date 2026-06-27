@@ -14,13 +14,19 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       credentials: { idToken: {} },
       authorize: makeFirebaseAuthorize(getAdminAuth()),
     }),
-    Google,
-    GitHub,
+    Google({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    }),
+    GitHub({
+      clientId: process.env.GITHUB_CLIENT_ID,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET,
+    }),
   ],
   session: { strategy: "jwt" },
   callbacks: {
     async signIn({ account, profile }) {
-      if (account?.type !== "oauth" || !profile) return true
+      if (!account || account.type === "credentials" || !profile) return true
 
       const cookieStore = await cookies()
       const sessionCookie = cookieStore.get(SESSION_COOKIE_NAME)?.value
