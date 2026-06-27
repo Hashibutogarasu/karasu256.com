@@ -1,0 +1,106 @@
+{
+  "signIn": {
+    "title": "Sign in to Karasu Lab",
+    "tabs": {
+      "signIn": "Sign in",
+      "createAccount": "Create account"
+    },
+    "email": "Email address",
+    "password": "Password",
+    "forgotPassword": "Forgot password?",
+    "submit": "Sign in",
+    "signingIn": "Signing in",
+    "createAccount": "Create account",
+    "creatingAccount": "Creating account",
+    "or": "or"
+  },
+  "passkey": {
+    "signIn": "Sign in with passkey",
+    "waiting": "Waiting for passkey",
+    "title": "Passkeys",
+    "none": "No passkeys registered.",
+    "remove": "Remove passkey",
+    "removeConfirm": {
+      "title": "Remove passkey?",
+      "description": "This will remove \"{{name}}\". This action cannot be undone.",
+      "cancel": "Cancel"
+    },
+    "name": "Passkey name",
+    "namePlaceholder": "e.g. MacBook Pro, iPhone 15",
+    "register": "Register passkey",
+    "registering": "Registering",
+    "registered": "Passkey registered.",
+    "loadError": "Failed to load passkeys"
+  },
+  "settings": {
+    "title": "Settings",
+    "sections": {
+      "profile": "Profile",
+      "security": "Security",
+      "connections": "Connections"
+    },
+    "signOut": "Sign out"
+  },
+  "profile": {
+    "title": "Profile",
+    "displayName": "Display name",
+    "save": "Save",
+    "saving": "Saving",
+    "saved": "Display name saved."
+  },
+  "security": {
+    "title": "Security",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "changePassword": "Change password",
+    "changing": "Changing",
+    "passwordChanged": "Password changed."
+  },
+  "connections": {
+    "title": "Connected accounts",
+    "link": "Connect",
+    "unlink": "Disconnect",
+    "linking": "Connecting",
+    "unlinking": "Disconnecting",
+    "cannotUnlink": "Cannot remove your last sign-in method."
+  },
+  "dangerZone": {
+    "title": "Danger zone",
+    "deleteAccount": "Delete account",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "deleting": "Deleting",
+    "confirmPassword": "Confirm with password",
+    "reauthRequired": "Re-authentication required before deletion."
+  },
+  "oauthCallback": {
+    "redirecting": "Redirecting"
+  },
+  "oauthError": {
+    "title": "Sign-in failed",
+    "message": "An error occurred while authenticating your account. Please try again.",
+    "backToSignIn": "Back to sign in"
+  },
+  "passwordStrength": {
+    "weak": "Weak",
+    "fair": "Fair",
+    "good": "Good",
+    "strong": "Strong"
+  },
+  "resetPassword": {
+    "title": "Reset password",
+    "sendLink": "Send reset link",
+    "sending": "Sending",
+    "sent": "A reset link has been sent to {{email}}. Check your inbox.",
+    "sendError": "Failed to send reset link.",
+    "backToSignIn": "Back to sign in",
+    "verifying": "Verifying link",
+    "invalidToken": "This link is invalid or has expired.",
+    "requestAgain": "Request a new reset link",
+    "newPassword": "New password",
+    "setPassword": "Set password",
+    "setting": "Setting",
+    "setDone": "Password set. Please sign in.",
+    "setError": "Failed to set password."
+  }
+}

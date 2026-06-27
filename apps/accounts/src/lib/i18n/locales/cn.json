@@ -1,0 +1,106 @@
+{
+  "signIn": {
+    "title": "登录 Karasu Lab",
+    "tabs": {
+      "signIn": "登录",
+      "createAccount": "创建账户"
+    },
+    "email": "电子邮件",
+    "password": "密码",
+    "forgotPassword": "忘记密码？",
+    "submit": "登录",
+    "signingIn": "登录中",
+    "createAccount": "创建账户",
+    "creatingAccount": "创建账户中",
+    "or": "或"
+  },
+  "passkey": {
+    "signIn": "使用通行密钥登录",
+    "waiting": "等待通行密钥",
+    "title": "通行密钥",
+    "none": "尚未注册通行密钥。",
+    "remove": "删除通行密钥",
+    "removeConfirm": {
+      "title": "删除通行密钥？",
+      "description": "将删除「{{name}}」。此操作无法撤销。",
+      "cancel": "取消"
+    },
+    "name": "通行密钥名称",
+    "namePlaceholder": "例如：MacBook Pro、iPhone 15",
+    "register": "注册通行密钥",
+    "registering": "注册中",
+    "registered": "通行密钥已注册。",
+    "loadError": "加载通行密钥失败"
+  },
+  "settings": {
+    "title": "设置",
+    "sections": {
+      "profile": "个人资料",
+      "security": "安全",
+      "connections": "账户关联"
+    },
+    "signOut": "退出登录"
+  },
+  "profile": {
+    "title": "个人资料",
+    "displayName": "显示名称",
+    "save": "保存",
+    "saving": "保存中",
+    "saved": "显示名称已保存。"
+  },
+  "security": {
+    "title": "安全",
+    "currentPassword": "当前密码",
+    "newPassword": "新密码",
+    "changePassword": "更改密码",
+    "changing": "更改中",
+    "passwordChanged": "密码已更改。"
+  },
+  "connections": {
+    "title": "关联账户",
+    "link": "关联",
+    "unlink": "解除关联",
+    "linking": "关联中",
+    "unlinking": "解除中",
+    "cannotUnlink": "无法删除最后一种登录方式。"
+  },
+  "dangerZone": {
+    "title": "危险操作",
+    "deleteAccount": "删除账户",
+    "cancel": "取消",
+    "delete": "删除",
+    "deleting": "删除中",
+    "confirmPassword": "密码确认",
+    "reauthRequired": "删除前需要重新验证。"
+  },
+  "oauthCallback": {
+    "redirecting": "重定向中"
+  },
+  "oauthError": {
+    "title": "登录失败",
+    "message": "验证账户时发生错误，请重试。",
+    "backToSignIn": "返回登录"
+  },
+  "passwordStrength": {
+    "weak": "弱",
+    "fair": "一般",
+    "good": "良好",
+    "strong": "强"
+  },
+  "resetPassword": {
+    "title": "重置密码",
+    "sendLink": "发送重置链接",
+    "sending": "发送中",
+    "sent": "重置链接已发送至 {{email}}，请检查收件箱。",
+    "sendError": "发送重置链接失败。",
+    "backToSignIn": "返回登录",
+    "verifying": "验证链接中",
+    "invalidToken": "此链接无效或已过期。",
+    "requestAgain": "重新发送重置链接",
+    "newPassword": "新密码",
+    "setPassword": "设置密码",
+    "setting": "设置中",
+    "setDone": "密码已设置，请登录。",
+    "setError": "设置密码失败。"
+  }
+}
