@@ -1,3 +1,5 @@
+@source "../**/*.{ts,tsx}";
+
 @layer base {
   [data-slot="button"][data-variant="default"] {
     --btn-current-bg: var(--color-primary);
