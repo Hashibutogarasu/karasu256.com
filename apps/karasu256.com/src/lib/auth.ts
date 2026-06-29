@@ -7,7 +7,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
   providers: [
     Credentials({
       credentials: { idToken: {} },
-      authorize: makeFirebaseAuthorize(getAdminAuth()),
+      authorize: (credentials) => makeFirebaseAuthorize(getAdminAuth())(credentials),
     }),
   ],
   session: { strategy: "jwt" },

@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import type { Metadata } from "next"
 import { OAuthErrorClient } from "./client"
 
@@ -9,7 +10,9 @@ export const metadata: Metadata = {
 export default function OAuthErrorPage() {
   return (
     <main className="flex flex-1 items-center justify-center p-4">
-      <OAuthErrorClient />
+      <Suspense>
+        <OAuthErrorClient />
+      </Suspense>
     </main>
   )
 }
