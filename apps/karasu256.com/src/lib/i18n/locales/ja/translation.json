@@ -17,7 +17,7 @@
       "title": "プロフィール",
       "email": "メールアドレス",
       "uid": "ユーザーID",
-      "accountSettings": "アカウント設定",
+      "accountSettings": "アカウントポータルへ",
       "accountSettingsDescription": "プロフィール・セキュリティ・アカウント連携の設定は Karasu Lab アカウントポータルで管理します。"
     },
     "other": {
