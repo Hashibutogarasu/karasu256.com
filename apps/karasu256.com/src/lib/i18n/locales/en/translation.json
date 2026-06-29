@@ -17,7 +17,7 @@
       "title": "Profile",
       "email": "Email address",
       "uid": "User ID",
-      "accountSettings": "Account settings",
+      "accountSettings": "Go to account portal",
       "accountSettingsDescription": "Manage your profile, security, and connected accounts in the Karasu Lab account portal."
     },
     "other": {

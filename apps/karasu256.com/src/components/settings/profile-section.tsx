@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslation } from "react-i18next";
+import { ArrowRight } from "lucide-react";
 import { Identicon } from "@Hashibutogarasu/ui";
 
 interface ProfileSectionProps {
@@ -28,15 +29,16 @@ export function ProfileSection({ uid, email }: ProfileSectionProps) {
         </div>
       </div>
 
-      <div className="rounded-lg border border-border p-4 space-y-2">
+      <div className="rounded-lg border border-border p-4 flex items-center justify-between gap-4">
         <p className="text-sm text-muted-foreground">
           {t("settings.profile.accountSettingsDescription")}
         </p>
         <a
           href={`${accountsUrl}/settings`}
-          className="inline-flex text-sm font-medium text-primary hover:underline"
+          className="inline-flex shrink-0 items-center gap-1 text-sm font-medium text-primary hover:underline"
         >
-          {t("settings.profile.accountSettings")} →
+          {t("settings.profile.accountSettings")}
+          <ArrowRight className="size-4" />
         </a>
       </div>
     </div>
