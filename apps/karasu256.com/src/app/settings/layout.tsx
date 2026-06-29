@@ -1,3 +1,4 @@
+import React from "react";
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/firebase-session";
 import { SettingsShell } from "@/components/settings-shell";

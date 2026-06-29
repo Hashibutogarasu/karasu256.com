@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { Upload } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
@@ -23,9 +23,9 @@ import {
 
 interface CreateOAuthClientDialogProps {
   open: boolean;
-  onOpenChange: (open: boolean) => void;
+  onOpenChange: (_open: boolean) => void;
   sections: SectionMeta[];
-  onCreated: (client: OAuthClientCreated) => void;
+  onCreated: (_client: OAuthClientCreated) => void;
 }
 
 /**

@@ -16,7 +16,7 @@ import { rotateOAuthClientSecret } from "@/lib/api/developer";
 
 interface RotateSecretDialogProps {
   open: boolean;
-  onOpenChange: (open: boolean) => void;
+  onOpenChange: (_open: boolean) => void;
   clientId: string;
   clientName: string;
 }

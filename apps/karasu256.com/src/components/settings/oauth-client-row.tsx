@@ -20,10 +20,10 @@ import type { OAuthClientSummary, SectionMeta } from "@/lib/api/developer";
 interface OAuthClientRowProps {
   client: OAuthClientSummary;
   sections: SectionMeta[];
-  onTest: (client: OAuthClientSummary) => void;
-  onEdit: (client: OAuthClientSummary) => void;
-  onDelete: (id: string) => void;
-  onRotateSecret: (client: OAuthClientSummary) => void;
+  onTest: (_client: OAuthClientSummary) => void;
+  onEdit: (_client: OAuthClientSummary) => void;
+  onDelete: (_id: string) => void;
+  onRotateSecret: (_client: OAuthClientSummary) => void;
 }
 
 /**

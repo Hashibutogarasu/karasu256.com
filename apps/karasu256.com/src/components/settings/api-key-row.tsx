@@ -6,7 +6,7 @@ import type { ApiKeySummary } from "@/lib/api/developer";
 
 interface ApiKeyRowProps {
   apiKey: ApiKeySummary;
-  onDelete: (id: string) => void;
+  onDelete: (_id: string) => void;
 }
 
 /**
