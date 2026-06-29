@@ -120,15 +120,15 @@ export function SettingsSidebar({
         </div>
       </nav>
 
-      <div className="p-2 border-t border-border">
-        <div className={cn("flex w-full gap-1", collapsed ? "flex-col" : "flex-row")}>
-          {onBack && (
+      <div className="p-2 border-t border-border overflow-hidden">
+        {onBack ? (
+          <div className={cn("flex w-full gap-1", collapsed ? "flex-col" : "flex-row")}>
             <button
               type="button"
               onClick={onBack}
               title={backLabel}
               className={cn(
-                "flex flex-1 items-center h-10 rounded-md text-sm px-3 gap-2 min-w-0",
+                "flex flex-1 items-center h-10 rounded-md text-sm px-3 gap-3",
                 "text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer",
                 collapsed ? "justify-center" : "justify-start",
               )}
@@ -136,22 +136,31 @@ export function SettingsSidebar({
               <ArrowLeft className="size-4 shrink-0" />
               {!collapsed && <span className="truncate">{backLabel}</span>}
             </button>
-          )}
+            <button
+              type="button"
+              onClick={onSignOut}
+              title={signOutLabel}
+              className={cn(
+                "flex flex-1 items-center h-10 rounded-md text-sm px-3 gap-3",
+                "text-destructive hover:bg-destructive/10 transition-colors cursor-pointer",
+                collapsed ? "justify-center" : "justify-start",
+              )}
+            >
+              <LogOut className="size-4 shrink-0" />
+              {!collapsed && <span className="truncate">{signOutLabel}</span>}
+            </button>
+          </div>
+        ) : (
           <button
             type="button"
             onClick={onSignOut}
-            title={signOutLabel}
-            className={cn(
-              "flex items-center h-10 rounded-md text-sm px-3 gap-2 min-w-0",
-              "text-destructive hover:bg-destructive/10 transition-colors cursor-pointer",
-              onBack ? "flex-1" : "w-full",
-              collapsed ? "justify-center" : "justify-start",
-            )}
+            title={collapsed ? signOutLabel : undefined}
+            className="flex items-center w-full h-10 rounded-md text-sm px-3 gap-3 text-destructive hover:bg-destructive/10 transition-colors cursor-pointer overflow-hidden"
           >
             <LogOut className="size-4 shrink-0" />
             {!collapsed && <span className="truncate">{signOutLabel}</span>}
           </button>
-        </div>
+        )}
       </div>
     </aside>
   );
