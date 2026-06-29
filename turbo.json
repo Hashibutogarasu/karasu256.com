@@ -17,6 +17,9 @@
     "deploy": {
       "cache": false
     },
+    "deploy:prod": {
+      "cache": false
+    },
     "lint": {
       "outputs": []
     }
