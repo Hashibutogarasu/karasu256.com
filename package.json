@@ -1,5 +1,5 @@
 {
-  "name": "@Hashibutogarasu/karasu256.com",
+  "name": "@Hashibutogarasu/karasu-lab-web-monorepo",
   "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@11.8.0",
