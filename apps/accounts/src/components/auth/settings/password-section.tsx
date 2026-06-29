@@ -80,7 +80,7 @@ export function PasswordSection() {
               type="password"
               autoComplete="current-password"
               value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCurrentPassword(e.target.value)}
               required
               disabled={saving}
             />
@@ -93,7 +93,7 @@ export function PasswordSection() {
             type="password"
             autoComplete="new-password"
             value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewPassword(e.target.value)}
             required
             minLength={6}
             disabled={saving}

@@ -93,7 +93,7 @@ export function EmailPasswordForm() {
               type="email"
               autoComplete="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
               required
             />
           </div>
@@ -112,7 +112,7 @@ export function EmailPasswordForm() {
               type="password"
               autoComplete="current-password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
               required
             />
           </div>
@@ -132,7 +132,7 @@ export function EmailPasswordForm() {
               type="email"
               autoComplete="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
               required
             />
           </div>
@@ -143,7 +143,7 @@ export function EmailPasswordForm() {
               type="password"
               autoComplete="new-password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
               required
             />
             <LocalizedPasswordStrengthIndicator password={password} />

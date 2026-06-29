@@ -77,7 +77,7 @@ export function PasskeyCreateDialog({ email, onSuccess }: PasskeyCreateDialogPro
                   type="text"
                   placeholder={t("passkey.namePlaceholder")}
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
                   required
                   disabled={loading}
                 />
