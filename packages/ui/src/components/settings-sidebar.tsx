@@ -120,9 +120,9 @@ export function SettingsSidebar({
         </div>
       </nav>
 
-      <div className="p-2 border-t border-border overflow-hidden">
+      <div className="p-3 border-t border-border overflow-hidden">
         {onBack ? (
-          <div className={cn("flex w-full gap-1", collapsed ? "flex-col" : "flex-row")}>
+          <div className={cn("flex w-full gap-2", collapsed ? "flex-col" : "flex-row")}>
             <button
               type="button"
               onClick={onBack}
