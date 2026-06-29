@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "dotenvx run -f .env.local -- next dev --port 3001",
     "build": "next build",
-    "deploy": "vercel deploy",
+    "deploy": "bash ../../scripts/vercel-deploy.sh .",
+    "deploy:prod": "bash ../../scripts/vercel-deploy.sh . --prod",
     "start": "next start",
     "lint": "eslint"
   },
