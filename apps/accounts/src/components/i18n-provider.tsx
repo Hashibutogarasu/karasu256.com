@@ -20,6 +20,10 @@ if (!i18n.isInitialized) {
       },
       interpolation: { escapeValue: false },
     });
+} else {
+  i18n.addResourceBundle("en", "translation", en, true, true);
+  i18n.addResourceBundle("ja", "translation", ja, true, true);
+  i18n.addResourceBundle("cn", "translation", cn, true, true);
 }
 
 /**
