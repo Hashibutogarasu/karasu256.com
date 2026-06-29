@@ -16,6 +16,7 @@ function AnimatedList({ className, ...props }: React.ComponentProps<"ul">) {
 }
 
 interface AnimatedListItemProps extends React.ComponentProps<"li"> {
+  children?: React.ReactNode;
   /** When true, plays the exit animation then calls {@link onRemoved}. */
   removing?: boolean;
   /** Called after the exit animation finishes. Remove the item from state here. */

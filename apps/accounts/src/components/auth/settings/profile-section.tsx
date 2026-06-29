@@ -49,7 +49,7 @@ export function ProfileSection() {
           <Input
             id="display-name"
             value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDisplayName(e.target.value)}
             disabled={saving}
             autoComplete="name"
           />

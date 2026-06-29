@@ -84,7 +84,7 @@ export function ResetPasswordConfirmForm({ uid, token }: Props) {
                 type="password"
                 autoComplete="new-password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                 required
                 minLength={8}
               />
