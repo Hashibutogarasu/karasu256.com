@@ -130,7 +130,7 @@ export function SettingsSidebar({
               className={cn(
                 "flex items-center h-10 rounded-md text-sm",
                 "text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer",
-                collapsed ? "w-full justify-center" : "flex-1 justify-start px-3 gap-3",
+                collapsed ? "w-full justify-center" : "flex-1 min-w-0 justify-start px-2 gap-2",
               )}
             >
               <ArrowLeft className={cn("shrink-0", collapsed ? "size-5" : "size-4")} />
@@ -143,7 +143,7 @@ export function SettingsSidebar({
               className={cn(
                 "flex items-center h-10 rounded-md text-sm",
                 "text-destructive hover:bg-destructive/10 transition-colors cursor-pointer",
-                collapsed ? "w-full justify-center" : "shrink-0 justify-start px-3 gap-3",
+                collapsed ? "w-full justify-center" : "shrink-0 justify-start px-2 gap-2",
               )}
             >
               <LogOut className={cn("shrink-0", collapsed ? "size-5" : "size-4")} />
