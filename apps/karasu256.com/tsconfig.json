@@ -21,12 +21,12 @@
     ],
     "paths": {
       "@/*": ["./src/*"],
-      "@Hashibutogarasu/db": ["./packages/db/src/index.ts"],
-      "@Hashibutogarasu/db/schema": ["./packages/db/src/schema/index.ts"],
-      "@Hashibutogarasu/ui": ["./packages/ui/src/index.ts"],
-      "@Hashibutogarasu/utils/server": ["./packages/utils/src/server/index.ts"]
+      "@Hashibutogarasu/db": ["../../packages/db/src/index.ts"],
+      "@Hashibutogarasu/db/schema": ["../../packages/db/src/schema/index.ts"],
+      "@Hashibutogarasu/ui": ["../../packages/ui/src/index.ts"],
+      "@Hashibutogarasu/utils/server": ["../../packages/utils/src/server/index.ts"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "eslint.config.mjs", ".eslintrc.json"],
-  "exclude": ["node_modules", "apps/"]
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
 }
