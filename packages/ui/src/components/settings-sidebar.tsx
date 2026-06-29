@@ -120,20 +120,20 @@ export function SettingsSidebar({
         </div>
       </nav>
 
-      <div className="p-3 border-t border-border overflow-hidden">
+      <div className="px-2 py-3 border-t border-border overflow-hidden">
         {onBack ? (
-          <div className={cn("flex w-full gap-2", collapsed ? "flex-col" : "flex-row")}>
+          <div className={cn("flex w-full", collapsed ? "flex-col gap-3" : "flex-row gap-2")}>
             <button
               type="button"
               onClick={onBack}
               title={backLabel}
               className={cn(
-                "flex flex-1 items-center h-10 rounded-md text-sm px-3 gap-3",
+                "flex items-center h-10 rounded-md text-sm",
                 "text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer",
-                collapsed ? "justify-center" : "justify-start",
+                collapsed ? "w-full justify-center" : "flex-1 justify-start px-3 gap-3",
               )}
             >
-              <ArrowLeft className="size-4 shrink-0" />
+              <ArrowLeft className={cn("shrink-0", collapsed ? "size-5" : "size-4")} />
               {!collapsed && <span className="truncate">{backLabel}</span>}
             </button>
             <button
@@ -141,12 +141,12 @@ export function SettingsSidebar({
               onClick={onSignOut}
               title={signOutLabel}
               className={cn(
-                "flex flex-1 items-center h-10 rounded-md text-sm px-3 gap-3",
+                "flex items-center h-10 rounded-md text-sm",
                 "text-destructive hover:bg-destructive/10 transition-colors cursor-pointer",
-                collapsed ? "justify-center" : "justify-start",
+                collapsed ? "w-full justify-center" : "shrink-0 justify-start px-3 gap-3",
               )}
             >
-              <LogOut className="size-4 shrink-0" />
+              <LogOut className={cn("shrink-0", collapsed ? "size-5" : "size-4")} />
               {!collapsed && <span className="truncate">{signOutLabel}</span>}
             </button>
           </div>
