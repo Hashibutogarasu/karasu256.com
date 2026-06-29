@@ -47,6 +47,7 @@
       "security": "安全",
       "connections": "账户关联"
     },
+    "back": "返回",
     "signOut": "退出登录"
   },
   "profile": {

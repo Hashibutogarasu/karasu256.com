@@ -15,6 +15,7 @@ const NAV_ITEMS_DEFS = [
 interface Props {
   collapsed: boolean;
   onToggleCollapse: () => void;
+  onBack: () => void;
   onSignOut: () => void;
 }
 
@@ -22,7 +23,7 @@ interface Props {
  * Accounts-specific settings sidebar. Wraps {@link UiSettingsSidebar} with
  * translated labels, active-path detection, and Next.js client-side links.
  */
-export function SettingsSidebar({ collapsed, onToggleCollapse, onSignOut }: Props) {
+export function SettingsSidebar({ collapsed, onToggleCollapse, onBack, onSignOut }: Props) {
   const { t } = useTranslation();
   const pathname = usePathname();
 
@@ -41,6 +42,8 @@ export function SettingsSidebar({ collapsed, onToggleCollapse, onSignOut }: Prop
       activeIndex={activeIndex}
       collapsed={collapsed}
       onToggleCollapse={onToggleCollapse}
+      onBack={onBack}
+      backLabel={t("settings.back")}
       onSignOut={onSignOut}
       signOutLabel={t("settings.signOut")}
       renderLink={({ href, className, title, "aria-current": ariaCurrent, children }) => (

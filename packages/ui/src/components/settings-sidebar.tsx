@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, LogOut, type LucideIcon } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, LogOut, type LucideIcon } from "lucide-react";
 import * as React from "react";
 import { cn } from "../lib/utils";
 
@@ -17,6 +17,8 @@ export interface SettingsSidebarProps {
   activeIndex: number;
   collapsed: boolean;
   onToggleCollapse: () => void;
+  onBack?: () => void;
+  backLabel?: string;
   onSignOut: () => void;
   signOutLabel: string;
   /**
@@ -44,6 +46,8 @@ export function SettingsSidebar({
   activeIndex,
   collapsed,
   onToggleCollapse,
+  onBack,
+  backLabel,
   onSignOut,
   signOutLabel,
   renderLink,
@@ -116,16 +120,47 @@ export function SettingsSidebar({
         </div>
       </nav>
 
-      <div className="p-2 border-t border-border overflow-hidden">
-        <button
-          type="button"
-          onClick={onSignOut}
-          title={collapsed ? signOutLabel : undefined}
-          className="flex items-center w-full h-10 rounded-md text-sm px-3 gap-3 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer overflow-hidden"
-        >
-          <LogOut className="size-4 shrink-0" />
-          {!collapsed && <span className="truncate">{signOutLabel}</span>}
-        </button>
+      <div className="px-2 py-3 border-t border-border overflow-hidden">
+        {onBack ? (
+          <div className={cn("flex w-full", collapsed ? "flex-col gap-3" : "flex-row gap-2")}>
+            <button
+              type="button"
+              onClick={onBack}
+              title={backLabel}
+              className={cn(
+                "flex items-center h-10 rounded-md text-sm",
+                "text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer",
+                collapsed ? "w-full justify-center" : "flex-1 min-w-0 justify-start px-2 gap-2",
+              )}
+            >
+              <ArrowLeft className={cn("shrink-0", collapsed ? "size-5" : "size-4")} />
+              {!collapsed && <span className="truncate">{backLabel}</span>}
+            </button>
+            <button
+              type="button"
+              onClick={onSignOut}
+              title={signOutLabel}
+              className={cn(
+                "flex items-center h-10 rounded-md text-sm",
+                "text-destructive hover:bg-destructive/10 transition-colors cursor-pointer",
+                collapsed ? "w-full justify-center" : "shrink-0 justify-start px-2 gap-2",
+              )}
+            >
+              <LogOut className={cn("shrink-0", collapsed ? "size-5" : "size-4")} />
+              {!collapsed && <span className="truncate">{signOutLabel}</span>}
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={onSignOut}
+            title={collapsed ? signOutLabel : undefined}
+            className="flex items-center w-full h-10 rounded-md text-sm px-3 gap-3 text-destructive hover:bg-destructive/10 transition-colors cursor-pointer overflow-hidden"
+          >
+            <LogOut className="size-4 shrink-0" />
+            {!collapsed && <span className="truncate">{signOutLabel}</span>}
+          </button>
+        )}
       </div>
     </aside>
   );
