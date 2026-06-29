@@ -1,3 +1,5 @@
+import { config } from "@dotenvx/dotenvx";
+config({ path: ".env.local", override: true });
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
