@@ -6,6 +6,7 @@
     "dev": "dotenvx run -f .env.local -- next dev --port 3000",
     "build": "next build",
     "deploy": "vercel deploy",
+    "deploy:prod": "vercel deploy --prod",
     "start": "next start --port 3000",
     "lint": "eslint"
   },
