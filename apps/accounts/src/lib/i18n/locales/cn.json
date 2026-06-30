@@ -38,7 +38,13 @@
     "register": "注册通行密钥",
     "registering": "注册中",
     "registered": "通行密钥已注册。",
-    "loadError": "加载通行密钥失败"
+    "loadError": "加载通行密钥失败",
+    "error": {
+      "credential_not_found": "未找到通行密钥，请重试。",
+      "verification_failed": "通行密钥验证失败，请重试。",
+      "user_not_found": "此账户不存在，请使用其他方式登录。",
+      "unknown": "通行密钥登录失败，请重试。"
+    }
   },
   "settings": {
     "title": "设置",

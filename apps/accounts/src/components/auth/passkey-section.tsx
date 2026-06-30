@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "@Hashibutogarasu/ui";
 import { getFirebaseAuth } from "@/lib/firebase/auth";
 import { authenticateWithPasskey } from "@/lib/api/passkey-authenticate";
+import { PasskeyError } from "@/lib/api/passkey-errors";
 import { Button } from "@Hashibutogarasu/ui";
 
 /**
@@ -26,7 +27,8 @@ export function PasskeySection() {
       const customToken = await authenticateWithPasskey();
       await signInWithCustomToken(getFirebaseAuth(), customToken);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : String(err));
+      const key = err instanceof PasskeyError ? err.i18nKey : "passkey.error.unknown";
+      toast.error(t(key));
     } finally {
       setLoading(false);
     }

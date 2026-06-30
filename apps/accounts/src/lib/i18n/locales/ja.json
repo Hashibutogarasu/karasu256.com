@@ -38,7 +38,13 @@
     "register": "パスキーを登録",
     "registering": "登録中",
     "registered": "パスキーを登録しました。",
-    "loadError": "パスキーの読み込みに失敗しました"
+    "loadError": "パスキーの読み込みに失敗しました",
+    "error": {
+      "credential_not_found": "パスキーが見つかりませんでした。もう一度お試しください。",
+      "verification_failed": "パスキーの検証に失敗しました。もう一度お試しください。",
+      "user_not_found": "このアカウントは存在しません。別の方法でサインインしてください。",
+      "unknown": "パスキーでのサインインに失敗しました。もう一度お試しください。"
+    }
   },
   "settings": {
     "title": "設定",

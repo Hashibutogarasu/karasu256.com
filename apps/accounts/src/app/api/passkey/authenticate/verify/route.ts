@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
   const challenge = cookieStore.get("passkey_challenge")?.value;
 
   if (!challenge) {
-    return NextResponse.json({ error: "No pending authentication" }, { status: 400 });
+    return NextResponse.json({ code: "no_pending_authentication" }, { status: 400 });
   }
 
   const body: AuthenticationResponseJSON = await request.json();
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
     .where(eq(passkeyCredentials.id, body.id));
 
   if (!stored) {
-    return NextResponse.json({ error: "Credential not found" }, { status: 404 });
+    return NextResponse.json({ code: "credential_not_found" }, { status: 404 });
   }
 
   const { verified, authenticationInfo } = await verifyAuthenticationResponse({
@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
   });
 
   if (!verified || !authenticationInfo) {
-    return NextResponse.json({ error: "Verification failed" }, { status: 400 });
+    return NextResponse.json({ code: "verification_failed" }, { status: 400 });
   }
 
   await db
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
   try {
     await getAdminAuth().getUser(stored.userId);
   } catch {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
+    return NextResponse.json({ code: "user_not_found" }, { status: 404 });
   }
 
   const customToken = await getAdminAuth().createCustomToken(stored.userId);
