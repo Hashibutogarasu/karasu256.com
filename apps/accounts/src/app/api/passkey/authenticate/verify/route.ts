@@ -62,6 +62,12 @@ export async function POST(request: NextRequest) {
 
   cookieStore.delete("passkey_challenge");
 
+  try {
+    await getAdminAuth().getUser(stored.userId);
+  } catch {
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
+  }
+
   const customToken = await getAdminAuth().createCustomToken(stored.userId);
   return NextResponse.json({ customToken });
 }
