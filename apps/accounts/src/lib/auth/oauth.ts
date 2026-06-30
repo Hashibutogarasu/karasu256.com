@@ -3,7 +3,7 @@ import { and, eq } from "drizzle-orm"
 import type { Account, Profile } from "next-auth"
 import { getAdminAuth } from "@/lib/firebase-admin"
 import { getDb } from "@Hashibutogarasu/db"
-import { providerAccounts, providerTokens } from "@Hashibutogarasu/db/schema"
+import { passkeyCredentials, providerAccounts, providerTokens, users } from "@Hashibutogarasu/db/schema"
 import { encryptToken } from "@/lib/crypto"
 
 function extractAvatarUrl(providerId: string, profile: Profile): string | null {
@@ -148,6 +148,18 @@ export async function handleOAuthLinking(
       .where(eq(providerAccounts.id, existing.id))
 
     await upsertProviderTokens(existing.id, account)
+
+    await db
+      .update(passkeyCredentials)
+      .set({ userId })
+      .where(eq(passkeyCredentials.userId, existing.userId))
+
+    try {
+      await getAdminAuth().deleteUser(existing.userId)
+    } catch {
+      // Ignore — the orphan Firebase user may already be deleted
+    }
+    await db.delete(users).where(eq(users.id, existing.userId))
 
     return `/settings/linking?linked=${encodeURIComponent(providerId)}`
   }
