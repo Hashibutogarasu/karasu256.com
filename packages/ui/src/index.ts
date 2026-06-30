@@ -1,4 +1,5 @@
 export { Button, buttonVariants, type ButtonProps } from "./components/button";
+export { Spinner } from "./components/ui/spinner";
 export { Container } from "./components/container";
 export { Collapsible, CollapsibleTrigger, CollapsiblePanel, CollapsibleChevron } from "./components/collapsible";
 export { AnimatedList, AnimatedListItem } from "./components/animated-list";

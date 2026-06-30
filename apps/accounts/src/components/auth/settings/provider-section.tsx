@@ -7,7 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGoogle, faGithub } from "@fortawesome/free-brands-svg-icons";
 import { faLink, faLinkSlash } from "@fortawesome/free-solid-svg-icons";
 import { useTranslation } from "react-i18next";
-import { toast, SettingsAccordion, SettingsItem } from "@Hashibutogarasu/ui";
+import { toast, SettingsAccordion, SettingsItem, Spinner } from "@Hashibutogarasu/ui";
 import { getFirebaseAuth } from "@/lib/firebase/auth";
 import { useSettingsUser } from "@/components/settings/user-context";
 import { listPasskeyCredentials } from "@/lib/api/passkey-credentials";
@@ -30,6 +30,7 @@ export function ProviderSection() {
   const { user } = useSettingsUser();
   const searchParams = useSearchParams();
   const [linked, setLinked] = useState<LinkedProvider[]>([]);
+  const [loadingProviders, setLoadingProviders] = useState(true);
   const [loading, setLoading] = useState<string | null>(null);
   const [hasPasskeys, setHasPasskeys] = useState(false);
   const handledParamsRef = useRef<string | null>(null);
@@ -51,7 +52,10 @@ export function ProviderSection() {
   }, [searchParams, t]);
 
   useEffect(() => {
-    void listLinkedProviders().then(setLinked).catch(() => {});
+    void listLinkedProviders()
+      .then(setLinked)
+      .catch(() => {})
+      .finally(() => setLoadingProviders(false));
 
     const current = getFirebaseAuth().currentUser;
     if (!current) return;
@@ -97,20 +101,20 @@ export function ProviderSection() {
                 <Button
                   variant="destructive"
                   size="sm"
-                  disabled={!canUnlink || isLoading}
+                  disabled={!canUnlink || isLoading || loadingProviders}
                   onClick={() => handleUnlink(id)}
                 >
-                  <FontAwesomeIcon icon={faLinkSlash} />
+                  {isLoading || loadingProviders ? <Spinner /> : <FontAwesomeIcon icon={faLinkSlash} />}
                   {isLoading ? t("connections.unlinking") : t("connections.unlink")}
                 </Button>
               ) : (
                 <Button
                   variant="outline"
                   size="sm"
-                  disabled={isLoading}
+                  disabled={isLoading || loadingProviders}
                   onClick={() => handleLink(id)}
                 >
-                  <FontAwesomeIcon icon={faLink} />
+                  {loadingProviders ? <Spinner /> : <FontAwesomeIcon icon={faLink} />}
                   {t("connections.link")}
                 </Button>
               )}
