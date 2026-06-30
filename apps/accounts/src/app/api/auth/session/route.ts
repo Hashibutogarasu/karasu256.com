@@ -4,6 +4,7 @@ import { sql } from "drizzle-orm";
 import { getAdminAuth } from "@/lib/firebase-admin";
 import { getDb, users } from "@Hashibutogarasu/db";
 import { buildSetCookieOptions, SESSION_DURATION_MS } from "@/lib/session";
+import { syncFirebaseUserToNeonAuth } from "@/lib/neon-auth-bridge";
 
 /**
  * Creates a Firebase session cookie from a client-supplied ID token and stores
@@ -34,6 +35,8 @@ export async function POST(request: NextRequest) {
       .insert(users)
       .values({ id: decoded.uid })
       .onConflictDoUpdate({ target: users.id, set: { updatedAt: sql`now()` } });
+
+    await syncFirebaseUserToNeonAuth(decoded);
 
     return NextResponse.json({ ok: true });
   } catch {
