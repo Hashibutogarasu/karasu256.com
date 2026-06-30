@@ -94,9 +94,14 @@ export async function handleOAuthSignIn(account: Account, profile: Profile): Pro
 /**
  * Handles OAuth account linking for already-authenticated users.
  *
- * Verifies the provider account is not already owned by a different user,
- * upserts `provider_accounts` and `provider_tokens`, and returns the redirect
- * URL for the settings linking page.
+ * If the OAuth identity is already registered to a different Firebase UID but
+ * shares the same email as the current user, the record is migrated to the
+ * current UID. This resolves cases where the same person ended up with two
+ * Firebase UIDs (e.g. email/password then a direct OAuth sign-up).
+ * If the email does not match, the link is rejected with `provider_already_linked`.
+ *
+ * On success, upserts `provider_accounts` and `provider_tokens` and returns
+ * the redirect URL for the settings linking page.
  */
 export async function handleOAuthLinking(
   account: Account,
@@ -122,7 +127,29 @@ export async function handleOAuthLinking(
     )
 
   if (existing && existing.userId !== userId) {
-    return "/settings/linking?error=provider_already_linked"
+    const canReclaim =
+      !!email &&
+      (await getAdminAuth()
+        .getUser(userId)
+        .then((u) => u.email === email)
+        .catch(() => false))
+
+    if (!canReclaim) {
+      return "/settings/linking?error=provider_already_linked"
+    }
+
+    if (!account.access_token) {
+      return "/settings/linking?error=missing_token"
+    }
+
+    await db
+      .update(providerAccounts)
+      .set({ userId, email, name, avatarUrl, updatedAt: new Date() })
+      .where(eq(providerAccounts.id, existing.id))
+
+    await upsertProviderTokens(existing.id, account)
+
+    return `/settings/linking?linked=${encodeURIComponent(providerId)}`
   }
 
   if (!account.access_token) {

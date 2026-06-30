@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { CheckCircle, Circle, XCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { Spinner as DefaultSpinner } from "@/components/ui/spinner";
+import { Spinner as DefaultSpinner } from "@Hashibutogarasu/ui";
 import { useOAuthErrorMessage } from "@/lib/i18n/use-oauth-error-message";
 import {
   Button,

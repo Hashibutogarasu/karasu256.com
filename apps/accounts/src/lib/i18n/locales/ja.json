@@ -80,7 +80,13 @@
     "unlink": "解除",
     "linking": "連携中",
     "unlinking": "解除中",
-    "cannotUnlink": "最後のサインイン方法は解除できません。"
+    "cannotUnlink": "最後のサインイン方法は解除できません。",
+    "linked": "{{provider}} を連携しました。",
+    "error": {
+      "provider_already_linked": "このアカウントは別のユーザーに連携済みです。",
+      "missing_token": "認証に失敗しました。もう一度お試しください。",
+      "unknown": "エラーが発生しました。もう一度お試しください。"
+    }
   },
   "dangerZone": {
     "title": "危険な操作",
