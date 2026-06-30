@@ -14,7 +14,7 @@ export function getNeonAuth(): ReturnType<typeof createNeonAuth> {
     _neonAuth = createNeonAuth({
       baseUrl: process.env.NEON_AUTH_BASE_URL!,
       cookies: {
-        secret: process.env.NEON_AUTH_COOKIE_SECRET!,
+        secret: process.env.AUTH_SECRET!,
       },
     });
   }
@@ -31,7 +31,7 @@ export function getNeonAuth(): ReturnType<typeof createNeonAuth> {
  * @param firebaseUid - The Firebase UID of the authenticated user.
  */
 export function deriveNeonAuthPassword(firebaseUid: string): string {
-  return createHmac("sha256", process.env.NEON_AUTH_BRIDGE_SECRET!)
+  return createHmac("sha256", process.env.AUTH_SECRET!)
     .update(firebaseUid)
     .digest("hex");
 }
