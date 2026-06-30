@@ -30,13 +30,16 @@ export async function POST(request: NextRequest) {
     const store = await cookies();
     store.set(buildSetCookieOptions(sessionCookie));
 
-    const db = getDb();
-    await db
-      .insert(users)
-      .values({ id: decoded.uid })
-      .onConflictDoUpdate({ target: users.id, set: { updatedAt: sql`now()` } });
+    try {
+      const db = getDb();
+      await db
+        .insert(users)
+        .values({ id: decoded.uid })
+        .onConflictDoUpdate({ target: users.id, set: { updatedAt: sql`now()` } });
 
-    await syncFirebaseUserToNeonAuth(decoded);
+      await syncFirebaseUserToNeonAuth(decoded);
+    } catch {
+    }
 
     return NextResponse.json({ ok: true });
   } catch {
