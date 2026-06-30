@@ -75,7 +75,7 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
       <SettingsSidebar
         collapsed={collapsed}
         onToggleCollapse={() => setCollapsed((c) => !c)}
-        onBack={() => router.push(process.env.NEXT_PUBLIC_APP_URL ?? "/")}
+        onBack={() => { window.location.href = process.env.NEXT_PUBLIC_APP_URL ?? "/"; }}
         onSignOut={handleSignOut}
       />
       <main className="flex-1 overflow-auto">
