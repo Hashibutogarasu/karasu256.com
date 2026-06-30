@@ -2,14 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { getIdToken } from "firebase/auth";
+import { getIdToken, onAuthStateChanged, type User } from "firebase/auth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGoogle, faGithub } from "@fortawesome/free-brands-svg-icons";
 import { faLink, faLinkSlash } from "@fortawesome/free-solid-svg-icons";
 import { useTranslation } from "react-i18next";
 import { toast, SettingsAccordion, SettingsItem, Spinner } from "@Hashibutogarasu/ui";
 import { getFirebaseAuth } from "@/lib/firebase/auth";
-import { useSettingsUser } from "@/components/settings/user-context";
 import { listPasskeyCredentials } from "@/lib/api/passkey-credentials";
 import { listLinkedProviders, unlinkProvider, type LinkedProvider } from "@/lib/api/providers";
 import { Button } from "@Hashibutogarasu/ui";
@@ -21,21 +20,27 @@ const PROVIDERS = [
 
 /**
  * Displays linked OAuth providers (Google, GitHub) with link/unlink controls.
+ * Manages its own Firebase auth subscription so it can render immediately
+ * without depending on UserContext, avoiding a skeleton overlay during load.
  * Linking redirects the browser to the provider via /api/auth/connect/[provider].
  * Unlinking removes the entry from the database without touching Firebase Auth.
  * Unlinking the last provider is blocked when the user has no registered passkeys.
  */
 export function ProviderSection() {
   const { t } = useTranslation();
-  const { user } = useSettingsUser();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [authUser, setAuthUser] = useState<User | null>(null);
   const [linked, setLinked] = useState<LinkedProvider[]>([]);
   const [loadingProviders, setLoadingProviders] = useState(true);
   const [loading, setLoading] = useState<string | null>(null);
   const [hasPasskeys, setHasPasskeys] = useState(false);
   const handledParamsRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    return onAuthStateChanged(getFirebaseAuth(), setAuthUser);
+  }, []);
 
   useEffect(() => {
     const paramsKey = searchParams.toString();
@@ -69,7 +74,7 @@ export function ProviderSection() {
   }, []);
 
   const linkedIds = new Set(linked.map((p) => p.provider));
-  const hasPasswordProvider = user.providerData.some((p) => p.providerId === "password");
+  const hasPasswordProvider = (authUser?.providerData ?? []).some((p) => p.providerId === "password");
   const canUnlink = linked.length > 1 || hasPasskeys || hasPasswordProvider;
 
   function handleLink(providerId: string) {
