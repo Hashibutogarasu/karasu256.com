@@ -11,6 +11,7 @@ import { toast, SettingsAccordion, SettingsItem, Spinner } from "@Hashibutogaras
 import { getFirebaseAuth } from "@/lib/firebase/auth";
 import { listPasskeyCredentials } from "@/lib/api/passkey-credentials";
 import { listLinkedProviders, unlinkProvider, type LinkedProvider } from "@/lib/api/providers";
+import { buildConnectUrl } from "@/lib/redirect";
 import { Button } from "@Hashibutogarasu/ui";
 
 export interface Provider {
@@ -87,7 +88,7 @@ export function ProviderSection({ providers }: ProviderSectionProps) {
 
   function handleLink(providerId: string) {
     setLoading(providerId);
-    window.location.href = `/api/auth/connect/${providerId}?redirectTo=/settings/linking`;
+    window.location.href = buildConnectUrl(providerId, "/settings/linking");
   }
 
   async function handleUnlink(providerId: string) {

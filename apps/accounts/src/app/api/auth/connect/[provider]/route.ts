@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server"
 import { requireSession } from "@/lib/api/require-session"
 import { badRequest, notFound } from "@/lib/api/responses"
+import { getNextParam } from "@/lib/redirect"
 import { signIn } from "@/auth"
 
 const SUPPORTED_PROVIDERS = new Set(["google", "github"])
@@ -11,7 +12,7 @@ const SUPPORTED_PROVIDERS = new Set(["google", "github"])
  * automatically. The signIn callback in auth.ts performs the database upsert
  * after the provider redirects back to /api/auth/callback/[provider].
  *
- * Accepts an optional `redirectTo` query parameter (must be a same-origin path
+ * Accepts an optional `next` query parameter (must be a same-origin path
  * starting with `/`) to control where the user lands after linking completes.
  */
 export async function GET(
@@ -27,8 +28,8 @@ export async function GET(
     return notFound()
   }
 
-  const redirectTo = request.nextUrl.searchParams.get("redirectTo")
-  if (!redirectTo?.startsWith("/")) {
+  const redirectTo = getNextParam(request)
+  if (!redirectTo) {
     return badRequest()
   }
 
