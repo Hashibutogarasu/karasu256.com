@@ -1,9 +1,10 @@
 import { randomBytes, createHash } from "crypto";
 import { type NextRequest, NextResponse } from "next/server";
+import { sql } from "drizzle-orm";
 import { getAdminAuth } from "@/lib/firebase-admin";
 import { getServerConfig } from "@/lib/config";
 import { sendPasswordResetEmail } from "@Hashibutogarasu/utils/email";
-import { getDb, passwordResetTokens } from "@Hashibutogarasu/db";
+import { getDb, passwordResetTokens, users } from "@Hashibutogarasu/db";
 
 /** One-time code expiry: 15 minutes. */
 const CODE_EXPIRY_MS = 15 * 60 * 1000;
@@ -49,7 +50,13 @@ export async function POST(request: NextRequest) {
   const rawToken = randomBytes(32).toString("hex");
   const tokenHash = createHash("sha256").update(rawToken).digest("hex");
 
-  await getDb().insert(passwordResetTokens).values({
+  const db = getDb();
+  await db
+    .insert(users)
+    .values({ id: uid })
+    .onConflictDoUpdate({ target: users.id, set: { updatedAt: sql`now()` } });
+
+  await db.insert(passwordResetTokens).values({
     userId: uid,
     tokenHash,
     expiresAt: new Date(Date.now() + CODE_EXPIRY_MS),
