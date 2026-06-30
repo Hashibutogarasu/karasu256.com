@@ -1,17 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { getIdToken, onAuthStateChanged, type User } from "firebase/auth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGoogle, faGithub } from "@fortawesome/free-brands-svg-icons";
 import { faLink, faLinkSlash } from "@fortawesome/free-solid-svg-icons";
 import { useTranslation } from "react-i18next";
 import { toast, SettingsAccordion, SettingsItem, Spinner } from "@Hashibutogarasu/ui";
-import { getFirebaseAuth } from "@/lib/firebase/auth";
-import { listPasskeyCredentials } from "@/lib/api/passkey-credentials";
-import { listLinkedProviders, unlinkProvider, type LinkedProvider } from "@/lib/api/providers";
+import { unlinkProvider } from "@/lib/api/providers";
 import { Button } from "@Hashibutogarasu/ui";
+import { useProviderSection } from "@/hooks/use-provider-section";
 
 const PROVIDERS = [
   { id: "google", label: "Google", icon: faGoogle },
@@ -20,8 +18,6 @@ const PROVIDERS = [
 
 /**
  * Displays linked OAuth providers (Google, GitHub) with link/unlink controls.
- * Manages its own Firebase auth subscription so it can render immediately
- * without depending on UserContext, avoiding a skeleton overlay during load.
  * Linking redirects the browser to the provider via /api/auth/connect/[provider].
  * Unlinking removes the entry from the database without touching Firebase Auth.
  * Unlinking the last provider is blocked when the user has no registered passkeys.
@@ -31,20 +27,10 @@ export function ProviderSection() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [authUser, setAuthUser] = useState<User | null>(null);
-  const [loadingAuth, setLoadingAuth] = useState(true);
-  const [linked, setLinked] = useState<LinkedProvider[]>([]);
-  const [loadingProviders, setLoadingProviders] = useState(true);
-  const [loading, setLoading] = useState<string | null>(null);
-  const [hasPasskeys, setHasPasskeys] = useState(false);
   const handledParamsRef = useRef<string | null>(null);
 
-  useEffect(() => {
-    return onAuthStateChanged(getFirebaseAuth(), (user) => {
-      setAuthUser(user);
-      setLoadingAuth(false);
-    });
-  }, []);
+  const { authUser, linked, setLinked, hasPasskeys, loading, setLoading, dataReady } =
+    useProviderSection();
 
   useEffect(() => {
     const paramsKey = searchParams.toString();
@@ -62,20 +48,6 @@ export function ProviderSection() {
     }
     router.replace(pathname);
   }, [searchParams, t, router, pathname]);
-
-  useEffect(() => {
-    void listLinkedProviders()
-      .then(setLinked)
-      .catch(() => {})
-      .finally(() => setLoadingProviders(false));
-
-    const current = getFirebaseAuth().currentUser;
-    if (!current) return;
-    void getIdToken(current)
-      .then((idToken) => listPasskeyCredentials(idToken))
-      .then((creds) => setHasPasskeys(creds.length > 0))
-      .catch(() => {});
-  }, []);
 
   const linkedIds = new Set(linked.map((p) => p.provider));
   const hasPasswordProvider = (authUser?.providerData ?? []).some((p) => p.providerId === "password");
@@ -114,27 +86,27 @@ export function ProviderSection() {
                 <Button
                   variant="destructive"
                   size="sm"
-                  disabled={!canUnlink || isLoading || loadingProviders}
+                  disabled={!canUnlink || isLoading || !dataReady}
                   onClick={() => handleUnlink(id)}
                 >
-                  {isLoading || loadingProviders ? <Spinner /> : <FontAwesomeIcon icon={faLinkSlash} />}
+                  {isLoading || !dataReady ? <Spinner /> : <FontAwesomeIcon icon={faLinkSlash} />}
                   {isLoading ? t("connections.unlinking") : t("connections.unlink")}
                 </Button>
               ) : (
                 <Button
                   variant="outline"
                   size="sm"
-                  disabled={isLoading || loadingProviders}
+                  disabled={isLoading || !dataReady}
                   onClick={() => handleLink(id)}
                 >
-                  {isLoading || loadingProviders ? <Spinner /> : <FontAwesomeIcon icon={faLink} />}
+                  {isLoading || !dataReady ? <Spinner /> : <FontAwesomeIcon icon={faLink} />}
                   {t("connections.link")}
                 </Button>
               )}
             </SettingsItem>
           );
         })}
-        {!loadingProviders && !loadingAuth && !canUnlink && (
+        {dataReady && !canUnlink && (
           <p className="text-xs text-muted-foreground">{t("connections.cannotUnlink")}</p>
         )}
       </div>
