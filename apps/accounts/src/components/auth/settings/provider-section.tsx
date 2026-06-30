@@ -130,7 +130,7 @@ export function ProviderSection() {
             </SettingsItem>
           );
         })}
-        {!canUnlink && (
+        {!loadingProviders && !canUnlink && (
           <p className="text-xs text-muted-foreground">{t("connections.cannotUnlink")}</p>
         )}
       </div>
