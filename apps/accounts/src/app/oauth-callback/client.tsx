@@ -33,7 +33,7 @@ export function OAuthCallbackClient() {
       const credential = await signInWithCustomToken(getFirebaseAuth(), customToken)
       const idToken = await credential.user.getIdToken()
       await createSession(idToken)
-      await nextAuthSignIn("credentials", { idToken, redirect: false })
+      nextAuthSignIn("credentials", { idToken, redirect: false }).catch(() => {})
       router.replace("/settings")
     }
 

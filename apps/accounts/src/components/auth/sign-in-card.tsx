@@ -28,13 +28,21 @@ export function SignInCard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let redirecting = false;
     return onAuthStateChanged(getFirebaseAuth(), async (user) => {
-      if (user) {
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+      if (redirecting) return;
+      redirecting = true;
+      try {
         const idToken = await user.getIdToken();
         await createSession(idToken);
-        await nextAuthSignIn("credentials", { idToken, redirect: false });
+        nextAuthSignIn("credentials", { idToken, redirect: false }).catch(() => {});
         router.replace("/settings");
-      } else {
+      } catch {
+        redirecting = false;
         setLoading(false);
       }
     });
