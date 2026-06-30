@@ -80,7 +80,13 @@
     "unlink": "解除关联",
     "linking": "关联中",
     "unlinking": "解除中",
-    "cannotUnlink": "无法删除最后一种登录方式。"
+    "cannotUnlink": "无法删除最后一种登录方式。",
+    "linked": "已关联 {{provider}}。",
+    "error": {
+      "provider_already_linked": "此账户已关联至其他用户。",
+      "missing_token": "认证失败，请重试。",
+      "unknown": "发生错误，请重试。"
+    }
   },
   "dangerZone": {
     "title": "危险操作",

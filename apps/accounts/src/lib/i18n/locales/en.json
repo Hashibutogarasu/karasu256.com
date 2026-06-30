@@ -80,7 +80,13 @@
     "unlink": "Disconnect",
     "linking": "Connecting",
     "unlinking": "Disconnecting",
-    "cannotUnlink": "Cannot remove your last sign-in method."
+    "cannotUnlink": "Cannot remove your last sign-in method.",
+    "linked": "{{provider}} connected.",
+    "error": {
+      "provider_already_linked": "This account is already connected to another user.",
+      "missing_token": "Authentication failed. Please try again.",
+      "unknown": "An error occurred. Please try again."
+    }
   },
   "dangerZone": {
     "title": "Danger zone",

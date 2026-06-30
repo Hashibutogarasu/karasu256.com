@@ -113,7 +113,7 @@ export function ProviderSection() {
                   disabled={!canUnlink || isLoading || loadingProviders}
                   onClick={() => handleUnlink(id)}
                 >
-                  {isLoading ? <Spinner /> : <FontAwesomeIcon icon={faLinkSlash} />}
+                  {isLoading || loadingProviders ? <Spinner /> : <FontAwesomeIcon icon={faLinkSlash} />}
                   {isLoading ? t("connections.unlinking") : t("connections.unlink")}
                 </Button>
               ) : (
@@ -123,7 +123,7 @@ export function ProviderSection() {
                   disabled={isLoading || loadingProviders}
                   onClick={() => handleLink(id)}
                 >
-                  {isLoading ? <Spinner /> : <FontAwesomeIcon icon={faLink} />}
+                  {isLoading || loadingProviders ? <Spinner /> : <FontAwesomeIcon icon={faLink} />}
                   {t("connections.link")}
                 </Button>
               )}

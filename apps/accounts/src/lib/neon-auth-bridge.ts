@@ -1,5 +1,6 @@
 import type { DecodedIdToken } from "firebase-admin/auth";
 import { getNeonAuth, deriveNeonAuthPassword } from "@Hashibutogarasu/db";
+import { ApiError } from "@Hashibutogarasu/utils/client";
 
 /**
  * Ensures a Neon Auth session exists for the given Firebase user, creating a
@@ -26,5 +27,8 @@ export async function syncFirebaseUserToNeonAuth(
   const signInResult = await auth.signIn.email({ email, password });
   if (!signInResult.error) return;
 
-  await auth.signUp.email({ email, password, name });
+  const signUpResult = await auth.signUp.email({ email, password, name });
+  if (signUpResult.error) {
+    throw new ApiError(signUpResult.error.status, signUpResult.error.code ?? "unknown");
+  }
 }
