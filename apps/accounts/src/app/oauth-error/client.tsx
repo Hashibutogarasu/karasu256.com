@@ -10,8 +10,8 @@ import { Button } from "@Hashibutogarasu/ui"
 /**
  * Displays an error message when the OAuth sign-in flow fails.
  *
- * When `?reason=account_not_linked` is present, a specific message explaining
- * that the provider must be linked first is shown instead of the generic one.
+ * Renders reason-specific messages for `account_not_linked` and `user_not_found`;
+ * falls back to a generic message for all other cases.
  */
 export function OAuthErrorClient() {
   const { t } = useTranslation()
@@ -21,7 +21,9 @@ export function OAuthErrorClient() {
   const message =
     reason === "account_not_linked"
       ? t("oauthError.accountNotLinked")
-      : t("oauthError.message")
+      : reason === "user_not_found"
+        ? t("oauthError.userNotFound")
+        : t("oauthError.message")
 
   return (
     <Container className="max-w-sm">

@@ -105,6 +105,7 @@
     "title": "登录失败",
     "message": "验证账户时发生错误，请重试。",
     "accountNotLinked": "此账户尚未关联。请先通过邮箱/密码登录，然后在设置页面进行关联。",
+    "userNotFound": "此账户不存在，请使用其他方式登录。",
     "backToSignIn": "返回登录"
   },
   "passwordStrength": {
