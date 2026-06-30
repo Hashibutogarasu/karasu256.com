@@ -9,7 +9,7 @@ const SUPPORTED_PROVIDERS = new Set(["google", "github"])
  * Unlike the account-linking connect route, this does not require an existing
  * session. After the OAuth callback, the signIn handler in auth.ts creates a
  * Firebase user (or finds an existing one by email), issues a custom token
- * stored in a short-lived cookie, and redirects to /oauth-callback.
+ * stored in a short-lived cookie, and redirects to /auth/callback.
  */
 export async function GET(
   _request: NextRequest,
@@ -21,5 +21,5 @@ export async function GET(
     return notFound()
   }
 
-  await signIn(provider, { redirectTo: "/oauth-callback" })
+  await signIn(provider, { redirectTo: "/auth/callback" })
 }
