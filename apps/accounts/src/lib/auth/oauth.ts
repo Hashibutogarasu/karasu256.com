@@ -73,13 +73,13 @@ export async function handleOAuthSignIn(account: Account, profile: Profile): Pro
     )
 
   if (!existingAccount) {
-    return "/oauth-error?reason=account_not_linked"
+    return "/oauth-error?reason=accountNotLinked"
   }
 
   try {
     await getAdminAuth().getUser(existingAccount.userId)
   } catch {
-    return "/oauth-error?reason=user_not_found"
+    return "/oauth-error?reason=userNotFound"
   }
 
   await upsertProviderTokens(existingAccount.id, account)

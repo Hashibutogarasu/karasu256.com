@@ -1,5 +1,6 @@
 "use client"
 
+import { useMemo } from "react"
 import { useSearchParams } from "next/navigation"
 import { useTranslation } from "react-i18next"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -10,19 +11,18 @@ import { Button } from "@Hashibutogarasu/ui"
 /**
  * Displays an error message when the OAuth sign-in flow fails.
  *
- * Renders reason-specific messages for `account_not_linked` and `user_not_found`;
- * falls back to a generic message for all other cases.
+ * The `reason` query parameter is used as a suffix of the `oauthError.*` i18n key,
+ * falling back to `oauthError.message` when the key is absent or `reason` is missing.
  */
 export function OAuthErrorClient() {
   const { t } = useTranslation()
   const searchParams = useSearchParams()
   const reason = searchParams.get("reason")
 
-  const reasonMessageKey: Record<string, string> = {
-    account_not_linked: "oauthError.accountNotLinked",
-    user_not_found: "oauthError.userNotFound",
-  };
-  const message = t((reason && reasonMessageKey[reason]) || "oauthError.message")
+  const message = useMemo(
+    () => t(reason ? `oauthError.${reason}` : "oauthError.message", { defaultValue: t("oauthError.message") }),
+    [reason, t],
+  )
 
   return (
     <Container className="max-w-sm">
