@@ -1,7 +1,9 @@
+import { ApiError } from "@Hashibutogarasu/utils/client";
+
 /**
  * Creates a server-side session cookie from a Firebase ID token.
  *
- * @throws When the server rejects the token.
+ * @throws {ApiError} When the server rejects the token.
  */
 export async function createSession(idToken: string): Promise<void> {
   const res = await fetch("/api/auth/session", {
@@ -9,7 +11,7 @@ export async function createSession(idToken: string): Promise<void> {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ idToken }),
   });
-  if (!res.ok) throw new Error("Failed to create session");
+  if (!res.ok) throw ApiError.fromResponse(res);
 }
 
 /** Clears the server-side session cookie. */
