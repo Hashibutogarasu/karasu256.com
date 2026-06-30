@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { getIdToken } from "firebase/auth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGoogle, faGithub } from "@fortawesome/free-brands-svg-icons";
@@ -28,6 +28,8 @@ const PROVIDERS = [
 export function ProviderSection() {
   const { t } = useTranslation();
   const { user } = useSettingsUser();
+  const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const [linked, setLinked] = useState<LinkedProvider[]>([]);
   const [loadingProviders, setLoadingProviders] = useState(true);
@@ -49,7 +51,8 @@ export function ProviderSection() {
     } else if (linkedProvider) {
       toast.success(t("connections.linked", { provider: linkedProvider }), { duration: 1000 });
     }
-  }, [searchParams, t]);
+    router.replace(pathname);
+  }, [searchParams, t, router, pathname]);
 
   useEffect(() => {
     void listLinkedProviders()
