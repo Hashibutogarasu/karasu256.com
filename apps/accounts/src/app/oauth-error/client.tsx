@@ -18,12 +18,11 @@ export function OAuthErrorClient() {
   const searchParams = useSearchParams()
   const reason = searchParams.get("reason")
 
-  const message =
-    reason === "account_not_linked"
-      ? t("oauthError.accountNotLinked")
-      : reason === "user_not_found"
-        ? t("oauthError.userNotFound")
-        : t("oauthError.message")
+  const reasonMessageKey: Record<string, string> = {
+    account_not_linked: "oauthError.accountNotLinked",
+    user_not_found: "oauthError.userNotFound",
+  };
+  const message = t((reason && reasonMessageKey[reason]) || "oauthError.message")
 
   return (
     <Container className="max-w-sm">
