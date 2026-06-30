@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Button,
@@ -17,8 +17,8 @@ import { createApiKey, type ApiKeyCreated } from "@/lib/api/developer";
 
 interface CreateApiKeyDialogProps {
   open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onCreated: (key: ApiKeyCreated) => void;
+  onOpenChange: (_open: boolean) => void;
+  onCreated: (_key: ApiKeyCreated) => void;
 }
 
 /**

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Upload } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
@@ -23,10 +23,10 @@ import {
 
 interface EditOAuthClientDialogProps {
   open: boolean;
-  onOpenChange: (open: boolean) => void;
+  onOpenChange: (_open: boolean) => void;
   client: OAuthClientSummary;
   sections: SectionMeta[];
-  onUpdated: (client: OAuthClientSummary) => void;
+  onUpdated: (_client: OAuthClientSummary) => void;
 }
 
 /**

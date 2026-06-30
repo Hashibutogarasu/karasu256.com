@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { firebaseConfigSchema } from "@/lib/firebase/schema";
 
 /**
- * Next.js Edge middleware that:
+ * Next.js 16 proxy (formerly middleware) that:
  * 1. Validates all required Firebase environment variables on every request.
  * 2. Redirects unauthenticated requests away from /settings.
  * 3. Redirects authenticated requests away from the sign-in root (/).
@@ -11,7 +11,7 @@ import { firebaseConfigSchema } from "@/lib/firebase/schema";
  * the Firebase Admin SDK is not Edge-runtime compatible. Full verification is
  * performed inside each protected API route and server component as needed.
  */
-export function middleware(request: NextRequest): NextResponse {
+export function proxy(request: NextRequest): NextResponse {
   const configResult = firebaseConfigSchema.safeParse({
     apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
     authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,

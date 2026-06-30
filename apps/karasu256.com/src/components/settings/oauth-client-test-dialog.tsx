@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { CheckCircle, Circle, XCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Spinner as DefaultSpinner } from "@/components/ui/spinner";
@@ -31,7 +31,7 @@ interface StepState {
 
 interface OAuthClientTestDialogProps {
   open: boolean;
-  onOpenChange: (open: boolean) => void;
+  onOpenChange: (_open: boolean) => void;
   client: OAuthClientSummary;
   /** Overrides the default spinner shown while a step is in progress. */
   spinner?: React.ComponentType<{ className?: string }>;
@@ -41,8 +41,8 @@ function makeInitialSteps(): StepState[] {
   return STEP_LABELS.map((label) => ({ label, status: "waiting" }));
 }
 
-function failStep(label: StepLabel, error: string): (prev: StepState[]) => StepState[] {
-  return (prev) =>
+function failStep(label: StepLabel, error: string) {
+  return (prev: StepState[]): StepState[] =>
     prev.map((s) => (s.label === label ? { ...s, status: "error", error } : s));
 }
 

@@ -12,7 +12,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
   providers: [
     Credentials({
       credentials: { idToken: {} },
-      authorize: makeFirebaseAuthorize(getAdminAuth()),
+      authorize: (credentials) => makeFirebaseAuthorize(getAdminAuth())(credentials),
     }),
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID,

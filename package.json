@@ -15,13 +15,18 @@
   "simple-git-hooks": {
     "pre-commit": "bash scripts/pre-commit.sh"
   },
+  "pnpm": {
+    "overrides": {
+      "jwks-rsa>jose": "^5.10.0"
+    }
+  },
   "devDependencies": {
     "@dotenvx/dotenvx": "^1.75.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "prettier": "^3.5.3",
     "simple-git-hooks": "^2.13.1",
-    "turbo": "^2.9.18",
+    "turbo": "^2.10.0",
     "typescript": "^5",
     "vercel": "^54.0.0"
   }
