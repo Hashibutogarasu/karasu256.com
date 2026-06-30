@@ -4,9 +4,7 @@ import { useState } from "react";
 import {
   deleteUser,
   EmailAuthProvider,
-  GoogleAuthProvider,
   reauthenticateWithCredential,
-  reauthenticateWithPopup,
   signOut,
 } from "firebase/auth";
 import { useTranslation } from "react-i18next";
@@ -41,10 +39,11 @@ export function DangerZone() {
       if (hasPasswordProvider) {
         const credential = EmailAuthProvider.credential(user.email!, password);
         await reauthenticateWithCredential(user, credential);
+        await deleteUser(user);
       } else {
-        await reauthenticateWithPopup(user, new GoogleAuthProvider());
+        const res = await fetch("/api/user", { method: "DELETE" });
+        if (!res.ok) throw new Error(t("dangerZone.reauthRequired"));
       }
-      await deleteUser(user);
       await clearSession();
       await signOut(getFirebaseAuth());
     } catch (err) {
