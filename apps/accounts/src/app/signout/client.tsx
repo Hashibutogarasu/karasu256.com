@@ -3,6 +3,8 @@
 import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { signOut } from "firebase/auth";
+import { useTranslation } from "react-i18next";
+import { SigningOutView } from "@Hashibutogarasu/ui";
 import { getFirebaseAuth } from "@/lib/firebase/auth";
 import { clearSession } from "@/lib/api/auth-session";
 
@@ -12,6 +14,7 @@ import { clearSession } from "@/lib/api/auth-session";
  */
 export function SignOutClient() {
   const searchParams = useSearchParams();
+  const { t } = useTranslation();
 
   useEffect(() => {
     async function performSignOut() {
@@ -25,5 +28,5 @@ export function SignOutClient() {
     performSignOut();
   }, [searchParams]);
 
-  return null;
+  return <SigningOutView message={t("settings.signingOut")} />;
 }

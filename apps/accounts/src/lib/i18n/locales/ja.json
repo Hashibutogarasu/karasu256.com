@@ -48,7 +48,8 @@
       "connections": "アカウント連携"
     },
     "back": "戻る",
-    "signOut": "サインアウト"
+    "signOut": "サインアウト",
+    "signingOut": "サインアウト中"
   },
   "profile": {
     "title": "プロフィール",

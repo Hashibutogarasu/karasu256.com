@@ -48,7 +48,8 @@
       "connections": "Connections"
     },
     "back": "Back",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "signingOut": "Signing out"
   },
   "profile": {
     "title": "Profile",

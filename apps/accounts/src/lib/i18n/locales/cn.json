@@ -48,7 +48,8 @@
       "connections": "账户关联"
     },
     "back": "返回",
-    "signOut": "退出登录"
+    "signOut": "退出登录",
+    "signingOut": "退出登录中"
   },
   "profile": {
     "title": "个人资料",
