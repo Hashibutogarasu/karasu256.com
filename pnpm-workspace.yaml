@@ -15,3 +15,4 @@ allowBuilds:
   workerd: true
   '@swc/core': true
   simple-git-hooks: true
+  core-js: set this to true or false
