@@ -54,7 +54,7 @@ async function upsertProviderTokens(
  * Requires the provider account to already be linked in `provider_accounts`.
  * If no matching row is found the sign-in is rejected and the user is
  * redirected to the error page. On success a short-lived Firebase custom token
- * is stored in an httpOnly cookie and the user is redirected to /oauth-callback.
+ * is stored in an httpOnly cookie and the user is redirected to /auth/callback.
  */
 export async function handleOAuthSignIn(account: Account, profile: Profile): Promise<string> {
   const db = getDb()
@@ -88,7 +88,7 @@ export async function handleOAuthSignIn(account: Account, profile: Profile): Pro
     maxAge: 60,
   })
 
-  return "/oauth-callback"
+  return "/auth/callback"
 }
 
 /**
