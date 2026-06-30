@@ -32,6 +32,7 @@ export function ProviderSection() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [authUser, setAuthUser] = useState<User | null>(null);
+  const [loadingAuth, setLoadingAuth] = useState(true);
   const [linked, setLinked] = useState<LinkedProvider[]>([]);
   const [loadingProviders, setLoadingProviders] = useState(true);
   const [loading, setLoading] = useState<string | null>(null);
@@ -39,7 +40,10 @@ export function ProviderSection() {
   const handledParamsRef = useRef<string | null>(null);
 
   useEffect(() => {
-    return onAuthStateChanged(getFirebaseAuth(), setAuthUser);
+    return onAuthStateChanged(getFirebaseAuth(), (user) => {
+      setAuthUser(user);
+      setLoadingAuth(false);
+    });
   }, []);
 
   useEffect(() => {
@@ -130,7 +134,7 @@ export function ProviderSection() {
             </SettingsItem>
           );
         })}
-        {!canUnlink && (
+        {!loadingProviders && !loadingAuth && !canUnlink && (
           <p className="text-xs text-muted-foreground">{t("connections.cannotUnlink")}</p>
         )}
       </div>
