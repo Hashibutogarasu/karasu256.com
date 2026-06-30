@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { getIdToken } from "firebase/auth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGoogle, faGithub } from "@fortawesome/free-brands-svg-icons";
 import { faLink, faLinkSlash } from "@fortawesome/free-solid-svg-icons";
 import { useTranslation } from "react-i18next";
-import { toast, SettingsAccordion, SettingsItem } from "@Hashibutogarasu/ui";
+import { toast, SettingsAccordion, SettingsItem, Spinner } from "@Hashibutogarasu/ui";
 import { getFirebaseAuth } from "@/lib/firebase/auth";
 import { useSettingsUser } from "@/components/settings/user-context";
 import { listPasskeyCredentials } from "@/lib/api/passkey-credentials";
@@ -27,12 +28,37 @@ const PROVIDERS = [
 export function ProviderSection() {
   const { t } = useTranslation();
   const { user } = useSettingsUser();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [linked, setLinked] = useState<LinkedProvider[]>([]);
+  const [loadingProviders, setLoadingProviders] = useState(true);
   const [loading, setLoading] = useState<string | null>(null);
   const [hasPasskeys, setHasPasskeys] = useState(false);
+  const handledParamsRef = useRef<string | null>(null);
 
   useEffect(() => {
-    void listLinkedProviders().then(setLinked).catch(() => {});
+    const paramsKey = searchParams.toString();
+    if (!paramsKey || handledParamsRef.current === paramsKey) return;
+    handledParamsRef.current = paramsKey;
+
+    const error = searchParams.get("error");
+    const linkedProvider = searchParams.get("linked");
+
+    if (error) {
+      const key = `connections.error.${error}`;
+      toast.error(t(key, { defaultValue: t("connections.error.unknown") }));
+    } else if (linkedProvider) {
+      toast.success(t("connections.linked", { provider: linkedProvider }), { duration: 1000 });
+    }
+    router.replace(pathname);
+  }, [searchParams, t, router, pathname]);
+
+  useEffect(() => {
+    void listLinkedProviders()
+      .then(setLinked)
+      .catch(() => {})
+      .finally(() => setLoadingProviders(false));
 
     const current = getFirebaseAuth().currentUser;
     if (!current) return;
@@ -47,6 +73,7 @@ export function ProviderSection() {
   const canUnlink = linked.length > 1 || hasPasskeys || hasPasswordProvider;
 
   function handleLink(providerId: string) {
+    setLoading(providerId);
     window.location.href = `/api/auth/connect/${providerId}?redirectTo=/settings/linking`;
   }
 
@@ -78,20 +105,20 @@ export function ProviderSection() {
                 <Button
                   variant="destructive"
                   size="sm"
-                  disabled={!canUnlink || isLoading}
+                  disabled={!canUnlink || isLoading || loadingProviders}
                   onClick={() => handleUnlink(id)}
                 >
-                  <FontAwesomeIcon icon={faLinkSlash} />
+                  {isLoading ? <Spinner /> : <FontAwesomeIcon icon={faLinkSlash} />}
                   {isLoading ? t("connections.unlinking") : t("connections.unlink")}
                 </Button>
               ) : (
                 <Button
                   variant="outline"
                   size="sm"
-                  disabled={isLoading}
+                  disabled={isLoading || loadingProviders}
                   onClick={() => handleLink(id)}
                 >
-                  <FontAwesomeIcon icon={faLink} />
+                  {isLoading ? <Spinner /> : <FontAwesomeIcon icon={faLink} />}
                   {t("connections.link")}
                 </Button>
               )}
