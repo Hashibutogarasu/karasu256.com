@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { firebaseConfigSchema } from "@/lib/firebase/schema";
 
 /**
- * Next.js Edge middleware that:
+ * Next.js 16 proxy (formerly middleware) that:
  * 1. Validates all required Firebase environment variables on every request.
  * 2. Redirects unauthenticated requests away from /settings.
  * 3. Redirects authenticated requests away from the sign-in root (/).
