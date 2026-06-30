@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { getIdToken } from "firebase/auth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGoogle, faGithub } from "@fortawesome/free-brands-svg-icons";
@@ -27,9 +28,22 @@ const PROVIDERS = [
 export function ProviderSection() {
   const { t } = useTranslation();
   const { user } = useSettingsUser();
+  const searchParams = useSearchParams();
   const [linked, setLinked] = useState<LinkedProvider[]>([]);
   const [loading, setLoading] = useState<string | null>(null);
   const [hasPasskeys, setHasPasskeys] = useState(false);
+
+  useEffect(() => {
+    const error = searchParams.get("error");
+    const linkedProvider = searchParams.get("linked");
+
+    if (error) {
+      const key = `connections.error.${error}`;
+      toast.error(t(key, { defaultValue: t("connections.error.unknown") }));
+    } else if (linkedProvider) {
+      toast.success(t("connections.linked", { provider: linkedProvider }));
+    }
+  }, [searchParams, t]);
 
   useEffect(() => {
     void listLinkedProviders().then(setLinked).catch(() => {});
