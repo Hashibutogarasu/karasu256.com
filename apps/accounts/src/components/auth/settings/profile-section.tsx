@@ -41,7 +41,7 @@ export function ProfileSection() {
       </p>
       <div className="flex items-center gap-3">
         <Identicon value={user.uid} size={48} className="border border-border" />
-        <p className="text-sm text-muted-foreground break-all">{user.email ?? user.uid}</p>
+        <p className="text-sm text-muted-foreground break-all">{user.displayName ?? user.email ?? user.uid}</p>
       </div>
       <form onSubmit={handleSave} className="space-y-3">
         <div className="space-y-1">
