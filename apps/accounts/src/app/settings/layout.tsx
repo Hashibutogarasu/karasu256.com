@@ -1,88 +1,11 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { onAuthStateChanged, signOut, type User } from "firebase/auth";
-import { usePathname, useRouter } from "next/navigation";
-import { useTranslation } from "react-i18next";
-import { getFirebaseAuth } from "@/lib/firebase/auth";
-import { clearSession } from "@/lib/api/auth-session";
-import { Skeleton } from "@Hashibutogarasu/ui";
-import { SettingsSidebar } from "@/components/settings/settings-sidebar";
-import { UserContext } from "@/components/settings/user-context";
+import { SettingsShell } from "./shell";
 
 /**
- * Settings shell. Verifies Firebase auth state client-side and provides the
- * authenticated User via UserContext. Shows skeleton in main content while
- * auth resolves, except on /settings/linking which always renders its children
- * directly so the provider buttons can appear (disabled) without a skeleton.
+ * Reads NEXT_PUBLIC_APP_URL at request time on the server and passes it to
+ * the client shell as a prop, preventing the value from being undefined when
+ * the variable is absent from the client-side build bundle.
  */
 export default function SettingsLayout({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const { t } = useTranslation();
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [collapsed, setCollapsed] = useState(false);
-
-  const isLinkingPage = pathname === "/settings/linking";
-
-  useEffect(() => {
-    return onAuthStateChanged(getFirebaseAuth(), async (u) => {
-      if (!u) {
-        await clearSession();
-        router.replace("/");
-      } else {
-        try { await u.reload() } catch (_) { /* noop */ }
-        setUser(getFirebaseAuth().currentUser ?? u);
-        setLoading(false);
-      }
-    });
-  }, [router]);
-
-  async function handleSignOut() {
-    await clearSession();
-    await signOut(getFirebaseAuth());
-  }
-
-  function renderContent() {
-    if (isLinkingPage) {
-      return <>{children}</>;
-    }
-    if (loading) {
-      return (
-        <div className="space-y-4">
-          <Skeleton className="h-7 w-36" />
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-3/4" />
-          <Skeleton className="h-8 w-full" />
-        </div>
-      );
-    }
-    return (
-      <UserContext.Provider
-        value={{
-          user: user!,
-          updateUser: (patch) => setUser((u) => u && { ...u, ...patch }),
-        }}
-      >
-        {children}
-      </UserContext.Provider>
-    );
-  }
-
-  return (
-    <div className="flex flex-1">
-      <SettingsSidebar
-        collapsed={collapsed}
-        onToggleCollapse={() => setCollapsed((c) => !c)}
-        onBack={() => { window.location.href = process.env.NEXT_PUBLIC_APP_URL ?? "/"; }}
-        onSignOut={handleSignOut}
-      />
-      <main className="flex-1 overflow-auto">
-        <div className="px-6 py-8 lg:px-10">
-          {renderContent()}
-        </div>
-      </main>
-    </div>
-  );
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "/";
+  return <SettingsShell appUrl={appUrl}>{children}</SettingsShell>;
 }
