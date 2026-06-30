@@ -1,4 +1,5 @@
 import { startAuthentication } from "@simplewebauthn/browser";
+import { PasskeyError, UnknownPasskeyError } from "./passkey-errors";
 
 /**
  * Runs the full passkey authentication flow:
@@ -6,7 +7,8 @@ import { startAuthentication } from "@simplewebauthn/browser";
  * and verifies the assertion with the server.
  *
  * @returns A Firebase custom token to pass to `signInWithCustomToken`.
- * @throws When the browser or server rejects the credential.
+ * @throws {PasskeyError} When the server returns a recognised error code.
+ * @throws {Error} When the server returns an unrecognised error or no token.
  */
 export async function authenticateWithPasskey(): Promise<string> {
   const challengeRes = await fetch("/api/passkey/authenticate/challenge", { method: "POST" });
@@ -21,8 +23,12 @@ export async function authenticateWithPasskey(): Promise<string> {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(credential),
   });
-  const data = (await verifyRes.json()) as { customToken?: string; error?: string };
-  if (data.error) throw new Error(data.error);
-  if (!data.customToken) throw new Error("No custom token returned");
+  const data = (await verifyRes.json()) as { customToken?: string; code?: string };
+
+  if (data.code) {
+    throw PasskeyError.fromCode(data.code) ?? new UnknownPasskeyError();
+  }
+
+  if (!data.customToken) throw new UnknownPasskeyError();
   return data.customToken;
 }

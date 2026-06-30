@@ -38,7 +38,13 @@
     "register": "Register passkey",
     "registering": "Registering",
     "registered": "Passkey registered.",
-    "loadError": "Failed to load passkeys"
+    "loadError": "Failed to load passkeys",
+    "error": {
+      "credential_not_found": "Passkey not found. Please try again.",
+      "verification_failed": "Passkey verification failed. Please try again.",
+      "user_not_found": "This account no longer exists. Please sign in with a different method.",
+      "unknown": "Sign in with passkey failed. Please try again."
+    }
   },
   "settings": {
     "title": "Settings",
