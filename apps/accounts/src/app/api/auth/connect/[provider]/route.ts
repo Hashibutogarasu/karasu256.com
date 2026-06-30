@@ -28,10 +28,10 @@ export async function GET(
     return notFound()
   }
 
-  const redirectTo = getNextParam(request)
-  if (!redirectTo) {
+  const next = getNextParam(request)
+  if (!next) {
     return badRequest()
   }
 
-  await signIn(providerId, { redirectTo })
+  await signIn(providerId, { redirectTo: next })
 }
