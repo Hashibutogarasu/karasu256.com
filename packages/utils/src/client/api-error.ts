@@ -17,16 +17,16 @@ export class ApiError extends Error {
 
   /** Creates an {@link ApiError} whose code is derived from the HTTP status. */
   static fromResponse(response: Response): ApiError {
-    return new ApiError(response.status, codeFromStatus(response.status));
+    return new ApiError(response.status, ApiError.codeFromStatus(response.status));
   }
-}
 
-function codeFromStatus(status: number): string {
-  if (status === 400) return "bad_request";
-  if (status === 401) return "unauthorized";
-  if (status === 403) return "forbidden";
-  if (status === 404) return "not_found";
-  if (status === 409) return "conflict";
-  if (status >= 500) return "server_error";
-  return "unknown";
+  private static codeFromStatus(status: number): string {
+    if (status === 400) return "bad_request";
+    if (status === 401) return "unauthorized";
+    if (status === 403) return "forbidden";
+    if (status === 404) return "not_found";
+    if (status === 409) return "conflict";
+    if (status >= 500) return "server_error";
+    return "unknown";
+  }
 }
