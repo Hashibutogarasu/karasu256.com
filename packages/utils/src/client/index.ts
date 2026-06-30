@@ -1,3 +1,4 @@
+export { ApiError } from "./api-error";
 export {
   requestPasswordReset,
   verifyPasswordResetToken,
