@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { getIdToken } from "firebase/auth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -32,8 +32,13 @@ export function ProviderSection() {
   const [linked, setLinked] = useState<LinkedProvider[]>([]);
   const [loading, setLoading] = useState<string | null>(null);
   const [hasPasskeys, setHasPasskeys] = useState(false);
+  const handledParamsRef = useRef<string | null>(null);
 
   useEffect(() => {
+    const paramsKey = searchParams.toString();
+    if (!paramsKey || handledParamsRef.current === paramsKey) return;
+    handledParamsRef.current = paramsKey;
+
     const error = searchParams.get("error");
     const linkedProvider = searchParams.get("linked");
 
