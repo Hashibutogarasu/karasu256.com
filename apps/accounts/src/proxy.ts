@@ -11,7 +11,7 @@ import { firebaseConfigSchema } from "@/lib/firebase/schema";
  * the Firebase Admin SDK is not Edge-runtime compatible. Full verification is
  * performed inside each protected API route and server component as needed.
  */
-export function middleware(request: NextRequest): NextResponse {
+export function proxy(request: NextRequest): NextResponse {
   const configResult = firebaseConfigSchema.safeParse({
     apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
     authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
