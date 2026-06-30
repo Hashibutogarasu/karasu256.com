@@ -3,26 +3,31 @@
 import { useEffect, useRef } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGoogle, faGithub } from "@fortawesome/free-brands-svg-icons";
 import { faLink, faLinkSlash } from "@fortawesome/free-solid-svg-icons";
 import { useTranslation } from "react-i18next";
 import { toast, SettingsAccordion, SettingsItem, Spinner } from "@Hashibutogarasu/ui";
 import { unlinkProvider } from "@/lib/api/providers";
 import { Button } from "@Hashibutogarasu/ui";
 import { useProviderSection } from "@/hooks/use-provider-section";
+import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 
-const PROVIDERS = [
-  { id: "google", label: "Google", icon: faGoogle },
-  { id: "github", label: "GitHub", icon: faGithub },
-] as const;
+export interface Provider {
+  id: string;
+  label: string;
+  icon: IconDefinition;
+}
+
+interface ProviderSectionProps {
+  providers: Provider[];
+}
 
 /**
- * Displays linked OAuth providers (Google, GitHub) with link/unlink controls.
+ * Displays linked OAuth providers with link/unlink controls.
  * Linking redirects the browser to the provider via /api/auth/connect/[provider].
  * Unlinking removes the entry from the database without touching Firebase Auth.
  * Unlinking the last provider is blocked when the user has no registered passkeys.
  */
-export function ProviderSection() {
+export function ProviderSection({ providers }: ProviderSectionProps) {
   const { t } = useTranslation();
   const router = useRouter();
   const pathname = usePathname();
@@ -73,7 +78,7 @@ export function ProviderSection() {
   return (
     <SettingsAccordion title={t("connections.title")}>
       <div className="space-y-3">
-        {PROVIDERS.map(({ id, label, icon }) => {
+        {providers.map(({ id, label, icon }) => {
           const isLinked = linkedIds.has(id);
           const isLoading = loading === id;
           return (
