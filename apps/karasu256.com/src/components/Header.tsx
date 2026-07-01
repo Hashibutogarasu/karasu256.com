@@ -23,6 +23,7 @@ const Header = async () => {
             <AuthButton
               accountsUrl={accountsUrl}
               uid={user?.uid ?? null}
+              displayName={user?.name ?? null}
               email={user?.email ?? null}
             />
           </li>
