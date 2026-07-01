@@ -11,7 +11,7 @@ const Header = async () => {
   const accountsUrl = process.env.NEXT_PUBLIC_ACCOUNTS_URL ?? "#";
 
   return (
-    <header className="w-full py-2 px-6 flex justify-between items-center border-b border-border">
+    <header className="sticky top-0 z-20 bg-background w-full h-12 px-6 flex justify-between items-center border-b border-border shrink-0">
       <div className="font-bold text-xl">
         <Link href="/" className="hover:text-gray-600 transition-colors">
           Karasu Lab
