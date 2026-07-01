@@ -10,6 +10,7 @@ import { Button } from "@Hashibutogarasu/ui";
 import { Input } from "@Hashibutogarasu/ui";
 import { Label } from "@Hashibutogarasu/ui";
 import { Identicon } from "@Hashibutogarasu/ui";
+import { Skeleton } from "@Hashibutogarasu/ui";
 
 /** Displays the user's identicon avatar and allows editing their display name. */
 export function ProfileSection() {
@@ -58,6 +59,37 @@ export function ProfileSection() {
           {saving ? t("profile.saving") : t("profile.save")}
         </Button>
       </form>
+    </div>
+  );
+}
+
+/**
+ * Placeholder for {@link ProfileSection} shown while the authenticated user
+ * is still resolving. Mirrors the real layout so only the identicon and the
+ * display name next to it appear as skeletons; the form itself renders with
+ * its final structure and stays disabled until the user is ready.
+ */
+export function ProfileSectionSkeleton() {
+  const { t } = useTranslation();
+
+  return (
+    <div className="space-y-4">
+      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+        {t("profile.title")}
+      </p>
+      <div className="flex items-center gap-3">
+        <Skeleton className="h-12 w-12 rounded-full" />
+        <Skeleton className="h-4 w-32" />
+      </div>
+      <div className="space-y-3">
+        <div className="space-y-1">
+          <Label htmlFor="display-name">{t("profile.displayName")}</Label>
+          <Input id="display-name" value="" disabled autoComplete="name" />
+        </div>
+        <Button type="submit" variant="outline" className="w-full" disabled>
+          {t("profile.save")}
+        </Button>
+      </div>
     </div>
   );
 }
