@@ -9,6 +9,7 @@ import { clearSession } from "@/lib/api/auth-session";
 import { Skeleton, SettingsSidebarLayout } from "@Hashibutogarasu/ui";
 import { SettingsSidebar } from "@/components/settings/settings-sidebar";
 import { UserContext } from "@/components/settings/user-context";
+import { ProfileSectionSkeleton } from "@/components/auth/settings/profile-section";
 
 interface SettingsShellProps {
   children: React.ReactNode;
@@ -19,7 +20,9 @@ interface SettingsShellProps {
  * Settings shell. Verifies Firebase auth state client-side and provides the
  * authenticated User via UserContext. Shows skeleton in main content while
  * auth resolves, except on /settings/linking which always renders its children
- * directly so the provider buttons can appear (disabled) without a skeleton.
+ * directly so the provider buttons can appear (disabled) without a skeleton,
+ * and on /settings/profile which shows {@link ProfileSectionSkeleton} so only
+ * the identicon and display name are skeletonized while the form stays disabled.
  */
 export function SettingsShell({ children, appUrl }: SettingsShellProps) {
   const router = useRouter();
@@ -29,6 +32,7 @@ export function SettingsShell({ children, appUrl }: SettingsShellProps) {
   const [loading, setLoading] = useState(true);
 
   const isLinkingPage = pathname === "/settings/linking";
+  const isProfilePage = pathname === "/settings/profile";
 
   useEffect(() => {
     return onAuthStateChanged(getFirebaseAuth(), async (u) => {
@@ -53,6 +57,9 @@ export function SettingsShell({ children, appUrl }: SettingsShellProps) {
       return <>{children}</>;
     }
     if (loading) {
+      if (isProfilePage) {
+        return <ProfileSectionSkeleton />;
+      }
       return (
         <div className="space-y-4">
           <Skeleton className="h-7 w-36" />
