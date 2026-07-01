@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Code2, Layers, User } from "lucide-react";
@@ -9,6 +9,7 @@ import {
   SettingsSidebar,
   SettingsSidebarLayout,
   type SidebarNavItem,
+  type SettingsSidebarUser,
 } from "@Hashibutogarasu/ui";
 import { signOutAction } from "@/app/actions/auth";
 
@@ -18,14 +19,17 @@ const NAV_ITEMS_DEFS = [
   { href: "/settings/developer", icon: Code2, labelKey: "settings.sections.developer" },
 ] as const;
 
+interface SettingsShellProps {
+  children: React.ReactNode;
+  user: SettingsSidebarUser | null;
+}
+
 /**
- * Client-side settings shell. Manages sidebar collapsed state and provides
- * i18n-aware nav items with Next.js client-side links.
+ * Client-side settings shell. Provides i18n-aware nav items with Next.js client-side links.
  */
-export function SettingsShell({ children }: { children: React.ReactNode }) {
+export function SettingsShell({ children, user }: SettingsShellProps) {
   const { t } = useTranslation();
   const pathname = usePathname();
-  const [collapsed, setCollapsed] = useState(false);
 
   const navItems: SidebarNavItem[] = NAV_ITEMS_DEFS.map(({ href, icon, labelKey }) => ({
     href,
@@ -44,8 +48,7 @@ export function SettingsShell({ children }: { children: React.ReactNode }) {
           title={t("settings.title")}
           navItems={navItems}
           activeIndex={activeIndex}
-          collapsed={collapsed}
-          onToggleCollapse={() => setCollapsed((c) => !c)}
+          user={user}
           onSignOut={signOutAction}
           signOutLabel={t("settings.signOut")}
           renderLink={({ href, className, title, "aria-current": ariaCurrent, children }) => (
