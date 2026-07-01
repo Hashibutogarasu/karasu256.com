@@ -12,9 +12,15 @@ export default async function SettingsLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const user = await getSessionUser();
-  if (!user) {
+  const token = await getSessionUser();
+  if (!token) {
     redirect(process.env.NEXT_PUBLIC_ACCOUNTS_URL ?? "/");
   }
-  return <SettingsShell>{children}</SettingsShell>;
+  const user = {
+    uid: token.uid,
+    displayName: token.name ?? null,
+    email: token.email ?? null,
+    photoURL: token.picture ?? null,
+  };
+  return <SettingsShell user={user}>{children}</SettingsShell>;
 }

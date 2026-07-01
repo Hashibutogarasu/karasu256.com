@@ -4,7 +4,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { User, Shield, Link as LinkIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { SettingsSidebar as UiSettingsSidebar, type SidebarNavItem } from "@Hashibutogarasu/ui";
+import {
+  SettingsSidebar as UiSettingsSidebar,
+  type SidebarNavItem,
+  type SettingsSidebarUser,
+} from "@Hashibutogarasu/ui";
 
 const NAV_ITEMS_DEFS = [
   { href: "/settings/profile", icon: User, labelKey: "settings.sections.profile" },
@@ -13,9 +17,7 @@ const NAV_ITEMS_DEFS = [
 ] as const;
 
 interface Props {
-  collapsed: boolean;
-  onToggleCollapse: () => void;
-  onBack: () => void;
+  user: SettingsSidebarUser | null;
   onSignOut: () => void;
 }
 
@@ -23,7 +25,7 @@ interface Props {
  * Accounts-specific settings sidebar. Wraps {@link UiSettingsSidebar} with
  * translated labels, active-path detection, and Next.js client-side links.
  */
-export function SettingsSidebar({ collapsed, onToggleCollapse, onBack, onSignOut }: Props) {
+export function SettingsSidebar({ user, onSignOut }: Props) {
   const { t } = useTranslation();
   const pathname = usePathname();
 
@@ -40,10 +42,7 @@ export function SettingsSidebar({ collapsed, onToggleCollapse, onBack, onSignOut
       title={t("settings.title")}
       navItems={navItems}
       activeIndex={activeIndex}
-      collapsed={collapsed}
-      onToggleCollapse={onToggleCollapse}
-      onBack={onBack}
-      backLabel={t("settings.back")}
+      user={user}
       onSignOut={onSignOut}
       signOutLabel={t("settings.signOut")}
       renderLink={({ href, className, title, "aria-current": ariaCurrent, children }) => (

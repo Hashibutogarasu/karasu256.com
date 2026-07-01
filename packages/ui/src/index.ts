@@ -33,6 +33,7 @@ export {
   SettingsSidebar,
   SettingsSidebarLayout,
   type SidebarNavItem,
+  type SettingsSidebarUser,
   type SettingsSidebarProps,
   type SettingsSidebarLayoutProps,
 } from "./components/settings-sidebar";

@@ -1,8 +1,34 @@
 "use client";
 
-import { ArrowLeft, ChevronLeft, ChevronRight, LogOut, type LucideIcon } from "lucide-react";
 import * as React from "react";
+import { ChevronsUpDown, LogOut, type LucideIcon } from "lucide-react";
 import { cn } from "../lib/utils";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarHeader,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarRail,
+  SidebarTrigger,
+  useSidebar,
+} from "./ui/sidebar";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuPortal,
+  DropdownMenuPositioner,
+  DropdownMenuPopup,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "./dropdown-menu";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+import { Skeleton } from "./skeleton";
+import { Identicon } from "./identicon";
 
 export interface SidebarNavItem {
   href: string;
@@ -10,15 +36,19 @@ export interface SidebarNavItem {
   label: string;
 }
 
+export interface SettingsSidebarUser {
+  uid: string;
+  displayName: string | null;
+  email: string | null;
+  photoURL: string | null;
+}
+
 export interface SettingsSidebarProps {
   title: string;
   navItems: SidebarNavItem[];
   /** Zero-based index of the currently active nav item. -1 if none. */
   activeIndex: number;
-  collapsed: boolean;
-  onToggleCollapse: () => void;
-  onBack?: () => void;
-  backLabel?: string;
+  user: SettingsSidebarUser | null;
   onSignOut: () => void;
   signOutLabel: string;
   /**
@@ -35,135 +65,247 @@ export interface SettingsSidebarProps {
 }
 
 /**
- * Collapsible navigation sidebar for settings pages.
- * Active item is derived from {@link SettingsSidebarProps.activeIndex}.
- * The sliding indicator tracks the active item via translateY.
- * Icons always sit at px-3 from the left so they don't shift on collapse.
+ * Collapsible navigation sidebar for settings pages backed by shadcn Sidebar primitives.
+ * On desktop it collapses to icon-only mode. On mobile it renders as a Sheet overlay.
+ * The footer shows a profile card that opens a popup user menu on click.
  */
 export function SettingsSidebar({
   title,
   navItems,
   activeIndex,
-  collapsed,
-  onToggleCollapse,
-  onBack,
-  backLabel,
+  user,
   onSignOut,
   signOutLabel,
   renderLink,
 }: SettingsSidebarProps) {
   return (
-    <aside
+    <Sidebar collapsible="icon">
+      <SidebarHeader className="border-b border-sidebar-border">
+        <div className="flex items-center gap-2 px-1 py-1">
+          <SidebarTrigger className="shrink-0" />
+          <span className="truncate text-sm font-medium group-data-[collapsible=icon]:hidden">
+            {title}
+          </span>
+        </div>
+      </SidebarHeader>
+
+      <SidebarContent>
+        <NavSection
+          navItems={navItems}
+          activeIndex={activeIndex}
+          renderLink={renderLink}
+        />
+      </SidebarContent>
+
+      <SidebarFooter className="border-t border-sidebar-border">
+        <SidebarUserMenu user={user} onSignOut={onSignOut} signOutLabel={signOutLabel} />
+      </SidebarFooter>
+
+      <SidebarRail />
+    </Sidebar>
+  );
+}
+
+interface NavSectionProps {
+  navItems: SidebarNavItem[];
+  activeIndex: number;
+  renderLink: SettingsSidebarProps["renderLink"];
+}
+
+/**
+ * Navigation item list.
+ *
+ * Items are always h-8 p-2 — identical in expanded and collapsed mode.
+ * Because nothing about the item's own size or padding ever changes:
+ *   • the icon never shifts (it is always centred in p-2 space)
+ *   • the indicator translateY factor is always 2rem — it never animates
+ *   • in collapsed (32 px wide container) the indicator is 32×32 px: a perfect square
+ *     centred on the icon
+ *   • in expanded the indicator is full-width × 32 px (the original slide style)
+ */
+function NavSection({ navItems, activeIndex, renderLink }: NavSectionProps) {
+  const { state, isMobile } = useSidebar();
+  const isIconMode = state === "collapsed" && !isMobile;
+
+  return (
+    <SidebarGroup>
+      <div className="relative">
+        {activeIndex >= 0 && (
+          <div
+            aria-hidden="true"
+            className={cn(
+              "absolute inset-x-0 h-8 rounded-md pointer-events-none",
+              isIconMode ? "bg-sidebar-accent" : "bg-muted",
+            )}
+            style={{
+              boxShadow: isIconMode
+                ? undefined
+                : "0 1px 4px oklch(0 0 0 / 0.12), 0 0 0 1px oklch(0 0 0 / 0.04)",
+              transform: `translateY(calc(${activeIndex} * 2rem))`,
+              transition: "transform 240ms cubic-bezier(0.4, 0, 0.2, 1)",
+            }}
+          />
+        )}
+
+        {navItems.map((item, idx) => (
+          <NavItem
+            key={item.href}
+            item={item}
+            isActive={idx === activeIndex}
+            isIconMode={isIconMode}
+            renderLink={renderLink}
+          />
+        ))}
+      </div>
+    </SidebarGroup>
+  );
+}
+
+interface NavItemProps {
+  item: SidebarNavItem;
+  isActive: boolean;
+  isIconMode: boolean;
+  renderLink: SettingsSidebarProps["renderLink"];
+}
+
+function NavItem({ item, isActive, isIconMode, renderLink }: NavItemProps) {
+  const linkEl = renderLink({
+    href: item.href,
+    /*
+     * h-8 p-2 gap-2 in both modes — nothing changes on toggle so the icon
+     * never shifts. In collapsed (32 px container) p-2 centres the 16 px
+     * icon at 8+8 = 16 px = container centre, matching the square indicator.
+     */
+    className: cn(
+      "relative z-10 flex items-center w-full h-8 rounded-md text-sm",
+      "transition-colors overflow-hidden p-2 gap-2",
+      isActive
+        ? cn(
+            "text-foreground font-medium",
+            "group-data-[collapsible=icon]:text-sidebar-accent-foreground",
+          )
+        : cn(
+            "text-muted-foreground hover:text-foreground",
+            "group-data-[collapsible=icon]:hover:bg-sidebar-accent/50",
+          ),
+    ),
+    "aria-current": isActive ? "page" : undefined,
+    children: (
+      <>
+        <item.icon className="size-4 shrink-0" />
+        <span className="truncate group-data-[collapsible=icon]:hidden">{item.label}</span>
+      </>
+    ),
+  });
+
+  if (!isIconMode) {
+    return <>{linkEl}</>;
+  }
+
+  return (
+    <Tooltip>
+      <TooltipTrigger render={linkEl as React.ReactElement} />
+      <TooltipContent side="right">{item.label}</TooltipContent>
+    </Tooltip>
+  );
+}
+
+interface SidebarUserMenuProps {
+  user: SettingsSidebarUser | null;
+  onSignOut: () => void;
+  signOutLabel: string;
+}
+
+function SidebarUserMenu({ user, onSignOut, signOutLabel }: SidebarUserMenuProps) {
+  const { state, isMobile } = useSidebar();
+  const isIconMode = state === "collapsed" && !isMobile;
+
+  if (!user) {
+    return (
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <div className="flex items-center gap-2 h-12 px-2 overflow-hidden">
+            <Skeleton className="size-8 rounded-full shrink-0" />
+            <div className="flex-1 min-w-0 space-y-1 group-data-[collapsible=icon]:hidden">
+              <Skeleton className="h-3 w-24" />
+              <Skeleton className="h-3 w-32" />
+            </div>
+          </div>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    );
+  }
+
+  const displayName = user.displayName ?? user.email?.split("@")[0] ?? "";
+  const tooltipLabel = displayName || user.email || "";
+
+  const trigger = (
+    <DropdownMenuTrigger
       className={cn(
-        "flex flex-col border-r border-border bg-background shrink-0",
-        "transition-[width] duration-200 ease-in-out",
-        collapsed ? "w-14" : "w-56",
+        "flex w-full items-center gap-2 overflow-hidden rounded-md text-sm text-left cursor-pointer",
+        "transition-colors outline-none ring-sidebar-ring",
+        "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+        "h-12 px-2",
       )}
     >
-      <div className="flex items-center h-14 px-3 border-b border-border gap-2 overflow-hidden">
-        <button
-          type="button"
-          onClick={onToggleCollapse}
-          className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0"
-          aria-label={title}
-        >
-          {collapsed ? (
-            <ChevronRight className="size-4" />
-          ) : (
-            <ChevronLeft className="size-4" />
-          )}
-        </button>
-        {!collapsed && (
-          <span className="text-sm font-medium text-foreground truncate">{title}</span>
-        )}
+      <UserAvatar user={user} />
+      <div className="grid flex-1 min-w-0 leading-tight group-data-[collapsible=icon]:hidden">
+        <span className="truncate text-sm font-semibold">{displayName}</span>
+        <span className="truncate text-xs text-sidebar-foreground/70">{user.email}</span>
       </div>
-
-      <nav className="flex-1 p-2 overflow-hidden">
-        <div className="relative">
-          {activeIndex >= 0 && (
-            <div
-              aria-hidden="true"
-              className="absolute inset-x-0 rounded-md bg-muted pointer-events-none"
-              style={{
-                height: "2.5rem",
-                boxShadow: "0 1px 4px oklch(0 0 0 / 0.12), 0 0 0 1px oklch(0 0 0 / 0.04)",
-                transform: `translateY(calc(${activeIndex} * 2.5rem))`,
-                transition: "transform 240ms cubic-bezier(0.4, 0, 0.2, 1)",
-              }}
-            />
-          )}
-          {navItems.map(({ href, icon: Icon, label }, idx) => {
-            const isActive = idx === activeIndex;
-            return (
-              <React.Fragment key={href}>
-                {renderLink({
-                  href,
-                  className: cn(
-                    "relative z-10 flex items-center w-full h-10 rounded-md text-sm",
-                    "transition-colors px-3 gap-3 overflow-hidden",
-                    isActive
-                      ? "text-foreground font-medium"
-                      : "text-muted-foreground hover:text-foreground",
-                  ),
-                  title: collapsed ? label : undefined,
-                  "aria-current": isActive ? "page" : undefined,
-                  children: (
-                    <>
-                      <Icon className="size-4 shrink-0" />
-                      {!collapsed && <span className="truncate">{label}</span>}
-                    </>
-                  ),
-                })}
-              </React.Fragment>
-            );
-          })}
-        </div>
-      </nav>
-
-      <div className="px-2 py-3 border-t border-border overflow-hidden">
-        {onBack ? (
-          <div className={cn("flex w-full", collapsed ? "flex-col gap-3" : "flex-row gap-2")}>
-            <button
-              type="button"
-              onClick={onBack}
-              title={backLabel}
-              className={cn(
-                "flex items-center h-10 rounded-md text-sm",
-                "text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer",
-                collapsed ? "w-full justify-center" : "flex-1 min-w-0 justify-start px-2 gap-2",
-              )}
-            >
-              <ArrowLeft className={cn("shrink-0", collapsed ? "size-5" : "size-4")} />
-              {!collapsed && <span className="truncate">{backLabel}</span>}
-            </button>
-            <button
-              type="button"
-              onClick={onSignOut}
-              title={signOutLabel}
-              className={cn(
-                "flex items-center h-10 rounded-md text-sm",
-                "text-destructive hover:bg-destructive/10 transition-colors cursor-pointer",
-                collapsed ? "w-full justify-center" : "shrink-0 justify-start px-2 gap-2",
-              )}
-            >
-              <LogOut className={cn("shrink-0", collapsed ? "size-5" : "size-4")} />
-              {!collapsed && <span className="truncate">{signOutLabel}</span>}
-            </button>
-          </div>
-        ) : (
-          <button
-            type="button"
-            onClick={onSignOut}
-            title={collapsed ? signOutLabel : undefined}
-            className="flex items-center w-full h-10 rounded-md text-sm px-3 gap-3 text-destructive hover:bg-destructive/10 transition-colors cursor-pointer overflow-hidden"
-          >
-            <LogOut className="size-4 shrink-0" />
-            {!collapsed && <span className="truncate">{signOutLabel}</span>}
-          </button>
-        )}
-      </div>
-    </aside>
+      <ChevronsUpDown className="ml-auto size-4 shrink-0 group-data-[collapsible=icon]:hidden" />
+    </DropdownMenuTrigger>
   );
+
+  return (
+    <DropdownMenu>
+      <SidebarMenu>
+        <SidebarMenuItem>
+          {isIconMode ? (
+            <Tooltip>
+              <TooltipTrigger render={trigger} />
+              <TooltipContent side="right">{tooltipLabel}</TooltipContent>
+            </Tooltip>
+          ) : (
+            trigger
+          )}
+        </SidebarMenuItem>
+      </SidebarMenu>
+      <DropdownMenuPortal>
+        <DropdownMenuPositioner side="top" align="start" sideOffset={4}>
+          <DropdownMenuPopup>
+            <div className="px-3 py-2">
+              <p className="text-sm font-medium truncate">{displayName}</p>
+              <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+            </div>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={onSignOut}>
+              <LogOut className="size-4" />
+              {signOutLabel}
+            </DropdownMenuItem>
+          </DropdownMenuPopup>
+        </DropdownMenuPositioner>
+      </DropdownMenuPortal>
+    </DropdownMenu>
+  );
+}
+
+interface UserAvatarProps {
+  user: SettingsSidebarUser;
+  className?: string;
+}
+
+function UserAvatar({ user, className }: UserAvatarProps) {
+  if (user.photoURL) {
+    return (
+      <img
+        src={user.photoURL}
+        alt=""
+        className={cn("size-8 rounded-full shrink-0 object-cover", className)}
+      />
+    );
+  }
+  return <Identicon value={user.uid} size={32} className={cn("shrink-0", className)} />;
 }
 
 export interface SettingsSidebarLayoutProps {
@@ -172,16 +314,19 @@ export interface SettingsSidebarLayoutProps {
 }
 
 /**
- * Flex wrapper that places a sidebar on the left and scrollable content on the right.
- * Designed to be used as a direct flex child of a full-height container.
+ * Full-page layout that wraps the settings sidebar and content in a SidebarProvider.
+ * On mobile a trigger button appears at the top of the content area to open the sidebar.
  */
 export function SettingsSidebarLayout({ sidebar, children }: SettingsSidebarLayoutProps) {
   return (
-    <div className="flex flex-1">
+    <SidebarProvider className="flex-1 min-h-0 items-start">
       {sidebar}
-      <div className="flex-1 overflow-auto">
+      <SidebarInset className="overflow-auto min-h-0">
+        <div className="flex md:hidden items-center h-12 px-4 border-b border-border shrink-0">
+          <SidebarTrigger />
+        </div>
         <div className="px-6 py-8 lg:px-10">{children}</div>
-      </div>
-    </div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }
