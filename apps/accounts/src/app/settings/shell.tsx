@@ -6,13 +6,12 @@ import { usePathname, useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { getFirebaseAuth } from "@/lib/firebase/auth";
 import { clearSession } from "@/lib/api/auth-session";
-import { Skeleton } from "@Hashibutogarasu/ui";
+import { Skeleton, SettingsSidebarLayout } from "@Hashibutogarasu/ui";
 import { SettingsSidebar } from "@/components/settings/settings-sidebar";
 import { UserContext } from "@/components/settings/user-context";
 
 interface SettingsShellProps {
   children: React.ReactNode;
-  /** The URL to navigate back to when the back button is clicked. */
   appUrl: string;
 }
 
@@ -22,13 +21,12 @@ interface SettingsShellProps {
  * auth resolves, except on /settings/linking which always renders its children
  * directly so the provider buttons can appear (disabled) without a skeleton.
  */
-export function SettingsShell({ children, appUrl }: SettingsShellProps) {
+export function SettingsShell({ children, appUrl: _appUrl }: SettingsShellProps) {
   const router = useRouter();
   const pathname = usePathname();
   const { t } = useTranslation();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [collapsed, setCollapsed] = useState(false);
 
   const isLinkingPage = pathname === "/settings/linking";
 
@@ -76,19 +74,25 @@ export function SettingsShell({ children, appUrl }: SettingsShellProps) {
     );
   }
 
+  const sidebarUser = user
+    ? {
+        uid: user.uid,
+        displayName: user.displayName,
+        email: user.email,
+        photoURL: user.photoURL,
+      }
+    : null;
+
   return (
-    <div className="flex flex-1">
-      <SettingsSidebar
-        collapsed={collapsed}
-        onToggleCollapse={() => setCollapsed((c) => !c)}
-        onBack={() => { window.location.href = appUrl; }}
-        onSignOut={handleSignOut}
-      />
-      <main className="flex-1 overflow-auto">
-        <div className="px-6 py-8 lg:px-10">
-          {renderContent()}
-        </div>
-      </main>
-    </div>
+    <SettingsSidebarLayout
+      sidebar={
+        <SettingsSidebar
+          user={sidebarUser}
+          onSignOut={handleSignOut}
+        />
+      }
+    >
+      {renderContent()}
+    </SettingsSidebarLayout>
   );
 }
