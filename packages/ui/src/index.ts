@@ -16,6 +16,7 @@ export {
   CardContent,
 } from "./components/card";
 export { Input } from "./components/input";
+export { PasswordInput, type PasswordInputProps } from "./components/password-input";
 export { Label } from "./components/label";
 export { Separator } from "./components/separator";
 export { Skeleton } from "./components/skeleton";

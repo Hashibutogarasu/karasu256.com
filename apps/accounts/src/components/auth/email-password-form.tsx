@@ -8,9 +8,7 @@ import { faRightToBracket, faUserPlus } from "@fortawesome/free-solid-svg-icons"
 import { useTranslation } from "react-i18next";
 import { toast } from "@Hashibutogarasu/ui";
 import { signInWithEmailPassword, registerWithEmailPassword } from "@/lib/api/auth-email-password";
-import { Button } from "@Hashibutogarasu/ui";
-import { Input } from "@Hashibutogarasu/ui";
-import { Label } from "@Hashibutogarasu/ui";
+import { Button, Input, Label, PasswordInput } from "@Hashibutogarasu/ui";
 import { Tabs, TabsContent, TabsList, TabsTrigger, AnimatedHeight } from "@Hashibutogarasu/ui";
 import { LocalizedPasswordStrengthIndicator } from "./localized-password-strength-indicator";
 
@@ -107,9 +105,8 @@ export function EmailPasswordForm() {
                 {t("signIn.forgotPassword")}
               </Link>
             </div>
-            <Input
+            <PasswordInput
               id="signin-password"
-              type="password"
               autoComplete="current-password"
               value={password}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
@@ -138,9 +135,8 @@ export function EmailPasswordForm() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="register-password">{t("signIn.password")}</Label>
-            <Input
+            <PasswordInput
               id="register-password"
-              type="password"
               autoComplete="new-password"
               value={password}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
