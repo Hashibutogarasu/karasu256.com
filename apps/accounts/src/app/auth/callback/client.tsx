@@ -15,7 +15,7 @@ import { createSession } from "@/lib/api/auth-session"
  * completes Firebase authentication, and establishes both the session cookie
  * and the NextAuth JWT before redirecting to the settings page.
  *
- * On failure, redirects to /oauth-error.
+ * On failure, redirects to /oauth/error.
  */
 export function OAuthCallbackClient() {
   const router = useRouter()
@@ -25,7 +25,7 @@ export function OAuthCallbackClient() {
     async function completeSignIn() {
       const res = await fetch("/api/auth/oauth-token")
       if (!res.ok) {
-        router.replace("/oauth-error")
+        router.replace("/oauth/error")
         return
       }
 
@@ -37,7 +37,7 @@ export function OAuthCallbackClient() {
       router.replace("/settings")
     }
 
-    completeSignIn().catch(() => router.replace("/oauth-error"))
+    completeSignIn().catch(() => router.replace("/oauth/error"))
   }, [router])
 
   return (

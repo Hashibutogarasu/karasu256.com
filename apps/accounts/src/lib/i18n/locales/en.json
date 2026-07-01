@@ -111,8 +111,8 @@
   "oauthError": {
     "title": "Sign-in failed",
     "message": "An error occurred while authenticating your account. Please try again.",
-    "accountNotLinked": "This account is not yet linked. Sign in with email/password first, then connect it from the settings page.",
-    "userNotFound": "This account no longer exists. Please sign in with a different method.",
+    "account_not_linked": "This account is not yet linked. Sign in with email/password first, then connect it from the settings page.",
+    "user_not_found": "This account no longer exists. Please sign in with a different method.",
     "backToSignIn": "Back to sign in"
   },
   "passwordStrength": {

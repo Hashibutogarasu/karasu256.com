@@ -10,20 +10,15 @@ import { Button } from "@Hashibutogarasu/ui"
 /**
  * Displays an error message when the OAuth sign-in flow fails.
  *
- * Renders reason-specific messages for `account_not_linked` and `user_not_found`;
- * falls back to a generic message for all other cases.
+ * Translates the `code` query parameter directly via `oauthError.{code}`;
+ * falls back to a generic message for unknown or missing codes.
  */
 export function OAuthErrorClient() {
   const { t } = useTranslation()
   const searchParams = useSearchParams()
-  const reason = searchParams.get("reason")
+  const code = searchParams.get("code")
 
-  const message =
-    reason === "account_not_linked"
-      ? t("oauthError.accountNotLinked")
-      : reason === "user_not_found"
-        ? t("oauthError.userNotFound")
-        : t("oauthError.message")
+  const message = t(`oauthError.${code}`, { defaultValue: t("oauthError.message") })
 
   return (
     <Container className="max-w-sm">
