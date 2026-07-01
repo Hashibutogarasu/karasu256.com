@@ -291,8 +291,11 @@ function SidebarUserMenu({ user, backToAppHref, backToAppLabel, onSignOut, signO
               <p className="text-xs text-muted-foreground truncate">{user.email}</p>
             </div>
             <DropdownMenuSeparator />
-            {backToAppHref && backToAppLabel && (
-              <DropdownMenuItem render={<a href={backToAppHref} />}>
+            {backToAppLabel && (
+              <DropdownMenuItem
+                disabled={!backToAppHref}
+                {...(backToAppHref ? { render: <a href={backToAppHref} /> } : {})}
+              >
                 <ExternalLink className="size-4" />
                 {backToAppLabel}
               </DropdownMenuItem>
