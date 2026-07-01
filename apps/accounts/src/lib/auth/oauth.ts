@@ -163,7 +163,6 @@ export async function handleOAuthLinking(
     try {
       await getAdminAuth().deleteUser(existing.userId)
     } catch {
-      // Ignore — the orphan Firebase user may already be deleted
     }
     await db.delete(users).where(eq(users.id, existing.userId))
 

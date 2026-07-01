@@ -319,7 +319,7 @@ export interface SettingsSidebarLayoutProps {
  */
 export function SettingsSidebarLayout({ sidebar, children }: SettingsSidebarLayoutProps) {
   return (
-    <SidebarProvider className="flex-1 min-h-0 items-start">
+    <SidebarProvider className="flex-1 items-start" style={{ minHeight: 0 }}>
       {sidebar}
       <SidebarInset className="overflow-auto min-h-0">
         <div className="flex md:hidden items-center h-12 px-4 border-b border-border shrink-0">

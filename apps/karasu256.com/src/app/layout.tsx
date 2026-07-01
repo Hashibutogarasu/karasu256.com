@@ -28,7 +28,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja" className={`${geistSans.variable} ${geistMono.variable} h-full`}>
-      <body className="min-h-full flex flex-col bg-background text-foreground antialiased">
+      <body
+        className="min-h-full flex flex-col bg-background text-foreground antialiased"
+        style={{ "--sidebar-top": "3rem" } as React.CSSProperties}
+      >
         <I18nProvider>
           <Header />
           <main className="flex-1 flex flex-col">{children}</main>
