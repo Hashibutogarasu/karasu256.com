@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ChevronsUpDown, LogOut, type LucideIcon } from "lucide-react";
+import { ChevronsUpDown, ExternalLink, LogOut, type LucideIcon } from "lucide-react";
 import { cn } from "../lib/utils";
 import {
   Sidebar,
@@ -49,6 +49,8 @@ export interface SettingsSidebarProps {
   /** Zero-based index of the currently active nav item. -1 if none. */
   activeIndex: number;
   user: SettingsSidebarUser | null;
+  backToAppHref?: string;
+  backToAppLabel?: string;
   onSignOut: () => void;
   signOutLabel: string;
   /**
@@ -74,6 +76,8 @@ export function SettingsSidebar({
   navItems,
   activeIndex,
   user,
+  backToAppHref,
+  backToAppLabel,
   onSignOut,
   signOutLabel,
   renderLink,
@@ -98,7 +102,13 @@ export function SettingsSidebar({
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border">
-        <SidebarUserMenu user={user} onSignOut={onSignOut} signOutLabel={signOutLabel} />
+        <SidebarUserMenu
+          user={user}
+          backToAppHref={backToAppHref}
+          backToAppLabel={backToAppLabel}
+          onSignOut={onSignOut}
+          signOutLabel={signOutLabel}
+        />
       </SidebarFooter>
 
       <SidebarRail />
@@ -212,11 +222,13 @@ function NavItem({ item, isActive, isIconMode, renderLink }: NavItemProps) {
 
 interface SidebarUserMenuProps {
   user: SettingsSidebarUser | null;
+  backToAppHref?: string;
+  backToAppLabel?: string;
   onSignOut: () => void;
   signOutLabel: string;
 }
 
-function SidebarUserMenu({ user, onSignOut, signOutLabel }: SidebarUserMenuProps) {
+function SidebarUserMenu({ user, backToAppHref, backToAppLabel, onSignOut, signOutLabel }: SidebarUserMenuProps) {
   const { state, isMobile } = useSidebar();
   const isIconMode = state === "collapsed" && !isMobile;
 
@@ -279,6 +291,12 @@ function SidebarUserMenu({ user, onSignOut, signOutLabel }: SidebarUserMenuProps
               <p className="text-xs text-muted-foreground truncate">{user.email}</p>
             </div>
             <DropdownMenuSeparator />
+            {backToAppHref && backToAppLabel && (
+              <DropdownMenuItem render={<a href={backToAppHref} />}>
+                <ExternalLink className="size-4" />
+                {backToAppLabel}
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem onClick={onSignOut}>
               <LogOut className="size-4" />
               {signOutLabel}

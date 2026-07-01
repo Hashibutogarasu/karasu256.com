@@ -18,6 +18,7 @@ const NAV_ITEMS_DEFS = [
 
 interface Props {
   user: SettingsSidebarUser | null;
+  appUrl: string | undefined;
   onSignOut: () => void;
 }
 
@@ -25,7 +26,7 @@ interface Props {
  * Accounts-specific settings sidebar. Wraps {@link UiSettingsSidebar} with
  * translated labels, active-path detection, and Next.js client-side links.
  */
-export function SettingsSidebar({ user, onSignOut }: Props) {
+export function SettingsSidebar({ user, appUrl, onSignOut }: Props) {
   const { t } = useTranslation();
   const pathname = usePathname();
 
@@ -43,6 +44,8 @@ export function SettingsSidebar({ user, onSignOut }: Props) {
       navItems={navItems}
       activeIndex={activeIndex}
       user={user}
+      backToAppHref={appUrl}
+      backToAppLabel={t("settings.backToApp")}
       onSignOut={onSignOut}
       signOutLabel={t("settings.signOut")}
       renderLink={({ href, className, title, "aria-current": ariaCurrent, children }) => (

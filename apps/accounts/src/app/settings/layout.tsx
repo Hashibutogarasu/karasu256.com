@@ -6,6 +6,5 @@ import { SettingsShell } from "./shell";
  * the variable is absent from the client-side build bundle.
  */
 export default function SettingsLayout({ children }: { children: React.ReactNode }) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "/";
-  return <SettingsShell appUrl={appUrl}>{children}</SettingsShell>;
+  return <SettingsShell appUrl={process.env.NEXT_PUBLIC_APP_URL}>{children}</SettingsShell>;
 }

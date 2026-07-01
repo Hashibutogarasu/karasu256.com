@@ -12,7 +12,7 @@ import { UserContext } from "@/components/settings/user-context";
 
 interface SettingsShellProps {
   children: React.ReactNode;
-  appUrl: string;
+  appUrl: string | undefined;
 }
 
 /**
@@ -21,7 +21,7 @@ interface SettingsShellProps {
  * auth resolves, except on /settings/linking which always renders its children
  * directly so the provider buttons can appear (disabled) without a skeleton.
  */
-export function SettingsShell({ children, appUrl: _appUrl }: SettingsShellProps) {
+export function SettingsShell({ children, appUrl }: SettingsShellProps) {
   const router = useRouter();
   const pathname = usePathname();
   const { t } = useTranslation();
@@ -88,6 +88,7 @@ export function SettingsShell({ children, appUrl: _appUrl }: SettingsShellProps)
       sidebar={
         <SettingsSidebar
           user={sidebarUser}
+          appUrl={appUrl}
           onSignOut={handleSignOut}
         />
       }
