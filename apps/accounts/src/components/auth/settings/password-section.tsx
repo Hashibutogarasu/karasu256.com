@@ -13,8 +13,8 @@ import { toast } from "@Hashibutogarasu/ui";
 import { getFirebaseAuth } from "@/lib/firebase/auth";
 import { useSettingsUser } from "@/components/settings/user-context";
 import { Button } from "@Hashibutogarasu/ui";
-import { Input } from "@Hashibutogarasu/ui";
 import { Label } from "@Hashibutogarasu/ui";
+import { PasswordInput } from "@Hashibutogarasu/ui";
 import { LocalizedPasswordStrengthIndicator } from "@/components/auth/localized-password-strength-indicator";
 
 /**
@@ -75,9 +75,8 @@ export function PasswordSection() {
         {hasPasswordProvider && (
           <div className="space-y-1">
             <Label htmlFor="current-password">{t("security.currentPassword")}</Label>
-            <Input
+            <PasswordInput
               id="current-password"
-              type="password"
               autoComplete="current-password"
               value={currentPassword}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCurrentPassword(e.target.value)}
@@ -88,9 +87,8 @@ export function PasswordSection() {
         )}
         <div className="space-y-1">
           <Label htmlFor="new-password">{t("security.newPassword")}</Label>
-          <Input
+          <PasswordInput
             id="new-password"
-            type="password"
             autoComplete="new-password"
             value={newPassword}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewPassword(e.target.value)}
