@@ -14,6 +14,7 @@ import {
   DialogTitle,
   Input,
   Label,
+  R2Image,
 } from "@Hashibutogarasu/ui";
 import {
   updateOAuthClient,
@@ -158,8 +159,7 @@ export function EditOAuthClientDialog({
               <Label>{t("settings.developer.dialog.icon")}</Label>
               <div className="flex items-center gap-3">
                 {iconPreview && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
+                  <R2Image
                     src={iconPreview}
                     alt=""
                     className="size-10 rounded object-cover border border-border"
