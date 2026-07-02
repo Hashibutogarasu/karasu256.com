@@ -1,6 +1,6 @@
 import Link from "next/link";
+import { getUser } from "@Hashibutogarasu/db";
 import { getSessionUser } from "@/lib/firebase-session";
-import { getUser } from "@/lib/db/ensure-user";
 import { AuthButton } from "@/components/auth-button";
 
 /**

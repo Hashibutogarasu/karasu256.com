@@ -12,3 +12,7 @@ export {
   type TokenValidator,
   type PermissionChecker,
 } from "./route-guards"
+export {
+  deleteUploadedImage,
+  type DeleteUploadedImageOptions,
+} from "./delete-uploaded-image"
