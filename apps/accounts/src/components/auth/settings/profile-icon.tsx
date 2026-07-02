@@ -8,7 +8,7 @@ import {
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuTrigger,
-  Identicon,
+  UserAvatar,
   toast,
 } from "@Hashibutogarasu/ui";
 import { useImageUpload } from "@Hashibutogarasu/utils/client";
@@ -60,16 +60,7 @@ export function ProfileIcon() {
           onClick={() => fileInputRef.current?.click()}
           aria-label={t("profile.changeIcon")}
         >
-          {user.photoURL ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={user.photoURL}
-              alt=""
-              className="size-12 rounded-full object-cover border border-border"
-            />
-          ) : (
-            <Identicon value={user.uid} size={48} className="border border-border" />
-          )}
+          <UserAvatar uid={user.uid} iconUrl={user.photoURL} size={48} className="border border-border" />
         </ContextMenuTrigger>
         <ContextMenuContent>
           <ContextMenuItem onClick={() => fileInputRef.current?.click()}>

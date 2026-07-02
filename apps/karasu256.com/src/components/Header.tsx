@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getSessionUser } from "@/lib/firebase-session";
+import { getUser } from "@/lib/db/ensure-user";
 import { AuthButton } from "@/components/auth-button";
 
 /**
@@ -7,7 +8,8 @@ import { AuthButton } from "@/components/auth-button";
  * an account menu when authenticated, or a sign-in button when not.
  */
 const Header = async () => {
-  const user = await getSessionUser();
+  const sessionUser = await getSessionUser();
+  const dbUser = sessionUser ? await getUser(sessionUser.uid) : null;
   const accountsUrl = process.env.NEXT_PUBLIC_ACCOUNTS_URL ?? "#";
 
   return (
@@ -22,9 +24,10 @@ const Header = async () => {
           <li>
             <AuthButton
               accountsUrl={accountsUrl}
-              uid={user?.uid ?? null}
-              displayName={user?.name ?? null}
-              email={user?.email ?? null}
+              uid={sessionUser?.uid ?? null}
+              displayName={sessionUser?.name ?? null}
+              email={sessionUser?.email ?? null}
+              iconUrl={dbUser?.iconUrl ?? null}
             />
           </li>
         </ul>
