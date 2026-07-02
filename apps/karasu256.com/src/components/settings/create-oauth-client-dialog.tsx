@@ -21,7 +21,7 @@ import {
   type OAuthClientCreated,
   type SectionMeta,
 } from "@/lib/api/developer";
-import { useImageUpload } from "@/lib/image-upload/use-image-upload";
+import { useImageUpload } from "@Hashibutogarasu/utils/client";
 
 interface CreateOAuthClientDialogProps {
   open: boolean;

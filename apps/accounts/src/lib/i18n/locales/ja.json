@@ -61,6 +61,7 @@
   "profile": {
     "title": "プロフィール",
     "displayName": "表示名",
+    "changeIcon": "アイコンを変更",
     "save": "保存",
     "saving": "保存中",
     "saved": "表示名を保存しました。"

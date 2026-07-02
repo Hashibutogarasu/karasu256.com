@@ -11,6 +11,9 @@
     "@react-email/components": "^1.0.12",
     "resend": "^4.0.0"
   },
+  "peerDependencies": {
+    "react": "^19"
+  },
   "devDependencies": {
     "@types/node": "^20.19.1",
     "@types/react": "^19",
