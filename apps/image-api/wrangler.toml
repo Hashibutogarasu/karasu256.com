@@ -2,6 +2,10 @@ name = "image-api"
 main = "src/index.ts"
 compatibility_date = "2025-06-24"
 
+[[routes]]
+pattern = "cdn.karasu256.com"
+custom_domain = true
+
 [[r2_buckets]]
 binding = "IMAGES"
 bucket_name = "karasu-lab-cdn"
