@@ -40,7 +40,7 @@ export function AuthButton({ accountsUrl, uid, displayName, email, iconUrl }: Au
       >
         <UserAvatar uid={uid} iconUrl={iconUrl} size={36} className="border border-border [&>svg]:block" />
       </MenuTrigger>
-      <MenuContent side="bottom" align="end" sideOffset={8} className="min-w-48">
+      <MenuContent side="bottom" align="end" sideOffset={8} className="w-auto min-w-48">
         <div className="flex flex-col items-start gap-2 px-3 py-4">
           <UserAvatar uid={uid} iconUrl={iconUrl} size={40} className="border border-border [&>svg]:block" />
           {displayName && (
