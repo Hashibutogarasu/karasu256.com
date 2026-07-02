@@ -13,3 +13,14 @@ bucket_name = "karasu-lab-cdn"
 [vars]
 ALLOWED_ORIGIN = "https://karasu256.com"
 FIREBASE_PROJECT_ID = "karasu-lab-application"
+
+[env.dev]
+routes = []
+
+[[env.dev.r2_buckets]]
+binding = "IMAGES"
+bucket_name = "karasu-lab-cdn-dev"
+
+[env.dev.vars]
+ALLOWED_ORIGIN = "https://karasu256.com"
+FIREBASE_PROJECT_ID = "karasu-lab-application"
