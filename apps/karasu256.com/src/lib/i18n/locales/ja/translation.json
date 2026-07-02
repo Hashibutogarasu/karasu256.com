@@ -68,6 +68,7 @@
         "keyNotice": "この API キーは一度しか表示されません。安全な場所に保存してください。",
         "keyName": "キー名",
         "upload": "アップロード",
+        "uploading": "アップロード中",
         "copySecret": "シークレットをコピー",
         "copyKey": "API キーをコピー",
         "done": "閉じる"

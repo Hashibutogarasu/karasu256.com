@@ -68,6 +68,7 @@
         "keyNotice": "此 API 密钥仅显示一次，请妥善保存。",
         "keyName": "密钥名称",
         "upload": "上传",
+        "uploading": "上传中",
         "copySecret": "复制密钥",
         "copyKey": "复制 API 密钥",
         "done": "完成"
