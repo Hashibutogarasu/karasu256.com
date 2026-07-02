@@ -1,8 +1,8 @@
 import { importX509, jwtVerify } from "jose";
+import allowedOrigins from "./allowed-origins.json";
 
 interface Env {
   IMAGES: R2Bucket;
-  ALLOWED_ORIGIN: string;
   FIREBASE_PROJECT_ID: string;
   CDN_BASE_URL: string;
 }
@@ -70,22 +70,24 @@ async function verifySessionCookie(
 }
 
 /**
- * Resolves the CORS origin to reflect back: the production origin configured
- * via `env.ALLOWED_ORIGIN`, or the request's own origin when it's a
- * loopback address. Reflecting a loopback origin is safe regardless of its
- * port, and lets `wrangler dev` work against a local dev server without any
- * environment-specific configuration.
+ * Resolves the CORS origin to reflect back: whichever entry of
+ * `allowed-origins.json` matches the request, or the request's own origin
+ * when it's a loopback address. Reflecting a loopback origin is safe
+ * regardless of its port, and lets `wrangler dev` work against a local dev
+ * server without any environment-specific configuration.
  */
-function resolveAllowedOrigin(requestOrigin: string | null, env: Env): string {
+function resolveAllowedOrigin(requestOrigin: string | null): string {
   if (requestOrigin) {
     try {
       const hostname = new URL(requestOrigin).hostname;
       if (hostname === "localhost" || hostname === "127.0.0.1") return requestOrigin;
     } catch {
-      return env.ALLOWED_ORIGIN;
+      return allowedOrigins[0];
     }
+    if (allowedOrigins.includes(requestOrigin)) return requestOrigin;
   }
-  return env.ALLOWED_ORIGIN;
+
+  return allowedOrigins[0];
 }
 
 function corsHeaders(origin: string): Record<string, string> {
@@ -144,7 +146,7 @@ async function serveImage(pathname: string, env: Env): Promise<Response> {
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
-    const cors = corsHeaders(resolveAllowedOrigin(request.headers.get("Origin"), env));
+    const cors = corsHeaders(resolveAllowedOrigin(request.headers.get("Origin")));
 
     if (request.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: cors });

@@ -11,7 +11,6 @@ binding = "IMAGES"
 bucket_name = "karasu-lab-cdn"
 
 [vars]
-ALLOWED_ORIGIN = "https://karasu256.com"
 FIREBASE_PROJECT_ID = "karasu-lab-application"
 CDN_BASE_URL = "https://cdn.karasu256.com"
 
@@ -23,6 +22,5 @@ binding = "IMAGES"
 bucket_name = "karasu-lab-cdn-dev"
 
 [env.dev.vars]
-ALLOWED_ORIGIN = "https://karasu256.com"
 FIREBASE_PROJECT_ID = "karasu-lab-application"
 CDN_BASE_URL = "http://localhost:8788"

@@ -5,7 +5,7 @@ import { useImageUploadApiUrl } from "./context";
 
 export interface UseImageUploadResult {
   uploading: boolean;
-  /** Resolves with the uploaded file's public URL, or `null` if the upload failed. */
+  /** Resolves with the uploaded file's public URL, or `null` if the upload failed for any reason, including a network or CORS error. */
   upload: (_file: File) => Promise<string | null>;
 }
 
@@ -32,6 +32,8 @@ export function useImageUpload(): UseImageUploadResult {
         if (!res.ok) return null;
         const { url } = (await res.json()) as { url: string };
         return url;
+      } catch {
+        return null;
       } finally {
         setUploading(false);
       }
