@@ -56,3 +56,11 @@ export {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "./components/dropdown-menu";
+export {
+  ContextMenu,
+  ContextMenuTrigger,
+  ContextMenuPortal,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+} from "./components/ui/context-menu";

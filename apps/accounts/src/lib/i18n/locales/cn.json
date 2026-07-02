@@ -62,6 +62,8 @@
     "title": "个人资料",
     "displayName": "显示名称",
     "changeIcon": "更改图标",
+    "uploadIcon": "上传新图标",
+    "deleteIcon": "删除图标",
     "save": "保存",
     "saving": "保存中",
     "saved": "显示名称已保存。"
