@@ -99,6 +99,30 @@ function json(
   });
 }
 
+/**
+ * Serves a previously uploaded image from R2 by its object key, so that the
+ * URL returned from `/upload` is actually loadable (e.g. as an `<img>` src).
+ */
+async function serveImage(pathname: string, env: Env): Promise<Response> {
+  const key = pathname.slice(1);
+  if (!key) {
+    return new Response("Not Found", { status: 404 });
+  }
+
+  const object = await env.IMAGES.get(key);
+  if (!object) {
+    return new Response("Not Found", { status: 404 });
+  }
+
+  const headers = new Headers();
+  object.writeHttpMetadata(headers);
+  headers.set("etag", object.httpEtag);
+  headers.set("Cache-Control", "public, max-age=31536000, immutable");
+  headers.set("Access-Control-Allow-Origin", "*");
+
+  return new Response(object.body, { headers });
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const cors = corsHeaders(env.ALLOWED_ORIGIN);
@@ -108,6 +132,10 @@ export default {
     }
 
     const { pathname } = new URL(request.url);
+
+    if (request.method === "GET") {
+      return serveImage(pathname, env);
+    }
 
     if (pathname !== "/upload" || request.method !== "POST") {
       return json({ error: "Not Found" }, 404, cors);
