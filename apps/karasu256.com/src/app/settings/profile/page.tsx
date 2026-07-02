@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
+import { getUser } from "@Hashibutogarasu/db";
 import { getSessionUser } from "@/lib/firebase-session";
-import { getUser } from "@/lib/db/ensure-user";
 import { ProfileSection } from "@/components/settings/profile-section";
 
 export const metadata: Metadata = { title: "プロフィール — Karasu Lab" };

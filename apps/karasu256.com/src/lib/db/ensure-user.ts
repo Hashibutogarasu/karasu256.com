@@ -1,6 +1,6 @@
 import { getDb } from "@Hashibutogarasu/db";
 import { users } from "@Hashibutogarasu/db/schema";
-import { eq, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 
 /**
  * Upserts a user row by Firebase UID and returns the persisted record.
@@ -20,13 +20,4 @@ export async function ensureUser(uid: string, name?: string | null) {
     })
     .returning();
   return user;
-}
-
-/**
- * Fetches an existing user row by Firebase UID, or null if not found.
- */
-export async function getUser(uid: string) {
-  const db = getDb();
-  const [user] = await db.select().from(users).where(eq(users.id, uid));
-  return user ?? null;
 }

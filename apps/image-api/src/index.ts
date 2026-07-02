@@ -94,7 +94,7 @@ function corsHeaders(origin: string): Record<string, string> {
   return {
     "Access-Control-Allow-Origin": origin,
     "Access-Control-Allow-Credentials": "true",
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Methods": "POST, DELETE, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type",
   };
 }
@@ -107,6 +107,18 @@ function parseCookies(header: string): Record<string, string> {
       .filter(([k]) => k.length > 0)
       .map(([k, v]) => [k.trim(), decodeURIComponent((v ?? "").trim())]),
   );
+}
+
+/**
+ * Verifies the Firebase session cookie on the request and returns the
+ * caller's UID, or null when the cookie is missing or invalid.
+ */
+async function requireUid(request: Request, env: Env): Promise<string | null> {
+  const cookieHeader = request.headers.get("cookie") ?? "";
+  const cookies = parseCookies(cookieHeader);
+  const sessionCookie = cookies[SESSION_COOKIE_NAME];
+  if (!sessionCookie) return null;
+  return verifySessionCookie(sessionCookie, env.FIREBASE_PROJECT_ID);
 }
 
 function json(
@@ -144,6 +156,27 @@ async function serveImage(pathname: string, env: Env): Promise<Response> {
   return new Response(object.body, { headers });
 }
 
+/**
+ * Deletes a previously uploaded image from R2 by its object key. Used to
+ * clean up a user's or OAuth client's old icon once a new one has replaced
+ * it.
+ */
+async function deleteImage(
+  pathname: string,
+  request: Request,
+  env: Env,
+  cors: Record<string, string>,
+): Promise<Response> {
+  const key = pathname.slice(1);
+  if (!key) return json({ error: "Not Found" }, 404, cors);
+
+  const uid = await requireUid(request, env);
+  if (!uid) return json({ error: "Unauthorized" }, 401, cors);
+
+  await env.IMAGES.delete(key);
+  return new Response(null, { status: 204, headers: cors });
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const cors = corsHeaders(resolveAllowedOrigin(request.headers.get("Origin")));
@@ -159,18 +192,15 @@ export default {
       return serveImage(pathname, env);
     }
 
+    if (request.method === "DELETE") {
+      return deleteImage(pathname, request, env, cors);
+    }
+
     if (pathname !== "/upload" || request.method !== "POST") {
       return json({ error: "Not Found" }, 404, cors);
     }
 
-    const cookieHeader = request.headers.get("cookie") ?? "";
-    const cookies = parseCookies(cookieHeader);
-    const sessionCookie = cookies[SESSION_COOKIE_NAME];
-    if (!sessionCookie) {
-      return json({ error: "Unauthorized" }, 401, cors);
-    }
-
-    const uid = await verifySessionCookie(sessionCookie, env.FIREBASE_PROJECT_ID);
+    const uid = await requireUid(request, env);
     if (!uid) {
       return json({ error: "Unauthorized" }, 401, cors);
     }

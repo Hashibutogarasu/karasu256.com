@@ -1,7 +1,9 @@
+import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@Hashibutogarasu/db";
 import { oauthClients } from "@Hashibutogarasu/db/schema";
 import { and, eq } from "drizzle-orm";
+import { SESSION_COOKIE_NAME, deleteUploadedImage } from "@Hashibutogarasu/utils/server";
 
 import { requireSession } from "@/lib/api/require-session";
 
@@ -52,6 +54,11 @@ export async function PATCH(
   if (iconUrl !== undefined) patch.iconUrl = typeof iconUrl === "string" ? iconUrl.trim() || null : null;
   if (permissions !== undefined) patch.permissions = BigInt(permissions as number);
 
+  const [previous] = await db
+    .select({ iconUrl: oauthClients.iconUrl })
+    .from(oauthClients)
+    .where(and(eq(oauthClients.id, id), eq(oauthClients.userId, user.uid)));
+
   const [updated] = await db
     .update(oauthClients)
     .set(patch)
@@ -67,6 +74,12 @@ export async function PATCH(
 
   if (!updated) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  const imageApiUrl = process.env.NEXT_PUBLIC_IMAGE_API_URL;
+  const sessionCookie = (await cookies()).get(SESSION_COOKIE_NAME)?.value;
+  if (imageApiUrl && sessionCookie && previous?.iconUrl && previous.iconUrl !== updated.iconUrl) {
+    await deleteUploadedImage(previous.iconUrl, { imageApiUrl, sessionCookie });
   }
 
   return NextResponse.json({ ...updated, permissions: Number(updated.permissions) });
