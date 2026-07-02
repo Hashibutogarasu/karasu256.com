@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { AnimatedList, Button, ConfirmDialog, SettingsAccordion, SettingsItem, Skeleton } from "@Hashibutogarasu/ui";
-import { ImageUploadProvider } from "@/lib/image-upload/context";
+import { ImageUploadProvider } from "@Hashibutogarasu/utils/client";
 import {
   deleteApiKey,
   deleteOAuthClient,

@@ -61,6 +61,7 @@
   "profile": {
     "title": "Profile",
     "displayName": "Display name",
+    "changeIcon": "Change icon",
     "save": "Save",
     "saving": "Saving",
     "saved": "Display name saved."

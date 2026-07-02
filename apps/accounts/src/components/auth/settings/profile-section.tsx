@@ -1,23 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { updateProfile } from "firebase/auth";
 import { useTranslation } from "react-i18next";
 import { toast } from "@Hashibutogarasu/ui";
+import { useImageUpload } from "@Hashibutogarasu/utils/client";
 import { getFirebaseAuth } from "@/lib/firebase/auth";
 import { useSettingsUser } from "@/components/settings/user-context";
+import { updateUserIcon } from "@/lib/api/update-user-icon";
 import { Button } from "@Hashibutogarasu/ui";
 import { Input } from "@Hashibutogarasu/ui";
 import { Label } from "@Hashibutogarasu/ui";
 import { Identicon } from "@Hashibutogarasu/ui";
 import { Skeleton } from "@Hashibutogarasu/ui";
 
-/** Displays the user's identicon avatar and allows editing their display name. */
+/** Displays the user's avatar (uploadable) and allows editing their display name. */
 export function ProfileSection() {
   const { t } = useTranslation();
   const { user, updateUser } = useSettingsUser();
   const [displayName, setDisplayName] = useState(user.displayName ?? "");
   const [saving, setSaving] = useState(false);
+  const { uploading, upload } = useImageUpload();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
@@ -35,13 +39,59 @@ export function ProfileSection() {
     }
   }
 
+  async function handleIconSelected(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+
+    const url = await upload(file);
+    if (!url) return;
+
+    try {
+      await updateUserIcon(url);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err));
+      return;
+    }
+
+    const currentUser = getFirebaseAuth().currentUser;
+    if (currentUser) {
+      await updateProfile(currentUser, { photoURL: url });
+    }
+    updateUser({ photoURL: url });
+  }
+
   return (
     <div className="space-y-4">
       <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
         {t("profile.title")}
       </p>
       <div className="flex items-center gap-3">
-        <Identicon value={user.uid} size={48} className="border border-border" />
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={uploading}
+          aria-label={t("profile.changeIcon")}
+          className="rounded-full disabled:opacity-50"
+        >
+          {user.photoURL ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={user.photoURL}
+              alt=""
+              className="size-12 rounded-full object-cover border border-border"
+            />
+          ) : (
+            <Identicon value={user.uid} size={48} className="border border-border" />
+          )}
+        </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          className="hidden"
+          onChange={handleIconSelected}
+        />
         <p className="text-sm text-muted-foreground break-all">{user.displayName ?? user.email ?? user.uid}</p>
       </div>
       <form onSubmit={handleSave} className="space-y-3">
