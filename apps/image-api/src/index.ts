@@ -3,7 +3,6 @@ import { importX509, jwtVerify } from "jose";
 interface Env {
   IMAGES: R2Bucket;
   ALLOWED_ORIGIN: string;
-  CDN_BASE_URL: string;
   FIREBASE_PROJECT_ID: string;
 }
 
@@ -131,7 +130,8 @@ export default {
       return new Response(null, { status: 204, headers: cors });
     }
 
-    const { pathname } = new URL(request.url);
+    const requestUrl = new URL(request.url);
+    const { pathname } = requestUrl;
 
     if (request.method === "GET") {
       return serveImage(pathname, env);
@@ -183,6 +183,6 @@ export default {
       httpMetadata: { contentType: file.type },
     });
 
-    return json({ url: `${env.CDN_BASE_URL}/${key}` }, 200, cors);
+    return json({ url: `${requestUrl.origin}/${key}` }, 200, cors);
   },
 } satisfies ExportedHandler<Env>;
