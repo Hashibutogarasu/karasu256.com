@@ -28,7 +28,7 @@ import {
 } from "./dropdown-menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { Skeleton } from "./skeleton";
-import { Identicon } from "./identicon";
+import { UserAvatar } from "./user-avatar";
 
 export interface SidebarNavItem {
   href: string;
@@ -260,7 +260,7 @@ function SidebarUserMenu({ user, backToAppHref, backToAppLabel, onSignOut, signO
         "h-12 px-2",
       )}
     >
-      <UserAvatar user={user} />
+      <UserAvatar uid={user.uid} iconUrl={user.photoURL} size={32} />
       <div className="grid flex-1 min-w-0 leading-tight group-data-[collapsible=icon]:hidden">
         <span className="truncate text-sm font-semibold">{displayName}</span>
         <span className="truncate text-xs text-sidebar-foreground/70">{user.email}</span>
@@ -309,24 +309,6 @@ function SidebarUserMenu({ user, backToAppHref, backToAppLabel, onSignOut, signO
       </DropdownMenuPortal>
     </DropdownMenu>
   );
-}
-
-interface UserAvatarProps {
-  user: SettingsSidebarUser;
-  className?: string;
-}
-
-function UserAvatar({ user, className }: UserAvatarProps) {
-  if (user.photoURL) {
-    return (
-      <img
-        src={user.photoURL}
-        alt=""
-        className={cn("size-8 rounded-full shrink-0 object-cover", className)}
-      />
-    );
-  }
-  return <Identicon value={user.uid} size={32} className={cn("shrink-0", className)} />;
 }
 
 export interface SettingsSidebarLayoutProps {

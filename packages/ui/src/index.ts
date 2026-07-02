@@ -30,6 +30,7 @@ export {
 export { Toaster } from "./components/sonner";
 export { toast } from "./lib/toast";
 export { Identicon } from "./components/identicon";
+export { UserAvatar } from "./components/user-avatar";
 export { R2Image, type R2ImageProps } from "./components/r2-image";
 export {
   SettingsSidebar,

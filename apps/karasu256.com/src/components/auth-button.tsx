@@ -2,7 +2,7 @@
 
 import { useTranslation } from "react-i18next";
 import { Menu } from "@base-ui/react/menu";
-import { Identicon, Button } from "@Hashibutogarasu/ui";
+import { UserAvatar, Button } from "@Hashibutogarasu/ui";
 import { signOutAction } from "@/app/actions/auth";
 
 interface AuthButtonProps {
@@ -10,14 +10,15 @@ interface AuthButtonProps {
   uid: string | null;
   displayName: string | null;
   email: string | null;
+  iconUrl: string | null;
 }
 
 /**
  * Renders a sign-in button when unauthenticated, or an account dropdown menu
- * when authenticated. The dropdown shows an identicon, display name, email address,
+ * when authenticated. The dropdown shows the user's avatar, display name, email address,
  * a link to account settings, and a sign-out button.
  */
-export function AuthButton({ accountsUrl, uid, displayName, email }: AuthButtonProps) {
+export function AuthButton({ accountsUrl, uid, displayName, email, iconUrl }: AuthButtonProps) {
   const { t } = useTranslation();
 
   if (!uid) {
@@ -38,13 +39,13 @@ export function AuthButton({ accountsUrl, uid, displayName, email }: AuthButtonP
         className="block p-0 bg-transparent border-0 cursor-pointer rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
         aria-label={t("header.accountMenuLabel")}
       >
-        <Identicon value={uid} size={36} className="border border-border [&>svg]:block" />
+        <UserAvatar uid={uid} iconUrl={iconUrl} size={36} className="border border-border [&>svg]:block" />
       </Menu.Trigger>
       <Menu.Portal>
         <Menu.Positioner side="bottom" align="end" sideOffset={8}>
           <Menu.Popup className="z-50 min-w-48 rounded-md border border-border bg-card text-card-foreground shadow-md outline-none">
             <div className="flex flex-col items-start gap-2 px-3 py-4">
-              <Identicon value={uid} size={40} className="border border-border [&>svg]:block" />
+              <UserAvatar uid={uid} iconUrl={iconUrl} size={40} className="border border-border [&>svg]:block" />
               {displayName && (
                 <span className="text-sm font-medium">{displayName}</span>
               )}
