@@ -4,7 +4,6 @@ import { getDb, getRegisteredSections } from "@Hashibutogarasu/db";
 import { oauthClients } from "@Hashibutogarasu/db/schema";
 import { getSessionUser } from "@/lib/firebase-session";
 import { AuthorizeForm } from "@/components/oauth/authorize-form";
-import "@/lib/permissions/sections";
 
 interface PageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;

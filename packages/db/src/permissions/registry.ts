@@ -1,9 +1,11 @@
+import { SECTION_BIT_MAP } from "./section-bit-map.generated";
+
 export interface SectionMeta {
   key: string;
   /** i18n translation key for the section label. */
   labelKey: string;
   /** i18n translation key for the section description. */
-  descriptionKey?: string;
+  descriptionKey: string;
   /**
    * Fixed bit position index. Must never change after data is written to the database,
    * as existing permission bitmask values would become invalid.
@@ -16,24 +18,16 @@ export interface SectionMeta {
   writeMask: bigint;
 }
 
-const registry: SectionMeta[] = [];
+const registry: SectionMeta[] = Object.entries(SECTION_BIT_MAP).map(([key, bitIndex]) => ({
+  key,
+  labelKey: `permissions.sections.${key}.label`,
+  descriptionKey: `permissions.sections.${key}.description`,
+  bitIndex,
+  readMask: 1n << BigInt(bitIndex * 2),
+  writeMask: 1n << BigInt(bitIndex * 2 + 1),
+}));
 
-export function registerSection(
-  meta: Omit<SectionMeta, "readMask" | "writeMask">,
-): void {
-  if (registry.some((s) => s.bitIndex === meta.bitIndex)) {
-    throw new Error(
-      `@Section bitIndex ${meta.bitIndex} is already registered by another section.`,
-    );
-  }
-  registry.push({
-    ...meta,
-    readMask: 1n << BigInt(meta.bitIndex * 2),
-    writeMask: 1n << BigInt(meta.bitIndex * 2 + 1),
-  });
-}
-
-/** Returns all registered permission sections in registration order. */
+/** Returns all registered permission sections in `SECTION_BIT_MAP` order. */
 export function getRegisteredSections(): readonly SectionMeta[] {
   return registry;
 }
