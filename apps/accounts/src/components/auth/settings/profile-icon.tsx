@@ -49,7 +49,10 @@ export function ProfileIcon() {
     if (!file) return;
 
     const url = await upload(file);
-    if (!url) return;
+    if (!url) {
+      toast.error(t("profile.uploadFailed"));
+      return;
+    }
     await persistIcon(url);
   }
 
