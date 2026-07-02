@@ -14,24 +14,90 @@
  * writing changes (exits non-zero if they are stale); intended for CI.
  */
 import { readFileSync, writeFileSync } from "node:fs";
+import { createRequire } from "node:module";
 import path from "node:path";
-import { Project, SyntaxKind, type CallExpression } from "ts-morph";
+import { Project, SyntaxKind, type CallExpression, type ObjectLiteralExpression } from "ts-morph";
+import { createRouteAuth } from "@Hashibutogarasu/utils/server";
 
+const require = createRequire(import.meta.url);
+
+/** Every API route lives under `src/app/api` by Next.js App Router convention. */
 const APP_ROOT = path.resolve(__dirname, "..");
 const API_DIR = path.join(APP_ROOT, "src/app/api");
-const BIT_MAP_PATH = path.resolve(
-  APP_ROOT,
-  "../../packages/db/src/permissions/section-bit-map.generated.ts",
-);
-const LOCALES = ["en", "ja", "cn"] as const;
-const LOCALE_PATHS = Object.fromEntries(
-  LOCALES.map((locale) => [
-    locale,
-    path.join(APP_ROOT, `src/lib/i18n/locales/${locale}/translation.json`),
-  ]),
-) as Record<(typeof LOCALES)[number], string>;
+const DEFAULT_NAMESPACE = "translation";
 
-const GUARD_NAMES = new Set(["Read", "Write", "APIKeyRoute", "OauthAppRoute"]);
+/**
+ * Resolved through Node's module resolution (honoring the workspace symlink
+ * and `@Hashibutogarasu/db`'s own `package.json` exports) rather than a
+ * hardcoded relative path, so this script keeps working if either package
+ * moves within the monorepo.
+ */
+const dbPackageSrcDir = path.dirname(require.resolve("@Hashibutogarasu/db"));
+const BIT_MAP_PATH = path.join(dbPackageSrcDir, "permissions/section-bit-map.generated.ts");
+
+function getObjectProperty(obj: ObjectLiteralExpression, name: string) {
+  return obj.getPropertyOrThrow(name).asKindOrThrow(SyntaxKind.PropertyAssignment).getInitializerOrThrow();
+}
+
+/**
+ * Reads the locale list and translation output path template from this
+ * app's own `i18next.config.ts` via static AST parsing (rather than
+ * importing and executing it) so they can never drift out of sync with the
+ * i18next-cli configuration, and never duplicate `["en", "ja", "cn"]` here.
+ */
+function readI18nConfig(project: Project): { locales: string[]; outputTemplate: string } {
+  const configFile = project.addSourceFileAtPath(path.join(APP_ROOT, "i18next.config.ts"));
+  const defineConfigCall = configFile
+    .getDescendantsOfKind(SyntaxKind.CallExpression)
+    .find((call) => call.getExpression().getText() === "defineConfig");
+  if (!defineConfigCall) throw new Error("Could not find defineConfig(...) in i18next.config.ts");
+
+  const config = defineConfigCall.getArguments()[0].asKindOrThrow(SyntaxKind.ObjectLiteralExpression);
+  const locales = getObjectProperty(config, "locales")
+    .asKindOrThrow(SyntaxKind.ArrayLiteralExpression)
+    .getElements()
+    .map((el) => el.asKindOrThrow(SyntaxKind.StringLiteral).getLiteralValue());
+  const extract = getObjectProperty(config, "extract").asKindOrThrow(SyntaxKind.ObjectLiteralExpression);
+  const outputTemplate = getObjectProperty(extract, "output")
+    .asKindOrThrow(SyntaxKind.StringLiteral)
+    .getLiteralValue();
+
+  return { locales, outputTemplate };
+}
+
+function resolveLocalePaths(project: Project): Record<string, string> {
+  const { locales, outputTemplate } = readI18nConfig(project);
+  return Object.fromEntries(
+    locales.map((locale) => [
+      locale,
+      path.join(
+        APP_ROOT,
+        outputTemplate.replace("{{language}}", locale).replace("{{namespace}}", DEFAULT_NAMESPACE),
+      ),
+    ]),
+  );
+}
+
+/**
+ * Derived from the actual `createRouteAuth` return value instead of a
+ * hand-maintained string list, so renaming a decorator in
+ * `packages/utils/src/server/route-guards.ts` can never silently desync
+ * detection here. The stub dependencies are never invoked: `createRouteAuth`
+ * only calls into them from the wrapped request handlers it returns, which
+ * this script never executes.
+ */
+const GUARD_NAMES = new Set(
+  Object.keys(
+    createRouteAuth({
+      validator: {
+        validateApiKey: async () => null,
+        validateOauthToken: async () => null,
+      },
+      permissionChecker: { hasPermission: () => false },
+      deriveSectionKey: () => "",
+    }),
+  ),
+);
 const HTTP_METHODS = new Set(["GET", "POST", "PUT", "PATCH", "DELETE"]);
 
 interface RouteGuardUsage {
@@ -126,6 +192,7 @@ function main(): void {
     tsConfigFilePath: path.join(APP_ROOT, "tsconfig.json"),
   });
 
+  const localePaths = resolveLocalePaths(project);
   const usages = findRouteGuardUsages(project);
 
   for (const usage of usages) {
@@ -160,8 +227,7 @@ function main(): void {
   const allKeys = updatedEntries.map(([key]) => key);
   const localeUpdates: Record<string, { path: string; before: string; after: string }> = {};
 
-  for (const locale of LOCALES) {
-    const localePath = LOCALE_PATHS[locale];
+  for (const [locale, localePath] of Object.entries(localePaths)) {
     const before = readFileSync(localePath, "utf-8");
     const data = JSON.parse(before) as Record<string, unknown>;
     const permissions = (data.permissions ??= {}) as Record<string, unknown>;
