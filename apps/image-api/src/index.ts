@@ -4,6 +4,7 @@ interface Env {
   IMAGES: R2Bucket;
   ALLOWED_ORIGIN: string;
   FIREBASE_PROJECT_ID: string;
+  CDN_BASE_URL: string;
 }
 
 const SESSION_COOKIE_NAME = "session";
@@ -202,6 +203,6 @@ export default {
       httpMetadata: { contentType: file.type },
     });
 
-    return json({ url: `${requestUrl.origin}/${key}` }, 200, cors);
+    return json({ url: `${env.CDN_BASE_URL}/${key}` }, 200, cors);
   },
 } satisfies ExportedHandler<Env>;
