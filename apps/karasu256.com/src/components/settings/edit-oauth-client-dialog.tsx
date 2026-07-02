@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
-import { Upload } from "lucide-react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Button,
@@ -12,6 +11,7 @@ import {
   DialogPopup,
   DialogPortal,
   DialogTitle,
+  FileUploadButton,
   Input,
   Label,
   R2Image,
@@ -21,6 +21,7 @@ import {
   type OAuthClientSummary,
   type SectionMeta,
 } from "@/lib/api/developer";
+import { useImageUpload } from "@/lib/image-upload/use-image-upload";
 
 interface EditOAuthClientDialogProps {
   open: boolean;
@@ -42,7 +43,7 @@ export function EditOAuthClientDialog({
   onUpdated,
 }: EditOAuthClientDialogProps) {
   const { t } = useTranslation();
-  const imageApiUrl = process.env.NEXT_PUBLIC_IMAGE_API_URL ?? "";
+  const { uploading, upload } = useImageUpload();
 
   const [name, setName] = useState(client.name);
   const [callbackUrisText, setCallbackUrisText] = useState(client.callbackUris.join("\n"));
@@ -50,8 +51,6 @@ export function EditOAuthClientDialog({
   const [iconPreview, setIconPreview] = useState(client.iconUrl ?? "");
   const [permissions, setPermissions] = useState(client.permissions);
   const [loading, setLoading] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (open) {
@@ -74,26 +73,11 @@ export function EditOAuthClientDialog({
     setPermissions((prev) => ((prev & mask) !== 0 ? prev & ~mask : prev | mask));
   }
 
-  async function handleIconChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-    try {
-      const form = new FormData();
-      form.append("file", file);
-      const res = await fetch(`${imageApiUrl}/upload`, {
-        method: "POST",
-        body: form,
-        credentials: "include",
-      });
-      if (res.ok) {
-        const { url } = (await res.json()) as { url: string };
-        setIconUrl(url);
-        setIconPreview(URL.createObjectURL(file));
-      }
-    } finally {
-      setUploading(false);
-    }
+  async function handleFileSelected(file: File) {
+    const url = await upload(file);
+    if (!url) return;
+    setIconUrl(url);
+    setIconPreview(URL.createObjectURL(file));
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -165,22 +149,12 @@ export function EditOAuthClientDialog({
                     className="size-10 rounded object-cover border border-border"
                   />
                 )}
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  disabled={uploading}
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <Upload />
-                  {uploading ? "…" : t("settings.developer.dialog.upload")}
-                </Button>
-                <input
-                  ref={fileInputRef}
-                  type="file"
+                <FileUploadButton
+                  label={t("settings.developer.dialog.upload")}
+                  loadingLabel={t("settings.developer.dialog.uploading")}
+                  loading={uploading}
                   accept="image/jpeg,image/png,image/webp"
-                  className="hidden"
-                  onChange={handleIconChange}
+                  onFileSelected={handleFileSelected}
                 />
               </div>
             </div>

@@ -44,6 +44,7 @@ export { Badge, badgeVariants, type BadgeProps } from "./components/badge";
 export { SettingsAccordion, type SettingsAccordionProps } from "./components/settings-accordion";
 export { ConfirmDialog, type ConfirmDialogProps } from "./components/confirm-dialog";
 export { DeleteIconButton, type DeleteIconButtonProps } from "./components/delete-icon-button";
+export { FileUploadButton, type FileUploadButtonProps } from "./components/file-upload-button";
 export { SettingsItem } from "./components/settings-item";
 export { SigningOutView } from "./components/signing-out-view";
 export {

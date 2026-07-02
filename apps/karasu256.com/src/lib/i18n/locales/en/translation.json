@@ -68,6 +68,7 @@
         "keyNotice": "This API key will only be shown once. Store it in a safe place.",
         "keyName": "Key name",
         "upload": "Upload",
+        "uploading": "Uploading",
         "copySecret": "Copy secret",
         "copyKey": "Copy API key",
         "done": "Done"
