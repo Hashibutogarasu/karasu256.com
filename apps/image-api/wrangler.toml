@@ -4,7 +4,7 @@ compatibility_date = "2025-06-24"
 
 [[r2_buckets]]
 binding = "IMAGES"
-bucket_name = "karasu-images"
+bucket_name = "karasu-lab-cdn"
 
 [vars]
 ALLOWED_ORIGIN = "https://karasu256.com"
