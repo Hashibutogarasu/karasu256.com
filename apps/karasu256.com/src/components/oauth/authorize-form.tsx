@@ -1,9 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Badge, Button } from "@Hashibutogarasu/ui";
+import { Badge, Button, R2Image } from "@Hashibutogarasu/ui";
 
 interface SectionMeta {
   key: string;
@@ -82,7 +81,7 @@ export function AuthorizeForm({
       <div className="max-w-sm w-full rounded-lg border border-border p-6 space-y-5">
         <div className="flex items-center gap-3">
           {client.iconUrl && (
-            <Image
+            <R2Image
               src={client.iconUrl}
               alt=""
               width={40}

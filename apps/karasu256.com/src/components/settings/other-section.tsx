@@ -1,10 +1,16 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Ban } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { Badge, Button, ConfirmDialog, SettingsAccordion, SettingsItem } from "@Hashibutogarasu/ui";
+import {
+  Badge,
+  Button,
+  ConfirmDialog,
+  R2Image,
+  SettingsAccordion,
+  SettingsItem,
+} from "@Hashibutogarasu/ui";
 import {
   listAuthorizedApps,
   revokeAuthorizedApp,
@@ -93,7 +99,7 @@ function AuthorizedAppRow({ app, sections, onRevoke }: AuthorizedAppRowProps) {
     <SettingsItem className="flex items-start justify-between gap-4">
       <div className="flex items-start gap-3 min-w-0">
         {app.iconUrl && (
-          <Image
+          <R2Image
             src={app.iconUrl}
             alt=""
             width={32}

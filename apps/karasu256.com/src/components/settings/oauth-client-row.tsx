@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { KeyRound, MoreHorizontal, Pencil, Play, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
@@ -13,6 +12,7 @@ import {
   DropdownMenuPositioner,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  R2Image,
   SettingsItem,
 } from "@Hashibutogarasu/ui";
 import type { OAuthClientSummary, SectionMeta } from "@/lib/api/developer";
@@ -44,7 +44,7 @@ export function OAuthClientRow({ client, sections, onTest, onEdit, onDelete, onR
     <SettingsItem className="flex items-start justify-between gap-4">
       <div className="flex items-start gap-3 min-w-0">
         {client.iconUrl && (
-          <Image
+          <R2Image
             src={client.iconUrl}
             alt=""
             width={32}
