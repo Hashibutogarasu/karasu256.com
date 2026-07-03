@@ -103,15 +103,17 @@ export function ProfileIcon() {
   return (
     <>
       <ContextMenu>
-        <ContextMenuTrigger onClick={() => !saving && fileInputRef.current?.click()} aria-label={t('profile.changeIcon')}>
-          <div className="relative size-12">
-            <UserAvatar uid={user.uid} iconUrl={user.photoURL} size={48} className={cn('border border-border', saving && 'opacity-40')} />
-            {saving && (
-              <div className="absolute inset-0 flex items-center justify-center rounded-full">
-                <Spinner className="size-5" />
-              </div>
-            )}
-          </div>
+        <ContextMenuTrigger
+          onClick={() => !saving && fileInputRef.current?.click()}
+          aria-label={t('profile.changeIcon')}
+          className="relative block shrink-0 cursor-pointer rounded-full transition-[filter] hover:brightness-90"
+        >
+          <UserAvatar uid={user.uid} iconUrl={user.photoURL} size="lg" className={cn(saving && 'opacity-40')} />
+          {saving && (
+            <div className="absolute inset-0 flex items-center justify-center rounded-full">
+              <Spinner className="size-5" />
+            </div>
+          )}
         </ContextMenuTrigger>
         <ContextMenuContent>
           <ContextMenuItem onClick={() => fileInputRef.current?.click()}>{t('profile.uploadIcon')}</ContextMenuItem>

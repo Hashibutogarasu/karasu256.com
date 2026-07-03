@@ -231,7 +231,7 @@ function SidebarUserMenu({ user, backToAppHref, backToAppLabel, onSignOut, signO
         'h-12 px-2'
       )}
     >
-      <UserAvatar uid={user.uid} iconUrl={user.photoURL} size={32} />
+      <UserAvatar uid={user.uid} iconUrl={user.photoURL} size="default" />
       <div className="grid flex-1 min-w-0 leading-tight group-data-[collapsible=icon]:hidden">
         <span className="truncate text-sm font-semibold">{displayName}</span>
         <span className="truncate text-xs text-sidebar-foreground/70">{user.email}</span>

@@ -23,7 +23,7 @@ export function ProfileSection({ uid, email, iconUrl }: ProfileSectionProps) {
       <h1 className="text-xl font-semibold">{t('settings.profile.title')}</h1>
 
       <div className="flex items-center gap-4">
-        <UserAvatar uid={uid} iconUrl={iconUrl} size={56} className="border border-border" />
+        <UserAvatar uid={uid} iconUrl={iconUrl} size="lg" className="border border-border" />
         <div className="space-y-0.5">
           <p className="text-sm text-muted-foreground">{t('settings.profile.email')}</p>
           <p className="text-sm font-medium break-all">{email ?? uid}</p>

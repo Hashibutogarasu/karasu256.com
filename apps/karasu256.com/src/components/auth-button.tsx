@@ -40,11 +40,11 @@ export function AuthButton({ accountsUrl, uid, displayName, email, iconUrl }: Au
         className="block p-0 bg-transparent border-0 cursor-pointer rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
         aria-label={t('header.accountMenuLabel')}
       >
-        <UserAvatar uid={uid} iconUrl={iconUrl} size={36} className="border border-border [&>svg]:block" />
+        <UserAvatar uid={uid} iconUrl={iconUrl} size="default" className="border border-border [&>svg]:block" />
       </MenuTrigger>
       <MenuContent side="bottom" align="end" sideOffset={8} className="w-auto min-w-48">
         <div className="flex flex-col items-start gap-2 px-3 py-4">
-          <UserAvatar uid={uid} iconUrl={iconUrl} size={40} className="border border-border [&>svg]:block" />
+          <UserAvatar uid={uid} iconUrl={iconUrl} size="lg" className="border border-border [&>svg]:block" />
           {displayName && <span className="text-sm font-medium">{displayName}</span>}
           <span className="text-sm text-muted-foreground break-all">{email ?? uid}</span>
         </div>
