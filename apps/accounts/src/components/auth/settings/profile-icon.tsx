@@ -1,13 +1,11 @@
 'use client';
 
 import { useRef } from 'react';
-import { updateProfile } from 'firebase/auth';
 import { useTranslations } from 'next-intl';
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger, UserAvatar, toast } from '@Hashibutogarasu/ui';
-import { useImageUpload } from '@Hashibutogarasu/utils/client';
+import { uploadUserIcon, deleteUserIcon } from '@Hashibutogarasu/utils/client';
 import { getFirebaseAuth } from '@/lib/firebase/auth';
 import { useSettingsUser } from '@/components/settings/user-context';
-import { updateUserIcon } from '@/lib/api/update-user-icon';
 
 /**
  * Avatar that opens the file picker on a plain click, and additionally
@@ -18,23 +16,18 @@ import { updateUserIcon } from '@/lib/api/update-user-icon';
 export function ProfileIcon() {
   const t = useTranslations();
   const { user, updateUser } = useSettingsUser();
-  const { upload } = useImageUpload();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  async function persistIcon(iconUrl: string | null) {
-    try {
-      await updateUserIcon(iconUrl);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : String(err));
-      return;
-    }
-
+  /**
+   * Reloads the client Firebase user so its cached `photoURL` reflects the
+   * value the server just wrote via the Admin SDK, then pushes it into
+   * {@link useSettingsUser}'s context so {@link UserAvatar} re-renders.
+   */
+  async function syncPhotoURL(): Promise<void> {
     const currentUser = getFirebaseAuth().currentUser;
-    if (currentUser) {
-      await updateProfile(currentUser, { photoURL: iconUrl });
-    }
-    updateUser({ photoURL: iconUrl });
-    toast.success(t('profile.iconChanged'), { autoClose: true });
+    if (!currentUser) return;
+    await currentUser.reload();
+    updateUser({ photoURL: getFirebaseAuth().currentUser?.photoURL ?? null });
   }
 
   async function handleFileSelected(e: React.ChangeEvent<HTMLInputElement>) {
@@ -42,12 +35,25 @@ export function ProfileIcon() {
     e.target.value = '';
     if (!file) return;
 
-    const url = await upload(file, `users/${user.uid}/avatar.png`);
-    if (!url) {
-      toast.error(t('profile.uploadFailed'));
+    try {
+      await uploadUserIcon(file);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err));
       return;
     }
-    await persistIcon(url);
+    await syncPhotoURL();
+    toast.success(t('profile.iconChanged'), { autoClose: true });
+  }
+
+  async function handleDeleteIcon() {
+    try {
+      await deleteUserIcon();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err));
+      return;
+    }
+    await syncPhotoURL();
+    toast.success(t('profile.iconChanged'), { autoClose: true });
   }
 
   return (
@@ -58,7 +64,7 @@ export function ProfileIcon() {
         </ContextMenuTrigger>
         <ContextMenuContent>
           <ContextMenuItem onClick={() => fileInputRef.current?.click()}>{t('profile.uploadIcon')}</ContextMenuItem>
-          <ContextMenuItem variant="destructive" disabled={!user.photoURL} onClick={() => persistIcon(null)}>
+          <ContextMenuItem variant="destructive" disabled={!user.photoURL} onClick={handleDeleteIcon}>
             {t('profile.deleteIcon')}
           </ContextMenuItem>
         </ContextMenuContent>
