@@ -4,6 +4,9 @@
     "siteDescription": "Karasu Lab",
     "home": {
       "title": "首页"
+    },
+    "terms": {
+      "title": "服务条款"
     }
   },
   "header": {
