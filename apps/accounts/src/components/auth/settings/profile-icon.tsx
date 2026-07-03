@@ -10,12 +10,14 @@ import {
   ContextMenuSubContent,
   ContextMenuSubTrigger,
   ContextMenuTrigger,
+  Spinner,
   UserAvatar,
   toast,
 } from '@Hashibutogarasu/ui';
 import { uploadUserIcon, deleteUserIcon, setUserIconFromProvider, listLinkedProviders, type ProviderProfile } from '@Hashibutogarasu/utils/client';
 import { getFirebaseAuth } from '@/lib/firebase/auth';
 import { useSettingsUser } from '@/components/settings/user-context';
+import { cn } from '@/lib/utils';
 
 /** Formats a submenu entry as "user name (Provider)", falling back to just the provider name. */
 function providerLabel(providerId: string, profile: ProviderProfile): string {
@@ -35,6 +37,7 @@ export function ProfileIcon() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [providers, setProviders] = useState<Record<string, ProviderProfile>>({});
   const providerEntries = useMemo(() => Object.entries(providers), [providers]);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     listLinkedProviders()
@@ -59,43 +62,56 @@ export function ProfileIcon() {
     e.target.value = '';
     if (!file) return;
 
+    setSaving(true);
     try {
       await uploadUserIcon(file);
+      await syncPhotoURL();
+      toast.success(t('profile.iconChanged'), { autoClose: true });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : String(err));
-      return;
+    } finally {
+      setSaving(false);
     }
-    await syncPhotoURL();
-    toast.success(t('profile.iconChanged'), { autoClose: true });
   }
 
   async function handleSelectProvider(providerId: string) {
+    setSaving(true);
     try {
       await setUserIconFromProvider(providerId);
+      await syncPhotoURL();
+      toast.success(t('profile.iconChanged'), { autoClose: true });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : String(err));
-      return;
+    } finally {
+      setSaving(false);
     }
-    await syncPhotoURL();
-    toast.success(t('profile.iconChanged'), { autoClose: true });
   }
 
   async function handleDeleteIcon() {
+    setSaving(true);
     try {
       await deleteUserIcon();
+      await syncPhotoURL();
+      toast.success(t('profile.iconChanged'), { autoClose: true });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : String(err));
-      return;
+    } finally {
+      setSaving(false);
     }
-    await syncPhotoURL();
-    toast.success(t('profile.iconChanged'), { autoClose: true });
   }
 
   return (
     <>
       <ContextMenu>
-        <ContextMenuTrigger onClick={() => fileInputRef.current?.click()} aria-label={t('profile.changeIcon')}>
-          <UserAvatar uid={user.uid} iconUrl={user.photoURL} size={48} className="border border-border" />
+        <ContextMenuTrigger onClick={() => !saving && fileInputRef.current?.click()} aria-label={t('profile.changeIcon')}>
+          <div className="relative size-12">
+            <UserAvatar uid={user.uid} iconUrl={user.photoURL} size={48} className={cn('border border-border', saving && 'opacity-40')} />
+            {saving && (
+              <div className="absolute inset-0 flex items-center justify-center rounded-full">
+                <Spinner className="size-5" />
+              </div>
+            )}
+          </div>
         </ContextMenuTrigger>
         <ContextMenuContent>
           <ContextMenuItem onClick={() => fileInputRef.current?.click()}>{t('profile.uploadIcon')}</ContextMenuItem>
