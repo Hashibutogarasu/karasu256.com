@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import {
   Button,
   Dialog,
@@ -30,7 +30,7 @@ export function CreateApiKeyDialog({
   onOpenChange,
   onCreated,
 }: CreateApiKeyDialogProps) {
-  const { t } = useTranslation();
+  const t = useTranslations();
   const [name, setName] = useState("");
   const [createdKey, setCreatedKey] = useState<ApiKeyCreated | null>(null);
   const [loading, setLoading] = useState(false);

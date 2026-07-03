@@ -5,8 +5,7 @@
  * `packages/db/src/permissions/section-bit-map.generated.ts` with the next
  * free bit position, without ever reassigning an existing key, and a
  * placeholder `permissions.sections.<key>.{label,description}` entry is
- * inserted into each of
- * `apps/karasu256.com/src/lib/i18n/locales/{en,ja,cn}/translation.json` for
+ * inserted into each of `apps/karasu256.com/messages/{en,ja,cn}.json` for
  * any key missing a translation, without overwriting strings that are
  * already translated.
  *
@@ -16,15 +15,15 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
-import { Project, SyntaxKind, type CallExpression, type ObjectLiteralExpression } from "ts-morph";
+import { Project, SyntaxKind, type CallExpression } from "ts-morph";
 import { createRouteAuth } from "@Hashibutogarasu/utils/server";
+import { locales } from "../src/i18n/locales";
 
 const require = createRequire(import.meta.url);
 
 /** Every API route lives under `src/app/api` by Next.js App Router convention. */
 const APP_ROOT = path.resolve(__dirname, "..");
 const API_DIR = path.join(APP_ROOT, "src/app/api");
-const DEFAULT_NAMESPACE = "translation";
 
 /**
  * Resolved through Node's module resolution (honoring the workspace symlink
@@ -35,46 +34,9 @@ const DEFAULT_NAMESPACE = "translation";
 const dbPackageSrcDir = path.dirname(require.resolve("@Hashibutogarasu/db"));
 const BIT_MAP_PATH = path.join(dbPackageSrcDir, "permissions/section-bit-map.generated.ts");
 
-function getObjectProperty(obj: ObjectLiteralExpression, name: string) {
-  return obj.getPropertyOrThrow(name).asKindOrThrow(SyntaxKind.PropertyAssignment).getInitializerOrThrow();
-}
-
-/**
- * Reads the locale list and translation output path template from this
- * app's own `i18next.config.ts` via static AST parsing (rather than
- * importing and executing it) so they can never drift out of sync with the
- * i18next-cli configuration, and never duplicate `["en", "ja", "cn"]` here.
- */
-function readI18nConfig(project: Project): { locales: string[]; outputTemplate: string } {
-  const configFile = project.addSourceFileAtPath(path.join(APP_ROOT, "i18next.config.ts"));
-  const defineConfigCall = configFile
-    .getDescendantsOfKind(SyntaxKind.CallExpression)
-    .find((call) => call.getExpression().getText() === "defineConfig");
-  if (!defineConfigCall) throw new Error("Could not find defineConfig(...) in i18next.config.ts");
-
-  const config = defineConfigCall.getArguments()[0].asKindOrThrow(SyntaxKind.ObjectLiteralExpression);
-  const locales = getObjectProperty(config, "locales")
-    .asKindOrThrow(SyntaxKind.ArrayLiteralExpression)
-    .getElements()
-    .map((el) => el.asKindOrThrow(SyntaxKind.StringLiteral).getLiteralValue());
-  const extract = getObjectProperty(config, "extract").asKindOrThrow(SyntaxKind.ObjectLiteralExpression);
-  const outputTemplate = getObjectProperty(extract, "output")
-    .asKindOrThrow(SyntaxKind.StringLiteral)
-    .getLiteralValue();
-
-  return { locales, outputTemplate };
-}
-
-function resolveLocalePaths(project: Project): Record<string, string> {
-  const { locales, outputTemplate } = readI18nConfig(project);
+function resolveLocalePaths(): Record<string, string> {
   return Object.fromEntries(
-    locales.map((locale) => [
-      locale,
-      path.join(
-        APP_ROOT,
-        outputTemplate.replace("{{language}}", locale).replace("{{namespace}}", DEFAULT_NAMESPACE),
-      ),
-    ]),
+    locales.map((locale) => [locale, path.join(APP_ROOT, "messages", `${locale}.json`)]),
   );
 }
 
@@ -192,7 +154,7 @@ function main(): void {
     tsConfigFilePath: path.join(APP_ROOT, "tsconfig.json"),
   });
 
-  const localePaths = resolveLocalePaths(project);
+  const localePaths = resolveLocalePaths();
   const usages = findRouteGuardUsages(project);
 
   for (const usage of usages) {

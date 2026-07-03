@@ -1,4 +1,11 @@
 {
+  "Metadata": {
+    "siteTitle": "Karasu Lab",
+    "siteDescription": "Karasu Lab",
+    "home": {
+      "title": "ホーム"
+    }
+  },
   "header": {
     "signIn": "サインイン",
     "accountMenuLabel": "アカウントメニュー",
@@ -28,7 +35,7 @@
       "revoke": "取り消す",
       "revokeConfirm": {
         "title": "認可を取り消しますか？",
-        "description": "「{{name}}」へのアクセスを取り消します。このアプリは再認可するまでデータにアクセスできなくなります。",
+        "description": "「{name}」へのアクセスを取り消します。このアプリは再認可するまでデータにアクセスできなくなります。",
         "cancel": "キャンセル"
       }
     },
@@ -45,7 +52,7 @@
       "delete": "削除",
       "deleteConfirm": {
         "title": "本当に削除しますか？",
-        "description": "「{{name}}」を削除します。この操作は取り消せません。",
+        "description": "「{name}」を削除します。この操作は取り消せません。",
         "cancel": "キャンセル"
       },
       "created": "作成日",
@@ -78,12 +85,12 @@
       "rotateSecret": "シークレットを再生成",
       "rotateSecretConfirm": {
         "title": "クライアントシークレットを再生成しますか？",
-        "description": "「{{name}}」の現在のシークレットは即座に無効になります。このシークレットを使用しているアプリケーションは新しいシークレットに更新する必要があります。",
+        "description": "「{name}」の現在のシークレットは即座に無効になります。このシークレットを使用しているアプリケーションは新しいシークレットに更新する必要があります。",
         "confirm": "再生成",
         "cancel": "キャンセル"
       },
       "test": {
-        "title": "{{name}} のテスト",
+        "title": "{name} のテスト",
         "description": "認可ページをポップアップで開きます。承認後、コードをトークンと交換して結果を検証します。",
         "run": "テスト開始",
         "runAgain": "再実行",
@@ -105,10 +112,14 @@
   },
   "oauth": {
     "authorize": {
+      "title": "アクセス許可の確認",
       "subtitle": "以下の権限へのアクセスを要求しています",
       "permissionsLabel": "要求されている権限",
       "approve": "許可する",
       "deny": "拒否する"
+    },
+    "testCallback": {
+      "title": "テストコールバック"
     },
     "errors": {
       "invalid_grant": "認可コードが無効または期限切れです",

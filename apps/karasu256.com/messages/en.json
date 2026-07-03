@@ -1,4 +1,11 @@
 {
+  "Metadata": {
+    "siteTitle": "Karasu Lab",
+    "siteDescription": "Karasu Lab",
+    "home": {
+      "title": "Home"
+    }
+  },
   "header": {
     "signIn": "Sign in",
     "accountMenuLabel": "Account menu",
@@ -28,7 +35,7 @@
       "revoke": "Revoke",
       "revokeConfirm": {
         "title": "Revoke access?",
-        "description": "This will revoke access for \"{{name}}\". The app will not be able to access your data until you authorize it again.",
+        "description": "This will revoke access for \"{name}\". The app will not be able to access your data until you authorize it again.",
         "cancel": "Cancel"
       }
     },
@@ -45,7 +52,7 @@
       "delete": "Delete",
       "deleteConfirm": {
         "title": "Are you sure?",
-        "description": "This will permanently delete \"{{name}}\". This action cannot be undone.",
+        "description": "This will permanently delete \"{name}\". This action cannot be undone.",
         "cancel": "Cancel"
       },
       "created": "Created",
@@ -78,12 +85,12 @@
       "rotateSecret": "Regenerate secret",
       "rotateSecretConfirm": {
         "title": "Regenerate client secret?",
-        "description": "This will immediately invalidate the current secret for \"{{name}}\". Any application using it must be updated with the new secret.",
+        "description": "This will immediately invalidate the current secret for \"{name}\". Any application using it must be updated with the new secret.",
         "confirm": "Regenerate",
         "cancel": "Cancel"
       },
       "test": {
-        "title": "Test {{name}}",
+        "title": "Test {name}",
         "description": "Opens the authorization page in a popup. After you approve, the dialog exchanges the code for a token and verifies the result.",
         "run": "Start test",
         "runAgain": "Run again",
@@ -105,10 +112,14 @@
   },
   "oauth": {
     "authorize": {
+      "title": "Authorize access",
       "subtitle": "is requesting access to the following permissions",
       "permissionsLabel": "Requested permissions",
       "approve": "Authorize",
       "deny": "Deny"
+    },
+    "testCallback": {
+      "title": "Test callback"
     },
     "errors": {
       "invalid_grant": "Invalid or expired authorization code",

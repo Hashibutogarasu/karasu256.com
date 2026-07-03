@@ -12,8 +12,6 @@ set -euo pipefail
 
 ROOT="$(git rev-parse --show-toplevel)"
 
-bash "$ROOT/scripts/check-i18n.sh"
-
 # Block .env.keys from being committed — private decryption keys must stay local.
 if git diff --cached --name-only | grep -q '\.env\.keys$'; then
   echo "pre-commit: ERROR — .env.keys is staged. Private keys must not be committed." >&2

@@ -1,7 +1,14 @@
 import React from "react";
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { getSessionUser } from "@/lib/firebase-session";
 import { SettingsShell } from "@/components/settings-shell";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations();
+  return { title: t("settings.title") };
+}
 
 /**
  * Settings layout. Redirects unauthenticated users to the accounts portal,

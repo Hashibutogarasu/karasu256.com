@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Code2, Layers, User } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import {
   SettingsSidebar,
   SettingsSidebarLayout,
@@ -28,7 +28,7 @@ interface SettingsShellProps {
  * Client-side settings shell. Provides i18n-aware nav items with Next.js client-side links.
  */
 export function SettingsShell({ children, user }: SettingsShellProps) {
-  const { t } = useTranslation();
+  const t = useTranslations();
   const pathname = usePathname();
 
   const navItems: SidebarNavItem[] = NAV_ITEMS_DEFS.map(({ href, icon, labelKey }) => ({

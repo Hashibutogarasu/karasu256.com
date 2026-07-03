@@ -1,5 +1,7 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
+import { getTranslations } from "next-intl/server";
 import { getDb, getRegisteredSections } from "@Hashibutogarasu/db";
 import { oauthClients } from "@Hashibutogarasu/db/schema";
 import { getSessionUser } from "@/lib/firebase-session";
@@ -8,6 +10,11 @@ import { stringOrNull } from "@Hashibutogarasu/utils/validation";
 
 interface PageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations();
+  return { title: t("oauth.authorize.title") };
 }
 
 /**

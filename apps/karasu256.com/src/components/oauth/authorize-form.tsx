@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { Badge, Button, R2Image } from "@Hashibutogarasu/ui";
 
 interface SectionMeta {
@@ -37,7 +37,7 @@ export function AuthorizeForm({
   state,
   sections,
 }: AuthorizeFormProps) {
-  const { t } = useTranslation();
+  const t = useTranslations();
   const [loading, setLoading] = useState(false);
 
   const grantedSections = sections.filter(

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { CheckCircle, Circle, XCircle } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { Spinner as DefaultSpinner } from "@Hashibutogarasu/ui";
 import { useOAuthErrorMessage } from "@/lib/i18n/use-oauth-error-message";
 import {
@@ -57,7 +57,7 @@ export function OAuthClientTestDialog({
   client,
   spinner: SpinnerComponent = DefaultSpinner,
 }: OAuthClientTestDialogProps) {
-  const { t } = useTranslation();
+  const t = useTranslations();
   const [steps, setSteps] = useState<StepState[]>(makeInitialSteps);
   const [secret, setSecret] = useState("");
   const popupRef = useRef<Window | null>(null);
@@ -343,7 +343,7 @@ function StepRow({
   step: StepState;
   spinner: React.ComponentType<{ className?: string }>;
 }) {
-  const { t } = useTranslation();
+  const t = useTranslations();
   const getErrorMessage = useOAuthErrorMessage();
   const labelKey = `settings.developer.test.steps.${step.label}`;
 
@@ -353,7 +353,7 @@ function StepRow({
         <StepIcon status={step.status} spinner={spinner} />
       </span>
       <div className="min-w-0 space-y-0.5">
-        <p className="text-sm font-medium">{t(labelKey, { defaultValue: step.label })}</p>
+        <p className="text-sm font-medium">{t.has(labelKey) ? t(labelKey) : step.label}</p>
         {step.status === "success" && step.data && (
           <div className="space-y-0.5">
             {Object.entries(step.data).map(([k, v]) => (
