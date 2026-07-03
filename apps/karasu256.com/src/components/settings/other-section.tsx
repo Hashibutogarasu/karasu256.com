@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Ban } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import {
   Badge,
   Button,
@@ -23,7 +23,7 @@ import { getPermissionSections, type SectionMeta } from "@/lib/api/developer";
  * users can view and revoke OAuth clients they have previously authorized.
  */
 export function OtherSection() {
-  const { t } = useTranslation();
+  const t = useTranslations();
 
   const [apps, setApps] = useState<AuthorizedAppSummary[]>([]);
   const [sections, setSections] = useState<SectionMeta[]>([]);
@@ -89,7 +89,7 @@ interface AuthorizedAppRowProps {
 }
 
 function AuthorizedAppRow({ app, sections, onRevoke }: AuthorizedAppRowProps) {
-  const { t } = useTranslation();
+  const t = useTranslations();
 
   const grantedSections = sections.filter(
     (s) => (app.permissions & s.readMask) !== 0 || (app.permissions & s.writeMask) !== 0,

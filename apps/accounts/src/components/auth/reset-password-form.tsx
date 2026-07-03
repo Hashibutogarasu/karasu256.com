@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEnvelope, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { toast } from "@Hashibutogarasu/ui";
 import { requestPasswordReset } from "@Hashibutogarasu/utils/client";
 import { Button } from "@Hashibutogarasu/ui";
@@ -17,7 +17,7 @@ import { Label } from "@Hashibutogarasu/ui";
  * confirmation message once the server accepts the request.
  */
 export function ResetPasswordForm() {
-  const { t } = useTranslation();
+  const t = useTranslations();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { UserAvatar, Button, Menu, MenuTrigger, MenuContent, MenuItem } from "@Hashibutogarasu/ui";
 import { signOutAction } from "@/app/actions/auth";
 
@@ -18,7 +18,7 @@ interface AuthButtonProps {
  * a link to account settings, and a sign-out button.
  */
 export function AuthButton({ accountsUrl, uid, displayName, email, iconUrl }: AuthButtonProps) {
-  const { t } = useTranslation();
+  const t = useTranslations();
 
   if (!uid) {
     return (

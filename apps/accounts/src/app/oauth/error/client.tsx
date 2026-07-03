@@ -1,7 +1,7 @@
 "use client"
 
 import { useSearchParams } from "next/navigation"
-import { useTranslation } from "react-i18next"
+import { useTranslations } from "next-intl";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons"
 import { Container, CardContent, CardHeader } from "@Hashibutogarasu/ui"
@@ -14,11 +14,12 @@ import { Button } from "@Hashibutogarasu/ui"
  * falls back to a generic message for unknown or missing codes.
  */
 export function OAuthErrorClient() {
-  const { t } = useTranslation()
+  const t = useTranslations();
   const searchParams = useSearchParams()
   const code = searchParams.get("code")
 
-  const message = t(`oauthError.${code}`, { defaultValue: t("oauthError.message") })
+  const key = code ? `oauthError.${code}` : null
+  const message = key && t.has(key) ? t(key) : t("oauthError.message")
 
   return (
     <Container className="max-w-sm">

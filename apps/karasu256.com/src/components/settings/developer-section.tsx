@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Plus } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { AnimatedList, Button, ConfirmDialog, SettingsAccordion, SettingsItem, Skeleton } from "@Hashibutogarasu/ui";
 import { ImageUploadProvider } from "@Hashibutogarasu/utils/client";
 import {
@@ -34,7 +34,7 @@ type PendingDelete =
  * collapsible lists and creation/edit dialogs.
  */
 export function DeveloperSection() {
-  const { t } = useTranslation();
+  const t = useTranslations();
 
   const [loading, setLoading] = useState(true);
   const [clients, setClients] = useState<OAuthClientSummary[]>([]);

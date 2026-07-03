@@ -4,7 +4,7 @@ import { useState } from "react";
 import { signInWithCustomToken } from "firebase/auth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFingerprint } from "@fortawesome/free-solid-svg-icons";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { toast } from "@Hashibutogarasu/ui";
 import { getFirebaseAuth } from "@/lib/firebase/auth";
 import { authenticateWithPasskey } from "@/lib/api/passkey-authenticate";
@@ -18,7 +18,7 @@ import { Button } from "@Hashibutogarasu/ui";
  * Delegates the WebAuthn + server round-trips to {@link authenticateWithPasskey}.
  */
 export function PasskeySection() {
-  const { t } = useTranslation();
+  const t = useTranslations();
   const [loading, setLoading] = useState(false);
 
   async function handleSignIn() {

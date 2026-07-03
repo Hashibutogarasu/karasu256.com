@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { DeleteIconButton, SettingsItem } from "@Hashibutogarasu/ui";
 import type { ApiKeySummary } from "@/lib/api/developer";
 
@@ -14,7 +14,7 @@ interface ApiKeyRowProps {
  * and a delete button.
  */
 export function ApiKeyRow({ apiKey, onDelete }: ApiKeyRowProps) {
-  const { t } = useTranslation();
+  const t = useTranslations();
 
   return (
     <SettingsItem className="flex items-center justify-between gap-4">

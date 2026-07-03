@@ -8,7 +8,7 @@ import {
   updatePassword,
 } from "firebase/auth";
 import { FirebaseError } from "firebase/app";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { toast } from "@Hashibutogarasu/ui";
 import { getFirebaseAuth } from "@/lib/firebase/auth";
 import { useSettingsUser } from "@/components/settings/user-context";
@@ -26,7 +26,7 @@ import { LocalizedPasswordStrengthIndicator } from "@/components/auth/localized-
  * Hidden for users with no email address.
  */
 export function PasswordSection() {
-  const { t } = useTranslation();
+  const t = useTranslations();
   const { user, updateUser } = useSettingsUser();
   const hasPasswordProvider = user.providerData.some((p) => p.providerId === "password");
   const [currentPassword, setCurrentPassword] = useState("");
@@ -37,7 +37,8 @@ export function PasswordSection() {
 
   function showError(err: unknown) {
     const code = err instanceof FirebaseError ? err.code.replace("auth/", "") : "unknown";
-    toast.error(t(`security.error.${code}`, { defaultValue: t("security.error.unknown") }));
+    const key = `security.error.${code}`;
+    toast.error(t.has(key) ? t(key) : t("security.error.unknown"));
   }
 
   async function handleSubmit(e: React.FormEvent) {

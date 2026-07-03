@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { PlusIcon } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import {
   Button,
   Input,
@@ -30,7 +30,7 @@ interface PasskeyCreateDialogProps {
  * any parent accordion trigger.
  */
 export function PasskeyCreateDialog({ email, onSuccess }: PasskeyCreateDialogProps) {
-  const { t } = useTranslation();
+  const t = useTranslations();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);

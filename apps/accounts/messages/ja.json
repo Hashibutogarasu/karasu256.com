@@ -1,4 +1,20 @@
 {
+  "Metadata": {
+    "siteTitle": "Karasu Lab",
+    "siteDescription": "Karasu Lab アカウントポータル",
+    "signIn": {
+      "title": "サインイン"
+    },
+    "signOut": {
+      "title": "サインアウト中"
+    },
+    "authCallback": {
+      "title": "サインイン処理中"
+    },
+    "resetPasswordConfirm": {
+      "title": "新しいパスワード"
+    }
+  },
   "signIn": {
     "title": "Karasu Lab にサインイン",
     "tabs": {
@@ -30,7 +46,7 @@
     "remove": "パスキーを削除",
     "removeConfirm": {
       "title": "パスキーを削除しますか？",
-      "description": "「{{name}}」を削除します。この操作は取り消せません。",
+      "description": "「{name}」を削除します。この操作は取り消せません。",
       "cancel": "キャンセル"
     },
     "name": "パスキー名",
@@ -88,13 +104,13 @@
     }
   },
   "connections": {
-    "title": "連携アカウント",
+    "title": "アカウント連携",
     "link": "連携",
     "unlink": "解除",
     "linking": "連携中",
     "unlinking": "解除中",
     "cannotUnlink": "最後のサインイン方法は解除できません。",
-    "linked": "{{provider}} を連携しました。",
+    "linked": "{provider} を連携しました。",
     "error": {
       "provider_already_linked": "このアカウントは別のユーザーに連携済みです。",
       "missing_token": "認証に失敗しました。もう一度お試しください。",
@@ -130,7 +146,7 @@
     "title": "パスワードをリセット",
     "sendLink": "リセットリンクを送信",
     "sending": "送信中",
-    "sent": "{{email}} にリセットリンクを送信しました。受信トレイを確認してください。",
+    "sent": "{email} にリセットリンクを送信しました。受信トレイを確認してください。",
     "sendError": "リセットリンクの送信に失敗しました。",
     "backToSignIn": "サインインに戻る",
     "verifying": "リンクを確認中",

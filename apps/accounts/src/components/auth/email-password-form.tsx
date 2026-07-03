@@ -5,7 +5,7 @@ import Link from "next/link";
 import { FirebaseError } from "firebase/app";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRightToBracket, faUserPlus } from "@fortawesome/free-solid-svg-icons";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { toast } from "@Hashibutogarasu/ui";
 import { signInWithEmailPassword, registerWithEmailPassword } from "@/lib/api/auth-email-password";
 import { Button, Input, Label, PasswordInput } from "@Hashibutogarasu/ui";
@@ -18,7 +18,7 @@ import { LocalizedPasswordStrengthIndicator } from "./localized-password-strengt
  * state so the user can fill in credentials once and choose the action.
  */
 export function EmailPasswordForm() {
-  const { t } = useTranslation();
+  const t = useTranslations();
   const [tab, setTab] = useState("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -28,7 +28,8 @@ export function EmailPasswordForm() {
 
   function showAuthError(err: unknown) {
     const code = err instanceof FirebaseError ? err.code.replace("auth/", "") : "unknown";
-    toast.error(t(`signIn.error.${code}`, { defaultValue: t("signIn.error.unknown") }));
+    const key = `signIn.error.${code}`;
+    toast.error(t.has(key) ? t(key) : t("signIn.error.unknown"));
   }
 
   async function handleSignIn(e: React.FormEvent) {

@@ -1,7 +1,7 @@
 "use client";
 
 import { KeyRound, MoreHorizontal, Pencil, Play, Trash2 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import {
   Badge,
   Button,
@@ -32,7 +32,7 @@ interface OAuthClientRowProps {
  * additional actions (test, delete).
  */
 export function OAuthClientRow({ client, sections, onTest, onEdit, onDelete, onRotateSecret }: OAuthClientRowProps) {
-  const { t } = useTranslation();
+  const t = useTranslations();
 
   const grantedSections = sections.filter(
     (s) =>

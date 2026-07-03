@@ -1,4 +1,11 @@
 {
+  "Metadata": {
+    "siteTitle": "Karasu Lab",
+    "siteDescription": "Karasu Lab",
+    "home": {
+      "title": "首页"
+    }
+  },
   "header": {
     "signIn": "登录",
     "accountMenuLabel": "账户菜单",
@@ -28,7 +35,7 @@
       "revoke": "撤销授权",
       "revokeConfirm": {
         "title": "撤销访问权限？",
-        "description": "这将撤销「{{name}}」的访问权限。该应用将无法访问您的数据，直到您重新授权为止。",
+        "description": "这将撤销「{name}」的访问权限。该应用将无法访问您的数据，直到您重新授权为止。",
         "cancel": "取消"
       }
     },
@@ -45,7 +52,7 @@
       "delete": "删除",
       "deleteConfirm": {
         "title": "确认删除？",
-        "description": "这将永久删除「{{name}}」。此操作无法撤销。",
+        "description": "这将永久删除「{name}」。此操作无法撤销。",
         "cancel": "取消"
       },
       "created": "创建时间",
@@ -78,12 +85,12 @@
       "rotateSecret": "重新生成密钥",
       "rotateSecretConfirm": {
         "title": "重新生成客户端密钥？",
-        "description": "这将立即使「{{name}}」的当前密钥失效。所有使用该密钥的应用必须更新为新密钥。",
+        "description": "这将立即使「{name}」的当前密钥失效。所有使用该密钥的应用必须更新为新密钥。",
         "confirm": "重新生成",
         "cancel": "取消"
       },
       "test": {
-        "title": "测试 {{name}}",
+        "title": "测试 {name}",
         "description": "在弹出窗口中打开授权页面。批准后，将交换授权码并验证结果。",
         "run": "开始测试",
         "runAgain": "重新运行",
@@ -105,10 +112,14 @@
   },
   "oauth": {
     "authorize": {
+      "title": "确认授权",
       "subtitle": "正在请求访问以下权限",
       "permissionsLabel": "请求的权限",
       "approve": "授权",
       "deny": "拒绝"
+    },
+    "testCallback": {
+      "title": "测试回调"
     },
     "errors": {
       "invalid_grant": "授权码无效或已过期",

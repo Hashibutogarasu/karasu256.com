@@ -1,4 +1,20 @@
 {
+  "Metadata": {
+    "siteTitle": "Karasu Lab",
+    "siteDescription": "Account portal for Karasu Lab services",
+    "signIn": {
+      "title": "Sign in"
+    },
+    "signOut": {
+      "title": "Signing out"
+    },
+    "authCallback": {
+      "title": "Signing in"
+    },
+    "resetPasswordConfirm": {
+      "title": "New password"
+    }
+  },
   "signIn": {
     "title": "Sign in to Karasu Lab",
     "tabs": {
@@ -30,7 +46,7 @@
     "remove": "Remove passkey",
     "removeConfirm": {
       "title": "Remove passkey?",
-      "description": "This will remove \"{{name}}\". This action cannot be undone.",
+      "description": "This will remove \"{name}\". This action cannot be undone.",
       "cancel": "Cancel"
     },
     "name": "Passkey name",
@@ -94,7 +110,7 @@
     "linking": "Connecting",
     "unlinking": "Disconnecting",
     "cannotUnlink": "Cannot remove your last sign-in method.",
-    "linked": "{{provider}} connected.",
+    "linked": "{provider} connected.",
     "error": {
       "provider_already_linked": "This account is already connected to another user.",
       "missing_token": "Authentication failed. Please try again.",
@@ -130,7 +146,7 @@
     "title": "Reset password",
     "sendLink": "Send reset link",
     "sending": "Sending",
-    "sent": "A reset link has been sent to {{email}}. Check your inbox.",
+    "sent": "A reset link has been sent to {email}. Check your inbox.",
     "sendError": "Failed to send reset link.",
     "backToSignIn": "Back to sign in",
     "verifying": "Verifying link",

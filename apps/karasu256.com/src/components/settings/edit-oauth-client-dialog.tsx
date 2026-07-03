@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import {
   Button,
   Checkbox,
@@ -42,7 +42,7 @@ export function EditOAuthClientDialog({
   sections,
   onUpdated,
 }: EditOAuthClientDialogProps) {
-  const { t } = useTranslation();
+  const t = useTranslations();
   const { uploading, upload } = useImageUpload();
 
   const [name, setName] = useState(client.name);

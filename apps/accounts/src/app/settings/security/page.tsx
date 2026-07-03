@@ -1,38 +1,12 @@
-"use client";
+import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
+import { SecurityClient } from "./client";
 
-import { useState } from "react";
-import { useTranslation } from "react-i18next";
-import { Separator, SettingsAccordion } from "@Hashibutogarasu/ui";
-import { PasswordSection } from "@/components/auth/settings/password-section";
-import { PasskeyList } from "@/components/auth/passkey-list";
-import { PasskeyCreateDialog } from "@/components/auth/passkey-create-dialog";
-import { DangerZone } from "@/components/auth/settings/danger-zone";
-import { useSettingsUser } from "@/components/settings/user-context";
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations();
+  return { title: t("security.title") };
+}
 
 export default function SecurityPage() {
-  const { t } = useTranslation();
-  const { user } = useSettingsUser();
-  const [passkeyVersion, setPasskeyVersion] = useState(0);
-
-  return (
-    <div className="space-y-6">
-      <PasswordSection />
-      <Separator />
-      <SettingsAccordion
-        title={t("passkey.title")}
-        action={
-          user.email ? (
-            <PasskeyCreateDialog
-              email={user.email}
-              onSuccess={() => setPasskeyVersion((v) => v + 1)}
-            />
-          ) : undefined
-        }
-      >
-        <PasskeyList version={passkeyVersion} />
-      </SettingsAccordion>
-      <Separator />
-      <DangerZone />
-    </div>
-  );
+  return <SecurityClient />;
 }

@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { signOut } from "firebase/auth";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { SigningOutView } from "@Hashibutogarasu/ui";
 import { getFirebaseAuth } from "@/lib/firebase/auth";
 import { clearSession } from "@/lib/api/auth-session";
@@ -14,7 +14,7 @@ import { clearSession } from "@/lib/api/auth-session";
  */
 export function SignOutClient() {
   const searchParams = useSearchParams();
-  const { t } = useTranslation();
+  const t = useTranslations();
 
   useEffect(() => {
     async function performSignOut() {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { ArrowRight } from "lucide-react";
 import { UserAvatar } from "@Hashibutogarasu/ui";
 
@@ -15,7 +15,7 @@ interface ProfileSectionProps {
  * and a link to the accounts portal for full profile management.
  */
 export function ProfileSection({ uid, email, iconUrl }: ProfileSectionProps) {
-  const { t } = useTranslation();
+  const t = useTranslations();
   const accountsUrl = process.env.NEXT_PUBLIC_ACCOUNTS_URL ?? "#";
 
   return (
