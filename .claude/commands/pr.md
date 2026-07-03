@@ -11,6 +11,7 @@ Create a branch, commit staged or specified changes, push, and open a pull reque
 - Always end with `gh pr create`
 - Execute all steps without pausing to ask for confirmation — deletions and file operations that are part of the task are pre-approved
 - Each PR must address exactly one concern — never bundle fixes, features, or unrelated changes together; if multiple concerns exist, create separate branches and PRs (chaining base branches as needed)
+- Verify changes with a single build (e.g. `pnpm build`) rather than running `tsc --noEmit` and `eslint` as separate steps — lint and type-checking are already covered by the build
 
 ## Steps
 
