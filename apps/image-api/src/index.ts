@@ -90,6 +90,19 @@ function resolveAllowedOrigin(requestOrigin: string | null): string {
   return allowedOrigins[0];
 }
 
+/**
+ * Checks whether an explicit upload path matches one of the known key
+ * schemes. `users/:uid/avatar.png` additionally requires the `:uid` segment
+ * to match the authenticated caller, since the worker has no other way to
+ * stop one user from overwriting another user's avatar.
+ */
+function isValidUploadPath(path: string, uid: string): boolean {
+  const avatarMatch = path.match(/^users\/([^/]+)\/avatar\.png$/);
+  if (avatarMatch) return avatarMatch[1] === uid;
+
+  return /^oauth\/([^/]+)\/icon\.png$/.test(path);
+}
+
 function corsHeaders(origin: string): Record<string, string> {
   return {
     "Access-Control-Allow-Origin": origin,
@@ -216,6 +229,12 @@ export default {
       return json({ error: "Missing file field" }, 400, cors);
     }
 
+    const pathField = formData.get("path");
+    const explicitPath = typeof pathField === "string" && pathField.length > 0 ? pathField : null;
+    if (explicitPath && !isValidUploadPath(explicitPath, uid)) {
+      return json({ error: "Invalid upload path" }, 400, cors);
+    }
+
     if (!ALLOWED_TYPES.has(file.type)) {
       return json(
         { error: "Unsupported image type. Allowed: jpeg, png, webp." },
@@ -230,7 +249,7 @@ export default {
     }
 
     const ext = TYPE_TO_EXT[file.type];
-    const key = `${crypto.randomUUID()}.${ext}`;
+    const key = explicitPath ?? `users/${uid}/images/${crypto.randomUUID()}.${ext}`;
     await env.IMAGES.put(key, buffer, {
       httpMetadata: { contentType: file.type },
     });

@@ -5,8 +5,14 @@ import { useImageUploadApiUrl } from "./context";
 
 export interface UseImageUploadResult {
   uploading: boolean;
-  /** Resolves with the uploaded file's public URL, or `null` if the upload failed for any reason, including a network or CORS error. */
-  upload: (_file: File) => Promise<string | null>;
+  /**
+   * Resolves with the uploaded file's public URL, or `null` if the upload
+   * failed for any reason, including a network or CORS error.
+   *
+   * @param _path - Explicit storage key (e.g. `users/{uid}/avatar.png`). When
+   * omitted, the server generates one under the caller's own namespace.
+   */
+  upload: (_file: File, _path?: string) => Promise<string | null>;
 }
 
 /**
@@ -19,11 +25,12 @@ export function useImageUpload(): UseImageUploadResult {
   const [uploading, setUploading] = useState(false);
 
   const upload = useCallback(
-    async (file: File): Promise<string | null> => {
+    async (file: File, path?: string): Promise<string | null> => {
       setUploading(true);
       try {
         const form = new FormData();
         form.append("file", file);
+        if (path) form.append("path", path);
         const res = await fetch(`${apiUrl}/upload`, {
           method: "POST",
           body: form,
