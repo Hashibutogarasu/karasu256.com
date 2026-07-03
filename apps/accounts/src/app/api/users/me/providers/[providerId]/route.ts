@@ -6,17 +6,17 @@ import { requireSession } from '@/lib/api/require-session';
 
 /**
  * Unlinks a third-party provider from the authenticated user's account.
- * DELETE /api/linked-providers/[provider]
+ * DELETE /api/users/me/providers/[providerId]
  */
-export async function DELETE(_request: NextRequest, { params }: { params: Promise<{ provider: string }> }) {
+export async function DELETE(_request: NextRequest, { params }: { params: Promise<{ providerId: string }> }) {
   const { user, error } = await requireSession();
   if (error) return error;
 
-  const { provider } = await params;
+  const { providerId } = await params;
   const db = getDb();
   const result = await db
     .delete(providerAccounts)
-    .where(and(eq(providerAccounts.userId, user.uid), eq(providerAccounts.provider, provider)))
+    .where(and(eq(providerAccounts.userId, user.uid), eq(providerAccounts.provider, providerId)))
     .returning({ id: providerAccounts.id });
 
   if (result.length === 0) {

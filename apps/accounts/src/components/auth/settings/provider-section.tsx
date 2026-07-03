@@ -8,9 +8,10 @@ import { faLink, faLinkSlash } from '@fortawesome/free-solid-svg-icons';
 import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { useTranslations } from 'next-intl';
 import { toast, SettingsAccordion, SettingsItem, Spinner } from '@Hashibutogarasu/ui';
+import { unlinkProvider } from '@Hashibutogarasu/utils/client';
+import type { ProviderAccountSummary } from '@Hashibutogarasu/db';
 import { getFirebaseAuth } from '@/lib/firebase/auth';
 import { listPasskeyCredentials } from '@/lib/api/passkey-credentials';
-import { listLinkedProviders, unlinkProvider, type LinkedProvider } from '@/lib/api/providers';
 import { buildConnectUrl } from '@/lib/redirect';
 import { Button } from '@Hashibutogarasu/ui';
 
@@ -22,6 +23,7 @@ export interface Provider {
 
 interface ProviderSectionProps {
   providers: Provider[];
+  initialProviders: ProviderAccountSummary[];
 }
 
 /**
@@ -30,15 +32,14 @@ interface ProviderSectionProps {
  * Unlinking removes the entry from the database without touching Firebase Auth.
  * Unlinking the last provider is blocked when the user has no registered passkeys.
  */
-export function ProviderSection({ providers }: ProviderSectionProps) {
+export function ProviderSection({ providers, initialProviders }: ProviderSectionProps) {
   const t = useTranslations();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [authUser, setAuthUser] = useState<User | null>(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
-  const [linked, setLinked] = useState<LinkedProvider[]>([]);
-  const [loadingProviders, setLoadingProviders] = useState(true);
+  const [linked, setLinked] = useState<ProviderAccountSummary[]>(initialProviders);
   const [loading, setLoading] = useState<string | null>(null);
   const [hasPasskeys, setHasPasskeys] = useState(false);
   const handledParamsRef = useRef<string | null>(null);
@@ -68,11 +69,6 @@ export function ProviderSection({ providers }: ProviderSectionProps) {
   }, [searchParams, t, router, pathname]);
 
   useEffect(() => {
-    void listLinkedProviders()
-      .then(setLinked)
-      .catch(() => {})
-      .finally(() => setLoadingProviders(false));
-
     const current = getFirebaseAuth().currentUser;
     if (!current) return;
     void getIdToken(current)
@@ -81,7 +77,7 @@ export function ProviderSection({ providers }: ProviderSectionProps) {
       .catch(() => {});
   }, []);
 
-  const dataReady = !loadingAuth && !loadingProviders;
+  const dataReady = !loadingAuth;
   const linkedIds = new Set(linked.map((p) => p.provider));
   const hasPasswordProvider = (authUser?.providerData ?? []).some((p) => p.providerId === 'password');
   const canUnlink = linked.length > 1 || hasPasskeys || hasPasswordProvider;

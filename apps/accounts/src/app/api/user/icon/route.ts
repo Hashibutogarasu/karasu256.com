@@ -1,10 +1,14 @@
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+import { getProviderAccount } from '@Hashibutogarasu/db';
 import { deleteUploadedImage } from '@Hashibutogarasu/utils/server';
 import { getAdminAuth } from '@/lib/firebase-admin';
 import { requireSession } from '@/lib/api/require-session';
 import { badRequest } from '@/lib/api/responses';
 import { SESSION_COOKIE_NAME } from '@/lib/session';
+
+const putBodySchema = z.object({ providerId: z.string().min(1) });
 
 /**
  * Removes the previous icon from the image API when it was hosted there and
@@ -63,6 +67,35 @@ export async function POST(request: NextRequest) {
   await cleanupPreviousIcon(previous.photoURL, url, imageApiUrl, sessionCookie);
 
   return NextResponse.json({ photoURL: url });
+}
+
+/**
+ * Sets the authenticated user's icon to a linked provider's avatar,
+ * re-deriving the avatar URL from the provider account server-side rather
+ * than trusting a client-supplied URL.
+ *
+ * PUT /api/user/icon
+ */
+export async function PUT(request: NextRequest) {
+  const { user, error } = await requireSession();
+  if (error) return error;
+
+  const parsed = putBodySchema.safeParse(await request.json());
+  if (!parsed.success) return badRequest();
+
+  const account = await getProviderAccount(user.uid, parsed.data.providerId);
+  if (!account || !account.avatarUrl) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
+
+  const imageApiUrl = process.env.NEXT_PUBLIC_IMAGE_API_URL;
+  const sessionCookie = (await cookies()).get(SESSION_COOKIE_NAME)?.value;
+
+  const previous = await getAdminAuth().getUser(user.uid);
+  await getAdminAuth().updateUser(user.uid, { photoURL: account.avatarUrl });
+  await cleanupPreviousIcon(previous.photoURL, account.avatarUrl, imageApiUrl, sessionCookie);
+
+  return NextResponse.json({ photoURL: account.avatarUrl });
 }
 
 /**
