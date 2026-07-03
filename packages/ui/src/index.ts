@@ -50,6 +50,9 @@ export {
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuSeparator,
+  ContextMenuSub,
+  ContextMenuSubTrigger,
+  ContextMenuSubContent,
 } from './components/ui/context-menu';
 export {
   DropdownMenu as Menu,

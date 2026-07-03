@@ -79,6 +79,7 @@
     "displayName": "显示名称",
     "changeIcon": "更改图标",
     "uploadIcon": "上传新图标",
+    "useProviderIcon": "使用关联账户的头像",
     "deleteIcon": "删除图标",
     "uploadFailed": "图标上传失败",
     "iconChanged": "图标已更改。",

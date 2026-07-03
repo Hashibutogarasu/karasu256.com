@@ -79,6 +79,7 @@
     "displayName": "Display name",
     "changeIcon": "Change icon",
     "uploadIcon": "Upload new icon",
+    "useProviderIcon": "Use linked account's icon",
     "deleteIcon": "Delete icon",
     "uploadFailed": "Failed to upload icon",
     "iconChanged": "Icon changed.",

@@ -79,6 +79,7 @@
     "displayName": "表示名",
     "changeIcon": "アイコンを変更",
     "uploadIcon": "新しいアイコンをアップロード",
+    "useProviderIcon": "連携したアカウントのアイコン",
     "deleteIcon": "アイコンを削除",
     "uploadFailed": "アイコンのアップロードに失敗しました",
     "iconChanged": "アイコンを変更しました",

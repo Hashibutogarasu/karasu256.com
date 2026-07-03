@@ -1,22 +1,45 @@
 'use client';
 
-import { useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger, UserAvatar, toast } from '@Hashibutogarasu/ui';
-import { uploadUserIcon, deleteUserIcon } from '@Hashibutogarasu/utils/client';
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSub,
+  ContextMenuSubContent,
+  ContextMenuSubTrigger,
+  ContextMenuTrigger,
+  UserAvatar,
+  toast,
+} from '@Hashibutogarasu/ui';
+import { uploadUserIcon, deleteUserIcon, setUserIconFromProvider, listLinkedProviders, type ProviderProfile } from '@Hashibutogarasu/utils/client';
 import { getFirebaseAuth } from '@/lib/firebase/auth';
 import { useSettingsUser } from '@/components/settings/user-context';
 
+/** Falls back to a capitalized provider ID when the provider didn't return a display name. */
+function providerLabel(providerId: string, profile: ProviderProfile): string {
+  return profile.name ?? providerId.charAt(0).toUpperCase() + providerId.slice(1);
+}
+
 /**
  * Avatar that opens the file picker on a plain click, and additionally
- * exposes a right-click / long-press context menu for uploading a new icon
- * or removing the current one. Falls back to an identicon when the user has
- * no icon set.
+ * exposes a right-click / long-press context menu for uploading a new icon,
+ * reusing a linked provider's avatar, or removing the current one. Falls
+ * back to an identicon when the user has no icon set.
  */
 export function ProfileIcon() {
   const t = useTranslations();
   const { user, updateUser } = useSettingsUser();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [providers, setProviders] = useState<Record<string, ProviderProfile>>({});
+  const providerEntries = useMemo(() => Object.entries(providers), [providers]);
+
+  useEffect(() => {
+    listLinkedProviders()
+      .then(setProviders)
+      .catch(() => {});
+  }, []);
 
   /**
    * Reloads the client Firebase user so its cached `photoURL` reflects the
@@ -45,6 +68,17 @@ export function ProfileIcon() {
     toast.success(t('profile.iconChanged'), { autoClose: true });
   }
 
+  async function handleSelectProvider(providerId: string) {
+    try {
+      await setUserIconFromProvider(providerId);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err));
+      return;
+    }
+    await syncPhotoURL();
+    toast.success(t('profile.iconChanged'), { autoClose: true });
+  }
+
   async function handleDeleteIcon() {
     try {
       await deleteUserIcon();
@@ -64,6 +98,16 @@ export function ProfileIcon() {
         </ContextMenuTrigger>
         <ContextMenuContent>
           <ContextMenuItem onClick={() => fileInputRef.current?.click()}>{t('profile.uploadIcon')}</ContextMenuItem>
+          <ContextMenuSub>
+            <ContextMenuSubTrigger disabled={providerEntries.length === 0}>{t('profile.useProviderIcon')}</ContextMenuSubTrigger>
+            <ContextMenuSubContent>
+              {providerEntries.map(([providerId, profile]) => (
+                <ContextMenuItem key={providerId} disabled={!profile.avatarUrl} onClick={() => handleSelectProvider(providerId)}>
+                  {providerLabel(providerId, profile)}
+                </ContextMenuItem>
+              ))}
+            </ContextMenuSubContent>
+          </ContextMenuSub>
           <ContextMenuItem variant="destructive" disabled={!user.photoURL} onClick={handleDeleteIcon}>
             {t('profile.deleteIcon')}
           </ContextMenuItem>
