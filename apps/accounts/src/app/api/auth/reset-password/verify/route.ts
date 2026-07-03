@@ -1,6 +1,7 @@
 import { createHash, createHmac } from "crypto";
 import { type NextRequest, NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
+import { z } from "zod";
 import { getDb, passwordResetTokens } from "@Hashibutogarasu/db";
 
 /** Name of the short-lived cookie set after a successful token verification. */
@@ -8,6 +9,8 @@ export const RESET_SESSION_COOKIE = "password-reset-session";
 
 /** Duration of the temporary reset session: 15 minutes. */
 const RESET_SESSION_MS = 15 * 60 * 1000;
+
+const bodySchema = z.object({ uid: z.string().min(1), token: z.string().min(1) });
 
 /**
  * Creates an HMAC-signed session token encoding the user's uid and expiry.
@@ -29,16 +32,18 @@ export function signResetSession(uid: string): string {
  * - Sets a short-lived `password-reset-session` cookie.
  */
 export async function POST(request: NextRequest) {
-  let uid: string, token: string;
+  let json: unknown;
   try {
-    ({ uid, token } = await request.json());
+    json = await request.json();
   } catch {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
 
-  if (!uid || !token || typeof uid !== "string" || typeof token !== "string") {
+  const parsed = bodySchema.safeParse(json);
+  if (!parsed.success) {
     return NextResponse.json({ error: "uid and token are required" }, { status: 400 });
   }
+  const { uid, token } = parsed.data;
 
   const tokenHash = createHash("sha256").update(token).digest("hex");
   const db = getDb();

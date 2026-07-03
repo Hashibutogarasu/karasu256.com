@@ -1,6 +1,7 @@
 import { randomBytes, createHash } from "crypto";
 import { type NextRequest, NextResponse } from "next/server";
 import { sql } from "drizzle-orm";
+import { z } from "zod";
 import { getAdminAuth } from "@/lib/firebase-admin";
 import { getServerConfig } from "@/lib/config";
 import { sendPasswordResetEmail } from "@Hashibutogarasu/utils/email";
@@ -8,6 +9,8 @@ import { getDb, passwordResetTokens, users } from "@Hashibutogarasu/db";
 
 /** One-time code expiry: 15 minutes. */
 const CODE_EXPIRY_MS = 15 * 60 * 1000;
+
+const bodySchema = z.object({ email: z.string().min(1) });
 
 function getBaseUrl(request: NextRequest): string {
   const proto =
@@ -28,16 +31,18 @@ function getBaseUrl(request: NextRequest): string {
  * to prevent email-enumeration attacks.
  */
 export async function POST(request: NextRequest) {
-  let email: string;
+  let json: unknown;
   try {
-    ({ email } = await request.json());
+    json = await request.json();
   } catch {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
 
-  if (!email || typeof email !== "string") {
+  const parsed = bodySchema.safeParse(json);
+  if (!parsed.success) {
     return NextResponse.json({ error: "email is required" }, { status: 400 });
   }
+  const { email } = parsed.data;
 
   let uid: string;
   try {

@@ -1,7 +1,10 @@
 import { createHmac, timingSafeEqual } from "crypto";
 import { type NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { getAdminAuth } from "@/lib/firebase-admin";
 import { RESET_SESSION_COOKIE } from "../verify/route";
+
+const bodySchema = z.object({ password: z.string().min(8) });
 
 /**
  * Verifies the HMAC-signed reset session cookie and returns the encoded uid,
@@ -52,19 +55,21 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid or expired reset session" }, { status: 401 });
   }
 
-  let password: string;
+  let json: unknown;
   try {
-    ({ password } = await request.json());
+    json = await request.json();
   } catch {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
 
-  if (!password || typeof password !== "string" || password.length < 8) {
+  const parsed = bodySchema.safeParse(json);
+  if (!parsed.success) {
     return NextResponse.json(
       { error: "Password must be at least 8 characters" },
       { status: 400 },
     );
   }
+  const { password } = parsed.data;
 
   await getAdminAuth().updateUser(uid, { password });
 
