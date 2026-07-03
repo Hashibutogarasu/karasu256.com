@@ -1,9 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
+import { z } from "zod";
 import { getDb } from "@Hashibutogarasu/db";
 import { oauthAuthorizationCodes, oauthClients } from "@Hashibutogarasu/db/schema";
 import { requireSession } from "@/lib/api/require-session";
 import { generateSecret } from "@/lib/crypto";
+
+const postBodySchema = z.object({
+  clientId: z.string().min(1),
+  redirectUri: z.string().min(1),
+  permissions: z.number().int(),
+  state: z.unknown().optional(),
+  approved: z.unknown().optional(),
+});
 
 /**
  * Issues an OAuth authorization code after the user consents, or returns an
@@ -15,22 +24,11 @@ export async function POST(request: NextRequest) {
   const { user, error } = await requireSession();
   if (error) return error;
 
-  const body = (await request.json()) as unknown;
-  if (typeof body !== "object" || body === null) {
+  const parsed = postBodySchema.safeParse(await request.json());
+  if (!parsed.success) {
     return NextResponse.json({ error: "Invalid body" }, { status: 400 });
   }
-
-  const { clientId, redirectUri, permissions, state, approved } = body as Record<string, unknown>;
-
-  if (typeof clientId !== "string" || !clientId) {
-    return NextResponse.json({ error: "clientId is required" }, { status: 400 });
-  }
-  if (typeof redirectUri !== "string" || !redirectUri) {
-    return NextResponse.json({ error: "redirectUri is required" }, { status: 400 });
-  }
-  if (typeof permissions !== "number" || !Number.isInteger(permissions)) {
-    return NextResponse.json({ error: "permissions must be an integer" }, { status: 400 });
-  }
+  const { clientId, redirectUri, permissions, state, approved } = parsed.data;
 
   const callback = new URL(redirectUri);
   if (state !== undefined && state !== null) {

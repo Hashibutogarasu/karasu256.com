@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
+import { z } from "zod";
 import { getDb } from "@Hashibutogarasu/db";
 import { users } from "@Hashibutogarasu/db/schema";
 import { APIKeyRoute, OauthAppRoute, Read, Write } from "@/lib/api/route-auth";
 import { getAdminAuth } from "@/lib/firebase-admin";
+
+const patchBodySchema = z.object({ name: z.string().nullable() });
 
 /**
  * Reads the authenticated user's profile.
@@ -41,15 +44,11 @@ export const GET = APIKeyRoute()(
 export const PATCH = APIKeyRoute()(
   OauthAppRoute()(
     Write()(async (request, _ctx, auth) => {
-      const body = (await request.json()) as unknown;
-      if (typeof body !== "object" || body === null) {
+      const parsed = patchBodySchema.safeParse(await request.json());
+      if (!parsed.success) {
         return NextResponse.json({ error: "invalid_request" }, { status: 400 });
       }
-
-      const { name } = body as Record<string, unknown>;
-      if (typeof name !== "string" && name !== null) {
-        return NextResponse.json({ error: "invalid_request" }, { status: 400 });
-      }
+      const { name } = parsed.data;
 
       const db = getDb();
       const [updated] = await db

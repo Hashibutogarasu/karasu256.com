@@ -4,8 +4,16 @@ import { getDb } from "@Hashibutogarasu/db";
 import { oauthClients } from "@Hashibutogarasu/db/schema";
 import { and, eq } from "drizzle-orm";
 import { SESSION_COOKIE_NAME, deleteUploadedImage } from "@Hashibutogarasu/utils/server";
+import { z } from "zod";
 
 import { requireSession } from "@/lib/api/require-session";
+
+const patchBodySchema = z.object({
+  name: z.string().trim().min(1).optional(),
+  callbackUris: z.array(z.string().trim().min(1)).min(1).optional(),
+  iconUrl: z.string().nullable().optional(),
+  permissions: z.number().int().optional(),
+});
 
 export async function PATCH(
   request: NextRequest,
@@ -15,31 +23,11 @@ export async function PATCH(
   if (error) return error;
 
   const { id } = await params;
-  const body = (await request.json()) as unknown;
-  if (typeof body !== "object" || body === null) {
+  const parsed = patchBodySchema.safeParse(await request.json());
+  if (!parsed.success) {
     return NextResponse.json({ error: "Invalid body" }, { status: 400 });
   }
-
-  const { name, callbackUris, iconUrl, permissions } = body as Record<string, unknown>;
-
-  if (name !== undefined && (typeof name !== "string" || !name.trim())) {
-    return NextResponse.json({ error: "name must be a non-empty string" }, { status: 400 });
-  }
-  if (callbackUris !== undefined) {
-    if (
-      !Array.isArray(callbackUris) ||
-      callbackUris.length === 0 ||
-      !callbackUris.every((u) => typeof u === "string" && u.trim())
-    ) {
-      return NextResponse.json(
-        { error: "callbackUris must be a non-empty array of strings" },
-        { status: 400 },
-      );
-    }
-  }
-  if (permissions !== undefined && (typeof permissions !== "number" || !Number.isInteger(permissions))) {
-    return NextResponse.json({ error: "permissions must be an integer" }, { status: 400 });
-  }
+  const { name, callbackUris, iconUrl, permissions } = parsed.data;
 
   const db = getDb();
   const patch: Partial<{
@@ -49,10 +37,10 @@ export async function PATCH(
     permissions: bigint;
   }> = {};
 
-  if (name !== undefined) patch.name = (name as string).trim();
-  if (callbackUris !== undefined) patch.callbackUris = (callbackUris as string[]).map((u) => u.trim());
-  if (iconUrl !== undefined) patch.iconUrl = typeof iconUrl === "string" ? iconUrl.trim() || null : null;
-  if (permissions !== undefined) patch.permissions = BigInt(permissions as number);
+  if (name !== undefined) patch.name = name;
+  if (callbackUris !== undefined) patch.callbackUris = callbackUris;
+  if (iconUrl !== undefined) patch.iconUrl = iconUrl?.trim() || null;
+  if (permissions !== undefined) patch.permissions = BigInt(permissions);
 
   const [previous] = await db
     .select({ iconUrl: oauthClients.iconUrl })

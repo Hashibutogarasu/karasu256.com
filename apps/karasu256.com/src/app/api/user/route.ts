@@ -2,9 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@Hashibutogarasu/db";
 import { users } from "@Hashibutogarasu/db/schema";
 import { eq } from "drizzle-orm";
+import { z } from "zod";
 
 import { requireSession } from "@/lib/api/require-session";
 import { ensureUser } from "@/lib/db/ensure-user";
+
+const patchBodySchema = z.object({ name: z.string().optional() });
 
 export async function GET() {
   const { user, error } = await requireSession();
@@ -18,14 +21,11 @@ export async function PATCH(request: NextRequest) {
   const { user, error } = await requireSession();
   if (error) return error;
 
-  const body = (await request.json()) as unknown;
-  if (typeof body !== "object" || body === null) {
-    return NextResponse.json({ error: "Invalid body" }, { status: 400 });
-  }
-  const { name } = body as Record<string, unknown>;
-  if (name !== undefined && typeof name !== "string") {
+  const parsed = patchBodySchema.safeParse(await request.json());
+  if (!parsed.success) {
     return NextResponse.json({ error: "name must be a string" }, { status: 400 });
   }
+  const { name } = parsed.data;
 
   const db = getDb();
   await ensureUser(user.uid);
