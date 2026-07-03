@@ -88,6 +88,7 @@ export function EmailPasswordForm() {
             <Label htmlFor="signin-email">{t("signIn.email")}</Label>
             <Input
               id="signin-email"
+              name="email"
               type="email"
               autoComplete="email"
               value={email}
@@ -107,6 +108,7 @@ export function EmailPasswordForm() {
             </div>
             <PasswordInput
               id="signin-password"
+              name="password"
               autoComplete="current-password"
               value={password}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
@@ -126,6 +128,7 @@ export function EmailPasswordForm() {
             <Label htmlFor="register-email">{t("signIn.email")}</Label>
             <Input
               id="register-email"
+              name="email"
               type="email"
               autoComplete="email"
               value={email}
@@ -137,6 +140,7 @@ export function EmailPasswordForm() {
             <Label htmlFor="register-password">{t("signIn.password")}</Label>
             <PasswordInput
               id="register-password"
+              name="new-password"
               autoComplete="new-password"
               value={password}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
