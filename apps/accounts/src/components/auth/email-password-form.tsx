@@ -88,9 +88,9 @@ export function EmailPasswordForm() {
             <Label htmlFor="signin-email">{t("signIn.email")}</Label>
             <Input
               id="signin-email"
-              name="email"
+              name="username"
               type="email"
-              autoComplete="email"
+              autoComplete="username"
               value={email}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
               required
