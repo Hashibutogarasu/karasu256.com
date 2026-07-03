@@ -8,7 +8,9 @@
     "build": "wrangler deploy --dry-run --outdir dist --env=\"\""
   },
   "dependencies": {
-    "jose": "^5.10.0"
+    "@Hashibutogarasu/utils": "workspace:*",
+    "jose": "^5.10.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250620.0",

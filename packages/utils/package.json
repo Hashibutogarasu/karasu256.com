@@ -5,11 +5,13 @@
   "exports": {
     "./server": "./src/server/index.ts",
     "./email": "./src/email/index.ts",
-    "./client": "./src/client/index.ts"
+    "./client": "./src/client/index.ts",
+    "./validation": "./src/validation/index.ts"
   },
   "dependencies": {
     "@react-email/components": "^1.0.12",
-    "resend": "^4.0.0"
+    "resend": "^4.0.0",
+    "zod": "^4.4.3"
   },
   "peerDependencies": {
     "react": "^19"

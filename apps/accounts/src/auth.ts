@@ -5,6 +5,7 @@ import GitHub from "next-auth/providers/github"
 import { cookies } from "next/headers"
 import { getAdminAuth } from "@/lib/firebase-admin"
 import { makeFirebaseAuthorize, makeNextAuthCookies } from "@Hashibutogarasu/utils/server"
+import { stringOrNull } from "@Hashibutogarasu/utils/validation"
 import { handleOAuthSignIn, handleOAuthLinking } from "@/lib/auth/oauth"
 import { SESSION_COOKIE_NAME } from "@/lib/session"
 
@@ -47,8 +48,9 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       return token
     },
     session({ session, token }) {
-      if (typeof token.uid === "string") {
-        session.user.id = token.uid
+      const uid = stringOrNull(token.uid)
+      if (uid) {
+        session.user.id = uid
       }
       return session
     },
