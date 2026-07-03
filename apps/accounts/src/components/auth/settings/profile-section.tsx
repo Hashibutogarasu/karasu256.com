@@ -27,7 +27,7 @@ export function ProfileSection() {
     try {
       await updateProfile(currentUser, { displayName });
       updateUser({ displayName });
-      toast.success(t("profile.saved"), { duration: 1000 });
+      toast.success(t("profile.saved"), { autoClose: true });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : String(err));
     } finally {

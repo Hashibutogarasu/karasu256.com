@@ -62,7 +62,7 @@ export function ProviderSection({ providers }: ProviderSectionProps) {
       const key = `connections.error.${error}`;
       toast.error(t(key, { defaultValue: t("connections.error.unknown") }));
     } else if (linkedProvider) {
-      toast.success(t("connections.linked", { provider: linkedProvider }), { duration: 1000 });
+      toast.success(t("connections.linked", { provider: linkedProvider }), { autoClose: true });
     }
     router.replace(pathname);
   }, [searchParams, t, router, pathname]);
