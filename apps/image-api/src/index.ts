@@ -1,4 +1,6 @@
 import { importX509, jwtVerify } from "jose";
+import { z } from "zod";
+import { stringOrNull } from "@Hashibutogarasu/utils/validation";
 import allowedOrigins from "./allowed-origins.json";
 
 interface Env {
@@ -63,7 +65,7 @@ async function verifySessionCookie(
       issuer: `https://session.firebase.google.com/${projectId}`,
       audience: projectId,
     });
-    return typeof payload.sub === "string" ? payload.sub : null;
+    return stringOrNull(payload.sub);
   } catch {
     return null;
   }
@@ -224,13 +226,13 @@ export default {
     }
 
     const formData = await request.formData();
-    const file = formData.get("file") as File | string | null;
-    if (!file || typeof file === "string") {
+    const fileResult = z.instanceof(File).safeParse(formData.get("file"));
+    if (!fileResult.success) {
       return json({ error: "Missing file field" }, 400, cors);
     }
+    const file = fileResult.data;
 
-    const pathField = formData.get("path");
-    const explicitPath = typeof pathField === "string" && pathField.length > 0 ? pathField : null;
+    const explicitPath = stringOrNull(formData.get("path")) || null;
     if (explicitPath && !isValidUploadPath(explicitPath, uid)) {
       return json({ error: "Invalid upload path" }, 400, cors);
     }

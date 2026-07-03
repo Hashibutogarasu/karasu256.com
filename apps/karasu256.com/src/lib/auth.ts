@@ -2,6 +2,7 @@ import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import { getAdminAuth } from "@/lib/firebase-admin"
 import { makeFirebaseAuthorize, makeNextAuthCookies } from "@Hashibutogarasu/utils/server"
+import { stringOrNull } from "@Hashibutogarasu/utils/validation"
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   providers: [
@@ -17,8 +18,9 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       return token
     },
     session({ session, token }) {
-      if (typeof token.uid === "string") {
-        session.user.id = token.uid
+      const uid = stringOrNull(token.uid)
+      if (uid) {
+        session.user.id = uid
       }
       return session
     },

@@ -4,6 +4,7 @@ import { getDb, getRegisteredSections } from "@Hashibutogarasu/db";
 import { oauthClients } from "@Hashibutogarasu/db/schema";
 import { getSessionUser } from "@/lib/firebase-session";
 import { AuthorizeForm } from "@/components/oauth/authorize-form";
+import { stringOrNull } from "@Hashibutogarasu/utils/validation";
 
 interface PageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -19,11 +20,11 @@ interface PageProps {
 export default async function AuthorizePage({ searchParams }: PageProps) {
   const params = await searchParams;
 
-  const clientId = typeof params.client_id === "string" ? params.client_id : null;
-  const redirectUri = typeof params.redirect_uri === "string" ? params.redirect_uri : null;
-  const responseType = typeof params.response_type === "string" ? params.response_type : null;
-  const permissionsParam = typeof params.permissions === "string" ? params.permissions : "0";
-  const state = typeof params.state === "string" ? params.state : undefined;
+  const clientId = stringOrNull(params.client_id);
+  const redirectUri = stringOrNull(params.redirect_uri);
+  const responseType = stringOrNull(params.response_type);
+  const permissionsParam = stringOrNull(params.permissions) ?? "0";
+  const state = stringOrNull(params.state) ?? undefined;
 
   if (responseType !== "code") {
     return <ErrorPage message="response_type must be 'code'" />;

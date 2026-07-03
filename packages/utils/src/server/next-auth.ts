@@ -1,4 +1,5 @@
 import type { Auth } from "firebase-admin/auth"
+import { stringOrNull } from "../validation"
 
 /** Name of the Firebase session cookie shared across subdomains. */
 export const SESSION_COOKIE_NAME = "session"
@@ -14,8 +15,8 @@ export const AUTH_TOKEN_COOKIE_NAME = "karasu-auth-token"
  */
 export function makeFirebaseAuthorize(adminAuth: Auth) {
   return async function authorize(credentials: Record<string, unknown> | null | undefined) {
-    const idToken = credentials?.idToken
-    if (typeof idToken !== "string" || !idToken) return null
+    const idToken = stringOrNull(credentials?.idToken)
+    if (!idToken) return null
     try {
       const decoded = await adminAuth.verifyIdToken(idToken)
       return {

@@ -5,6 +5,7 @@ import { getAdminAuth } from "@/lib/firebase-admin"
 import { getDb } from "@Hashibutogarasu/db"
 import { passkeyCredentials, providerAccounts, providerTokens, users } from "@Hashibutogarasu/db/schema"
 import { encryptToken } from "@/lib/crypto"
+import { stringOrNull } from "@Hashibutogarasu/utils/validation"
 
 function extractAvatarUrl(providerId: string, profile: Profile): string | null {
   if (providerId === "google") {
@@ -118,8 +119,8 @@ export async function handleOAuthLinking(
 
   const providerId = account.provider
   const providerUserId = account.providerAccountId
-  const email = typeof profile.email === "string" ? profile.email : null
-  const name = typeof profile.name === "string" ? profile.name : null
+  const email = stringOrNull(profile.email)
+  const name = stringOrNull(profile.name)
   const avatarUrl = extractAvatarUrl(providerId, profile)
 
   const [existing] = await db
