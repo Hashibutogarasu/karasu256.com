@@ -16,3 +16,4 @@ allowBuilds:
   '@swc/core': true
   simple-git-hooks: true
   core-js: true
+  '@parcel/watcher': true
