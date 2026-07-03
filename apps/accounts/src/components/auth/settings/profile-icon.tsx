@@ -17,9 +17,10 @@ import { uploadUserIcon, deleteUserIcon, setUserIconFromProvider, listLinkedProv
 import { getFirebaseAuth } from '@/lib/firebase/auth';
 import { useSettingsUser } from '@/components/settings/user-context';
 
-/** Falls back to a capitalized provider ID when the provider didn't return a display name. */
+/** Formats a submenu entry as "user name (Provider)", falling back to just the provider name. */
 function providerLabel(providerId: string, profile: ProviderProfile): string {
-  return profile.name ?? providerId.charAt(0).toUpperCase() + providerId.slice(1);
+  const displayName = providerId.charAt(0).toUpperCase() + providerId.slice(1);
+  return profile.name ? `${profile.name} (${displayName})` : displayName;
 }
 
 /**
