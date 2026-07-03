@@ -1,4 +1,9 @@
-# /code-style
+---
+name: code-style
+description: Coding conventions for this project — JSDoc style, inline comment policy, and language requirements. Use when writing or reviewing code in this repo.
+---
+
+# Code style
 
 Coding conventions for this project.
 
