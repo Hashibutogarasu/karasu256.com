@@ -4,6 +4,9 @@
     "siteDescription": "Karasu Lab",
     "home": {
       "title": "Home"
+    },
+    "terms": {
+      "title": "Terms of Service"
     }
   },
   "header": {
