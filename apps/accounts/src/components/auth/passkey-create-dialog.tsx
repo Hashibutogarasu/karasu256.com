@@ -42,7 +42,7 @@ export function PasskeyCreateDialog({ email, onSuccess }: PasskeyCreateDialogPro
       await registerPasskey(email, name);
       setName("");
       setOpen(false);
-      toast.success(t("passkey.registered"), { duration: 1000 });
+      toast.success(t("passkey.registered"), { autoClose: true });
       onSuccess?.();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : String(err));

@@ -41,7 +41,7 @@ export function ProfileIcon() {
       await updateProfile(currentUser, { photoURL: iconUrl });
     }
     updateUser({ photoURL: iconUrl });
-    toast.success(t("profile.iconChanged"), { duration: 2000 });
+    toast.success(t("profile.iconChanged"), { autoClose: true });
   }
 
   async function handleFileSelected(e: React.ChangeEvent<HTMLInputElement>) {

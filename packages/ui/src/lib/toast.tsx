@@ -41,6 +41,17 @@ interface CopyableToastContentProps {
   duration?: number;
 }
 
+interface ToastOptions extends Omit<ExternalToast, "duration"> {
+  /**
+   * When true, shows a progress bar and dismisses the toast automatically
+   * after `duration` ms. Defaults to false, which keeps the toast open
+   * until the user dismisses it.
+   */
+  autoClose?: boolean;
+  /** Auto-dismiss duration in ms. Only applies when `autoClose` is true. */
+  duration?: number;
+}
+
 function CopyableToastContent({ id, message, description, duration }: CopyableToastContentProps) {
   const [copied, setCopied] = useState(false);
 
@@ -84,10 +95,10 @@ function CopyableToastContent({ id, message, description, duration }: CopyableTo
 
 /**
  * Renders a custom toast. Sonner's own auto-dismiss is always disabled;
- * pass `duration` to enable a timed progress bar that closes the toast.
+ * set `autoClose` to enable a timed progress bar that closes the toast.
  */
-function toCustom(message: string, options?: ExternalToast): string | number {
-  const { duration, description: desc, ...rest } = options ?? {};
+function toCustom(message: string, options?: ToastOptions): string | number {
+  const { autoClose = false, duration = 2000, description: desc, ...rest } = options ?? {};
   const description = typeof desc === "string" ? desc : undefined;
   return sonnerToast.custom(
     (id) => (
@@ -95,7 +106,7 @@ function toCustom(message: string, options?: ExternalToast): string | number {
         id={id}
         message={message}
         description={description}
-        duration={duration}
+        duration={autoClose ? duration : undefined}
       />
     ),
     { ...rest, duration: Infinity },
@@ -106,15 +117,16 @@ function toCustom(message: string, options?: ExternalToast): string | number {
  * Toast utility that renders toasts with a copy icon button at the bottom-right.
  * Use this instead of importing `toast` from `sonner` directly.
  *
- * Pass `duration` (ms) to show a green progress bar and auto-close.
- * Omit `duration` to keep the toast open until the user dismisses it.
+ * Set `autoClose: true` to show a green progress bar and auto-close after
+ * `duration` ms (default 2000ms). Omit `autoClose` to keep the toast open
+ * until the user dismisses it.
  */
 export const toast = {
-  success: (message: string, options?: ExternalToast) => toCustom(message, options),
-  error: (message: string, options?: ExternalToast) => toCustom(message, options),
-  warning: (message: string, options?: ExternalToast) => toCustom(message, options),
-  info: (message: string, options?: ExternalToast) => toCustom(message, options),
-  loading: (message: string, options?: ExternalToast) => toCustom(message, options),
+  success: (message: string, options?: ToastOptions) => toCustom(message, options),
+  error: (message: string, options?: ToastOptions) => toCustom(message, options),
+  warning: (message: string, options?: ToastOptions) => toCustom(message, options),
+  info: (message: string, options?: ToastOptions) => toCustom(message, options),
+  loading: (message: string, options?: ToastOptions) => toCustom(message, options),
   dismiss: (id?: string | number) => sonnerToast.dismiss(id),
   promise: sonnerToast.promise.bind(sonnerToast),
 };
