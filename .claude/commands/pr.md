@@ -12,6 +12,8 @@ Create a branch, commit staged or specified changes, push, and open a pull reque
 - Execute all steps without pausing to ask for confirmation — deletions and file operations that are part of the task are pre-approved
 - Each PR must address exactly one concern — never bundle fixes, features, or unrelated changes together; if multiple concerns exist, create separate branches and PRs (chaining base branches as needed)
 - Verify changes with a single build (e.g. `pnpm build`) rather than running `tsc --noEmit` and `eslint` as separate steps — lint and type-checking are already covered by the build
+- Run builds from the repository root (e.g. `pnpm build` or `pnpm --filter <workspace> build`), not by `cd`-ing into an app directory
+- Never start a dev/prod server (`pnpm dev`, `pnpm start`, `next dev`, `next start`, etc.) without the user's explicit request
 - Never add a new dependency by hand-editing `package.json` — use the package manager CLI (e.g. `pnpm add <pkg> --filter <workspace>`) so the lockfile stays in sync
 
 ## Steps
