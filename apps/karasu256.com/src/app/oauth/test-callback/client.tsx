@@ -1,21 +1,18 @@
-"use client";
+'use client';
 
-import { Suspense, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 function TestCallbackContent() {
   const params = useSearchParams();
 
   useEffect(() => {
-    const code = params.get("code") ?? undefined;
-    const state = params.get("state") ?? undefined;
-    const error = params.get("error") ?? undefined;
+    const code = params.get('code') ?? undefined;
+    const state = params.get('state') ?? undefined;
+    const error = params.get('error') ?? undefined;
 
     if (window.opener) {
-      window.opener.postMessage(
-        { type: "oauth_test_callback", code, state, error },
-        "*",
-      );
+      window.opener.postMessage({ type: 'oauth_test_callback', code, state, error }, '*');
       window.close();
     }
   }, [params]);

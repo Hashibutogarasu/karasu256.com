@@ -1,12 +1,12 @@
-import { cookies } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
-import { getDb } from "@Hashibutogarasu/db";
-import { oauthClients } from "@Hashibutogarasu/db/schema";
-import { and, eq } from "drizzle-orm";
-import { SESSION_COOKIE_NAME, deleteUploadedImage } from "@Hashibutogarasu/utils/server";
-import { z } from "zod";
+import { cookies } from 'next/headers';
+import { NextRequest, NextResponse } from 'next/server';
+import { getDb } from '@Hashibutogarasu/db';
+import { oauthClients } from '@Hashibutogarasu/db/schema';
+import { and, eq } from 'drizzle-orm';
+import { SESSION_COOKIE_NAME, deleteUploadedImage } from '@Hashibutogarasu/utils/server';
+import { z } from 'zod';
 
-import { requireSession } from "@/lib/api/require-session";
+import { requireSession } from '@/lib/api/require-session';
 
 const patchBodySchema = z.object({
   name: z.string().trim().min(1).optional(),
@@ -15,17 +15,14 @@ const patchBodySchema = z.object({
   permissions: z.number().int().optional(),
 });
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { user, error } = await requireSession();
   if (error) return error;
 
   const { id } = await params;
   const parsed = patchBodySchema.safeParse(await request.json());
   if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid body" }, { status: 400 });
+    return NextResponse.json({ error: 'Invalid body' }, { status: 400 });
   }
   const { name, callbackUris, iconUrl, permissions } = parsed.data;
 
@@ -61,7 +58,7 @@ export async function PATCH(
     });
 
   if (!updated) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
   }
 
   const imageApiUrl = process.env.NEXT_PUBLIC_IMAGE_API_URL;
@@ -73,10 +70,7 @@ export async function PATCH(
   return NextResponse.json({ ...updated, permissions: Number(updated.permissions) });
 }
 
-export async function DELETE(
-  _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function DELETE(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { user, error } = await requireSession();
   if (error) return error;
 
@@ -88,7 +82,7 @@ export async function DELETE(
     .returning({ id: oauthClients.id });
 
   if (result.length === 0) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
   }
   return new NextResponse(null, { status: 204 });
 }

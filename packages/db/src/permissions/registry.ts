@@ -1,4 +1,4 @@
-import { SECTION_BIT_MAP } from "./section-bit-map.generated";
+import { SECTION_BIT_MAP } from './section-bit-map.generated';
 
 export interface SectionMeta {
   key: string;
@@ -35,9 +35,7 @@ export function getRegisteredSections(): readonly SectionMeta[] {
 /**
  * Decodes a permission bitmask into per-section read/write flags.
  */
-export function decodePermissions(
-  mask: bigint,
-): Array<{ key: string; read: boolean; write: boolean }> {
+export function decodePermissions(mask: bigint): Array<{ key: string; read: boolean; write: boolean }> {
   return registry.map((s) => ({
     key: s.key,
     read: (mask & s.readMask) !== 0n,
@@ -52,13 +50,9 @@ export function decodePermissions(
  * @param key - The section key (e.g. `"profile"`).
  * @param mode - `"read"` (default) or `"write"`.
  */
-export function hasPermission(
-  mask: bigint,
-  key: string,
-  mode: "read" | "write" = "read",
-): boolean {
+export function hasPermission(mask: bigint, key: string, mode: 'read' | 'write' = 'read'): boolean {
   const section = registry.find((s) => s.key === key);
   if (!section) return false;
-  const bit = mode === "read" ? section.readMask : section.writeMask;
+  const bit = mode === 'read' ? section.readMask : section.writeMask;
   return (mask & bit) !== 0n;
 }

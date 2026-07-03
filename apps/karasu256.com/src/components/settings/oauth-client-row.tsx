@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { KeyRound, MoreHorizontal, Pencil, Play, Trash2 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { KeyRound, MoreHorizontal, Pencil, Play, Trash2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import {
   Badge,
   Button,
@@ -14,8 +14,8 @@ import {
   DropdownMenuTrigger,
   R2Image,
   SettingsItem,
-} from "@Hashibutogarasu/ui";
-import type { OAuthClientSummary, SectionMeta } from "@/lib/api/developer";
+} from '@Hashibutogarasu/ui';
+import type { OAuthClientSummary, SectionMeta } from '@/lib/api/developer';
 
 interface OAuthClientRowProps {
   client: OAuthClientSummary;
@@ -34,24 +34,12 @@ interface OAuthClientRowProps {
 export function OAuthClientRow({ client, sections, onTest, onEdit, onDelete, onRotateSecret }: OAuthClientRowProps) {
   const t = useTranslations();
 
-  const grantedSections = sections.filter(
-    (s) =>
-      (client.permissions & s.readMask) !== 0 ||
-      (client.permissions & s.writeMask) !== 0,
-  );
+  const grantedSections = sections.filter((s) => (client.permissions & s.readMask) !== 0 || (client.permissions & s.writeMask) !== 0);
 
   return (
     <SettingsItem className="flex items-start justify-between gap-4">
       <div className="flex items-start gap-3 min-w-0">
-        {client.iconUrl && (
-          <R2Image
-            src={client.iconUrl}
-            alt=""
-            width={32}
-            height={32}
-            className="rounded size-8 shrink-0 object-cover"
-          />
-        )}
+        {client.iconUrl && <R2Image src={client.iconUrl} alt="" width={32} height={32} className="rounded size-8 shrink-0 object-cover" />}
         <div className="min-w-0 space-y-1">
           <p className="text-sm font-medium truncate">{client.name}</p>
           <div className="space-y-0.5">
@@ -65,7 +53,7 @@ export function OAuthClientRow({ client, sections, onTest, onEdit, onDelete, onR
             {grantedSections.map((s) => {
               const hasRead = (client.permissions & s.readMask) !== 0;
               const hasWrite = (client.permissions & s.writeMask) !== 0;
-              const suffix = hasRead && hasWrite ? " R/W" : hasWrite ? " W" : " R";
+              const suffix = hasRead && hasWrite ? ' R/W' : hasWrite ? ' W' : ' R';
               return (
                 <Badge key={s.key} variant="secondary" className="text-xs">
                   {t(s.labelKey)}
@@ -78,19 +66,14 @@ export function OAuthClientRow({ client, sections, onTest, onEdit, onDelete, onR
       </div>
 
       <div className="flex items-center gap-1 shrink-0">
-        <Button
-          size="icon"
-          variant="ghost"
-          aria-label={t("settings.developer.edit")}
-          onClick={() => onEdit(client)}
-        >
+        <Button size="icon" variant="ghost" aria-label={t('settings.developer.edit')} onClick={() => onEdit(client)}>
           <Pencil className="size-4" />
         </Button>
 
         <DropdownMenu>
           <DropdownMenuTrigger
             render={
-              <Button size="icon" variant="ghost" aria-label={t("settings.developer.menu")}>
+              <Button size="icon" variant="ghost" aria-label={t('settings.developer.menu')}>
                 <MoreHorizontal className="size-4" />
               </Button>
             }
@@ -100,19 +83,16 @@ export function OAuthClientRow({ client, sections, onTest, onEdit, onDelete, onR
               <DropdownMenuPopup>
                 <DropdownMenuItem onClick={() => onTest(client)}>
                   <Play className="size-4" />
-                  {t("settings.developer.testClient")}
+                  {t('settings.developer.testClient')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => onRotateSecret(client)}>
                   <KeyRound className="size-4" />
-                  {t("settings.developer.rotateSecret")}
+                  {t('settings.developer.rotateSecret')}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  className="text-destructive focus:text-destructive hover:text-destructive"
-                  onClick={() => onDelete(client.id)}
-                >
+                <DropdownMenuItem className="text-destructive focus:text-destructive hover:text-destructive" onClick={() => onDelete(client.id)}>
                   <Trash2 className="size-4" />
-                  {t("settings.developer.delete")}
+                  {t('settings.developer.delete')}
                 </DropdownMenuItem>
               </DropdownMenuPopup>
             </DropdownMenuPositioner>

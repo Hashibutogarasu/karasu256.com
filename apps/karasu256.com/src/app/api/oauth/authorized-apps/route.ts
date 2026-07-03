@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
-import { and, eq, gt, isNull, max, sql } from "drizzle-orm";
-import { getDb } from "@Hashibutogarasu/db";
-import { oauthAccessTokens, oauthClients } from "@Hashibutogarasu/db/schema";
-import { requireSession } from "@/lib/api/require-session";
+import { NextResponse } from 'next/server';
+import { and, eq, gt, isNull, max, sql } from 'drizzle-orm';
+import { getDb } from '@Hashibutogarasu/db';
+import { oauthAccessTokens, oauthClients } from '@Hashibutogarasu/db/schema';
+import { requireSession } from '@/lib/api/require-session';
 
 /**
  * Returns all OAuth clients that have at least one active (non-revoked,
@@ -25,16 +25,8 @@ export async function GET() {
     })
     .from(oauthAccessTokens)
     .innerJoin(oauthClients, eq(oauthAccessTokens.clientId, oauthClients.id))
-    .where(
-      and(
-        eq(oauthAccessTokens.userId, user.uid),
-        isNull(oauthAccessTokens.revokedAt),
-        gt(oauthAccessTokens.expiresAt, now),
-      ),
-    )
+    .where(and(eq(oauthAccessTokens.userId, user.uid), isNull(oauthAccessTokens.revokedAt), gt(oauthAccessTokens.expiresAt, now)))
     .groupBy(oauthClients.id, oauthClients.name, oauthClients.iconUrl);
 
-  return NextResponse.json(
-    rows.map((r) => ({ ...r, permissions: Number(r.permissions) })),
-  );
+  return NextResponse.json(rows.map((r) => ({ ...r, permissions: Number(r.permissions) })));
 }

@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 export interface StrengthLabels {
   weak: string;
@@ -33,17 +33,17 @@ const CRITERIA: Criterion[] = [
 ];
 
 const DEFAULT_LABELS: StrengthLabels = {
-  weak: "Weak",
-  fair: "Fair",
-  good: "Good",
-  strong: "Strong",
+  weak: 'Weak',
+  fair: 'Fair',
+  good: 'Good',
+  strong: 'Strong',
 };
 
 const DEFAULT_COLORS: StrengthColors = {
-  weak: "#ef4444",
-  fair: "#fb923c",
-  good: "#facc15",
-  strong: "#22c55e",
+  weak: '#ef4444',
+  fair: '#fb923c',
+  good: '#facc15',
+  strong: '#22c55e',
 };
 
 function getStrengthLevel(score: number): 1 | 2 | 3 | 4 {
@@ -62,11 +62,7 @@ function getStrengthLevel(score: number): 1 | 2 | 3 | 4 {
  * Label and bar color strings default to English text and standard colors;
  * pass {@link labels} or {@link colors} to override.
  */
-export function PasswordStrengthIndicator({
-  password,
-  labels = DEFAULT_LABELS,
-  colors = DEFAULT_COLORS,
-}: Props) {
+export function PasswordStrengthIndicator({ password, labels = DEFAULT_LABELS, colors = DEFAULT_COLORS }: Props) {
   const score = password ? CRITERIA.filter((c) => c.test(password)).length : 0;
   const level = getStrengthLevel(score);
 
@@ -96,11 +92,8 @@ export function PasswordStrengthIndicator({
         />
       </div>
       <div className="overflow-hidden">
-        <p
-          key={`${level}-${!!password}`}
-          className="text-xs text-muted-foreground animate-[slide-from-left_150ms_ease-out]"
-        >
-          {password ? labelMap[level] : " "}
+        <p key={`${level}-${!!password}`} className="text-xs text-muted-foreground animate-[slide-from-left_150ms_ease-out]">
+          {password ? labelMap[level] : ' '}
         </p>
       </div>
     </div>

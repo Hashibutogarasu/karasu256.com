@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { Plus } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { AnimatedList, Button, ConfirmDialog, SettingsAccordion, SettingsItem, Skeleton } from "@Hashibutogarasu/ui";
-import { ImageUploadProvider } from "@Hashibutogarasu/utils/client";
+import { useEffect, useState } from 'react';
+import { Plus } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { AnimatedList, Button, ConfirmDialog, SettingsAccordion, SettingsItem, Skeleton } from '@Hashibutogarasu/ui';
+import { ImageUploadProvider } from '@Hashibutogarasu/utils/client';
 import {
   deleteApiKey,
   deleteOAuthClient,
@@ -16,18 +16,16 @@ import {
   type OAuthClientCreated,
   type OAuthClientSummary,
   type SectionMeta,
-} from "@/lib/api/developer";
-import { ApiKeyRow } from "./api-key-row";
-import { OAuthClientRow } from "./oauth-client-row";
-import { CreateApiKeyDialog } from "./create-api-key-dialog";
-import { CreateOAuthClientDialog } from "./create-oauth-client-dialog";
-import { EditOAuthClientDialog } from "./edit-oauth-client-dialog";
-import { OAuthClientTestDialog } from "./oauth-client-test-dialog";
-import { RotateSecretDialog } from "./rotate-secret-dialog";
+} from '@/lib/api/developer';
+import { ApiKeyRow } from './api-key-row';
+import { OAuthClientRow } from './oauth-client-row';
+import { CreateApiKeyDialog } from './create-api-key-dialog';
+import { CreateOAuthClientDialog } from './create-oauth-client-dialog';
+import { EditOAuthClientDialog } from './edit-oauth-client-dialog';
+import { OAuthClientTestDialog } from './oauth-client-test-dialog';
+import { RotateSecretDialog } from './rotate-secret-dialog';
 
-type PendingDelete =
-  | { type: "client"; id: string; name: string }
-  | { type: "key"; id: string; name: string };
+type PendingDelete = { type: 'client'; id: string; name: string } | { type: 'key'; id: string; name: string };
 
 /**
  * Developer settings section. Manages OAuth clients and API keys with
@@ -48,11 +46,9 @@ export function DeveloperSection() {
   const [pendingDelete, setPendingDelete] = useState<PendingDelete | null>(null);
 
   useEffect(() => {
-    void Promise.all([
-      listOAuthClients().then(setClients),
-      listApiKeys().then(setKeys),
-      getPermissionSections().then(setSections),
-    ]).finally(() => setLoading(false));
+    void Promise.all([listOAuthClients().then(setClients), listApiKeys().then(setKeys), getPermissionSections().then(setSections)]).finally(() =>
+      setLoading(false)
+    );
   }, []);
 
   function handleClientCreated(client: OAuthClientCreated) {
@@ -69,7 +65,7 @@ export function DeveloperSection() {
 
   async function confirmDelete() {
     if (!pendingDelete) return;
-    if (pendingDelete.type === "client") {
+    if (pendingDelete.type === 'client') {
       await deleteOAuthClient(pendingDelete.id);
       setClients((prev) => prev.filter((c) => c.id !== pendingDelete.id));
     } else {
@@ -81,17 +77,12 @@ export function DeveloperSection() {
   return (
     <ImageUploadProvider>
       <div className="space-y-6">
-        <h1 className="text-xl font-semibold">{t("settings.developer.title")}</h1>
+        <h1 className="text-xl font-semibold">{t('settings.developer.title')}</h1>
 
         <SettingsAccordion
-          title={t("settings.developer.oauthClients")}
+          title={t('settings.developer.oauthClients')}
           action={
-            <Button
-              size="icon-sm"
-              variant="ghost"
-              aria-label={t("settings.developer.createClient")}
-              onClick={() => setClientDialogOpen(true)}
-            >
+            <Button size="icon-sm" variant="ghost" aria-label={t('settings.developer.createClient')} onClick={() => setClientDialogOpen(true)}>
               <Plus />
             </Button>
           }
@@ -119,9 +110,7 @@ export function DeveloperSection() {
                 ))}
               </AnimatedList>
             ) : clients.length === 0 ? (
-              <p className="text-sm text-muted-foreground py-2">
-                {t("settings.developer.noClients")}
-              </p>
+              <p className="text-sm text-muted-foreground py-2">{t('settings.developer.noClients')}</p>
             ) : (
               clients.map((c) => (
                 <OAuthClientRow
@@ -130,9 +119,7 @@ export function DeveloperSection() {
                   sections={sections}
                   onTest={setTestingClient}
                   onEdit={setEditingClient}
-                  onDelete={(id) =>
-                    setPendingDelete({ type: "client", id, name: c.name })
-                  }
+                  onDelete={(id) => setPendingDelete({ type: 'client', id, name: c.name })}
                   onRotateSecret={setRotatingClient}
                 />
               ))
@@ -141,14 +128,9 @@ export function DeveloperSection() {
         </SettingsAccordion>
 
         <SettingsAccordion
-          title={t("settings.developer.apiKeys")}
+          title={t('settings.developer.apiKeys')}
           action={
-            <Button
-              size="icon-sm"
-              variant="ghost"
-              aria-label={t("settings.developer.createKey")}
-              onClick={() => setKeyDialogOpen(true)}
-            >
+            <Button size="icon-sm" variant="ghost" aria-label={t('settings.developer.createKey')} onClick={() => setKeyDialogOpen(true)}>
               <Plus />
             </Button>
           }
@@ -170,67 +152,56 @@ export function DeveloperSection() {
                 ))}
               </AnimatedList>
             ) : keys.length === 0 ? (
-              <p className="text-sm text-muted-foreground py-2">
-                {t("settings.developer.noKeys")}
-              </p>
+              <p className="text-sm text-muted-foreground py-2">{t('settings.developer.noKeys')}</p>
             ) : (
-              keys.map((k) => (
-                <ApiKeyRow
-                  key={k.id}
-                  apiKey={k}
-                  onDelete={(id) =>
-                    setPendingDelete({ type: "key", id, name: k.name })
-                  }
-                />
-              ))
+              keys.map((k) => <ApiKeyRow key={k.id} apiKey={k} onDelete={(id) => setPendingDelete({ type: 'key', id, name: k.name })} />)
             )}
           </div>
         </SettingsAccordion>
 
-        <CreateOAuthClientDialog
-          open={clientDialogOpen}
-          onOpenChange={setClientDialogOpen}
-          sections={sections}
-          onCreated={handleClientCreated}
-        />
+        <CreateOAuthClientDialog open={clientDialogOpen} onOpenChange={setClientDialogOpen} sections={sections} onCreated={handleClientCreated} />
         {testingClient && (
           <OAuthClientTestDialog
             open={testingClient !== null}
-            onOpenChange={(open) => { if (!open) setTestingClient(null); }}
+            onOpenChange={(open) => {
+              if (!open) setTestingClient(null);
+            }}
             client={testingClient}
           />
         )}
         {editingClient && (
           <EditOAuthClientDialog
             open={editingClient !== null}
-            onOpenChange={(open) => { if (!open) setEditingClient(null); }}
+            onOpenChange={(open) => {
+              if (!open) setEditingClient(null);
+            }}
             client={editingClient}
             sections={sections}
             onUpdated={handleClientUpdated}
           />
         )}
-        <CreateApiKeyDialog
-          open={keyDialogOpen}
-          onOpenChange={setKeyDialogOpen}
-          onCreated={handleKeyCreated}
-        />
+        <CreateApiKeyDialog open={keyDialogOpen} onOpenChange={setKeyDialogOpen} onCreated={handleKeyCreated} />
         {rotatingClient && (
           <RotateSecretDialog
             open={rotatingClient !== null}
-            onOpenChange={(open) => { if (!open) setRotatingClient(null); }}
+            onOpenChange={(open) => {
+              if (!open) setRotatingClient(null);
+            }}
             clientId={rotatingClient.id}
             clientName={rotatingClient.name}
           />
         )}
         <ConfirmDialog
           open={pendingDelete !== null}
-          onOpenChange={(open) => { if (!open) setPendingDelete(null); }}
-          title={t("settings.developer.deleteConfirm.title")}
-          description={t("settings.developer.deleteConfirm.description", {
-            name: pendingDelete?.name ?? "",
+          onOpenChange={(open) => {
+            if (!open) setPendingDelete(null);
+          }}
+          title={t('settings.developer.deleteConfirm.title')}
+          description={t('settings.developer.deleteConfirm.description', {
+            name: pendingDelete?.name ?? '',
           })}
-          confirmLabel={t("settings.developer.delete")}
-          cancelLabel={t("settings.developer.deleteConfirm.cancel")}
+          confirmLabel={t('settings.developer.delete')}
+          cancelLabel={t('settings.developer.deleteConfirm.cancel')}
           onConfirm={confirmDelete}
         />
       </div>

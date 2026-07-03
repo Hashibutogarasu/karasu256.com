@@ -43,15 +43,16 @@ Client → signInWithCustomToken()                   → triggers onAuthStateCha
 Registration follows the same challenge/verify pattern under `/api/passkey/register/`.
 
 Credentials are stored in **Firebase Realtime Database**:
+
 - `/passkey-index/{credentialID}` → `{ uid }` — lookup index to resolve which user owns a credential
 - `/passkeys/{uid}/credentials/{credentialID}` → `{ id, publicKey, counter, transports[] }`
 
 ### Dual Firebase SDK pattern
 
-| Context | Module | Purpose |
-|---|---|---|
-| Browser / Client Components | `src/lib/firebase/` | Firebase JS SDK (auth, app) |
-| Server / API Routes | `src/lib/firebase-admin/` | Firebase Admin SDK (session cookies, Realtime DB, custom tokens) |
+| Context                     | Module                    | Purpose                                                          |
+| --------------------------- | ------------------------- | ---------------------------------------------------------------- |
+| Browser / Client Components | `src/lib/firebase/`       | Firebase JS SDK (auth, app)                                      |
+| Server / API Routes         | `src/lib/firebase-admin/` | Firebase Admin SDK (session cookies, Realtime DB, custom tokens) |
 
 Never import firebase-admin in client components or `src/lib/firebase/` in API routes.
 
@@ -60,6 +61,7 @@ Each module has a `schema.ts` that validates its environment variables with Zod 
 ### Client-side API utilities (`src/lib/api/`)
 
 Thin `fetch` wrappers called from client components. They abstract the API routes so components never call `fetch` directly:
+
 - `auth-session.ts` — `createSession(idToken)` / `clearSession()`
 - `passkey-authenticate.ts` — `authenticateWithPasskey()` (returns Firebase custom token)
 - `passkey-register.ts` — `registerPasskey(email)`
@@ -74,8 +76,8 @@ Thin `fetch` wrappers called from client components. They abstract the API route
 
 ### Pages
 
-| Route | Component | Access |
-|---|---|---|
-| `/` | `SignInCard` | Unauthenticated only |
-| `/dashboard` | `AccountCard` | Authenticated only |
-| `/reset-password` | `ResetPasswordForm` | Public |
+| Route             | Component           | Access               |
+| ----------------- | ------------------- | -------------------- |
+| `/`               | `SignInCard`        | Unauthenticated only |
+| `/dashboard`      | `AccountCard`       | Authenticated only   |
+| `/reset-password` | `ResetPasswordForm` | Public               |

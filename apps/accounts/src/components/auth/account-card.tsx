@@ -1,19 +1,19 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { onAuthStateChanged, signOut, type User } from "firebase/auth";
-import { useRouter } from "next/navigation";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faRightFromBracket } from "@fortawesome/free-solid-svg-icons";
-import { getFirebaseAuth } from "@/lib/firebase/auth";
-import { clearSession } from "@/lib/api/auth-session";
-import { Button } from "@Hashibutogarasu/ui";
-import { Card, CardContent, CardHeader, CardTitle } from "@Hashibutogarasu/ui";
-import { Identicon } from "@Hashibutogarasu/ui";
-import { Separator } from "@Hashibutogarasu/ui";
-import { Skeleton } from "@Hashibutogarasu/ui";
-import { PasskeyList } from "./passkey-list";
-import { PasskeyCreateDialog } from "./passkey-create-dialog";
+import { useEffect, useState } from 'react';
+import { onAuthStateChanged, signOut, type User } from 'firebase/auth';
+import { useRouter } from 'next/navigation';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
+import { getFirebaseAuth } from '@/lib/firebase/auth';
+import { clearSession } from '@/lib/api/auth-session';
+import { Button } from '@Hashibutogarasu/ui';
+import { Card, CardContent, CardHeader, CardTitle } from '@Hashibutogarasu/ui';
+import { Identicon } from '@Hashibutogarasu/ui';
+import { Separator } from '@Hashibutogarasu/ui';
+import { Skeleton } from '@Hashibutogarasu/ui';
+import { PasskeyList } from './passkey-list';
+import { PasskeyCreateDialog } from './passkey-create-dialog';
 
 /**
  * Account management card for authenticated users.
@@ -32,7 +32,7 @@ export function AccountCard() {
     return onAuthStateChanged(getFirebaseAuth(), async (u) => {
       if (!u) {
         await clearSession();
-        router.replace("/");
+        router.replace('/');
       } else {
         setUser(u);
         setLoading(false);
@@ -83,23 +83,14 @@ export function AccountCard() {
       <CardContent className="space-y-4">
         <div className="flex flex-col items-start gap-3">
           <Identicon value={user!.uid} size={64} className="border border-border" />
-          <p className="text-sm text-muted-foreground break-all">
-            {user!.email ?? user!.uid}
-          </p>
+          <p className="text-sm text-muted-foreground break-all">{user!.email ?? user!.uid}</p>
         </div>
         <Separator />
-        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-          Passkeys
-        </p>
+        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Passkeys</p>
         <PasskeyList version={passkeyVersion} />
-        {user!.email && (
-          <PasskeyCreateDialog
-            email={user!.email}
-            onSuccess={() => setPasskeyVersion((v) => v + 1)}
-          />
-        )}
+        {user!.email && <PasskeyCreateDialog email={user!.email} onSuccess={() => setPasskeyVersion((v) => v + 1)} />}
         <Separator />
-        <Button variant="ghost" className="w-full" onClick={() => router.push("/settings")}>
+        <Button variant="ghost" className="w-full" onClick={() => router.push('/settings')}>
           Settings
         </Button>
         <Button variant="outline" className="w-full" onClick={handleSignOut}>

@@ -1,5 +1,5 @@
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth"
-import { getFirebaseAuth } from "@/lib/firebase/auth"
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { getFirebaseAuth } from '@/lib/firebase/auth';
 
 /**
  * Signs in an existing user with email and password via the Firebase client SDK.
@@ -7,7 +7,7 @@ import { getFirebaseAuth } from "@/lib/firebase/auth"
  * @throws {FirebaseError} When authentication fails. Inspect {@link FirebaseError.code} for the cause.
  */
 export function signInWithEmailPassword(email: string, password: string) {
-  return signInWithEmailAndPassword(getFirebaseAuth(), email, password)
+  return signInWithEmailAndPassword(getFirebaseAuth(), email, password);
 }
 
 /**
@@ -16,5 +16,5 @@ export function signInWithEmailPassword(email: string, password: string) {
  * @throws {FirebaseError} When account creation fails. Inspect {@link FirebaseError.code} for the cause.
  */
 export function registerWithEmailPassword(email: string, password: string) {
-  return createUserWithEmailAndPassword(getFirebaseAuth(), email, password)
+  return createUserWithEmailAndPassword(getFirebaseAuth(), email, password);
 }

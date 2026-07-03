@@ -1,5 +1,5 @@
-import { initializeApp, getApps, type FirebaseApp } from "firebase/app";
-import { parseFirebaseEnv } from "./schema";
+import { initializeApp, getApps, type FirebaseApp } from 'firebase/app';
+import { parseFirebaseEnv } from './schema';
 
 /** Lazily initialized Firebase application singleton. */
 let firebaseApp: FirebaseApp | undefined;

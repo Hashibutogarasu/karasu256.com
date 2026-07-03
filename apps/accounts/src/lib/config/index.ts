@@ -1,7 +1,7 @@
-import fs from "node:fs";
-import path from "node:path";
-import { parse as parseYaml } from "yaml";
-import { z } from "zod";
+import fs from 'node:fs';
+import path from 'node:path';
+import { parse as parseYaml } from 'yaml';
+import { z } from 'zod';
 
 const webauthnSchema = z.object({
   rpId: z.string().min(1),
@@ -30,8 +30,8 @@ const envSchema = z.object({
 
 export type ServerConfig = {
   webauthn: z.infer<typeof webauthnSchema>;
-  firebaseAdmin: z.infer<typeof envSchema>["firebaseAdmin"];
-  resend: z.infer<typeof envSchema>["resend"];
+  firebaseAdmin: z.infer<typeof envSchema>['firebaseAdmin'];
+  resend: z.infer<typeof envSchema>['resend'];
   baseDomain?: string;
 };
 
@@ -47,17 +47,17 @@ let cached: ServerConfig | undefined;
 export function getServerConfig(): ServerConfig {
   if (cached !== undefined) return cached;
 
-  const filePath = path.join(process.cwd(), "config", "app.yml");
-  const raw = fs.readFileSync(filePath, "utf-8");
+  const filePath = path.join(process.cwd(), 'config', 'app.yml');
+  const raw = fs.readFileSync(filePath, 'utf-8');
   const yamlData = yamlSchema.parse(parseYaml(raw));
-  const envKey = process.env.NODE_ENV === "production" ? "production" : "development";
+  const envKey = process.env.NODE_ENV === 'production' ? 'production' : 'development';
   const { webauthn } = yamlData[envKey];
 
   const envData = envSchema.parse({
     firebaseAdmin: {
       projectId: process.env.FIREBASE_ADMIN_PROJECT_ID,
       clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+      privateKey: process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, '\n'),
       databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL,
     },
     resend: {

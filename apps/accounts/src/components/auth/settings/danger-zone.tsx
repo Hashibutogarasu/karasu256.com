@@ -1,20 +1,15 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import {
-  deleteUser,
-  EmailAuthProvider,
-  reauthenticateWithCredential,
-  signOut,
-} from "firebase/auth";
-import { useTranslations } from "next-intl";
-import { toast } from "@Hashibutogarasu/ui";
-import { useSettingsUser } from "@/components/settings/user-context";
-import { getFirebaseAuth } from "@/lib/firebase/auth";
-import { clearSession } from "@/lib/api/auth-session";
-import { Button } from "@Hashibutogarasu/ui";
-import { Input } from "@Hashibutogarasu/ui";
-import { Label } from "@Hashibutogarasu/ui";
+import { useState } from 'react';
+import { deleteUser, EmailAuthProvider, reauthenticateWithCredential, signOut } from 'firebase/auth';
+import { useTranslations } from 'next-intl';
+import { toast } from '@Hashibutogarasu/ui';
+import { useSettingsUser } from '@/components/settings/user-context';
+import { getFirebaseAuth } from '@/lib/firebase/auth';
+import { clearSession } from '@/lib/api/auth-session';
+import { Button } from '@Hashibutogarasu/ui';
+import { Input } from '@Hashibutogarasu/ui';
+import { Label } from '@Hashibutogarasu/ui';
 
 /**
  * Account deletion UI.
@@ -27,10 +22,10 @@ export function DangerZone() {
   const t = useTranslations();
   const { user } = useSettingsUser();
   const [confirming, setConfirming] = useState(false);
-  const [password, setPassword] = useState("");
+  const [password, setPassword] = useState('');
   const [deleting, setDeleting] = useState(false);
 
-  const hasPasswordProvider = user.providerData.some((p) => p.providerId === "password");
+  const hasPasswordProvider = user.providerData.some((p) => p.providerId === 'password');
 
   async function handleDelete(e: React.FormEvent) {
     e.preventDefault();
@@ -41,8 +36,8 @@ export function DangerZone() {
         await reauthenticateWithCredential(user, credential);
         await deleteUser(user);
       } else {
-        const res = await fetch("/api/user", { method: "DELETE" });
-        if (!res.ok) throw new Error(t("dangerZone.reauthRequired"));
+        const res = await fetch('/api/user', { method: 'DELETE' });
+        if (!res.ok) throw new Error(t('dangerZone.reauthRequired'));
       }
       await clearSession();
       await signOut(getFirebaseAuth());
@@ -54,22 +49,16 @@ export function DangerZone() {
 
   return (
     <div className="space-y-3">
-      <p className="text-xs font-medium text-destructive uppercase tracking-wide">
-        {t("dangerZone.title")}
-      </p>
+      <p className="text-xs font-medium text-destructive uppercase tracking-wide">{t('dangerZone.title')}</p>
       {!confirming ? (
-        <Button
-          variant="outline"
-          className="w-full text-destructive border-destructive hover:bg-destructive/5"
-          onClick={() => setConfirming(true)}
-        >
-          {t("dangerZone.deleteAccount")}
+        <Button variant="outline" className="w-full text-destructive border-destructive hover:bg-destructive/5" onClick={() => setConfirming(true)}>
+          {t('dangerZone.deleteAccount')}
         </Button>
       ) : (
         <form onSubmit={handleDelete} className="space-y-3">
           {hasPasswordProvider ? (
             <div className="space-y-1">
-              <Label htmlFor="confirm-password">{t("dangerZone.confirmPassword")}</Label>
+              <Label htmlFor="confirm-password">{t('dangerZone.confirmPassword')}</Label>
               <Input
                 id="confirm-password"
                 type="password"
@@ -81,20 +70,14 @@ export function DangerZone() {
               />
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">{t("dangerZone.reauthRequired")}</p>
+            <p className="text-sm text-muted-foreground">{t('dangerZone.reauthRequired')}</p>
           )}
           <div className="flex gap-2">
-            <Button
-              type="button"
-              variant="ghost"
-              className="flex-1"
-              onClick={() => setConfirming(false)}
-              disabled={deleting}
-            >
-              {t("dangerZone.cancel")}
+            <Button type="button" variant="ghost" className="flex-1" onClick={() => setConfirming(false)} disabled={deleting}>
+              {t('dangerZone.cancel')}
             </Button>
             <Button type="submit" variant="destructive" className="flex-1" disabled={deleting}>
-              {deleting ? t("dangerZone.deleting") : t("dangerZone.delete")}
+              {deleting ? t('dangerZone.deleting') : t('dangerZone.delete')}
             </Button>
           </div>
         </form>

@@ -1,20 +1,10 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { PlusIcon } from "lucide-react";
-import { useTranslations } from "next-intl";
-import {
-  Button,
-  Input,
-  Label,
-  toast,
-  Dialog,
-  DialogPortal,
-  DialogBackdrop,
-  DialogPopup,
-  DialogTitle,
-} from "@Hashibutogarasu/ui";
-import { registerPasskey } from "@/lib/api/passkey-register";
+import { useState } from 'react';
+import { PlusIcon } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { Button, Input, Label, toast, Dialog, DialogPortal, DialogBackdrop, DialogPopup, DialogTitle } from '@Hashibutogarasu/ui';
+import { registerPasskey } from '@/lib/api/passkey-register';
 
 interface PasskeyCreateDialogProps {
   /** The email address of the currently signed-in user, used as the passkey username. */
@@ -32,7 +22,7 @@ interface PasskeyCreateDialogProps {
 export function PasskeyCreateDialog({ email, onSuccess }: PasskeyCreateDialogProps) {
   const t = useTranslations();
   const [open, setOpen] = useState(false);
-  const [name, setName] = useState("");
+  const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -40,9 +30,9 @@ export function PasskeyCreateDialog({ email, onSuccess }: PasskeyCreateDialogPro
     setLoading(true);
     try {
       await registerPasskey(email, name);
-      setName("");
+      setName('');
       setOpen(false);
-      toast.success(t("passkey.registered"), { autoClose: true });
+      toast.success(t('passkey.registered'), { autoClose: true });
       onSuccess?.();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : String(err));
@@ -56,7 +46,7 @@ export function PasskeyCreateDialog({ email, onSuccess }: PasskeyCreateDialogPro
       <Button
         variant="ghost"
         size="icon-sm"
-        aria-label={t("passkey.register")}
+        aria-label={t('passkey.register')}
         onClick={(e) => {
           e.stopPropagation();
           setOpen(true);
@@ -68,14 +58,14 @@ export function PasskeyCreateDialog({ email, onSuccess }: PasskeyCreateDialogPro
         <DialogPortal>
           <DialogBackdrop />
           <DialogPopup>
-            <DialogTitle>{t("passkey.register")}</DialogTitle>
+            <DialogTitle>{t('passkey.register')}</DialogTitle>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="dialog-passkey-name">{t("passkey.name")}</Label>
+                <Label htmlFor="dialog-passkey-name">{t('passkey.name')}</Label>
                 <Input
                   id="dialog-passkey-name"
                   type="text"
-                  placeholder={t("passkey.namePlaceholder")}
+                  placeholder={t('passkey.namePlaceholder')}
                   value={name}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
                   required
@@ -84,10 +74,10 @@ export function PasskeyCreateDialog({ email, onSuccess }: PasskeyCreateDialogPro
               </div>
               <div className="flex justify-end gap-2">
                 <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-                  {t("dangerZone.cancel")}
+                  {t('dangerZone.cancel')}
                 </Button>
                 <Button type="submit" disabled={loading || !name.trim()}>
-                  {loading ? t("passkey.registering") : t("passkey.register")}
+                  {loading ? t('passkey.registering') : t('passkey.register')}
                 </Button>
               </div>
             </form>

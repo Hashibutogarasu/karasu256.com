@@ -1,21 +1,16 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import {
-  EmailAuthProvider,
-  linkWithCredential,
-  reauthenticateWithCredential,
-  updatePassword,
-} from "firebase/auth";
-import { FirebaseError } from "firebase/app";
-import { useTranslations } from "next-intl";
-import { toast } from "@Hashibutogarasu/ui";
-import { getFirebaseAuth } from "@/lib/firebase/auth";
-import { useSettingsUser } from "@/components/settings/user-context";
-import { Button } from "@Hashibutogarasu/ui";
-import { Label } from "@Hashibutogarasu/ui";
-import { PasswordInput } from "@Hashibutogarasu/ui";
-import { LocalizedPasswordStrengthIndicator } from "@/components/auth/localized-password-strength-indicator";
+import { useState } from 'react';
+import { EmailAuthProvider, linkWithCredential, reauthenticateWithCredential, updatePassword } from 'firebase/auth';
+import { FirebaseError } from 'firebase/app';
+import { useTranslations } from 'next-intl';
+import { toast } from '@Hashibutogarasu/ui';
+import { getFirebaseAuth } from '@/lib/firebase/auth';
+import { useSettingsUser } from '@/components/settings/user-context';
+import { Button } from '@Hashibutogarasu/ui';
+import { Label } from '@Hashibutogarasu/ui';
+import { PasswordInput } from '@Hashibutogarasu/ui';
+import { LocalizedPasswordStrengthIndicator } from '@/components/auth/localized-password-strength-indicator';
 
 /**
  * Allows email users to set or change their password.
@@ -28,17 +23,17 @@ import { LocalizedPasswordStrengthIndicator } from "@/components/auth/localized-
 export function PasswordSection() {
   const t = useTranslations();
   const { user, updateUser } = useSettingsUser();
-  const hasPasswordProvider = user.providerData.some((p) => p.providerId === "password");
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
+  const hasPasswordProvider = user.providerData.some((p) => p.providerId === 'password');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
   const [saving, setSaving] = useState(false);
 
   if (!user.email) return null;
 
   function showError(err: unknown) {
-    const code = err instanceof FirebaseError ? err.code.replace("auth/", "") : "unknown";
+    const code = err instanceof FirebaseError ? err.code.replace('auth/', '') : 'unknown';
     const key = `security.error.${code}`;
-    toast.error(t.has(key) ? t(key) : t("security.error.unknown"));
+    toast.error(t.has(key) ? t(key) : t('security.error.unknown'));
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -49,17 +44,17 @@ export function PasswordSection() {
         const credential = EmailAuthProvider.credential(user.email!, currentPassword);
         await reauthenticateWithCredential(user, credential);
         await updatePassword(user, newPassword);
-        toast.success(t("security.passwordChanged"));
+        toast.success(t('security.passwordChanged'));
       } else {
         const credential = EmailAuthProvider.credential(user.email!, newPassword);
         await linkWithCredential(user, credential);
         await user.reload();
         const fresh = getFirebaseAuth().currentUser;
         if (fresh) updateUser({ providerData: fresh.providerData });
-        toast.success(t("security.passwordSet"));
+        toast.success(t('security.passwordSet'));
       }
-      setCurrentPassword("");
-      setNewPassword("");
+      setCurrentPassword('');
+      setNewPassword('');
     } catch (err) {
       showError(err);
     } finally {
@@ -69,13 +64,11 @@ export function PasswordSection() {
 
   return (
     <div className="space-y-3">
-      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-        {t("security.title")}
-      </p>
+      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t('security.title')}</p>
       <form onSubmit={handleSubmit} className="space-y-3">
         {hasPasswordProvider && (
           <div className="space-y-1">
-            <Label htmlFor="current-password">{t("security.currentPassword")}</Label>
+            <Label htmlFor="current-password">{t('security.currentPassword')}</Label>
             <PasswordInput
               id="current-password"
               autoComplete="current-password"
@@ -87,7 +80,7 @@ export function PasswordSection() {
           </div>
         )}
         <div className="space-y-1">
-          <Label htmlFor="new-password">{t("security.newPassword")}</Label>
+          <Label htmlFor="new-password">{t('security.newPassword')}</Label>
           <PasswordInput
             id="new-password"
             autoComplete="new-password"
@@ -101,8 +94,12 @@ export function PasswordSection() {
         </div>
         <Button type="submit" variant="outline" className="w-full" disabled={saving}>
           {hasPasswordProvider
-            ? saving ? t("security.changing") : t("security.changePassword")
-            : saving ? t("security.setting") : t("security.setPassword")}
+            ? saving
+              ? t('security.changing')
+              : t('security.changePassword')
+            : saving
+              ? t('security.setting')
+              : t('security.setPassword')}
         </Button>
       </form>
     </div>

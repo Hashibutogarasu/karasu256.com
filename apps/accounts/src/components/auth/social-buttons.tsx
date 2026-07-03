@@ -1,8 +1,8 @@
-"use client"
+'use client';
 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faGoogle, faGithub } from "@fortawesome/free-brands-svg-icons"
-import { Button } from "@Hashibutogarasu/ui"
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faGoogle, faGithub } from '@fortawesome/free-brands-svg-icons';
+import { Button } from '@Hashibutogarasu/ui';
 
 /**
  * Renders Google and GitHub OAuth sign-in buttons that navigate to the
@@ -12,14 +12,24 @@ import { Button } from "@Hashibutogarasu/ui"
 export function SocialButtons() {
   return (
     <div className="grid grid-cols-2 gap-2">
-      <Button variant="outline" onClick={() => { window.location.href = "/api/auth/oauth-signin/google" }}>
+      <Button
+        variant="outline"
+        onClick={() => {
+          window.location.href = '/api/auth/oauth-signin/google';
+        }}
+      >
         <FontAwesomeIcon icon={faGoogle} />
         Google
       </Button>
-      <Button variant="outline" onClick={() => { window.location.href = "/api/auth/oauth-signin/github" }}>
+      <Button
+        variant="outline"
+        onClick={() => {
+          window.location.href = '/api/auth/oauth-signin/github';
+        }}
+      >
         <FontAwesomeIcon icon={faGithub} />
         GitHub
       </Button>
     </div>
-  )
+  );
 }

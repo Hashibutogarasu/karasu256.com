@@ -1,12 +1,11 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { Loader2, Trash2 } from "lucide-react";
+import * as React from 'react';
+import { Loader2, Trash2 } from 'lucide-react';
 
-import { Button } from "./button";
+import { Button } from './button';
 
-interface DeleteIconButtonProps
-  extends Omit<React.ComponentProps<typeof Button>, "variant" | "children"> {
+interface DeleteIconButtonProps extends Omit<React.ComponentProps<typeof Button>, 'variant' | 'children'> {
   /** When true, replaces the trash icon with an animated spinner and disables the button. */
   loading?: boolean;
 }

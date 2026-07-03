@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { useEffect } from "react";
-import { useSearchParams } from "next/navigation";
-import { signOut } from "firebase/auth";
-import { useTranslations } from "next-intl";
-import { SigningOutView } from "@Hashibutogarasu/ui";
-import { getFirebaseAuth } from "@/lib/firebase/auth";
-import { clearSession } from "@/lib/api/auth-session";
+import { useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { signOut } from 'firebase/auth';
+import { useTranslations } from 'next-intl';
+import { SigningOutView } from '@Hashibutogarasu/ui';
+import { getFirebaseAuth } from '@/lib/firebase/auth';
+import { clearSession } from '@/lib/api/auth-session';
 
 /**
  * Clears the Firebase Auth state and the server-side session cookie,
@@ -22,11 +22,11 @@ export function SignOutClient() {
         await clearSession();
         await signOut(getFirebaseAuth());
       } finally {
-        window.location.replace(searchParams.get("next") ?? "/");
+        window.location.replace(searchParams.get('next') ?? '/');
       }
     }
     performSignOut();
   }, [searchParams]);
 
-  return <SigningOutView message={t("settings.signingOut")} />;
+  return <SigningOutView message={t('settings.signingOut')} />;
 }

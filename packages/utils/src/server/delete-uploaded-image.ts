@@ -1,10 +1,10 @@
-import { SESSION_COOKIE_NAME } from "./next-auth"
+import { SESSION_COOKIE_NAME } from './next-auth';
 
 export interface DeleteUploadedImageOptions {
   /** Base URL of the image API, e.g. `https://cdn.karasu256.com`. */
-  imageApiUrl: string
+  imageApiUrl: string;
   /** Raw value of the caller's session cookie, forwarded to authenticate the delete. */
-  sessionCookie: string
+  sessionCookie: string;
 }
 
 /**
@@ -16,23 +16,20 @@ export interface DeleteUploadedImageOptions {
  * externally hosted icon), and swallows delete failures since this is
  * best-effort cleanup that must never block the caller's primary update.
  */
-export async function deleteUploadedImage(
-  iconUrl: string | null,
-  options: DeleteUploadedImageOptions,
-): Promise<void> {
-  if (!iconUrl) return
+export async function deleteUploadedImage(iconUrl: string | null, options: DeleteUploadedImageOptions): Promise<void> {
+  if (!iconUrl) return;
 
   try {
-    const url = new URL(iconUrl)
-    if (url.origin !== new URL(options.imageApiUrl).origin) return
-    const key = url.pathname.slice(1)
-    if (!key) return
+    const url = new URL(iconUrl);
+    if (url.origin !== new URL(options.imageApiUrl).origin) return;
+    const key = url.pathname.slice(1);
+    if (!key) return;
 
     await fetch(`${options.imageApiUrl}/${key}`, {
-      method: "DELETE",
+      method: 'DELETE',
       headers: { Cookie: `${SESSION_COOKIE_NAME}=${options.sessionCookie}` },
-    })
+    });
   } catch {
-    return
+    return;
   }
 }

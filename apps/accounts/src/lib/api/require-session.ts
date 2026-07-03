@@ -1,13 +1,11 @@
-import { cookies } from "next/headers";
-import type { DecodedIdToken } from "firebase-admin/auth";
-import { NextResponse } from "next/server";
-import { getAdminAuth } from "@/lib/firebase-admin";
-import { SESSION_COOKIE_NAME } from "@/lib/session";
-import { unauthorized } from "@/lib/api/responses";
+import { cookies } from 'next/headers';
+import type { DecodedIdToken } from 'firebase-admin/auth';
+import { NextResponse } from 'next/server';
+import { getAdminAuth } from '@/lib/firebase-admin';
+import { SESSION_COOKIE_NAME } from '@/lib/session';
+import { unauthorized } from '@/lib/api/responses';
 
-type SessionResult =
-  | { user: DecodedIdToken; error: null }
-  | { user: null; error: NextResponse };
+type SessionResult = { user: DecodedIdToken; error: null } | { user: null; error: NextResponse };
 
 /**
  * Reads and verifies the Firebase session cookie.

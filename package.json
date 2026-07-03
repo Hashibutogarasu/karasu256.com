@@ -9,11 +9,13 @@
     "deploy": "turbo deploy",
     "deploy:prod": "turbo deploy:prod",
     "lint": "turbo lint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "sync-env": "bash scripts/sync-env.sh",
     "prepare": "simple-git-hooks"
   },
   "simple-git-hooks": {
-    "pre-commit": "bash scripts/pre-commit.sh"
+    "pre-commit": "pnpm exec pretty-quick --staged && bash scripts/pre-commit.sh"
   },
   "pnpm": {
     "overrides": {
@@ -24,7 +26,8 @@
     "@dotenvx/dotenvx": "^1.75.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "prettier": "^3.5.3",
+    "prettier": "3.5.3",
+    "pretty-quick": "4.2.2",
     "simple-git-hooks": "^2.13.1",
     "turbo": "^2.10.0",
     "typescript": "^5",

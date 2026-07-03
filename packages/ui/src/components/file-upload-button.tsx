@@ -1,13 +1,12 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { Upload } from "lucide-react";
+import * as React from 'react';
+import { Upload } from 'lucide-react';
 
-import { Button } from "./button";
-import { Spinner } from "./ui/spinner";
+import { Button } from './button';
+import { Spinner } from './ui/spinner';
 
-export interface FileUploadButtonProps
-  extends Omit<React.ComponentProps<typeof Button>, "onClick" | "onChange" | "children"> {
+export interface FileUploadButtonProps extends Omit<React.ComponentProps<typeof Button>, 'onClick' | 'onChange' | 'children'> {
   label: string;
   loadingLabel: string;
   loading?: boolean;
@@ -29,39 +28,26 @@ function FileUploadButton({
   accept,
   onFileSelected,
   disabled,
-  type = "button",
-  variant = "outline",
-  size = "sm",
+  type = 'button',
+  variant = 'outline',
+  size = 'sm',
   ...props
 }: FileUploadButtonProps) {
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
-    event.target.value = "";
+    event.target.value = '';
     if (file) onFileSelected(file);
   }
 
   return (
     <>
-      <Button
-        type={type}
-        variant={variant}
-        size={size}
-        disabled={loading || disabled}
-        onClick={() => fileInputRef.current?.click()}
-        {...props}
-      >
+      <Button type={type} variant={variant} size={size} disabled={loading || disabled} onClick={() => fileInputRef.current?.click()} {...props}>
         {loading ? <Spinner /> : <Upload />}
         {loading ? loadingLabel : label}
       </Button>
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept={accept}
-        className="hidden"
-        onChange={handleChange}
-      />
+      <input ref={fileInputRef} type="file" accept={accept} className="hidden" onChange={handleChange} />
     </>
   );
 }

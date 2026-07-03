@@ -1,5 +1,5 @@
-import { startAuthentication } from "@simplewebauthn/browser";
-import { PasskeyError, UnknownPasskeyError } from "./passkey-errors";
+import { startAuthentication } from '@simplewebauthn/browser';
+import { PasskeyError, UnknownPasskeyError } from './passkey-errors';
 
 /**
  * Runs the full passkey authentication flow:
@@ -11,16 +11,16 @@ import { PasskeyError, UnknownPasskeyError } from "./passkey-errors";
  * @throws {Error} When the server returns an unrecognised error or no token.
  */
 export async function authenticateWithPasskey(): Promise<string> {
-  const challengeRes = await fetch("/api/passkey/authenticate/challenge", { method: "POST" });
+  const challengeRes = await fetch('/api/passkey/authenticate/challenge', { method: 'POST' });
   const { options } = (await challengeRes.json()) as {
-    options: Parameters<typeof startAuthentication>[0]["optionsJSON"];
+    options: Parameters<typeof startAuthentication>[0]['optionsJSON'];
   };
 
   const credential = await startAuthentication({ optionsJSON: options });
 
-  const verifyRes = await fetch("/api/passkey/authenticate/verify", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
+  const verifyRes = await fetch('/api/passkey/authenticate/verify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(credential),
   });
   const data = (await verifyRes.json()) as { customToken?: string; code?: string };

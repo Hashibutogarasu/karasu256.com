@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
-import { getRegisteredSections } from "@Hashibutogarasu/db";
+import { NextResponse } from 'next/server';
+import { getRegisteredSections } from '@Hashibutogarasu/db';
 
 export async function GET() {
   const sections = getRegisteredSections().map((s) => ({

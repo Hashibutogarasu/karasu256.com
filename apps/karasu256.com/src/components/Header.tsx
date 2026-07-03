@@ -1,7 +1,7 @@
-import Link from "next/link";
-import { getUser } from "@Hashibutogarasu/db";
-import { getSessionUser } from "@/lib/firebase-session";
-import { AuthButton } from "@/components/auth-button";
+import Link from 'next/link';
+import { getUser } from '@Hashibutogarasu/db';
+import { getSessionUser } from '@/lib/firebase-session';
+import { AuthButton } from '@/components/auth-button';
 
 /**
  * Site-wide header. Reads the NextAuth session (backed by Firebase) to show
@@ -10,7 +10,7 @@ import { AuthButton } from "@/components/auth-button";
 const Header = async () => {
   const sessionUser = await getSessionUser();
   const dbUser = sessionUser ? await getUser(sessionUser.uid) : null;
-  const accountsUrl = process.env.NEXT_PUBLIC_ACCOUNTS_URL ?? "#";
+  const accountsUrl = process.env.NEXT_PUBLIC_ACCOUNTS_URL ?? '#';
 
   return (
     <header className="sticky top-0 z-20 bg-background w-full h-12 px-6 flex justify-between items-center border-b border-border shrink-0">

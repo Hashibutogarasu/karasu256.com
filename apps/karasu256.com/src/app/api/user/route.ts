@@ -1,11 +1,11 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getDb } from "@Hashibutogarasu/db";
-import { users } from "@Hashibutogarasu/db/schema";
-import { eq } from "drizzle-orm";
-import { z } from "zod";
+import { NextRequest, NextResponse } from 'next/server';
+import { getDb } from '@Hashibutogarasu/db';
+import { users } from '@Hashibutogarasu/db/schema';
+import { eq } from 'drizzle-orm';
+import { z } from 'zod';
 
-import { requireSession } from "@/lib/api/require-session";
-import { ensureUser } from "@/lib/db/ensure-user";
+import { requireSession } from '@/lib/api/require-session';
+import { ensureUser } from '@/lib/db/ensure-user';
 
 const patchBodySchema = z.object({ name: z.string().optional() });
 
@@ -23,7 +23,7 @@ export async function PATCH(request: NextRequest) {
 
   const parsed = patchBodySchema.safeParse(await request.json());
   if (!parsed.success) {
-    return NextResponse.json({ error: "name must be a string" }, { status: 400 });
+    return NextResponse.json({ error: 'name must be a string' }, { status: 400 });
   }
   const { name } = parsed.data;
 

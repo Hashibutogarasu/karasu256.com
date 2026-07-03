@@ -1,15 +1,15 @@
 packages:
-  - "apps/*"
-  - "packages/*"
+  - 'apps/*'
+  - 'packages/*'
 
 overrides:
-  jwks-rsa>jose: "^5.10.0"
+  jwks-rsa>jose: '^5.10.0'
 
 allowBuilds:
-  "@tailwindcss/oxide": true
+  '@tailwindcss/oxide': true
   sharp: true
   unrs-resolver: true
-  "@firebase/util": true
+  '@firebase/util': true
   protobufjs: true
   esbuild: true
   workerd: true

@@ -1,6 +1,6 @@
-import type { DecodedIdToken } from "firebase-admin/auth";
-import { getNeonAuth, deriveNeonAuthPassword } from "@Hashibutogarasu/db";
-import { ApiError } from "@Hashibutogarasu/utils/client";
+import type { DecodedIdToken } from 'firebase-admin/auth';
+import { getNeonAuth, deriveNeonAuthPassword } from '@Hashibutogarasu/db';
+import { ApiError } from '@Hashibutogarasu/utils/client';
 
 /**
  * Ensures a Neon Auth session exists for the given Firebase user, creating a
@@ -14,9 +14,7 @@ import { ApiError } from "@Hashibutogarasu/utils/client";
  *
  * @param decoded - Verified Firebase ID token claims.
  */
-export async function syncFirebaseUserToNeonAuth(
-  decoded: DecodedIdToken,
-): Promise<void> {
+export async function syncFirebaseUserToNeonAuth(decoded: DecodedIdToken): Promise<void> {
   const email = decoded.email;
   if (!email) return;
 
@@ -29,6 +27,6 @@ export async function syncFirebaseUserToNeonAuth(
 
   const signUpResult = await auth.signUp.email({ email, password, name });
   if (signUpResult.error) {
-    throw new ApiError(signUpResult.error.status, signUpResult.error.code ?? "unknown");
+    throw new ApiError(signUpResult.error.status, signUpResult.error.code ?? 'unknown');
   }
 }

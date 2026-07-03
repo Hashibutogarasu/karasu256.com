@@ -1,10 +1,10 @@
-import { cookies } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
-import { sql } from "drizzle-orm";
-import { getAdminAuth } from "@/lib/firebase-admin";
-import { getDb, users } from "@Hashibutogarasu/db";
-import { buildSetCookieOptions, SESSION_DURATION_MS } from "@/lib/session";
-import { syncFirebaseUserToNeonAuth } from "@/lib/neon-auth-bridge";
+import { cookies } from 'next/headers';
+import { NextRequest, NextResponse } from 'next/server';
+import { sql } from 'drizzle-orm';
+import { getAdminAuth } from '@/lib/firebase-admin';
+import { getDb, users } from '@Hashibutogarasu/db';
+import { buildSetCookieOptions, SESSION_DURATION_MS } from '@/lib/session';
+import { syncFirebaseUserToNeonAuth } from '@/lib/neon-auth-bridge';
 
 /**
  * Creates a Firebase session cookie from a client-supplied ID token and stores
@@ -17,7 +17,7 @@ import { syncFirebaseUserToNeonAuth } from "@/lib/neon-auth-bridge";
 export async function POST(request: NextRequest) {
   const body = (await request.json()) as { idToken?: string };
   if (!body.idToken) {
-    return NextResponse.json({ error: "idToken required" }, { status: 400 });
+    return NextResponse.json({ error: 'idToken required' }, { status: 400 });
   }
 
   try {
@@ -38,11 +38,10 @@ export async function POST(request: NextRequest) {
         .onConflictDoUpdate({ target: users.id, set: { updatedAt: sql`now()` } });
 
       await syncFirebaseUserToNeonAuth(decoded);
-    } catch {
-    }
+    } catch {}
 
     return NextResponse.json({ ok: true });
   } catch {
-    return NextResponse.json({ error: "Invalid or expired token" }, { status: 401 });
+    return NextResponse.json({ error: 'Invalid or expired token' }, { status: 401 });
   }
 }

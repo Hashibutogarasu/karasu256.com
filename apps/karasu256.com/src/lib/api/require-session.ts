@@ -1,11 +1,9 @@
-import { NextResponse } from "next/server";
-import type { DecodedIdToken } from "firebase-admin/auth";
+import { NextResponse } from 'next/server';
+import type { DecodedIdToken } from 'firebase-admin/auth';
 
-import { getSessionUser } from "@/lib/firebase-session";
+import { getSessionUser } from '@/lib/firebase-session';
 
-type SessionResult =
-  | { user: DecodedIdToken; error: null }
-  | { user: null; error: NextResponse };
+type SessionResult = { user: DecodedIdToken; error: null } | { user: null; error: NextResponse };
 
 /**
  * Reads and verifies the Firebase session cookie.
@@ -17,7 +15,7 @@ export async function requireSession(): Promise<SessionResult> {
   if (!user) {
     return {
       user: null,
-      error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }),
+      error: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }),
     };
   }
   return { user, error: null };

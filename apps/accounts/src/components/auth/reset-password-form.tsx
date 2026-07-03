@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import Link from "next/link";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEnvelope, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
-import { useTranslations } from "next-intl";
-import { toast } from "@Hashibutogarasu/ui";
-import { requestPasswordReset } from "@Hashibutogarasu/utils/client";
-import { Button } from "@Hashibutogarasu/ui";
-import { Card, CardContent, CardHeader, CardTitle } from "@Hashibutogarasu/ui";
-import { Input } from "@Hashibutogarasu/ui";
-import { Label } from "@Hashibutogarasu/ui";
+import { useState } from 'react';
+import Link from 'next/link';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEnvelope, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { useTranslations } from 'next-intl';
+import { toast } from '@Hashibutogarasu/ui';
+import { requestPasswordReset } from '@Hashibutogarasu/utils/client';
+import { Button } from '@Hashibutogarasu/ui';
+import { Card, CardContent, CardHeader, CardTitle } from '@Hashibutogarasu/ui';
+import { Input } from '@Hashibutogarasu/ui';
+import { Label } from '@Hashibutogarasu/ui';
 
 /**
  * Requests a custom password-reset email via Resend and displays a
@@ -18,7 +18,7 @@ import { Label } from "@Hashibutogarasu/ui";
  */
 export function ResetPasswordForm() {
   const t = useTranslations();
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
 
@@ -38,26 +38,21 @@ export function ResetPasswordForm() {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle>{t("resetPassword.title")}</CardTitle>
+        <CardTitle>{t('resetPassword.title')}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {sent ? (
           <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              {t("resetPassword.sent", { email })}
-            </p>
-            <Link
-              href="/"
-              className="flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
+            <p className="text-sm text-muted-foreground">{t('resetPassword.sent', { email })}</p>
+            <Link href="/" className="flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
               <FontAwesomeIcon icon={faArrowLeft} />
-              {t("resetPassword.backToSignIn")}
+              {t('resetPassword.backToSignIn')}
             </Link>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="reset-email">{t("signIn.email")}</Label>
+              <Label htmlFor="reset-email">{t('signIn.email')}</Label>
               <Input
                 id="reset-email"
                 type="email"
@@ -69,14 +64,11 @@ export function ResetPasswordForm() {
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
               <FontAwesomeIcon icon={faEnvelope} />
-              {loading ? t("resetPassword.sending") : t("resetPassword.sendLink")}
+              {loading ? t('resetPassword.sending') : t('resetPassword.sendLink')}
             </Button>
-            <Link
-              href="/"
-              className="flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
+            <Link href="/" className="flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
               <FontAwesomeIcon icon={faArrowLeft} />
-              {t("resetPassword.backToSignIn")}
+              {t('resetPassword.backToSignIn')}
             </Link>
           </form>
         )}

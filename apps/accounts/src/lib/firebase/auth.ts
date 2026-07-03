@@ -1,5 +1,5 @@
-import { getAuth, type Auth } from "firebase/auth";
-import { getFirebaseApp } from "./app";
+import { getAuth, type Auth } from 'firebase/auth';
+import { getFirebaseApp } from './app';
 
 /** Lazily initialized Firebase Auth singleton. */
 let firebaseAuth: Auth | undefined;

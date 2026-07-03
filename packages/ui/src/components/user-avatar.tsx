@@ -1,5 +1,5 @@
-import { cn } from "../lib/utils";
-import { Identicon } from "./identicon";
+import { cn } from '../lib/utils';
+import { Identicon } from './identicon';
 
 interface UserAvatarProps {
   /** The Firebase UID, used to derive the identicon fallback. */
@@ -18,14 +18,7 @@ interface UserAvatarProps {
  */
 export function UserAvatar({ uid, iconUrl, size = 64, className }: UserAvatarProps) {
   if (iconUrl) {
-    return (
-      <img
-        src={iconUrl}
-        alt=""
-        style={{ width: size, height: size }}
-        className={cn("rounded-full object-cover shrink-0", className)}
-      />
-    );
+    return <img src={iconUrl} alt="" style={{ width: size, height: size }} className={cn('rounded-full object-cover shrink-0', className)} />;
   }
   return <Identicon value={uid} size={size} className={className} />;
 }

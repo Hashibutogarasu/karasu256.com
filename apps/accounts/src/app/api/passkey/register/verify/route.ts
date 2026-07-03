@@ -1,10 +1,10 @@
-import { cookies } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
-import { verifyRegistrationResponse } from "@simplewebauthn/server";
-import type { RegistrationResponseJSON } from "@simplewebauthn/server";
-import { sql } from "drizzle-orm";
-import { getServerConfig } from "@/lib/config";
-import { getDb, users, passkeyCredentials } from "@Hashibutogarasu/db";
+import { cookies } from 'next/headers';
+import { NextRequest, NextResponse } from 'next/server';
+import { verifyRegistrationResponse } from '@simplewebauthn/server';
+import type { RegistrationResponseJSON } from '@simplewebauthn/server';
+import { sql } from 'drizzle-orm';
+import { getServerConfig } from '@/lib/config';
+import { getDb, users, passkeyCredentials } from '@Hashibutogarasu/db';
 
 /**
  * Verifies the WebAuthn registration response from the browser and persists
@@ -18,11 +18,11 @@ import { getDb, users, passkeyCredentials } from "@Hashibutogarasu/db";
  */
 export async function POST(request: NextRequest) {
   const cookieStore = await cookies();
-  const challenge = cookieStore.get("passkey_challenge")?.value;
-  const uid = cookieStore.get("passkey_uid")?.value;
+  const challenge = cookieStore.get('passkey_challenge')?.value;
+  const uid = cookieStore.get('passkey_uid')?.value;
 
   if (!challenge || !uid) {
-    return NextResponse.json({ error: "No pending registration" }, { status: 400 });
+    return NextResponse.json({ error: 'No pending registration' }, { status: 400 });
   }
 
   const { credential: body, name } = (await request.json()) as {
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
   });
 
   if (!verified || !registrationInfo) {
-    return NextResponse.json({ error: "Verification failed" }, { status: 400 });
+    return NextResponse.json({ error: 'Verification failed' }, { status: 400 });
   }
 
   const { credential } = registrationInfo;
@@ -55,13 +55,13 @@ export async function POST(request: NextRequest) {
     id: credential.id,
     userId: uid,
     name,
-    publicKey: Buffer.from(credential.publicKey).toString("base64url"),
+    publicKey: Buffer.from(credential.publicKey).toString('base64url'),
     counter: credential.counter,
     transports: credential.transports ?? [],
   });
 
-  cookieStore.delete("passkey_challenge");
-  cookieStore.delete("passkey_uid");
+  cookieStore.delete('passkey_challenge');
+  cookieStore.delete('passkey_uid');
 
   return NextResponse.json({ success: true });
 }

@@ -1,5 +1,7 @@
 .dropdown-popup {
-  transition: opacity 120ms ease, transform 120ms ease;
+  transition:
+    opacity 120ms ease,
+    transform 120ms ease;
 }
 
 .dropdown-popup[data-starting-style],

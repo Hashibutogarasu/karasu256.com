@@ -22,11 +22,13 @@ Create a branch, commit staged or specified changes, push, and open a pull reque
 2. Create a new branch: `git checkout -b <type>/<short-description>`
 3. Stage relevant files (or use what is already staged).
 4. Commit:
+
    ```
    git commit -m "type: description
 
    Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>"
    ```
+
 5. Push: `git push -u origin <branch>`
 6. Open PR: `gh pr create --title "type: description" --body "..."`
 
@@ -34,6 +36,7 @@ Create a branch, commit staged or specified changes, push, and open a pull reque
 
 - Language: English only
 - Structure:
+
   ```
   ## Summary
 
@@ -41,6 +44,7 @@ Create a branch, commit staged or specified changes, push, and open a pull reque
 
   🤖 Generated with [Claude Code](https://claude.com/claude-code)
   ```
+
 - No "## Test plan" section
 - No Japanese text anywhere in the title or body
 - Bullets are concise: describe what changed, not step-by-step reasoning

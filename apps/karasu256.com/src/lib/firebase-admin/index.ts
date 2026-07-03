@@ -1,7 +1,7 @@
-import { cert, getApps, initializeApp, type App } from "firebase-admin/app";
-import { getAuth as getAdminAuthSdk } from "firebase-admin/auth";
+import { cert, getApps, initializeApp, type App } from 'firebase-admin/app';
+import { getAuth as getAdminAuthSdk } from 'firebase-admin/auth';
 
-const APP_NAME = "@Hashibutogarasu/karasu256.com-admin";
+const APP_NAME = '@Hashibutogarasu/karasu256.com-admin';
 
 function getAdminApp(): App {
   const existing = getApps().find((a) => a.name === APP_NAME);
@@ -11,10 +11,10 @@ function getAdminApp(): App {
       credential: cert({
         projectId: process.env.FIREBASE_ADMIN_PROJECT_ID!,
         clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL!,
-        privateKey: process.env.FIREBASE_ADMIN_PRIVATE_KEY!.replace(/\\n/g, "\n"),
+        privateKey: process.env.FIREBASE_ADMIN_PRIVATE_KEY!.replace(/\\n/g, '\n'),
       }),
     },
-    APP_NAME,
+    APP_NAME
   );
 }
 

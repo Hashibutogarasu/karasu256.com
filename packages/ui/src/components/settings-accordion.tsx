@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { useState } from "react";
+import * as React from 'react';
+import { useState } from 'react';
 
-import { AnimatedPanel } from "./animated-panel";
-import { CardContent } from "./card";
-import { Collapsible, CollapsibleChevron } from "./collapsible";
-import { Container } from "./container";
+import { AnimatedPanel } from './animated-panel';
+import { CardContent } from './card';
+import { Collapsible, CollapsibleChevron } from './collapsible';
+import { Container } from './container';
 
 interface SettingsAccordionProps {
   /** Displayed in the header as the section title. */
@@ -34,14 +34,7 @@ interface SettingsAccordionProps {
  * - Optional action slot (click does not toggle collapse)
  * - Animated height transition via `AnimatedPanel`
  */
-function SettingsAccordion({
-  title,
-  action,
-  defaultOpen = true,
-  open: controlledOpen,
-  onOpenChange,
-  children,
-}: SettingsAccordionProps) {
+function SettingsAccordion({ title, action, defaultOpen = true, open: controlledOpen, onOpenChange, children }: SettingsAccordionProps) {
   const isControlled = controlledOpen !== undefined;
   const [internalOpen, setInternalOpen] = useState(defaultOpen);
   const open = isControlled ? controlledOpen! : internalOpen;
@@ -67,16 +60,9 @@ function SettingsAccordion({
     <Container>
       <CardContent className="py-4">
         <Collapsible open={open} onOpenChange={handleOpenChange}>
-          <div
-            className="flex cursor-pointer items-center gap-1 py-1"
-            onClick={toggle}
-          >
-            <span className="flex-1 text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              {title}
-            </span>
-            {action && (
-              <div onClick={(e) => e.stopPropagation()}>{action}</div>
-            )}
+          <div className="flex cursor-pointer items-center gap-1 py-1" onClick={toggle}>
+            <span className="flex-1 text-xs font-medium text-muted-foreground uppercase tracking-wide">{title}</span>
+            {action && <div onClick={(e) => e.stopPropagation()}>{action}</div>}
             <CollapsibleChevron />
           </div>
           <AnimatedPanel open={open}>{children}</AnimatedPanel>

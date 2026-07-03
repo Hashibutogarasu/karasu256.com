@@ -1,10 +1,10 @@
-import type { NextRequest } from "next/server"
-import { requireSession } from "@/lib/api/require-session"
-import { badRequest, notFound } from "@/lib/api/responses"
-import { getNextParam } from "@/lib/redirect"
-import { signIn } from "@/auth"
+import type { NextRequest } from 'next/server';
+import { requireSession } from '@/lib/api/require-session';
+import { badRequest, notFound } from '@/lib/api/responses';
+import { getNextParam } from '@/lib/redirect';
+import { signIn } from '@/auth';
 
-const SUPPORTED_PROVIDERS = new Set(["google", "github"])
+const SUPPORTED_PROVIDERS = new Set(['google', 'github']);
 
 /**
  * Initiates a third-party OAuth connection for the currently signed-in user.
@@ -15,23 +15,20 @@ const SUPPORTED_PROVIDERS = new Set(["google", "github"])
  * Accepts an optional `next` query parameter (must be a same-origin path
  * starting with `/`) to control where the user lands after linking completes.
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ provider: string }> },
-) {
-  const { error } = await requireSession()
-  if (error) return error
+export async function GET(request: NextRequest, { params }: { params: Promise<{ provider: string }> }) {
+  const { error } = await requireSession();
+  if (error) return error;
 
-  const { provider: providerId } = await params
+  const { provider: providerId } = await params;
 
   if (!SUPPORTED_PROVIDERS.has(providerId)) {
-    return notFound()
+    return notFound();
   }
 
-  const next = getNextParam(request)
+  const next = getNextParam(request);
   if (!next) {
-    return badRequest()
+    return badRequest();
   }
 
-  await signIn(providerId, { redirectTo: next })
+  await signIn(providerId, { redirectTo: next });
 }

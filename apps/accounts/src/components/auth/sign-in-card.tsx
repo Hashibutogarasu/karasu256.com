@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { onAuthStateChanged } from "firebase/auth";
-import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
-import { signIn as nextAuthSignIn } from "next-auth/react";
-import { getFirebaseAuth } from "@/lib/firebase/auth";
-import { createSession } from "@/lib/api/auth-session";
-import { Container, CardContent, CardHeader } from "@Hashibutogarasu/ui";
-import { Separator } from "@Hashibutogarasu/ui";
-import { Skeleton } from "@Hashibutogarasu/ui";
-import { EmailPasswordForm } from "./email-password-form";
-import { PasskeySection } from "./passkey-section";
-import { SocialButtons } from "./social-buttons";
+import { useEffect, useState } from 'react';
+import { onAuthStateChanged } from 'firebase/auth';
+import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { signIn as nextAuthSignIn } from 'next-auth/react';
+import { getFirebaseAuth } from '@/lib/firebase/auth';
+import { createSession } from '@/lib/api/auth-session';
+import { Container, CardContent, CardHeader } from '@Hashibutogarasu/ui';
+import { Separator } from '@Hashibutogarasu/ui';
+import { Skeleton } from '@Hashibutogarasu/ui';
+import { EmailPasswordForm } from './email-password-form';
+import { PasskeySection } from './passkey-section';
+import { SocialButtons } from './social-buttons';
 
 /**
  * Sign-in card for unauthenticated users.
@@ -39,8 +39,8 @@ export function SignInCard() {
       try {
         const idToken = await user.getIdToken();
         await createSession(idToken);
-        nextAuthSignIn("credentials", { idToken, redirect: false }).catch(() => {});
-        router.replace("/settings");
+        nextAuthSignIn('credentials', { idToken, redirect: false }).catch(() => {});
+        router.replace('/settings');
       } catch {
         redirecting = false;
         setLoading(false);
@@ -75,14 +75,12 @@ export function SignInCard() {
 
   return (
     <Container className="max-w-sm">
-      <CardHeader className="text-lg font-semibold">
-        {t("signIn.title")}
-      </CardHeader>
+      <CardHeader className="text-lg font-semibold">{t('signIn.title')}</CardHeader>
       <CardContent className="space-y-6">
         <EmailPasswordForm />
         <div className="flex items-center gap-3">
           <Separator className="flex-1" />
-          <span className="text-xs text-muted-foreground">{t("signIn.or")}</span>
+          <span className="text-xs text-muted-foreground">{t('signIn.or')}</span>
           <Separator className="flex-1" />
         </div>
         <SocialButtons />

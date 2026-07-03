@@ -1,12 +1,12 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getDb } from "@Hashibutogarasu/db";
-import { oauthClients } from "@Hashibutogarasu/db/schema";
-import { eq } from "drizzle-orm";
-import { z } from "zod";
+import { NextRequest, NextResponse } from 'next/server';
+import { getDb } from '@Hashibutogarasu/db';
+import { oauthClients } from '@Hashibutogarasu/db/schema';
+import { eq } from 'drizzle-orm';
+import { z } from 'zod';
 
-import { requireSession } from "@/lib/api/require-session";
-import { ensureUser } from "@/lib/db/ensure-user";
-import { generateSecret } from "@/lib/crypto";
+import { requireSession } from '@/lib/api/require-session';
+import { ensureUser } from '@/lib/db/ensure-user';
+import { generateSecret } from '@/lib/crypto';
 
 const postBodySchema = z.object({
   name: z.string().trim().min(1),
@@ -44,12 +44,12 @@ export async function POST(request: NextRequest) {
 
   const parsed = postBodySchema.safeParse(await request.json());
   if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid body" }, { status: 400 });
+    return NextResponse.json({ error: 'Invalid body' }, { status: 400 });
   }
   const { name, callbackUris, iconUrl, permissions } = parsed.data;
 
   await ensureUser(user.uid);
-  const { raw: secret, hash: secretHash } = await generateSecret("csc_");
+  const { raw: secret, hash: secretHash } = await generateSecret('csc_');
 
   const db = getDb();
   const [client] = await db
@@ -71,8 +71,5 @@ export async function POST(request: NextRequest) {
       createdAt: oauthClients.createdAt,
     });
 
-  return NextResponse.json(
-    { ...client, permissions: Number(client.permissions), secret },
-    { status: 201 },
-  );
+  return NextResponse.json({ ...client, permissions: Number(client.permissions), secret }, { status: 201 });
 }

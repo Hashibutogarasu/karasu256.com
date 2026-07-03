@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
-import { eq } from "drizzle-orm";
-import { z } from "zod";
-import { getDb } from "@Hashibutogarasu/db";
-import { oauthAuthorizationCodes, oauthClients } from "@Hashibutogarasu/db/schema";
-import { requireSession } from "@/lib/api/require-session";
-import { generateSecret } from "@/lib/crypto";
+import { NextRequest, NextResponse } from 'next/server';
+import { eq } from 'drizzle-orm';
+import { z } from 'zod';
+import { getDb } from '@Hashibutogarasu/db';
+import { oauthAuthorizationCodes, oauthClients } from '@Hashibutogarasu/db/schema';
+import { requireSession } from '@/lib/api/require-session';
+import { generateSecret } from '@/lib/crypto';
 
 const postBodySchema = z.object({
   clientId: z.string().min(1),
@@ -26,17 +26,17 @@ export async function POST(request: NextRequest) {
 
   const parsed = postBodySchema.safeParse(await request.json());
   if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid body" }, { status: 400 });
+    return NextResponse.json({ error: 'Invalid body' }, { status: 400 });
   }
   const { clientId, redirectUri, permissions, state, approved } = parsed.data;
 
   const callback = new URL(redirectUri);
   if (state !== undefined && state !== null) {
-    callback.searchParams.set("state", String(state));
+    callback.searchParams.set('state', String(state));
   }
 
   if (approved !== true) {
-    callback.searchParams.set("error", "access_denied");
+    callback.searchParams.set('error', 'access_denied');
     return NextResponse.json({ redirectUrl: callback.toString() });
   }
 
@@ -51,18 +51,15 @@ export async function POST(request: NextRequest) {
     .where(eq(oauthClients.id, clientId));
 
   if (!client || !client.callbackUris.includes(redirectUri)) {
-    return NextResponse.json({ error: "Invalid client or redirect_uri" }, { status: 400 });
+    return NextResponse.json({ error: 'Invalid client or redirect_uri' }, { status: 400 });
   }
 
   const requestedPermissions = BigInt(permissions);
   if ((requestedPermissions & ~client.permissions) !== 0n) {
-    return NextResponse.json(
-      { error: "Requested permissions exceed client registration" },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: 'Requested permissions exceed client registration' }, { status: 400 });
   }
 
-  const { raw: code, hash: codeHash } = await generateSecret("code_");
+  const { raw: code, hash: codeHash } = await generateSecret('code_');
 
   await db.insert(oauthAuthorizationCodes).values({
     codeHash,
@@ -73,6 +70,6 @@ export async function POST(request: NextRequest) {
     expiresAt: new Date(Date.now() + 10 * 60 * 1000),
   });
 
-  callback.searchParams.set("code", code);
+  callback.searchParams.set('code', code);
   return NextResponse.json({ redirectUrl: callback.toString() });
 }

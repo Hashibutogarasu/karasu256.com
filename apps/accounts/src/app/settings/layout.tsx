@@ -1,10 +1,10 @@
-import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
-import { SettingsShell } from "./shell";
+import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
+import { SettingsShell } from './shell';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations();
-  return { title: t("settings.title") };
+  return { title: t('settings.title') };
 }
 
 /**

@@ -34,23 +34,23 @@ export abstract class PasskeyError extends Error {
 
 /** The WebAuthn credential was not found in the database. */
 export class CredentialNotFoundError extends PasskeyError {
-  readonly i18nKey = "passkey.error.credential_not_found";
+  readonly i18nKey = 'passkey.error.credential_not_found';
 }
-PasskeyError.register("credential_not_found", CredentialNotFoundError);
+PasskeyError.register('credential_not_found', CredentialNotFoundError);
 
 /** The WebAuthn assertion failed server-side verification. */
 export class VerificationFailedError extends PasskeyError {
-  readonly i18nKey = "passkey.error.verification_failed";
+  readonly i18nKey = 'passkey.error.verification_failed';
 }
-PasskeyError.register("verification_failed", VerificationFailedError);
+PasskeyError.register('verification_failed', VerificationFailedError);
 
 /** The Firebase user associated with the credential no longer exists. */
 export class PasskeyUserNotFoundError extends PasskeyError {
-  readonly i18nKey = "passkey.error.user_not_found";
+  readonly i18nKey = 'passkey.error.user_not_found';
 }
-PasskeyError.register("user_not_found", PasskeyUserNotFoundError);
+PasskeyError.register('user_not_found', PasskeyUserNotFoundError);
 
 /** Thrown for unrecognised server codes or unexpected response shapes. */
 export class UnknownPasskeyError extends PasskeyError {
-  readonly i18nKey = "passkey.error.unknown";
+  readonly i18nKey = 'passkey.error.unknown';
 }

@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import { useEffect, useRef, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { getIdToken, onAuthStateChanged, type User } from "firebase/auth";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faLink, faLinkSlash } from "@fortawesome/free-solid-svg-icons";
-import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
-import { useTranslations } from "next-intl";
-import { toast, SettingsAccordion, SettingsItem, Spinner } from "@Hashibutogarasu/ui";
-import { getFirebaseAuth } from "@/lib/firebase/auth";
-import { listPasskeyCredentials } from "@/lib/api/passkey-credentials";
-import { listLinkedProviders, unlinkProvider, type LinkedProvider } from "@/lib/api/providers";
-import { buildConnectUrl } from "@/lib/redirect";
-import { Button } from "@Hashibutogarasu/ui";
+import { useEffect, useRef, useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { getIdToken, onAuthStateChanged, type User } from 'firebase/auth';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faLink, faLinkSlash } from '@fortawesome/free-solid-svg-icons';
+import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+import { useTranslations } from 'next-intl';
+import { toast, SettingsAccordion, SettingsItem, Spinner } from '@Hashibutogarasu/ui';
+import { getFirebaseAuth } from '@/lib/firebase/auth';
+import { listPasskeyCredentials } from '@/lib/api/passkey-credentials';
+import { listLinkedProviders, unlinkProvider, type LinkedProvider } from '@/lib/api/providers';
+import { buildConnectUrl } from '@/lib/redirect';
+import { Button } from '@Hashibutogarasu/ui';
 
 export interface Provider {
   id: string;
@@ -55,14 +55,14 @@ export function ProviderSection({ providers }: ProviderSectionProps) {
     if (!paramsKey || handledParamsRef.current === paramsKey) return;
     handledParamsRef.current = paramsKey;
 
-    const error = searchParams.get("error");
-    const linkedProvider = searchParams.get("linked");
+    const error = searchParams.get('error');
+    const linkedProvider = searchParams.get('linked');
 
     if (error) {
       const key = `connections.error.${error}`;
-      toast.error(t.has(key) ? t(key) : t("connections.error.unknown"));
+      toast.error(t.has(key) ? t(key) : t('connections.error.unknown'));
     } else if (linkedProvider) {
-      toast.success(t("connections.linked", { provider: linkedProvider }), { autoClose: true });
+      toast.success(t('connections.linked', { provider: linkedProvider }), { autoClose: true });
     }
     router.replace(pathname);
   }, [searchParams, t, router, pathname]);
@@ -83,12 +83,12 @@ export function ProviderSection({ providers }: ProviderSectionProps) {
 
   const dataReady = !loadingAuth && !loadingProviders;
   const linkedIds = new Set(linked.map((p) => p.provider));
-  const hasPasswordProvider = (authUser?.providerData ?? []).some((p) => p.providerId === "password");
+  const hasPasswordProvider = (authUser?.providerData ?? []).some((p) => p.providerId === 'password');
   const canUnlink = linked.length > 1 || hasPasskeys || hasPasswordProvider;
 
   function handleLink(providerId: string) {
     setLoading(providerId);
-    window.location.href = buildConnectUrl(providerId, "/settings/linking");
+    window.location.href = buildConnectUrl(providerId, '/settings/linking');
   }
 
   async function handleUnlink(providerId: string) {
@@ -104,7 +104,7 @@ export function ProviderSection({ providers }: ProviderSectionProps) {
   }
 
   return (
-    <SettingsAccordion title={t("connections.title")}>
+    <SettingsAccordion title={t('connections.title')}>
       <div className="space-y-3">
         {providers.map(({ id, label, icon }) => {
           const isLinked = linkedIds.has(id);
@@ -116,32 +116,20 @@ export function ProviderSection({ providers }: ProviderSectionProps) {
                 {label}
               </span>
               {isLinked ? (
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  disabled={!canUnlink || isLoading || !dataReady}
-                  onClick={() => handleUnlink(id)}
-                >
+                <Button variant="destructive" size="sm" disabled={!canUnlink || isLoading || !dataReady} onClick={() => handleUnlink(id)}>
                   {isLoading || !dataReady ? <Spinner /> : <FontAwesomeIcon icon={faLinkSlash} />}
-                  {isLoading ? t("connections.unlinking") : t("connections.unlink")}
+                  {isLoading ? t('connections.unlinking') : t('connections.unlink')}
                 </Button>
               ) : (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={isLoading || !dataReady}
-                  onClick={() => handleLink(id)}
-                >
+                <Button variant="outline" size="sm" disabled={isLoading || !dataReady} onClick={() => handleLink(id)}>
                   {isLoading || !dataReady ? <Spinner /> : <FontAwesomeIcon icon={faLink} />}
-                  {t("connections.link")}
+                  {t('connections.link')}
                 </Button>
               )}
             </SettingsItem>
           );
         })}
-        {dataReady && !canUnlink && (
-          <p className="text-xs text-muted-foreground">{t("connections.cannotUnlink")}</p>
-        )}
+        {dataReady && !canUnlink && <p className="text-xs text-muted-foreground">{t('connections.cannotUnlink')}</p>}
       </div>
     </SettingsAccordion>
   );

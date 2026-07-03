@@ -1,30 +1,25 @@
-import { cookies } from "next/headers"
-import { and, eq } from "drizzle-orm"
-import type { Account, Profile } from "next-auth"
-import { getAdminAuth } from "@/lib/firebase-admin"
-import { getDb } from "@Hashibutogarasu/db"
-import { passkeyCredentials, providerAccounts, providerTokens, users } from "@Hashibutogarasu/db/schema"
-import { encryptToken } from "@/lib/crypto"
-import { stringOrNull } from "@Hashibutogarasu/utils/validation"
+import { cookies } from 'next/headers';
+import { and, eq } from 'drizzle-orm';
+import type { Account, Profile } from 'next-auth';
+import { getAdminAuth } from '@/lib/firebase-admin';
+import { getDb } from '@Hashibutogarasu/db';
+import { passkeyCredentials, providerAccounts, providerTokens, users } from '@Hashibutogarasu/db/schema';
+import { encryptToken } from '@/lib/crypto';
+import { stringOrNull } from '@Hashibutogarasu/utils/validation';
 
 function extractAvatarUrl(providerId: string, profile: Profile): string | null {
-  if (providerId === "google") {
-    return (profile as { picture?: string }).picture ?? null
+  if (providerId === 'google') {
+    return (profile as { picture?: string }).picture ?? null;
   }
-  return (profile as { avatar_url?: string }).avatar_url ?? null
+  return (profile as { avatar_url?: string }).avatar_url ?? null;
 }
 
-async function upsertProviderTokens(
-  providerAccountId: string,
-  account: Account,
-): Promise<void> {
-  if (!account.access_token) return
+async function upsertProviderTokens(providerAccountId: string, account: Account): Promise<void> {
+  if (!account.access_token) return;
 
-  const db = getDb()
-  const encryptedAccess = await encryptToken(account.access_token)
-  const encryptedRefresh = account.refresh_token
-    ? await encryptToken(account.refresh_token)
-    : null
+  const db = getDb();
+  const encryptedAccess = await encryptToken(account.access_token);
+  const encryptedRefresh = account.refresh_token ? await encryptToken(account.refresh_token) : null;
 
   await db
     .insert(providerTokens)
@@ -46,7 +41,7 @@ async function upsertProviderTokens(
         tokenType: account.token_type ?? null,
         updatedAt: new Date(),
       },
-    })
+    });
 }
 
 /**
@@ -58,44 +53,39 @@ async function upsertProviderTokens(
  * is stored in an httpOnly cookie and the user is redirected to /auth/callback.
  */
 export async function handleOAuthSignIn(account: Account, profile: Profile): Promise<string> {
-  const db = getDb()
+  const db = getDb();
 
-  const providerId = account.provider
-  const providerUserId = account.providerAccountId
+  const providerId = account.provider;
+  const providerUserId = account.providerAccountId;
 
   const [existingAccount] = await db
     .select({ id: providerAccounts.id, userId: providerAccounts.userId })
     .from(providerAccounts)
-    .where(
-      and(
-        eq(providerAccounts.provider, providerId),
-        eq(providerAccounts.providerUserId, providerUserId),
-      ),
-    )
+    .where(and(eq(providerAccounts.provider, providerId), eq(providerAccounts.providerUserId, providerUserId)));
 
   if (!existingAccount) {
-    return "/oauth/error?code=account_not_linked"
+    return '/oauth/error?code=account_not_linked';
   }
 
   try {
-    await getAdminAuth().getUser(existingAccount.userId)
+    await getAdminAuth().getUser(existingAccount.userId);
   } catch {
-    return "/oauth/error?code=user_not_found"
+    return '/oauth/error?code=user_not_found';
   }
 
-  await upsertProviderTokens(existingAccount.id, account)
+  await upsertProviderTokens(existingAccount.id, account);
 
-  const customToken = await getAdminAuth().createCustomToken(existingAccount.userId)
-  const cookieStore = await cookies()
-  cookieStore.set("oauth_custom_token", customToken, {
+  const customToken = await getAdminAuth().createCustomToken(existingAccount.userId);
+  const cookieStore = await cookies();
+  cookieStore.set('oauth_custom_token', customToken, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/',
     maxAge: 60,
-  })
+  });
 
-  return "/auth/callback"
+  return '/auth/callback';
 }
 
 /**
@@ -110,28 +100,19 @@ export async function handleOAuthSignIn(account: Account, profile: Profile): Pro
  * On success, upserts `provider_accounts` and `provider_tokens` and returns
  * the redirect URL for the settings linking page.
  */
-export async function handleOAuthLinking(
-  account: Account,
-  profile: Profile,
-  userId: string,
-): Promise<string> {
-  const db = getDb()
+export async function handleOAuthLinking(account: Account, profile: Profile, userId: string): Promise<string> {
+  const db = getDb();
 
-  const providerId = account.provider
-  const providerUserId = account.providerAccountId
-  const email = stringOrNull(profile.email)
-  const name = stringOrNull(profile.name)
-  const avatarUrl = extractAvatarUrl(providerId, profile)
+  const providerId = account.provider;
+  const providerUserId = account.providerAccountId;
+  const email = stringOrNull(profile.email);
+  const name = stringOrNull(profile.name);
+  const avatarUrl = extractAvatarUrl(providerId, profile);
 
   const [existing] = await db
     .select({ id: providerAccounts.id, userId: providerAccounts.userId })
     .from(providerAccounts)
-    .where(
-      and(
-        eq(providerAccounts.provider, providerId),
-        eq(providerAccounts.providerUserId, providerUserId),
-      ),
-    )
+    .where(and(eq(providerAccounts.provider, providerId), eq(providerAccounts.providerUserId, providerUserId)));
 
   if (existing && existing.userId !== userId) {
     const canReclaim =
@@ -139,39 +120,32 @@ export async function handleOAuthLinking(
       (await getAdminAuth()
         .getUser(userId)
         .then((u) => u.email === email)
-        .catch(() => false))
+        .catch(() => false));
 
     if (!canReclaim) {
-      return "/settings/linking?error=provider_already_linked"
+      return '/settings/linking?error=provider_already_linked';
     }
 
     if (!account.access_token) {
-      return "/settings/linking?error=missing_token"
+      return '/settings/linking?error=missing_token';
     }
 
-    await db
-      .update(providerAccounts)
-      .set({ userId, email, name, avatarUrl, updatedAt: new Date() })
-      .where(eq(providerAccounts.id, existing.id))
+    await db.update(providerAccounts).set({ userId, email, name, avatarUrl, updatedAt: new Date() }).where(eq(providerAccounts.id, existing.id));
 
-    await upsertProviderTokens(existing.id, account)
+    await upsertProviderTokens(existing.id, account);
 
-    await db
-      .update(passkeyCredentials)
-      .set({ userId })
-      .where(eq(passkeyCredentials.userId, existing.userId))
+    await db.update(passkeyCredentials).set({ userId }).where(eq(passkeyCredentials.userId, existing.userId));
 
     try {
-      await getAdminAuth().deleteUser(existing.userId)
-    } catch {
-    }
-    await db.delete(users).where(eq(users.id, existing.userId))
+      await getAdminAuth().deleteUser(existing.userId);
+    } catch {}
+    await db.delete(users).where(eq(users.id, existing.userId));
 
-    return `/settings/linking?linked=${encodeURIComponent(providerId)}`
+    return `/settings/linking?linked=${encodeURIComponent(providerId)}`;
   }
 
   if (!account.access_token) {
-    return "/settings/linking?error=missing_token"
+    return '/settings/linking?error=missing_token';
   }
 
   const [accountRow] = await db
@@ -181,9 +155,9 @@ export async function handleOAuthLinking(
       target: [providerAccounts.provider, providerAccounts.providerUserId],
       set: { email, name, avatarUrl, updatedAt: new Date() },
     })
-    .returning({ id: providerAccounts.id })
+    .returning({ id: providerAccounts.id });
 
-  await upsertProviderTokens(accountRow.id, account)
+  await upsertProviderTokens(accountRow.id, account);
 
-  return `/settings/linking?linked=${encodeURIComponent(providerId)}`
+  return `/settings/linking?linked=${encodeURIComponent(providerId)}`;
 }

@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
-import { eq } from "drizzle-orm";
-import { getDb } from "@Hashibutogarasu/db";
-import { providerAccounts } from "@Hashibutogarasu/db/schema";
-import { requireSession } from "@/lib/api/require-session";
+import { NextResponse } from 'next/server';
+import { eq } from 'drizzle-orm';
+import { getDb } from '@Hashibutogarasu/db';
+import { providerAccounts } from '@Hashibutogarasu/db/schema';
+import { requireSession } from '@/lib/api/require-session';
 
 /**
  * Returns the list of third-party providers linked to the authenticated user.

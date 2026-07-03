@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 /** Zod schema that validates all required Firebase client-side configuration values. */
 export const firebaseConfigSchema = z.object({
