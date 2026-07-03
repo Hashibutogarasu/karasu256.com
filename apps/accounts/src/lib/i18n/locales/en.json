@@ -65,6 +65,7 @@
     "uploadIcon": "Upload new icon",
     "deleteIcon": "Delete icon",
     "uploadFailed": "Failed to upload icon",
+    "iconChanged": "Icon changed.",
     "save": "Save",
     "saving": "Saving",
     "saved": "Display name saved."

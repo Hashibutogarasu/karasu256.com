@@ -65,6 +65,7 @@
     "uploadIcon": "上传新图标",
     "deleteIcon": "删除图标",
     "uploadFailed": "图标上传失败",
+    "iconChanged": "图标已更改。",
     "save": "保存",
     "saving": "保存中",
     "saved": "显示名称已保存。"
