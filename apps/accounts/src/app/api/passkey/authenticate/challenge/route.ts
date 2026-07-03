@@ -1,7 +1,7 @@
-import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
-import { generateAuthenticationOptions } from "@simplewebauthn/server";
-import { getServerConfig } from "@/lib/config";
+import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
+import { generateAuthenticationOptions } from '@simplewebauthn/server';
+import { getServerConfig } from '@/lib/config';
 
 /**
  * Generates a WebAuthn authentication challenge.
@@ -17,16 +17,16 @@ export async function POST() {
 
   const options = await generateAuthenticationOptions({
     rpID: webauthn.rpId,
-    userVerification: "required",
+    userVerification: 'required',
   });
 
   const cookieStore = await cookies();
-  cookieStore.set("passkey_challenge", options.challenge, {
+  cookieStore.set('passkey_challenge', options.challenge, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: process.env.NODE_ENV === 'production',
     maxAge: 300,
-    sameSite: "strict",
-    path: "/",
+    sameSite: 'strict',
+    path: '/',
   });
 
   return NextResponse.json({ options });

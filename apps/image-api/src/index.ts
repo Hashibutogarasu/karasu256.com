@@ -1,7 +1,7 @@
-import { importX509, jwtVerify } from "jose";
-import { z } from "zod";
-import { stringOrNull } from "@Hashibutogarasu/utils/validation";
-import allowedOrigins from "./allowed-origins.json";
+import { importX509, jwtVerify } from 'jose';
+import { z } from 'zod';
+import { stringOrNull } from '@Hashibutogarasu/utils/validation';
+import allowedOrigins from './allowed-origins.json';
 
 interface Env {
   IMAGES: R2Bucket;
@@ -9,15 +9,14 @@ interface Env {
   CDN_BASE_URL: string;
 }
 
-const SESSION_COOKIE_NAME = "session";
-const SESSION_COOKIE_KEYS_URL =
-  "https://www.googleapis.com/identitytoolkit/v3/relyingparty/publicKeys";
+const SESSION_COOKIE_NAME = 'session';
+const SESSION_COOKIE_KEYS_URL = 'https://www.googleapis.com/identitytoolkit/v3/relyingparty/publicKeys';
 const MAX_FILE_BYTES = 5 * 1024 * 1024;
-const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
 const TYPE_TO_EXT: Record<string, string> = {
-  "image/jpeg": "jpg",
-  "image/png": "png",
-  "image/webp": "webp",
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
 };
 
 let cachedKeys: Map<string, CryptoKey> | null = null;
@@ -28,14 +27,14 @@ async function fetchPublicKeys(): Promise<Map<string, CryptoKey>> {
   if (cachedKeys && now < cacheExpiry) return cachedKeys;
 
   const res = await fetch(SESSION_COOKIE_KEYS_URL);
-  const cacheControl = res.headers.get("cache-control") ?? "";
+  const cacheControl = res.headers.get('cache-control') ?? '';
   const maxAgeMatch = cacheControl.match(/max-age=(\d+)/);
   const maxAge = maxAgeMatch ? parseInt(maxAgeMatch[1]) * 1000 : 3_600_000;
 
   const certs = (await res.json()) as Record<string, string>;
   const keys = new Map<string, CryptoKey>();
   for (const [kid, pem] of Object.entries(certs)) {
-    keys.set(kid, await importX509(pem, "RS256"));
+    keys.set(kid, await importX509(pem, 'RS256'));
   }
 
   cachedKeys = keys;
@@ -47,16 +46,11 @@ async function fetchPublicKeys(): Promise<Map<string, CryptoKey>> {
  * Verifies a Firebase session cookie and returns the Firebase UID on success,
  * or null if the token is absent, expired, or has an invalid signature.
  */
-async function verifySessionCookie(
-  cookie: string,
-  projectId: string,
-): Promise<string | null> {
+async function verifySessionCookie(cookie: string, projectId: string): Promise<string | null> {
   try {
     const keys = await fetchPublicKeys();
-    const [headerB64] = cookie.split(".");
-    const header = JSON.parse(
-      atob(headerB64.replace(/-/g, "+").replace(/_/g, "/")),
-    ) as { kid?: string };
+    const [headerB64] = cookie.split('.');
+    const header = JSON.parse(atob(headerB64.replace(/-/g, '+').replace(/_/g, '/'))) as { kid?: string };
     if (!header.kid) return null;
     const key = keys.get(header.kid);
     if (!key) return null;
@@ -82,7 +76,7 @@ function resolveAllowedOrigin(requestOrigin: string | null): string {
   if (requestOrigin) {
     try {
       const hostname = new URL(requestOrigin).hostname;
-      if (hostname === "localhost" || hostname === "127.0.0.1") return requestOrigin;
+      if (hostname === 'localhost' || hostname === '127.0.0.1') return requestOrigin;
     } catch {
       return allowedOrigins[0];
     }
@@ -107,20 +101,20 @@ function isValidUploadPath(path: string, uid: string): boolean {
 
 function corsHeaders(origin: string): Record<string, string> {
   return {
-    "Access-Control-Allow-Origin": origin,
-    "Access-Control-Allow-Credentials": "true",
-    "Access-Control-Allow-Methods": "POST, DELETE, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
+    'Access-Control-Allow-Origin': origin,
+    'Access-Control-Allow-Credentials': 'true',
+    'Access-Control-Allow-Methods': 'POST, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
   };
 }
 
 function parseCookies(header: string): Record<string, string> {
   return Object.fromEntries(
     header
-      .split(";")
-      .map((c) => c.trim().split("=", 2) as [string, string])
+      .split(';')
+      .map((c) => c.trim().split('=', 2) as [string, string])
       .filter(([k]) => k.length > 0)
-      .map(([k, v]) => [k.trim(), decodeURIComponent((v ?? "").trim())]),
+      .map(([k, v]) => [k.trim(), decodeURIComponent((v ?? '').trim())])
   );
 }
 
@@ -129,21 +123,17 @@ function parseCookies(header: string): Record<string, string> {
  * caller's UID, or null when the cookie is missing or invalid.
  */
 async function requireUid(request: Request, env: Env): Promise<string | null> {
-  const cookieHeader = request.headers.get("cookie") ?? "";
+  const cookieHeader = request.headers.get('cookie') ?? '';
   const cookies = parseCookies(cookieHeader);
   const sessionCookie = cookies[SESSION_COOKIE_NAME];
   if (!sessionCookie) return null;
   return verifySessionCookie(sessionCookie, env.FIREBASE_PROJECT_ID);
 }
 
-function json(
-  body: unknown,
-  status: number,
-  extra: Record<string, string>,
-): Response {
+function json(body: unknown, status: number, extra: Record<string, string>): Response {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { "Content-Type": "application/json", ...extra },
+    headers: { 'Content-Type': 'application/json', ...extra },
   });
 }
 
@@ -154,19 +144,19 @@ function json(
 async function serveImage(pathname: string, env: Env): Promise<Response> {
   const key = pathname.slice(1);
   if (!key) {
-    return new Response("Not Found", { status: 404 });
+    return new Response('Not Found', { status: 404 });
   }
 
   const object = await env.IMAGES.get(key);
   if (!object) {
-    return new Response("Not Found", { status: 404 });
+    return new Response('Not Found', { status: 404 });
   }
 
   const headers = new Headers();
   object.writeHttpMetadata(headers);
-  headers.set("etag", object.httpEtag);
-  headers.set("Cache-Control", "public, max-age=31536000, immutable");
-  headers.set("Access-Control-Allow-Origin", "*");
+  headers.set('etag', object.httpEtag);
+  headers.set('Cache-Control', 'public, max-age=31536000, immutable');
+  headers.set('Access-Control-Allow-Origin', '*');
 
   return new Response(object.body, { headers });
 }
@@ -176,17 +166,12 @@ async function serveImage(pathname: string, env: Env): Promise<Response> {
  * clean up a user's or OAuth client's old icon once a new one has replaced
  * it.
  */
-async function deleteImage(
-  pathname: string,
-  request: Request,
-  env: Env,
-  cors: Record<string, string>,
-): Promise<Response> {
+async function deleteImage(pathname: string, request: Request, env: Env, cors: Record<string, string>): Promise<Response> {
   const key = pathname.slice(1);
-  if (!key) return json({ error: "Not Found" }, 404, cors);
+  if (!key) return json({ error: 'Not Found' }, 404, cors);
 
   const uid = await requireUid(request, env);
-  if (!uid) return json({ error: "Unauthorized" }, 401, cors);
+  if (!uid) return json({ error: 'Unauthorized' }, 401, cors);
 
   await env.IMAGES.delete(key);
   return new Response(null, { status: 204, headers: cors });
@@ -194,60 +179,56 @@ async function deleteImage(
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
-    const cors = corsHeaders(resolveAllowedOrigin(request.headers.get("Origin")));
+    const cors = corsHeaders(resolveAllowedOrigin(request.headers.get('Origin')));
 
-    if (request.method === "OPTIONS") {
+    if (request.method === 'OPTIONS') {
       return new Response(null, { status: 204, headers: cors });
     }
 
     const requestUrl = new URL(request.url);
     const { pathname } = requestUrl;
 
-    if (request.method === "GET") {
+    if (request.method === 'GET') {
       return serveImage(pathname, env);
     }
 
-    if (request.method === "DELETE") {
+    if (request.method === 'DELETE') {
       return deleteImage(pathname, request, env, cors);
     }
 
-    if (pathname !== "/upload" || request.method !== "POST") {
-      return json({ error: "Not Found" }, 404, cors);
+    if (pathname !== '/upload' || request.method !== 'POST') {
+      return json({ error: 'Not Found' }, 404, cors);
     }
 
     const uid = await requireUid(request, env);
     if (!uid) {
-      return json({ error: "Unauthorized" }, 401, cors);
+      return json({ error: 'Unauthorized' }, 401, cors);
     }
 
-    const contentType = request.headers.get("content-type") ?? "";
-    if (!contentType.includes("multipart/form-data")) {
-      return json({ error: "Expected multipart/form-data" }, 400, cors);
+    const contentType = request.headers.get('content-type') ?? '';
+    if (!contentType.includes('multipart/form-data')) {
+      return json({ error: 'Expected multipart/form-data' }, 400, cors);
     }
 
     const formData = await request.formData();
-    const fileResult = z.instanceof(File).safeParse(formData.get("file"));
+    const fileResult = z.instanceof(File).safeParse(formData.get('file'));
     if (!fileResult.success) {
-      return json({ error: "Missing file field" }, 400, cors);
+      return json({ error: 'Missing file field' }, 400, cors);
     }
     const file = fileResult.data;
 
-    const explicitPath = stringOrNull(formData.get("path")) || null;
+    const explicitPath = stringOrNull(formData.get('path')) || null;
     if (explicitPath && !isValidUploadPath(explicitPath, uid)) {
-      return json({ error: "Invalid upload path" }, 400, cors);
+      return json({ error: 'Invalid upload path' }, 400, cors);
     }
 
     if (!ALLOWED_TYPES.has(file.type)) {
-      return json(
-        { error: "Unsupported image type. Allowed: jpeg, png, webp." },
-        400,
-        cors,
-      );
+      return json({ error: 'Unsupported image type. Allowed: jpeg, png, webp.' }, 400, cors);
     }
 
     const buffer = await file.arrayBuffer();
     if (buffer.byteLength > MAX_FILE_BYTES) {
-      return json({ error: "File exceeds 5 MB limit" }, 413, cors);
+      return json({ error: 'File exceeds 5 MB limit' }, 413, cors);
     }
 
     const ext = TYPE_TO_EXT[file.type];

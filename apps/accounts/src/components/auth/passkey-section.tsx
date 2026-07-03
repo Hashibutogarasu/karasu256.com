@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { signInWithCustomToken } from "firebase/auth";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFingerprint } from "@fortawesome/free-solid-svg-icons";
-import { useTranslations } from "next-intl";
-import { toast } from "@Hashibutogarasu/ui";
-import { getFirebaseAuth } from "@/lib/firebase/auth";
-import { authenticateWithPasskey } from "@/lib/api/passkey-authenticate";
-import { PasskeyError } from "@/lib/api/passkey-errors";
-import { Button } from "@Hashibutogarasu/ui";
+import { useState } from 'react';
+import { signInWithCustomToken } from 'firebase/auth';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faFingerprint } from '@fortawesome/free-solid-svg-icons';
+import { useTranslations } from 'next-intl';
+import { toast } from '@Hashibutogarasu/ui';
+import { getFirebaseAuth } from '@/lib/firebase/auth';
+import { authenticateWithPasskey } from '@/lib/api/passkey-authenticate';
+import { PasskeyError } from '@/lib/api/passkey-errors';
+import { Button } from '@Hashibutogarasu/ui';
 
 /**
  * Renders the passkey sign-in button for unauthenticated users.
@@ -27,7 +27,7 @@ export function PasskeySection() {
       const customToken = await authenticateWithPasskey();
       await signInWithCustomToken(getFirebaseAuth(), customToken);
     } catch (err) {
-      const key = err instanceof PasskeyError ? err.i18nKey : "passkey.error.unknown";
+      const key = err instanceof PasskeyError ? err.i18nKey : 'passkey.error.unknown';
       toast.error(t(key));
     } finally {
       setLoading(false);
@@ -35,14 +35,9 @@ export function PasskeySection() {
   }
 
   return (
-    <Button
-      variant="outline"
-      className="w-full"
-      onClick={handleSignIn}
-      disabled={loading}
-    >
+    <Button variant="outline" className="w-full" onClick={handleSignIn} disabled={loading}>
       <FontAwesomeIcon icon={faFingerprint} />
-      {loading ? t("passkey.waiting") : t("passkey.signIn")}
+      {loading ? t('passkey.waiting') : t('passkey.signIn')}
     </Button>
   );
 }

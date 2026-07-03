@@ -1,5 +1,5 @@
-import { createNeonAuth } from "@neondatabase/auth/next/server";
-import { createHmac } from "crypto";
+import { createNeonAuth } from '@neondatabase/auth/next/server';
+import { createHmac } from 'crypto';
 
 let _neonAuth: ReturnType<typeof createNeonAuth> | undefined;
 
@@ -31,7 +31,5 @@ export function getNeonAuth(): ReturnType<typeof createNeonAuth> {
  * @param firebaseUid - The Firebase UID of the authenticated user.
  */
 export function deriveNeonAuthPassword(firebaseUid: string): string {
-  return createHmac("sha256", process.env.AUTH_SECRET!)
-    .update(firebaseUid)
-    .digest("hex");
+  return createHmac('sha256', process.env.AUTH_SECRET!).update(firebaseUid).digest('hex');
 }

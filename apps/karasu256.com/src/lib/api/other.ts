@@ -1,4 +1,4 @@
-import { ApiError } from "@Hashibutogarasu/utils/client";
+import { ApiError } from '@Hashibutogarasu/utils/client';
 
 export interface AuthorizedAppSummary {
   clientId: string;
@@ -14,7 +14,7 @@ export interface AuthorizedAppSummary {
  * @throws {ApiError} When the request fails with a non-ok HTTP status.
  */
 export async function listAuthorizedApps(): Promise<AuthorizedAppSummary[]> {
-  const res = await fetch("/api/oauth/authorized-apps");
+  const res = await fetch('/api/oauth/authorized-apps');
   if (!res.ok) throw ApiError.fromResponse(res);
   return res.json() as Promise<AuthorizedAppSummary[]>;
 }
@@ -25,6 +25,6 @@ export async function listAuthorizedApps(): Promise<AuthorizedAppSummary[]> {
  * @throws {ApiError} When the request fails with a non-ok HTTP status.
  */
 export async function revokeAuthorizedApp(clientId: string): Promise<void> {
-  const res = await fetch(`/api/oauth/authorized-apps/${clientId}`, { method: "DELETE" });
+  const res = await fetch(`/api/oauth/authorized-apps/${clientId}`, { method: 'DELETE' });
   if (!res.ok && res.status !== 204) throw ApiError.fromResponse(res);
 }

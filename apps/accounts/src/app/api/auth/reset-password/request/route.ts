@@ -1,11 +1,11 @@
-import { randomBytes, createHash } from "crypto";
-import { type NextRequest, NextResponse } from "next/server";
-import { sql } from "drizzle-orm";
-import { z } from "zod";
-import { getAdminAuth } from "@/lib/firebase-admin";
-import { getServerConfig } from "@/lib/config";
-import { sendPasswordResetEmail } from "@Hashibutogarasu/utils/email";
-import { getDb, passwordResetTokens, users } from "@Hashibutogarasu/db";
+import { randomBytes, createHash } from 'crypto';
+import { type NextRequest, NextResponse } from 'next/server';
+import { sql } from 'drizzle-orm';
+import { z } from 'zod';
+import { getAdminAuth } from '@/lib/firebase-admin';
+import { getServerConfig } from '@/lib/config';
+import { sendPasswordResetEmail } from '@Hashibutogarasu/utils/email';
+import { getDb, passwordResetTokens, users } from '@Hashibutogarasu/db';
 
 /** One-time code expiry: 15 minutes. */
 const CODE_EXPIRY_MS = 15 * 60 * 1000;
@@ -13,13 +13,8 @@ const CODE_EXPIRY_MS = 15 * 60 * 1000;
 const bodySchema = z.object({ email: z.string().min(1) });
 
 function getBaseUrl(request: NextRequest): string {
-  const proto =
-    request.headers.get("x-forwarded-proto") ??
-    (process.env.NODE_ENV === "production" ? "https" : "http");
-  const host =
-    request.headers.get("x-forwarded-host") ??
-    request.headers.get("host") ??
-    "localhost:3001";
+  const proto = request.headers.get('x-forwarded-proto') ?? (process.env.NODE_ENV === 'production' ? 'https' : 'http');
+  const host = request.headers.get('x-forwarded-host') ?? request.headers.get('host') ?? 'localhost:3001';
   return `${proto}://${host}`;
 }
 
@@ -35,12 +30,12 @@ export async function POST(request: NextRequest) {
   try {
     json = await request.json();
   } catch {
-    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
   }
 
   const parsed = bodySchema.safeParse(json);
   if (!parsed.success) {
-    return NextResponse.json({ error: "email is required" }, { status: 400 });
+    return NextResponse.json({ error: 'email is required' }, { status: 400 });
   }
   const { email } = parsed.data;
 
@@ -52,8 +47,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true });
   }
 
-  const rawToken = randomBytes(32).toString("hex");
-  const tokenHash = createHash("sha256").update(rawToken).digest("hex");
+  const rawToken = randomBytes(32).toString('hex');
+  const tokenHash = createHash('sha256').update(rawToken).digest('hex');
 
   const db = getDb();
   await db

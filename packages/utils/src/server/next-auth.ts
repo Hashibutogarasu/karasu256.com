@@ -1,11 +1,11 @@
-import type { Auth } from "firebase-admin/auth"
-import { stringOrNull } from "../validation"
+import type { Auth } from 'firebase-admin/auth';
+import { stringOrNull } from '../validation';
 
 /** Name of the Firebase session cookie shared across subdomains. */
-export const SESSION_COOKIE_NAME = "session"
+export const SESSION_COOKIE_NAME = 'session';
 
 /** Name of the NextAuth JWT cookie shared across subdomains. */
-export const AUTH_TOKEN_COOKIE_NAME = "karasu-auth-token"
+export const AUTH_TOKEN_COOKIE_NAME = 'karasu-auth-token';
 
 /**
  * Returns a NextAuth `authorize` function that verifies a Firebase ID token
@@ -15,20 +15,20 @@ export const AUTH_TOKEN_COOKIE_NAME = "karasu-auth-token"
  */
 export function makeFirebaseAuthorize(adminAuth: Auth) {
   return async function authorize(credentials: Record<string, unknown> | null | undefined) {
-    const idToken = stringOrNull(credentials?.idToken)
-    if (!idToken) return null
+    const idToken = stringOrNull(credentials?.idToken);
+    if (!idToken) return null;
     try {
-      const decoded = await adminAuth.verifyIdToken(idToken)
+      const decoded = await adminAuth.verifyIdToken(idToken);
       return {
         id: decoded.uid,
         email: decoded.email ?? null,
         name: decoded.name ?? null,
         image: decoded.picture ?? null,
-      }
+      };
     } catch {
-      return null
+      return null;
     }
-  }
+  };
 }
 
 /**
@@ -38,18 +38,18 @@ export function makeFirebaseAuthorize(adminAuth: Auth) {
  * @param baseDomain - Root domain (e.g. "karasu256.com"). Omit in development.
  */
 export function makeNextAuthCookies(baseDomain?: string) {
-  const secure = process.env.NODE_ENV === "production"
-  const domain = baseDomain ? `.${baseDomain}` : undefined
+  const secure = process.env.NODE_ENV === 'production';
+  const domain = baseDomain ? `.${baseDomain}` : undefined;
   return {
     sessionToken: {
       name: AUTH_TOKEN_COOKIE_NAME,
       options: {
         httpOnly: true,
-        sameSite: "lax" as const,
-        path: "/",
+        sameSite: 'lax' as const,
+        path: '/',
         secure,
         ...(domain ? { domain } : {}),
       },
     },
-  }
+  };
 }

@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
-import { eq } from "drizzle-orm";
-import { getAdminAuth } from "@/lib/firebase-admin";
-import { getDb, passkeyCredentials } from "@Hashibutogarasu/db";
+import { NextRequest, NextResponse } from 'next/server';
+import { eq } from 'drizzle-orm';
+import { getAdminAuth } from '@/lib/firebase-admin';
+import { getDb, passkeyCredentials } from '@Hashibutogarasu/db';
 
 /** Shape of a stored passkey credential returned to the client (no public key). */
 export interface CredentialSummary {
@@ -13,8 +13,8 @@ export interface CredentialSummary {
 }
 
 async function resolveUid(request: NextRequest): Promise<string | null> {
-  const auth = request.headers.get("Authorization");
-  if (!auth?.startsWith("Bearer ")) return null;
+  const auth = request.headers.get('Authorization');
+  if (!auth?.startsWith('Bearer ')) return null;
   try {
     const decoded = await getAdminAuth().verifyIdToken(auth.slice(7));
     return decoded.uid;
@@ -31,7 +31,7 @@ async function resolveUid(request: NextRequest): Promise<string | null> {
  */
 export async function GET(request: NextRequest) {
   const uid = await resolveUid(request);
-  if (!uid) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!uid) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const db = getDb();
   const rows = await db

@@ -1,6 +1,6 @@
-import { createElement } from "react";
-import { Resend } from "resend";
-import { PasswordResetEmail } from "./templates/PasswordResetEmail";
+import { createElement } from 'react';
+import { Resend } from 'resend';
+import { PasswordResetEmail } from './templates/PasswordResetEmail';
 
 export interface SendPasswordResetEmailOptions {
   /** Resend API key. */
@@ -18,14 +18,12 @@ export interface SendPasswordResetEmailOptions {
  *
  * @throws when the Resend API call fails.
  */
-export async function sendPasswordResetEmail(
-  opts: SendPasswordResetEmailOptions,
-): Promise<void> {
+export async function sendPasswordResetEmail(opts: SendPasswordResetEmailOptions): Promise<void> {
   const resend = new Resend(opts.apiKey);
   const { error } = await resend.emails.send({
     from: opts.from,
     to: opts.to,
-    subject: "パスワードリセット — Karasu Lab",
+    subject: 'パスワードリセット — Karasu Lab',
     react: createElement(PasswordResetEmail, { resetUrl: opts.resetUrl }),
   });
   if (error) {

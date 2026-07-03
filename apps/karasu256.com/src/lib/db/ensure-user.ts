@@ -1,6 +1,6 @@
-import { getDb } from "@Hashibutogarasu/db";
-import { users } from "@Hashibutogarasu/db/schema";
-import { sql } from "drizzle-orm";
+import { getDb } from '@Hashibutogarasu/db';
+import { users } from '@Hashibutogarasu/db/schema';
+import { sql } from 'drizzle-orm';
 
 /**
  * Upserts a user row by Firebase UID and returns the persisted record.

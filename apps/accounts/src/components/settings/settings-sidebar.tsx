@@ -1,19 +1,15 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { User, Shield, Link as LinkIcon } from "lucide-react";
-import { useTranslations } from "next-intl";
-import {
-  SettingsSidebar as UiSettingsSidebar,
-  type SidebarNavItem,
-  type SettingsSidebarUser,
-} from "@Hashibutogarasu/ui";
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { User, Shield, Link as LinkIcon } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { SettingsSidebar as UiSettingsSidebar, type SidebarNavItem, type SettingsSidebarUser } from '@Hashibutogarasu/ui';
 
 const NAV_ITEMS_DEFS = [
-  { href: "/settings/profile", icon: User, labelKey: "settings.sections.profile" },
-  { href: "/settings/security", icon: Shield, labelKey: "settings.sections.security" },
-  { href: "/settings/linking", icon: LinkIcon, labelKey: "settings.sections.connections" },
+  { href: '/settings/profile', icon: User, labelKey: 'settings.sections.profile' },
+  { href: '/settings/security', icon: Shield, labelKey: 'settings.sections.security' },
+  { href: '/settings/linking', icon: LinkIcon, labelKey: 'settings.sections.connections' },
 ] as const;
 
 interface Props {
@@ -40,15 +36,15 @@ export function SettingsSidebar({ user, appUrl, onSignOut }: Props) {
 
   return (
     <UiSettingsSidebar
-      title={t("settings.title")}
+      title={t('settings.title')}
       navItems={navItems}
       activeIndex={activeIndex}
       user={user}
       backToAppHref={appUrl}
-      backToAppLabel={t("settings.backToApp")}
+      backToAppLabel={t('settings.backToApp')}
       onSignOut={onSignOut}
-      signOutLabel={t("settings.signOut")}
-      renderLink={({ href, className, title, "aria-current": ariaCurrent, children }) => (
+      signOutLabel={t('settings.signOut')}
+      renderLink={({ href, className, title, 'aria-current': ariaCurrent, children }) => (
         <Link href={href} className={className} title={title} aria-current={ariaCurrent}>
           {children}
         </Link>

@@ -1,9 +1,9 @@
-import { cert, getApps, initializeApp, type App } from "firebase-admin/app";
-import { getAuth as getAdminAuthSdk } from "firebase-admin/auth";
-import { getFirestore as getAdminFirestoreSdk } from "firebase-admin/firestore";
-import { getServerConfig } from "@/lib/config";
+import { cert, getApps, initializeApp, type App } from 'firebase-admin/app';
+import { getAuth as getAdminAuthSdk } from 'firebase-admin/auth';
+import { getFirestore as getAdminFirestoreSdk } from 'firebase-admin/firestore';
+import { getServerConfig } from '@/lib/config';
 
-const ADMIN_APP_NAME = "firebase-admin";
+const ADMIN_APP_NAME = 'firebase-admin';
 
 function getAdminApp(): App {
   const existing = getApps().find((a) => a.name === ADMIN_APP_NAME);
@@ -18,7 +18,7 @@ function getAdminApp(): App {
       }),
       databaseURL: firebaseAdmin.databaseURL,
     },
-    ADMIN_APP_NAME,
+    ADMIN_APP_NAME
   );
 }
 

@@ -1,21 +1,15 @@
-import * as React from "react"
+import * as React from 'react';
 
-import { cn } from "../lib/utils"
+import { cn } from '../lib/utils';
 
 /**
  * Wrapper `<ul>` for a list whose items use {@link AnimatedListItem}.
  */
-function AnimatedList({ className, ...props }: React.ComponentProps<"ul">) {
-  return (
-    <ul
-      data-slot="animated-list"
-      className={cn(className)}
-      {...props}
-    />
-  )
+function AnimatedList({ className, ...props }: React.ComponentProps<'ul'>) {
+  return <ul data-slot="animated-list" className={cn(className)} {...props} />;
 }
 
-interface AnimatedListItemProps extends React.ComponentProps<"li"> {
+interface AnimatedListItemProps extends React.ComponentProps<'li'> {
   children?: React.ReactNode;
   /** When true, plays the exit animation then calls {@link onRemoved}. */
   removing?: boolean;
@@ -33,12 +27,12 @@ function AnimatedListItem({ removing, onRemoved, className, ...props }: Animated
   return (
     <li
       data-slot="animated-list-item"
-      data-removing={removing ? "" : undefined}
+      data-removing={removing ? '' : undefined}
       onAnimationEnd={removing ? onRemoved : undefined}
       className={cn(className)}
       {...props}
     />
-  )
+  );
 }
 
-export { AnimatedList, AnimatedListItem }
+export { AnimatedList, AnimatedListItem };

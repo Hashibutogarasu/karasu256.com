@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { onAuthStateChanged, signOut, type User } from "firebase/auth";
-import { usePathname, useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
-import { getFirebaseAuth } from "@/lib/firebase/auth";
-import { clearSession } from "@/lib/api/auth-session";
-import { Skeleton, SettingsSidebarLayout } from "@Hashibutogarasu/ui";
-import { SettingsSidebar } from "@/components/settings/settings-sidebar";
-import { UserContext } from "@/components/settings/user-context";
-import { ProfileSectionSkeleton } from "@/components/auth/settings/profile-section";
+import { useEffect, useState } from 'react';
+import { onAuthStateChanged, signOut, type User } from 'firebase/auth';
+import { usePathname, useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { getFirebaseAuth } from '@/lib/firebase/auth';
+import { clearSession } from '@/lib/api/auth-session';
+import { Skeleton, SettingsSidebarLayout } from '@Hashibutogarasu/ui';
+import { SettingsSidebar } from '@/components/settings/settings-sidebar';
+import { UserContext } from '@/components/settings/user-context';
+import { ProfileSectionSkeleton } from '@/components/auth/settings/profile-section';
 
 interface SettingsShellProps {
   children: React.ReactNode;
@@ -31,16 +31,20 @@ export function SettingsShell({ children, appUrl }: SettingsShellProps) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const isLinkingPage = pathname === "/settings/linking";
-  const isProfilePage = pathname === "/settings/profile";
+  const isLinkingPage = pathname === '/settings/linking';
+  const isProfilePage = pathname === '/settings/profile';
 
   useEffect(() => {
     return onAuthStateChanged(getFirebaseAuth(), async (u) => {
       if (!u) {
         await clearSession();
-        router.replace("/");
+        router.replace('/');
       } else {
-        try { await u.reload() } catch (_) { /* noop */ }
+        try {
+          await u.reload();
+        } catch (_) {
+          /* noop */
+        }
         setUser(getFirebaseAuth().currentUser ?? u);
         setLoading(false);
       }
@@ -91,15 +95,7 @@ export function SettingsShell({ children, appUrl }: SettingsShellProps) {
     : null;
 
   return (
-    <SettingsSidebarLayout
-      sidebar={
-        <SettingsSidebar
-          user={sidebarUser}
-          appUrl={appUrl}
-          onSignOut={handleSignOut}
-        />
-      }
-    >
+    <SettingsSidebarLayout sidebar={<SettingsSidebar user={sidebarUser} appUrl={appUrl} onSignOut={handleSignOut} />}>
       {renderContent()}
     </SettingsSidebarLayout>
   );

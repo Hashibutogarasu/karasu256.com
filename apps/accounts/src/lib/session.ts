@@ -1,10 +1,10 @@
-import { getServerConfig } from "@/lib/config";
+import { getServerConfig } from '@/lib/config';
 
 /** Lifetime of the session cookie: 14 days in milliseconds. */
 export const SESSION_DURATION_MS = 60 * 60 * 24 * 14 * 1000;
 
 /** Name of the session cookie shared across (sub)domains. */
-export const SESSION_COOKIE_NAME = "session";
+export const SESSION_COOKIE_NAME = 'session';
 
 /**
  * Builds `ResponseCookie` options for setting the session cookie.
@@ -18,9 +18,9 @@ export function buildSetCookieOptions(value: string) {
     name: SESSION_COOKIE_NAME,
     value,
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax" as const,
-    path: "/",
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax' as const,
+    path: '/',
     domain: baseDomain ? `.${baseDomain}` : undefined,
     maxAge: SESSION_DURATION_MS / 1000,
   };
@@ -36,11 +36,11 @@ export function buildClearCookieOptions() {
   const { baseDomain } = getServerConfig();
   return {
     name: SESSION_COOKIE_NAME,
-    value: "",
+    value: '',
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax" as const,
-    path: "/",
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax' as const,
+    path: '/',
     domain: baseDomain ? `.${baseDomain}` : undefined,
     maxAge: 0,
   };

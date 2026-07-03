@@ -1,5 +1,5 @@
-import { type NextRequest, NextResponse } from "next/server";
-import { firebaseConfigSchema } from "@/lib/firebase/schema";
+import { type NextRequest, NextResponse } from 'next/server';
+import { firebaseConfigSchema } from '@/lib/firebase/schema';
 
 /**
  * Next.js 16 proxy (formerly middleware) that:
@@ -24,21 +24,21 @@ export function proxy(request: NextRequest): NextResponse {
   });
 
   if (!configResult.success) {
-    return new NextResponse(
-      JSON.stringify({ error: "Firebase configuration is invalid", issues: configResult.error.issues }),
-      { status: 500, headers: { "Content-Type": "application/json" } },
-    );
+    return new NextResponse(JSON.stringify({ error: 'Firebase configuration is invalid', issues: configResult.error.issues }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 
   const { pathname } = request.nextUrl;
-  const hasSession = Boolean(request.cookies.get("session")?.value);
+  const hasSession = Boolean(request.cookies.get('session')?.value);
 
-  if (hasSession && pathname === "/") {
-    return NextResponse.redirect(new URL("/settings", request.url));
+  if (hasSession && pathname === '/') {
+    return NextResponse.redirect(new URL('/settings', request.url));
   }
 
-  if (!hasSession && pathname.startsWith("/settings")) {
-    return NextResponse.redirect(new URL("/", request.url));
+  if (!hasSession && pathname.startsWith('/settings')) {
+    return NextResponse.redirect(new URL('/', request.url));
   }
 
   return NextResponse.next();
@@ -46,5 +46,5 @@ export function proxy(request: NextRequest): NextResponse {
 
 /** Apply this middleware to all non-static routes. */
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 };

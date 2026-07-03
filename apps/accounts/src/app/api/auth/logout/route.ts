@@ -1,8 +1,8 @@
-import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
-import { buildClearCookieOptions } from "@/lib/session";
-import { getServerConfig } from "@/lib/config";
-import { AUTH_TOKEN_COOKIE_NAME } from "@Hashibutogarasu/utils/server";
+import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
+import { buildClearCookieOptions } from '@/lib/session';
+import { getServerConfig } from '@/lib/config';
+import { AUTH_TOKEN_COOKIE_NAME } from '@Hashibutogarasu/utils/server';
 
 /**
  * Clears both the Firebase session cookie and the NextAuth JWT cookie.
@@ -20,11 +20,11 @@ export async function POST() {
 
   store.set({
     name: AUTH_TOKEN_COOKIE_NAME,
-    value: "",
+    value: '',
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/',
     ...(baseDomain ? { domain: `.${baseDomain}` } : {}),
     maxAge: 0,
   });

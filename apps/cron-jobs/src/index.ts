@@ -1,5 +1,5 @@
-import { lt } from "drizzle-orm";
-import { createDb, passwordResetTokens } from "@Hashibutogarasu/db";
+import { lt } from 'drizzle-orm';
+import { createDb, passwordResetTokens } from '@Hashibutogarasu/db';
 
 export interface Env {
   DATABASE_URL: string;
@@ -7,7 +7,7 @@ export interface Env {
 
 export default {
   async fetch(): Promise<Response> {
-    return new Response("Not Found", { status: 404 });
+    return new Response('Not Found', { status: 404 });
   },
 
   async scheduled(controller: ScheduledController, env: Env, _ctx: ExecutionContext): Promise<void> {

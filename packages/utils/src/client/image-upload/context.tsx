@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { createContext, useContext, type ReactNode } from "react";
+import { createContext, useContext, type ReactNode } from 'react';
 
 const ImageUploadApiUrlContext = createContext<string | null>(null);
 
@@ -9,12 +9,8 @@ const ImageUploadApiUrlContext = createContext<string | null>(null);
  * descendant, so consumers never read `NEXT_PUBLIC_IMAGE_API_URL` directly.
  */
 export function ImageUploadProvider({ children }: { children: ReactNode }) {
-  const apiUrl = process.env.NEXT_PUBLIC_IMAGE_API_URL ?? "";
-  return (
-    <ImageUploadApiUrlContext.Provider value={apiUrl}>
-      {children}
-    </ImageUploadApiUrlContext.Provider>
-  );
+  const apiUrl = process.env.NEXT_PUBLIC_IMAGE_API_URL ?? '';
+  return <ImageUploadApiUrlContext.Provider value={apiUrl}>{children}</ImageUploadApiUrlContext.Provider>;
 }
 
 /**
@@ -24,7 +20,7 @@ export function ImageUploadProvider({ children }: { children: ReactNode }) {
 export function useImageUploadApiUrl(): string {
   const apiUrl = useContext(ImageUploadApiUrlContext);
   if (apiUrl === null) {
-    throw new Error("useImageUploadApiUrl must be used within an ImageUploadProvider");
+    throw new Error('useImageUploadApiUrl must be used within an ImageUploadProvider');
   }
   return apiUrl;
 }

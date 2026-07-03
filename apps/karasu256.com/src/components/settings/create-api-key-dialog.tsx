@@ -1,19 +1,9 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import { useTranslations } from "next-intl";
-import {
-  Button,
-  Dialog,
-  DialogBackdrop,
-  DialogClose,
-  DialogPopup,
-  DialogPortal,
-  DialogTitle,
-  Input,
-  Label,
-} from "@Hashibutogarasu/ui";
-import { createApiKey, type ApiKeyCreated } from "@/lib/api/developer";
+import React, { useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { Button, Dialog, DialogBackdrop, DialogClose, DialogPopup, DialogPortal, DialogTitle, Input, Label } from '@Hashibutogarasu/ui';
+import { createApiKey, type ApiKeyCreated } from '@/lib/api/developer';
 
 interface CreateApiKeyDialogProps {
   open: boolean;
@@ -25,20 +15,16 @@ interface CreateApiKeyDialogProps {
  * Dialog for creating a new API key. Shows the raw key once after creation
  * and never again.
  */
-export function CreateApiKeyDialog({
-  open,
-  onOpenChange,
-  onCreated,
-}: CreateApiKeyDialogProps) {
+export function CreateApiKeyDialog({ open, onOpenChange, onCreated }: CreateApiKeyDialogProps) {
   const t = useTranslations();
-  const [name, setName] = useState("");
+  const [name, setName] = useState('');
   const [createdKey, setCreatedKey] = useState<ApiKeyCreated | null>(null);
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
 
   function handleClose() {
     onOpenChange(false);
-    setName("");
+    setName('');
     setCreatedKey(null);
     setCopied(false);
   }
@@ -66,47 +52,36 @@ export function CreateApiKeyDialog({
       <DialogPortal>
         <DialogBackdrop />
         <DialogPopup className="max-w-md w-full p-6 space-y-4">
-          <DialogTitle>{t("settings.developer.createKey")}</DialogTitle>
+          <DialogTitle>{t('settings.developer.createKey')}</DialogTitle>
 
           {!createdKey ? (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-1.5">
-                <Label htmlFor="key-name">{t("settings.developer.dialog.keyName")}</Label>
-                <Input
-                  id="key-name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                />
+                <Label htmlFor="key-name">{t('settings.developer.dialog.keyName')}</Label>
+                <Input id="key-name" value={name} onChange={(e) => setName(e.target.value)} required />
               </div>
               <div className="flex justify-end gap-2">
                 <DialogClose
                   render={
                     <Button type="button" variant="ghost" onClick={handleClose}>
-                      {t("settings.developer.dialog.cancel")}
+                      {t('settings.developer.dialog.cancel')}
                     </Button>
                   }
                 />
                 <Button type="submit" disabled={loading || !name.trim()}>
-                  {t("settings.developer.dialog.create")}
+                  {t('settings.developer.dialog.create')}
                 </Button>
               </div>
             </form>
           ) : (
             <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                {t("settings.developer.dialog.keyNotice")}
-              </p>
+              <p className="text-sm text-muted-foreground">{t('settings.developer.dialog.keyNotice')}</p>
               <Input readOnly value={createdKey.key} className="font-mono text-xs" />
               <div className="flex justify-end gap-2">
                 <Button variant="secondary" onClick={handleCopy}>
-                  {copied
-                    ? "✓"
-                    : t("settings.developer.dialog.copyKey")}
+                  {copied ? '✓' : t('settings.developer.dialog.copyKey')}
                 </Button>
-                <Button onClick={handleClose}>
-                  {t("settings.developer.dialog.done")}
-                </Button>
+                <Button onClick={handleClose}>{t('settings.developer.dialog.done')}</Button>
               </div>
             </div>
           )}

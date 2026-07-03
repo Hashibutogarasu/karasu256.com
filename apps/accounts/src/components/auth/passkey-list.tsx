@@ -1,20 +1,12 @@
-"use client";
+'use client';
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { getIdToken } from "firebase/auth";
-import { useTranslations } from "next-intl";
-import {
-  toast,
-  ConfirmDialog,
-  DeleteIconButton,
-  SettingsItem,
-  Skeleton,
-  AnimatedList,
-  AnimatedListItem,
-} from "@Hashibutogarasu/ui";
-import { getFirebaseAuth } from "@/lib/firebase/auth";
-import { listPasskeyCredentials, deletePasskeyCredential } from "@/lib/api/passkey-credentials";
-import type { CredentialSummary } from "@/app/api/passkey/credentials/route";
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { getIdToken } from 'firebase/auth';
+import { useTranslations } from 'next-intl';
+import { toast, ConfirmDialog, DeleteIconButton, SettingsItem, Skeleton, AnimatedList, AnimatedListItem } from '@Hashibutogarasu/ui';
+import { getFirebaseAuth } from '@/lib/firebase/auth';
+import { listPasskeyCredentials, deletePasskeyCredential } from '@/lib/api/passkey-credentials';
+import type { CredentialSummary } from '@/app/api/passkey/credentials/route';
 
 interface PasskeyListProps {
   /** Incrementing this value causes the list to re-fetch from the server. */
@@ -67,13 +59,21 @@ export function PasskeyList({ version }: PasskeyListProps) {
     } catch (err) {
       toast.error(err instanceof Error ? err.message : String(err));
     } finally {
-      setDeletingIds((prev) => { const s = new Set(prev); s.delete(id); return s; });
+      setDeletingIds((prev) => {
+        const s = new Set(prev);
+        s.delete(id);
+        return s;
+      });
     }
   }
 
   function handleRemoved(id: string) {
     setCredentials((prev) => prev.filter((c) => c.id !== id));
-    setRemovingIds((prev) => { const s = new Set(prev); s.delete(id); return s; });
+    setRemovingIds((prev) => {
+      const s = new Set(prev);
+      s.delete(id);
+      return s;
+    });
   }
 
   if (loading) {
@@ -92,31 +92,23 @@ export function PasskeyList({ version }: PasskeyListProps) {
   }
 
   if (credentials.length === 0) {
-    return <p className="text-sm text-muted-foreground">{t("passkey.none")}</p>;
+    return <p className="text-sm text-muted-foreground">{t('passkey.none')}</p>;
   }
 
   return (
     <>
       <AnimatedList className="space-y-2">
         {credentials.map((cred) => (
-          <AnimatedListItem
-            key={cred.id}
-            removing={removingIds.has(cred.id)}
-            onRemoved={() => handleRemoved(cred.id)}
-          >
+          <AnimatedListItem key={cred.id} removing={removingIds.has(cred.id)} onRemoved={() => handleRemoved(cred.id)}>
             <SettingsItem className="flex items-center justify-between gap-4">
               <div className="min-w-0 space-y-0.5">
                 <p className="text-sm font-medium truncate">{cred.name}</p>
-                {cred.createdAt !== null && (
-                  <p className="text-xs text-muted-foreground">
-                    {new Date(cred.createdAt).toLocaleDateString()}
-                  </p>
-                )}
+                {cred.createdAt !== null && <p className="text-xs text-muted-foreground">{new Date(cred.createdAt).toLocaleDateString()}</p>}
               </div>
               <DeleteIconButton
                 size="icon-sm"
                 loading={deletingIds.has(cred.id)}
-                aria-label={t("passkey.remove")}
+                aria-label={t('passkey.remove')}
                 onClick={() => setPendingDelete(cred)}
               />
             </SettingsItem>
@@ -126,13 +118,15 @@ export function PasskeyList({ version }: PasskeyListProps) {
 
       <ConfirmDialog
         open={pendingDelete !== null}
-        onOpenChange={(open) => { if (!open) setPendingDelete(null); }}
-        title={t("passkey.removeConfirm.title")}
-        description={t("passkey.removeConfirm.description", {
-          name: pendingDelete?.name ?? "",
+        onOpenChange={(open) => {
+          if (!open) setPendingDelete(null);
+        }}
+        title={t('passkey.removeConfirm.title')}
+        description={t('passkey.removeConfirm.description', {
+          name: pendingDelete?.name ?? '',
         })}
-        confirmLabel={t("passkey.remove")}
-        cancelLabel={t("passkey.removeConfirm.cancel")}
+        confirmLabel={t('passkey.remove')}
+        cancelLabel={t('passkey.removeConfirm.cancel')}
         onConfirm={() => {
           if (pendingDelete) void handleDelete(pendingDelete.id);
         }}

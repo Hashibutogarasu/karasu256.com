@@ -1,4 +1,4 @@
-import { ApiError } from "@Hashibutogarasu/utils/client";
+import { ApiError } from '@Hashibutogarasu/utils/client';
 
 export interface OAuthClientSummary {
   id: string;
@@ -37,7 +37,7 @@ export interface SectionMeta {
  * @throws {ApiError} When the request fails with a non-ok HTTP status.
  */
 export async function listOAuthClients(): Promise<OAuthClientSummary[]> {
-  const res = await fetch("/api/oauth/clients");
+  const res = await fetch('/api/oauth/clients');
   if (!res.ok) throw ApiError.fromResponse(res);
   return res.json() as Promise<OAuthClientSummary[]>;
 }
@@ -51,9 +51,9 @@ export async function createOAuthClient(input: {
   iconUrl?: string;
   permissions: number;
 }): Promise<OAuthClientCreated> {
-  const res = await fetch("/api/oauth/clients", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
+  const res = await fetch('/api/oauth/clients', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(input),
   });
   if (!res.ok) throw ApiError.fromResponse(res);
@@ -70,11 +70,11 @@ export async function updateOAuthClient(
     callbackUris: string[];
     iconUrl: string | null;
     permissions: number;
-  }>,
+  }>
 ): Promise<OAuthClientSummary> {
   const res = await fetch(`/api/oauth/clients/${id}`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(input),
   });
   if (!res.ok) throw ApiError.fromResponse(res);
@@ -85,7 +85,7 @@ export async function updateOAuthClient(
  * @throws {ApiError} When the request fails with a non-ok HTTP status.
  */
 export async function deleteOAuthClient(id: string): Promise<void> {
-  const res = await fetch(`/api/oauth/clients/${id}`, { method: "DELETE" });
+  const res = await fetch(`/api/oauth/clients/${id}`, { method: 'DELETE' });
   if (!res.ok && res.status !== 204) throw ApiError.fromResponse(res);
 }
 
@@ -93,7 +93,7 @@ export async function deleteOAuthClient(id: string): Promise<void> {
  * @throws {ApiError} When the request fails with a non-ok HTTP status.
  */
 export async function rotateOAuthClientSecret(id: string): Promise<{ secret: string }> {
-  const res = await fetch(`/api/oauth/clients/${id}/secret`, { method: "POST" });
+  const res = await fetch(`/api/oauth/clients/${id}/secret`, { method: 'POST' });
   if (!res.ok) throw ApiError.fromResponse(res);
   return res.json() as Promise<{ secret: string }>;
 }
@@ -102,7 +102,7 @@ export async function rotateOAuthClientSecret(id: string): Promise<{ secret: str
  * @throws {ApiError} When the request fails with a non-ok HTTP status.
  */
 export async function listApiKeys(): Promise<ApiKeySummary[]> {
-  const res = await fetch("/api/api-keys");
+  const res = await fetch('/api/api-keys');
   if (!res.ok) throw ApiError.fromResponse(res);
   return res.json() as Promise<ApiKeySummary[]>;
 }
@@ -111,9 +111,9 @@ export async function listApiKeys(): Promise<ApiKeySummary[]> {
  * @throws {ApiError} When the request fails with a non-ok HTTP status.
  */
 export async function createApiKey(name: string): Promise<ApiKeyCreated> {
-  const res = await fetch("/api/api-keys", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
+  const res = await fetch('/api/api-keys', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ name }),
   });
   if (!res.ok) throw ApiError.fromResponse(res);
@@ -124,7 +124,7 @@ export async function createApiKey(name: string): Promise<ApiKeyCreated> {
  * @throws {ApiError} When the request fails with a non-ok HTTP status.
  */
 export async function deleteApiKey(id: string): Promise<void> {
-  const res = await fetch(`/api/api-keys/${id}`, { method: "DELETE" });
+  const res = await fetch(`/api/api-keys/${id}`, { method: 'DELETE' });
   if (!res.ok && res.status !== 204) throw ApiError.fromResponse(res);
 }
 
@@ -132,7 +132,7 @@ export async function deleteApiKey(id: string): Promise<void> {
  * @throws {ApiError} When the request fails with a non-ok HTTP status.
  */
 export async function getPermissionSections(): Promise<SectionMeta[]> {
-  const res = await fetch("/api/permissions/sections");
+  const res = await fetch('/api/permissions/sections');
   if (!res.ok) throw ApiError.fromResponse(res);
   return res.json() as Promise<SectionMeta[]>;
 }

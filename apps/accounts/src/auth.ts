@@ -1,13 +1,13 @@
-import NextAuth from "next-auth"
-import Credentials from "next-auth/providers/credentials"
-import Google from "next-auth/providers/google"
-import GitHub from "next-auth/providers/github"
-import { cookies } from "next/headers"
-import { getAdminAuth } from "@/lib/firebase-admin"
-import { makeFirebaseAuthorize, makeNextAuthCookies } from "@Hashibutogarasu/utils/server"
-import { stringOrNull } from "@Hashibutogarasu/utils/validation"
-import { handleOAuthSignIn, handleOAuthLinking } from "@/lib/auth/oauth"
-import { SESSION_COOKIE_NAME } from "@/lib/session"
+import NextAuth from 'next-auth';
+import Credentials from 'next-auth/providers/credentials';
+import Google from 'next-auth/providers/google';
+import GitHub from 'next-auth/providers/github';
+import { cookies } from 'next/headers';
+import { getAdminAuth } from '@/lib/firebase-admin';
+import { makeFirebaseAuthorize, makeNextAuthCookies } from '@Hashibutogarasu/utils/server';
+import { stringOrNull } from '@Hashibutogarasu/utils/validation';
+import { handleOAuthSignIn, handleOAuthLinking } from '@/lib/auth/oauth';
+import { SESSION_COOKIE_NAME } from '@/lib/session';
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   providers: [
@@ -24,36 +24,36 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
     }),
   ],
-  session: { strategy: "jwt" },
+  session: { strategy: 'jwt' },
   callbacks: {
     async signIn({ account, profile }) {
-      if (!account || account.type === "credentials" || !profile) return true
+      if (!account || account.type === 'credentials' || !profile) return true;
 
-      const cookieStore = await cookies()
-      const sessionCookie = cookieStore.get(SESSION_COOKIE_NAME)?.value
+      const cookieStore = await cookies();
+      const sessionCookie = cookieStore.get(SESSION_COOKIE_NAME)?.value;
 
       if (!sessionCookie) {
-        return handleOAuthSignIn(account, profile)
+        return handleOAuthSignIn(account, profile);
       }
 
       try {
-        const { uid } = await getAdminAuth().verifySessionCookie(sessionCookie, true)
-        return handleOAuthLinking(account, profile, uid)
+        const { uid } = await getAdminAuth().verifySessionCookie(sessionCookie, true);
+        return handleOAuthLinking(account, profile, uid);
       } catch {
-        return false
+        return false;
       }
     },
     jwt({ token, user }) {
-      if (user?.id) token.uid = user.id
-      return token
+      if (user?.id) token.uid = user.id;
+      return token;
     },
     session({ session, token }) {
-      const uid = stringOrNull(token.uid)
+      const uid = stringOrNull(token.uid);
       if (uid) {
-        session.user.id = uid
+        session.user.id = uid;
       }
-      return session
+      return session;
     },
   },
   cookies: makeNextAuthCookies(process.env.BASE_DOMAIN),
-})
+});

@@ -1,31 +1,31 @@
 @source "../**/*.{ts,tsx}";
 
 @layer base {
-  [data-slot="button"][data-variant="default"] {
+  [data-slot='button'][data-variant='default'] {
     --btn-current-bg: var(--color-primary);
     --btn-current-fg: var(--color-primary-foreground);
     --btn-hover-bg: var(--color-primary-foreground);
     --btn-hover-fg: var(--color-primary);
   }
-  [data-slot="button"][data-variant="secondary"] {
+  [data-slot='button'][data-variant='secondary'] {
     --btn-current-bg: var(--color-secondary);
     --btn-current-fg: var(--color-secondary-foreground);
     --btn-hover-bg: var(--color-secondary-foreground);
     --btn-hover-fg: var(--color-secondary);
   }
-  [data-slot="button"][data-variant="outline"] {
+  [data-slot='button'][data-variant='outline'] {
     --btn-current-bg: var(--color-background);
     --btn-current-fg: var(--color-foreground);
     --btn-hover-bg: var(--color-foreground);
     --btn-hover-fg: var(--color-background);
   }
-  [data-slot="button"][data-variant="ghost"] {
+  [data-slot='button'][data-variant='ghost'] {
     --btn-current-bg: transparent;
     --btn-current-fg: var(--color-foreground);
     --btn-hover-bg: var(--color-muted);
     --btn-hover-fg: var(--color-foreground);
   }
-  [data-slot="button"][data-variant="destructive"] {
+  [data-slot='button'][data-variant='destructive'] {
     --btn-current-bg: color-mix(in oklch, var(--color-destructive) 10%, transparent);
     --btn-current-fg: var(--color-destructive);
     --btn-hover-bg: var(--color-destructive);
@@ -33,7 +33,7 @@
   }
 
   @media (prefers-color-scheme: dark) {
-    [data-slot="button"][data-variant="destructive"] {
+    [data-slot='button'][data-variant='destructive'] {
       --btn-current-bg: color-mix(in oklch, var(--color-destructive) 20%, transparent);
     }
   }
@@ -46,14 +46,10 @@
    * This keeps the effect entirely within the background layer — no stacking
    * context is created, so the button can never obscure toasts or other overlays.
    */
-  [data-slot="button"]:not([data-variant="link"]) {
+  [data-slot='button']:not([data-variant='link']) {
     position: relative;
     color: var(--btn-current-fg);
-    background-image: linear-gradient(
-      to right,
-      var(--btn-hover-bg, transparent) 50%,
-      var(--btn-current-bg, transparent) 50%
-    );
+    background-image: linear-gradient(to right, var(--btn-hover-bg, transparent) 50%, var(--btn-current-bg, transparent) 50%);
     background-repeat: no-repeat;
     background-origin: border-box;
     background-size: 202% 100%;
@@ -67,87 +63,125 @@
       opacity 150ms ease;
   }
 
-  [data-slot="button"]:not([data-variant="link"]):hover,
-  [data-slot="button"]:not([data-variant="link"])[aria-expanded="true"] {
+  [data-slot='button']:not([data-variant='link']):hover,
+  [data-slot='button']:not([data-variant='link'])[aria-expanded='true'] {
     color: var(--btn-hover-fg);
     background-position: left center;
   }
 
-  [data-slot="tabs-trigger"] {
-    transition: all 150ms ease, color 1ms linear 120ms;
+  [data-slot='tabs-trigger'] {
+    transition:
+      all 150ms ease,
+      color 1ms linear 120ms;
   }
 }
 
-[data-slot="animated-panel"] {
+[data-slot='animated-panel'] {
   display: grid;
   grid-template-rows: 0fr;
   transition: grid-template-rows 200ms ease;
 }
 
-[data-slot="animated-panel"][data-open] {
+[data-slot='animated-panel'][data-open] {
   grid-template-rows: 1fr;
 }
 
-[data-slot="animated-panel-inner"] {
+[data-slot='animated-panel-inner'] {
   min-height: 0;
   overflow: hidden;
 }
 
 @keyframes animated-list-item-in {
-  from { opacity: 0; translate: 0 -4px; }
-  to   { opacity: 1; translate: 0 0; }
+  from {
+    opacity: 0;
+    translate: 0 -4px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
 }
 
 @keyframes animated-list-item-out {
-  from { opacity: 1; translate: 0 0; }
-  to   { opacity: 0; translate: 0 -4px; }
+  from {
+    opacity: 1;
+    translate: 0 0;
+  }
+  to {
+    opacity: 0;
+    translate: 0 -4px;
+  }
 }
 
-[data-slot="animated-list-item"] {
+[data-slot='animated-list-item'] {
   animation: animated-list-item-in 200ms ease both;
 }
 
-[data-slot="animated-list-item"][data-removing] {
+[data-slot='animated-list-item'][data-removing] {
   animation: animated-list-item-out 150ms ease forwards;
 }
 
 @keyframes toast-progress {
-  from { transform: scaleX(1); }
-  to   { transform: scaleX(0); }
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
 }
 
 @keyframes dialog-backdrop-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes dialog-backdrop-out {
-  from { opacity: 1; }
-  to   { opacity: 0; }
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
 
 @keyframes dialog-popup-in {
-  from { opacity: 0; scale: 0.95; }
-  to   { opacity: 1; scale: 1; }
+  from {
+    opacity: 0;
+    scale: 0.95;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
 }
 
 @keyframes dialog-popup-out {
-  from { opacity: 1; scale: 1; }
-  to   { opacity: 0; scale: 0.95; }
+  from {
+    opacity: 1;
+    scale: 1;
+  }
+  to {
+    opacity: 0;
+    scale: 0.95;
+  }
 }
 
-[data-slot="dialog-backdrop"] {
+[data-slot='dialog-backdrop'] {
   animation: dialog-backdrop-out 150ms ease forwards;
 }
 
-[data-slot="dialog-backdrop"][data-open] {
+[data-slot='dialog-backdrop'][data-open] {
   animation: dialog-backdrop-in 150ms ease forwards;
 }
 
-[data-slot="dialog-popup"] {
+[data-slot='dialog-popup'] {
   animation: dialog-popup-out 150ms ease forwards;
 }
 
-[data-slot="dialog-popup"][data-open] {
+[data-slot='dialog-popup'][data-open] {
   animation: dialog-popup-in 150ms ease forwards;
 }

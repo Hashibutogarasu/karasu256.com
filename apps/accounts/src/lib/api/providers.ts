@@ -1,4 +1,4 @@
-import { ApiError } from "@Hashibutogarasu/utils/client";
+import { ApiError } from '@Hashibutogarasu/utils/client';
 
 export interface LinkedProvider {
   provider: string;
@@ -13,7 +13,7 @@ export interface LinkedProvider {
  * @throws {ApiError} When the request fails with a non-ok HTTP status.
  */
 export async function listLinkedProviders(): Promise<LinkedProvider[]> {
-  const res = await fetch("/api/linked-providers");
+  const res = await fetch('/api/linked-providers');
   if (!res.ok) throw ApiError.fromResponse(res);
   return res.json() as Promise<LinkedProvider[]>;
 }
@@ -25,7 +25,7 @@ export async function listLinkedProviders(): Promise<LinkedProvider[]> {
  */
 export async function unlinkProvider(provider: string): Promise<void> {
   const res = await fetch(`/api/linked-providers/${encodeURIComponent(provider)}`, {
-    method: "DELETE",
+    method: 'DELETE',
   });
   if (!res.ok && res.status !== 204) throw ApiError.fromResponse(res);
 }

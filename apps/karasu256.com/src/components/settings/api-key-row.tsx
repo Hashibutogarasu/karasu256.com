@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useTranslations } from "next-intl";
-import { DeleteIconButton, SettingsItem } from "@Hashibutogarasu/ui";
-import type { ApiKeySummary } from "@/lib/api/developer";
+import { useTranslations } from 'next-intl';
+import { DeleteIconButton, SettingsItem } from '@Hashibutogarasu/ui';
+import type { ApiKeySummary } from '@/lib/api/developer';
 
 interface ApiKeyRowProps {
   apiKey: ApiKeySummary;
@@ -22,19 +22,12 @@ export function ApiKeyRow({ apiKey, onDelete }: ApiKeyRowProps) {
         <p className="text-sm font-medium truncate">{apiKey.name}</p>
         <p className="text-xs text-muted-foreground font-mono">{apiKey.keyPrefix}…</p>
         <p className="text-xs text-muted-foreground">
-          {t("settings.developer.created")}:{" "}
-          {new Date(apiKey.createdAt).toLocaleDateString()}
-          {" · "}
-          {apiKey.lastUsedAt
-            ? new Date(apiKey.lastUsedAt).toLocaleDateString()
-            : t("settings.developer.neverUsed")}
+          {t('settings.developer.created')}: {new Date(apiKey.createdAt).toLocaleDateString()}
+          {' · '}
+          {apiKey.lastUsedAt ? new Date(apiKey.lastUsedAt).toLocaleDateString() : t('settings.developer.neverUsed')}
         </p>
       </div>
-      <DeleteIconButton
-        size="icon"
-        aria-label={t("settings.developer.delete")}
-        onClick={() => onDelete(apiKey.id)}
-      />
+      <DeleteIconButton size="icon" aria-label={t('settings.developer.delete')} onClick={() => onDelete(apiKey.id)} />
     </SettingsItem>
   );
 }

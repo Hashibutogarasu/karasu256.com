@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { ChevronsUpDown, ExternalLink, LogOut, type LucideIcon } from "lucide-react";
-import { cn } from "../lib/utils";
+import * as React from 'react';
+import { ChevronsUpDown, ExternalLink, LogOut, type LucideIcon } from 'lucide-react';
+import { cn } from '../lib/utils';
 import {
   Sidebar,
   SidebarContent,
@@ -16,7 +16,7 @@ import {
   SidebarRail,
   SidebarTrigger,
   useSidebar,
-} from "./ui/sidebar";
+} from './ui/sidebar';
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -25,10 +25,10 @@ import {
   DropdownMenuPopup,
   DropdownMenuItem,
   DropdownMenuSeparator,
-} from "./dropdown-menu";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
-import { Skeleton } from "./skeleton";
-import { UserAvatar } from "./user-avatar";
+} from './dropdown-menu';
+import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
+import { Skeleton } from './skeleton';
+import { UserAvatar } from './user-avatar';
 
 export interface SidebarNavItem {
   href: string;
@@ -57,13 +57,7 @@ export interface SettingsSidebarProps {
    * Renders a navigation link for each nav item.
    * The consumer is responsible for the link element (e.g. Next.js `Link` or `<a>`).
    */
-  renderLink: (props: {
-    href: string;
-    className: string;
-    title?: string;
-    "aria-current"?: "page";
-    children: React.ReactNode;
-  }) => React.ReactNode;
+  renderLink: (props: { href: string; className: string; title?: string; 'aria-current'?: 'page'; children: React.ReactNode }) => React.ReactNode;
 }
 
 /**
@@ -87,18 +81,12 @@ export function SettingsSidebar({
       <SidebarHeader className="border-b border-sidebar-border">
         <div className="flex items-center gap-2 px-1 py-1">
           <SidebarTrigger className="shrink-0" />
-          <span className="truncate text-sm font-medium group-data-[collapsible=icon]:hidden">
-            {title}
-          </span>
+          <span className="truncate text-sm font-medium group-data-[collapsible=icon]:hidden">{title}</span>
         </div>
       </SidebarHeader>
 
       <SidebarContent>
-        <NavSection
-          navItems={navItems}
-          activeIndex={activeIndex}
-          renderLink={renderLink}
-        />
+        <NavSection navItems={navItems} activeIndex={activeIndex} renderLink={renderLink} />
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border">
@@ -119,7 +107,7 @@ export function SettingsSidebar({
 interface NavSectionProps {
   navItems: SidebarNavItem[];
   activeIndex: number;
-  renderLink: SettingsSidebarProps["renderLink"];
+  renderLink: SettingsSidebarProps['renderLink'];
 }
 
 /**
@@ -135,7 +123,7 @@ interface NavSectionProps {
  */
 function NavSection({ navItems, activeIndex, renderLink }: NavSectionProps) {
   const { state, isMobile } = useSidebar();
-  const isIconMode = state === "collapsed" && !isMobile;
+  const isIconMode = state === 'collapsed' && !isMobile;
 
   return (
     <SidebarGroup>
@@ -143,28 +131,17 @@ function NavSection({ navItems, activeIndex, renderLink }: NavSectionProps) {
         {activeIndex >= 0 && (
           <div
             aria-hidden="true"
-            className={cn(
-              "absolute inset-x-0 h-8 rounded-md pointer-events-none",
-              isIconMode ? "bg-sidebar-accent" : "bg-muted",
-            )}
+            className={cn('absolute inset-x-0 h-8 rounded-md pointer-events-none', isIconMode ? 'bg-sidebar-accent' : 'bg-muted')}
             style={{
-              boxShadow: isIconMode
-                ? undefined
-                : "0 1px 4px oklch(0 0 0 / 0.12), 0 0 0 1px oklch(0 0 0 / 0.04)",
+              boxShadow: isIconMode ? undefined : '0 1px 4px oklch(0 0 0 / 0.12), 0 0 0 1px oklch(0 0 0 / 0.04)',
               transform: `translateY(calc(${activeIndex} * 2rem))`,
-              transition: "transform 240ms cubic-bezier(0.4, 0, 0.2, 1)",
+              transition: 'transform 240ms cubic-bezier(0.4, 0, 0.2, 1)',
             }}
           />
         )}
 
         {navItems.map((item, idx) => (
-          <NavItem
-            key={item.href}
-            item={item}
-            isActive={idx === activeIndex}
-            isIconMode={isIconMode}
-            renderLink={renderLink}
-          />
+          <NavItem key={item.href} item={item} isActive={idx === activeIndex} isIconMode={isIconMode} renderLink={renderLink} />
         ))}
       </div>
     </SidebarGroup>
@@ -175,7 +152,7 @@ interface NavItemProps {
   item: SidebarNavItem;
   isActive: boolean;
   isIconMode: boolean;
-  renderLink: SettingsSidebarProps["renderLink"];
+  renderLink: SettingsSidebarProps['renderLink'];
 }
 
 function NavItem({ item, isActive, isIconMode, renderLink }: NavItemProps) {
@@ -187,19 +164,13 @@ function NavItem({ item, isActive, isIconMode, renderLink }: NavItemProps) {
      * icon at 8+8 = 16 px = container centre, matching the square indicator.
      */
     className: cn(
-      "relative z-10 flex items-center w-full h-8 rounded-md text-sm",
-      "transition-colors overflow-hidden p-2 gap-2",
+      'relative z-10 flex items-center w-full h-8 rounded-md text-sm',
+      'transition-colors overflow-hidden p-2 gap-2',
       isActive
-        ? cn(
-            "text-foreground font-medium",
-            "group-data-[collapsible=icon]:text-sidebar-accent-foreground",
-          )
-        : cn(
-            "text-muted-foreground hover:text-foreground",
-            "group-data-[collapsible=icon]:hover:bg-sidebar-accent/50",
-          ),
+        ? cn('text-foreground font-medium', 'group-data-[collapsible=icon]:text-sidebar-accent-foreground')
+        : cn('text-muted-foreground hover:text-foreground', 'group-data-[collapsible=icon]:hover:bg-sidebar-accent/50')
     ),
-    "aria-current": isActive ? "page" : undefined,
+    'aria-current': isActive ? 'page' : undefined,
     children: (
       <>
         <item.icon className="size-4 shrink-0" />
@@ -230,7 +201,7 @@ interface SidebarUserMenuProps {
 
 function SidebarUserMenu({ user, backToAppHref, backToAppLabel, onSignOut, signOutLabel }: SidebarUserMenuProps) {
   const { state, isMobile } = useSidebar();
-  const isIconMode = state === "collapsed" && !isMobile;
+  const isIconMode = state === 'collapsed' && !isMobile;
 
   if (!user) {
     return (
@@ -248,16 +219,16 @@ function SidebarUserMenu({ user, backToAppHref, backToAppLabel, onSignOut, signO
     );
   }
 
-  const displayName = user.displayName ?? user.email?.split("@")[0] ?? "";
-  const tooltipLabel = displayName || user.email || "";
+  const displayName = user.displayName ?? user.email?.split('@')[0] ?? '';
+  const tooltipLabel = displayName || user.email || '';
 
   const trigger = (
     <DropdownMenuTrigger
       className={cn(
-        "flex w-full items-center gap-2 overflow-hidden rounded-md text-sm text-left cursor-pointer",
-        "transition-colors outline-none ring-sidebar-ring",
-        "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-        "h-12 px-2",
+        'flex w-full items-center gap-2 overflow-hidden rounded-md text-sm text-left cursor-pointer',
+        'transition-colors outline-none ring-sidebar-ring',
+        'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
+        'h-12 px-2'
       )}
     >
       <UserAvatar uid={user.uid} iconUrl={user.photoURL} size={32} />
@@ -292,10 +263,7 @@ function SidebarUserMenu({ user, backToAppHref, backToAppLabel, onSignOut, signO
             </div>
             <DropdownMenuSeparator />
             {backToAppLabel && (
-              <DropdownMenuItem
-                disabled={!backToAppHref}
-                {...(backToAppHref ? { render: <a href={backToAppHref} /> } : {})}
-              >
+              <DropdownMenuItem disabled={!backToAppHref} {...(backToAppHref ? { render: <a href={backToAppHref} /> } : {})}>
                 <ExternalLink className="size-4" />
                 {backToAppLabel}
               </DropdownMenuItem>

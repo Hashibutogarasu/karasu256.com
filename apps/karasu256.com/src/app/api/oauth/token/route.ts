@@ -1,12 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
-import { and, eq } from "drizzle-orm";
-import { getDb } from "@Hashibutogarasu/db";
-import {
-  oauthAccessTokens,
-  oauthAuthorizationCodes,
-  oauthClients,
-} from "@Hashibutogarasu/db/schema";
-import { generateSecret, hashSecret } from "@/lib/crypto";
+import { NextRequest, NextResponse } from 'next/server';
+import { and, eq } from 'drizzle-orm';
+import { getDb } from '@Hashibutogarasu/db';
+import { oauthAccessTokens, oauthAuthorizationCodes, oauthClients } from '@Hashibutogarasu/db/schema';
+import { generateSecret, hashSecret } from '@/lib/crypto';
 
 /**
  * OAuth 2.0 token endpoint. Supports the authorization_code grant type only.
@@ -17,25 +13,25 @@ import { generateSecret, hashSecret } from "@/lib/crypto";
  * Returns `{ access_token, token_type, expires_in }` on success.
  */
 export async function POST(request: NextRequest) {
-  const contentType = request.headers.get("Content-Type") ?? "";
-  if (!contentType.includes("application/x-www-form-urlencoded")) {
-    return NextResponse.json({ error: "unsupported_media_type" }, { status: 415 });
+  const contentType = request.headers.get('Content-Type') ?? '';
+  if (!contentType.includes('application/x-www-form-urlencoded')) {
+    return NextResponse.json({ error: 'unsupported_media_type' }, { status: 415 });
   }
 
   const text = await request.text();
   const params = new URLSearchParams(text);
 
-  const grantType = params.get("grant_type");
-  const code = params.get("code");
-  const clientId = params.get("client_id");
-  const clientSecret = params.get("client_secret");
-  const redirectUri = params.get("redirect_uri");
+  const grantType = params.get('grant_type');
+  const code = params.get('code');
+  const clientId = params.get('client_id');
+  const clientSecret = params.get('client_secret');
+  const redirectUri = params.get('redirect_uri');
 
-  if (grantType !== "authorization_code") {
-    return NextResponse.json({ error: "unsupported_grant_type" }, { status: 400 });
+  if (grantType !== 'authorization_code') {
+    return NextResponse.json({ error: 'unsupported_grant_type' }, { status: 400 });
   }
   if (!code || !clientId || !clientSecret || !redirectUri) {
-    return NextResponse.json({ error: "invalid_request" }, { status: 400 });
+    return NextResponse.json({ error: 'invalid_request' }, { status: 400 });
   }
 
   const db = getDb();
@@ -47,7 +43,7 @@ export async function POST(request: NextRequest) {
     .where(and(eq(oauthClients.id, clientId), eq(oauthClients.secretHash, secretHash)));
 
   if (!client) {
-    return NextResponse.json({ error: "invalid_client" }, { status: 401 });
+    return NextResponse.json({ error: 'invalid_client' }, { status: 401 });
   }
 
   const codeHash = await hashSecret(code);
@@ -63,28 +59,15 @@ export async function POST(request: NextRequest) {
       usedAt: oauthAuthorizationCodes.usedAt,
     })
     .from(oauthAuthorizationCodes)
-    .where(
-      and(
-        eq(oauthAuthorizationCodes.codeHash, codeHash),
-        eq(oauthAuthorizationCodes.clientId, client.id),
-      ),
-    );
+    .where(and(eq(oauthAuthorizationCodes.codeHash, codeHash), eq(oauthAuthorizationCodes.clientId, client.id)));
 
-  if (
-    !authCode ||
-    authCode.usedAt !== null ||
-    authCode.expiresAt <= now ||
-    authCode.redirectUri !== redirectUri
-  ) {
-    return NextResponse.json({ error: "invalid_grant" }, { status: 400 });
+  if (!authCode || authCode.usedAt !== null || authCode.expiresAt <= now || authCode.redirectUri !== redirectUri) {
+    return NextResponse.json({ error: 'invalid_grant' }, { status: 400 });
   }
 
-  await db
-    .update(oauthAuthorizationCodes)
-    .set({ usedAt: now })
-    .where(eq(oauthAuthorizationCodes.id, authCode.id));
+  await db.update(oauthAuthorizationCodes).set({ usedAt: now }).where(eq(oauthAuthorizationCodes.id, authCode.id));
 
-  const { raw: accessToken, hash: tokenHash } = await generateSecret("tok_");
+  const { raw: accessToken, hash: tokenHash } = await generateSecret('tok_');
   const tokenPrefix = accessToken.slice(0, 12);
   const expiresIn = 365 * 24 * 60 * 60;
   const expiresAt = new Date(now.getTime() + expiresIn * 1000);
@@ -100,7 +83,7 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({
     access_token: accessToken,
-    token_type: "bearer",
+    token_type: 'bearer',
     expires_in: expiresIn,
   });
 }

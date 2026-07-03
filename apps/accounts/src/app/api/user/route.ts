@@ -1,11 +1,11 @@
-import { cookies } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
-import { getUser, updateUserIcon } from "@Hashibutogarasu/db";
-import { deleteUploadedImage } from "@Hashibutogarasu/utils/server";
-import { getAdminAuth } from "@/lib/firebase-admin";
-import { requireSession } from "@/lib/api/require-session";
-import { SESSION_COOKIE_NAME } from "@/lib/session";
+import { cookies } from 'next/headers';
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+import { getUser, updateUserIcon } from '@Hashibutogarasu/db';
+import { deleteUploadedImage } from '@Hashibutogarasu/utils/server';
+import { getAdminAuth } from '@/lib/firebase-admin';
+import { requireSession } from '@/lib/api/require-session';
+import { SESSION_COOKIE_NAME } from '@/lib/session';
 
 const patchBodySchema = z.object({ iconUrl: z.string().url().nullable() });
 
@@ -38,7 +38,7 @@ export async function PATCH(request: NextRequest) {
 
   const parsed = patchBodySchema.safeParse(await request.json());
   if (!parsed.success) {
-    return NextResponse.json({ error: "invalid_request" }, { status: 400 });
+    return NextResponse.json({ error: 'invalid_request' }, { status: 400 });
   }
 
   const previous = await getUser(user.uid);

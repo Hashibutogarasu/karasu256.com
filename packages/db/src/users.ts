@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
-import { getDb } from "./client";
-import { users, type User } from "./schema";
+import { eq } from 'drizzle-orm';
+import { getDb } from './client';
+import { users, type User } from './schema';
 
 /**
  * Fetches an existing user row by Firebase UID, or null if not found.

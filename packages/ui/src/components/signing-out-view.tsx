@@ -1,5 +1,5 @@
-import { Container } from "./container";
-import { Spinner } from "./ui/spinner";
+import { Container } from './container';
+import { Spinner } from './ui/spinner';
 
 interface SigningOutViewProps {
   /** The message to display below the spinner. */

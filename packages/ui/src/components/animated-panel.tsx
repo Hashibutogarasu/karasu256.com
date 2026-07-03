@@ -1,8 +1,8 @@
-import * as React from "react"
+import * as React from 'react';
 
-import { cn } from "../lib/utils"
+import { cn } from '../lib/utils';
 
-interface AnimatedPanelProps extends React.ComponentProps<"div"> {
+interface AnimatedPanelProps extends React.ComponentProps<'div'> {
   /** Controls whether the panel is expanded. */
   open: boolean;
 }
@@ -16,15 +16,10 @@ interface AnimatedPanelProps extends React.ComponentProps<"div"> {
  */
 function AnimatedPanel({ open, className, children, ...props }: AnimatedPanelProps) {
   return (
-    <div
-      data-slot="animated-panel"
-      data-open={open ? "" : undefined}
-      className={cn(className)}
-      {...props}
-    >
+    <div data-slot="animated-panel" data-open={open ? '' : undefined} className={cn(className)} {...props}>
       <div data-slot="animated-panel-inner">{children}</div>
     </div>
-  )
+  );
 }
 
-export { AnimatedPanel }
+export { AnimatedPanel };

@@ -1,12 +1,12 @@
-import type { Metadata } from "next";
-import { redirect } from "next/navigation";
-import { eq } from "drizzle-orm";
-import { getTranslations } from "next-intl/server";
-import { getDb, getRegisteredSections } from "@Hashibutogarasu/db";
-import { oauthClients } from "@Hashibutogarasu/db/schema";
-import { getSessionUser } from "@/lib/firebase-session";
-import { AuthorizeForm } from "@/components/oauth/authorize-form";
-import { stringOrNull } from "@Hashibutogarasu/utils/validation";
+import type { Metadata } from 'next';
+import { redirect } from 'next/navigation';
+import { eq } from 'drizzle-orm';
+import { getTranslations } from 'next-intl/server';
+import { getDb, getRegisteredSections } from '@Hashibutogarasu/db';
+import { oauthClients } from '@Hashibutogarasu/db/schema';
+import { getSessionUser } from '@/lib/firebase-session';
+import { AuthorizeForm } from '@/components/oauth/authorize-form';
+import { stringOrNull } from '@Hashibutogarasu/utils/validation';
 
 interface PageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -14,7 +14,7 @@ interface PageProps {
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations();
-  return { title: t("oauth.authorize.title") };
+  return { title: t('oauth.authorize.title') };
 }
 
 /**
@@ -30,10 +30,10 @@ export default async function AuthorizePage({ searchParams }: PageProps) {
   const clientId = stringOrNull(params.client_id);
   const redirectUri = stringOrNull(params.redirect_uri);
   const responseType = stringOrNull(params.response_type);
-  const permissionsParam = stringOrNull(params.permissions) ?? "0";
+  const permissionsParam = stringOrNull(params.permissions) ?? '0';
   const state = stringOrNull(params.state) ?? undefined;
 
-  if (responseType !== "code") {
+  if (responseType !== 'code') {
     return <ErrorPage message="response_type must be 'code'" />;
   }
   if (!clientId || !redirectUri) {
@@ -60,17 +60,14 @@ export default async function AuthorizePage({ searchParams }: PageProps) {
   }
 
   const requestedPermissions = parseInt(permissionsParam, 10);
-  if (
-    isNaN(requestedPermissions) ||
-    (BigInt(requestedPermissions) & ~client.permissions) !== 0n
-  ) {
+  if (isNaN(requestedPermissions) || (BigInt(requestedPermissions) & ~client.permissions) !== 0n) {
     return <ErrorPage message="Requested permissions exceed client registration" />;
   }
 
   const user = await getSessionUser();
   if (!user) {
-    const returnUrl = `/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&permissions=${requestedPermissions}${state ? `&state=${encodeURIComponent(state)}` : ""}`;
-    redirect(`${process.env.NEXT_PUBLIC_ACCOUNTS_URL ?? "/"}?returnUrl=${encodeURIComponent(returnUrl)}`);
+    const returnUrl = `/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&permissions=${requestedPermissions}${state ? `&state=${encodeURIComponent(state)}` : ''}`;
+    redirect(`${process.env.NEXT_PUBLIC_ACCOUNTS_URL ?? '/'}?returnUrl=${encodeURIComponent(returnUrl)}`);
   }
 
   const sections = getRegisteredSections().map((s) => ({

@@ -1,5 +1,5 @@
-import { toSvg } from "jdenticon";
-import { cn } from "../lib/utils";
+import { toSvg } from 'jdenticon';
+import { cn } from '../lib/utils';
 
 interface IdenticonProps {
   /** The string used to generate the identicon (typically a Firebase UID). */
@@ -18,7 +18,7 @@ export function Identicon({ value, size = 64, className }: IdenticonProps) {
   const svg = toSvg(value, size);
   return (
     <div
-      className={cn("rounded-full overflow-hidden shrink-0", className)}
+      className={cn('rounded-full overflow-hidden shrink-0', className)}
       style={{ width: size, height: size }}
       dangerouslySetInnerHTML={{ __html: svg }}
     />

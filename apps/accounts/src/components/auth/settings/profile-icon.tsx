@@ -1,20 +1,13 @@
-"use client";
+'use client';
 
-import { useRef } from "react";
-import { updateProfile } from "firebase/auth";
-import { useTranslations } from "next-intl";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuTrigger,
-  UserAvatar,
-  toast,
-} from "@Hashibutogarasu/ui";
-import { useImageUpload } from "@Hashibutogarasu/utils/client";
-import { getFirebaseAuth } from "@/lib/firebase/auth";
-import { useSettingsUser } from "@/components/settings/user-context";
-import { updateUserIcon } from "@/lib/api/update-user-icon";
+import { useRef } from 'react';
+import { updateProfile } from 'firebase/auth';
+import { useTranslations } from 'next-intl';
+import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger, UserAvatar, toast } from '@Hashibutogarasu/ui';
+import { useImageUpload } from '@Hashibutogarasu/utils/client';
+import { getFirebaseAuth } from '@/lib/firebase/auth';
+import { useSettingsUser } from '@/components/settings/user-context';
+import { updateUserIcon } from '@/lib/api/update-user-icon';
 
 /**
  * Avatar that opens the file picker on a plain click, and additionally
@@ -41,17 +34,17 @@ export function ProfileIcon() {
       await updateProfile(currentUser, { photoURL: iconUrl });
     }
     updateUser({ photoURL: iconUrl });
-    toast.success(t("profile.iconChanged"), { autoClose: true });
+    toast.success(t('profile.iconChanged'), { autoClose: true });
   }
 
   async function handleFileSelected(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
-    e.target.value = "";
+    e.target.value = '';
     if (!file) return;
 
     const url = await upload(file, `users/${user.uid}/avatar.png`);
     if (!url) {
-      toast.error(t("profile.uploadFailed"));
+      toast.error(t('profile.uploadFailed'));
       return;
     }
     await persistIcon(url);
@@ -60,32 +53,17 @@ export function ProfileIcon() {
   return (
     <>
       <ContextMenu>
-        <ContextMenuTrigger
-          onClick={() => fileInputRef.current?.click()}
-          aria-label={t("profile.changeIcon")}
-        >
+        <ContextMenuTrigger onClick={() => fileInputRef.current?.click()} aria-label={t('profile.changeIcon')}>
           <UserAvatar uid={user.uid} iconUrl={user.photoURL} size={48} className="border border-border" />
         </ContextMenuTrigger>
         <ContextMenuContent>
-          <ContextMenuItem onClick={() => fileInputRef.current?.click()}>
-            {t("profile.uploadIcon")}
-          </ContextMenuItem>
-          <ContextMenuItem
-            variant="destructive"
-            disabled={!user.photoURL}
-            onClick={() => persistIcon(null)}
-          >
-            {t("profile.deleteIcon")}
+          <ContextMenuItem onClick={() => fileInputRef.current?.click()}>{t('profile.uploadIcon')}</ContextMenuItem>
+          <ContextMenuItem variant="destructive" disabled={!user.photoURL} onClick={() => persistIcon(null)}>
+            {t('profile.deleteIcon')}
           </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/jpeg,image/png,image/webp"
-        className="hidden"
-        onChange={handleFileSelected}
-      />
+      <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleFileSelected} />
     </>
   );
 }

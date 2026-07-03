@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useCallback, useState } from "react";
-import { useImageUploadApiUrl } from "./context";
+import { useCallback, useState } from 'react';
+import { useImageUploadApiUrl } from './context';
 
 export interface UseImageUploadResult {
   uploading: boolean;
@@ -29,12 +29,12 @@ export function useImageUpload(): UseImageUploadResult {
       setUploading(true);
       try {
         const form = new FormData();
-        form.append("file", file);
-        if (path) form.append("path", path);
+        form.append('file', file);
+        if (path) form.append('path', path);
         const res = await fetch(`${apiUrl}/upload`, {
-          method: "POST",
+          method: 'POST',
           body: form,
-          credentials: "include",
+          credentials: 'include',
         });
         if (!res.ok) return null;
         const { url } = (await res.json()) as { url: string };
@@ -45,7 +45,7 @@ export function useImageUpload(): UseImageUploadResult {
         setUploading(false);
       }
     },
-    [apiUrl],
+    [apiUrl]
   );
 
   return { uploading, upload };

@@ -1,7 +1,7 @@
-@import "tailwindcss";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
-@import "@Hashibutogarasu/ui/styles/base.css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+@import '@Hashibutogarasu/ui/styles/base.css';
 
 @custom-variant dark (@media (prefers-color-scheme: dark));
 
@@ -125,8 +125,12 @@ html {
 }
 
 @keyframes slide-from-left {
-  from { transform: translateX(-8px); }
-  to   { transform: translateX(0); }
+  from {
+    transform: translateX(-8px);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
 
 @layer base {
