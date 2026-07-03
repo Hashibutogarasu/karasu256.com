@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft, faKey } from "@fortawesome/free-solid-svg-icons";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { toast } from "@Hashibutogarasu/ui";
 import { verifyPasswordResetToken, setNewPassword } from "@Hashibutogarasu/utils/client";
 import { Button } from "@Hashibutogarasu/ui";
@@ -24,7 +24,7 @@ interface Props {
  * new password. Renders inline error states for expired or invalid links.
  */
 export function ResetPasswordConfirmForm({ uid, token }: Props) {
-  const { t } = useTranslation();
+  const t = useTranslations();
   const [stage, setStage] = useState<Stage>("verifying");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);

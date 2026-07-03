@@ -1,13 +1,13 @@
 "use client";
 
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { PasswordStrengthIndicator } from "./password-strength-indicator";
 
 /**
  * Wraps {@link PasswordStrengthIndicator} with labels sourced from i18n.
  */
 export function LocalizedPasswordStrengthIndicator({ password }: { password: string }) {
-  const { t } = useTranslation();
+  const t = useTranslations();
   return (
     <PasswordStrengthIndicator
       password={password}

@@ -4,7 +4,7 @@ import { useEffect } from "react"
 import { signInWithCustomToken } from "firebase/auth"
 import { useRouter } from "next/navigation"
 import { signIn as nextAuthSignIn } from "next-auth/react"
-import { useTranslation } from "react-i18next"
+import { useTranslations } from "next-intl";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faSpinner } from "@fortawesome/free-solid-svg-icons"
 import { getFirebaseAuth } from "@/lib/firebase/auth"
@@ -19,7 +19,7 @@ import { createSession } from "@/lib/api/auth-session"
  */
 export function OAuthCallbackClient() {
   const router = useRouter()
-  const { t } = useTranslation()
+  const t = useTranslations();
 
   useEffect(() => {
     async function completeSignIn() {

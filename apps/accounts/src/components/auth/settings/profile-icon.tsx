@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { updateProfile } from "firebase/auth";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -23,7 +23,7 @@ import { updateUserIcon } from "@/lib/api/update-user-icon";
  * no icon set.
  */
 export function ProfileIcon() {
-  const { t } = useTranslation();
+  const t = useTranslations();
   const { user, updateUser } = useSettingsUser();
   const { upload } = useImageUpload();
   const fileInputRef = useRef<HTMLInputElement>(null);

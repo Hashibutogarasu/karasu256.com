@@ -1,4 +1,11 @@
+import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { SettingsShell } from "./shell";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations();
+  return { title: t("settings.title") };
+}
 
 /**
  * Reads NEXT_PUBLIC_APP_URL at request time on the server and passes it to

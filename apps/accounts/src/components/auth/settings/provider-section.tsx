@@ -6,7 +6,7 @@ import { getIdToken, onAuthStateChanged, type User } from "firebase/auth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLink, faLinkSlash } from "@fortawesome/free-solid-svg-icons";
 import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { toast, SettingsAccordion, SettingsItem, Spinner } from "@Hashibutogarasu/ui";
 import { getFirebaseAuth } from "@/lib/firebase/auth";
 import { listPasskeyCredentials } from "@/lib/api/passkey-credentials";
@@ -31,7 +31,7 @@ interface ProviderSectionProps {
  * Unlinking the last provider is blocked when the user has no registered passkeys.
  */
 export function ProviderSection({ providers }: ProviderSectionProps) {
-  const { t } = useTranslation();
+  const t = useTranslations();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -60,7 +60,7 @@ export function ProviderSection({ providers }: ProviderSectionProps) {
 
     if (error) {
       const key = `connections.error.${error}`;
-      toast.error(t(key, { defaultValue: t("connections.error.unknown") }));
+      toast.error(t.has(key) ? t(key) : t("connections.error.unknown"));
     } else if (linkedProvider) {
       toast.success(t("connections.linked", { provider: linkedProvider }), { autoClose: true });
     }

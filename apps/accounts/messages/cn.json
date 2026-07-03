@@ -1,4 +1,20 @@
 {
+  "Metadata": {
+    "siteTitle": "Karasu Lab",
+    "siteDescription": "Karasu Lab 账户门户",
+    "signIn": {
+      "title": "登录"
+    },
+    "signOut": {
+      "title": "正在退出登录"
+    },
+    "authCallback": {
+      "title": "正在登录"
+    },
+    "resetPasswordConfirm": {
+      "title": "新密码"
+    }
+  },
   "signIn": {
     "title": "登录 Karasu Lab",
     "tabs": {
@@ -30,7 +46,7 @@
     "remove": "删除通行密钥",
     "removeConfirm": {
       "title": "删除通行密钥？",
-      "description": "将删除「{{name}}」。此操作无法撤销。",
+      "description": "将删除「{name}」。此操作无法撤销。",
       "cancel": "取消"
     },
     "name": "通行密钥名称",
@@ -94,7 +110,7 @@
     "linking": "关联中",
     "unlinking": "解除中",
     "cannotUnlink": "无法删除最后一种登录方式。",
-    "linked": "已关联 {{provider}}。",
+    "linked": "已关联 {provider}。",
     "error": {
       "provider_already_linked": "此账户已关联至其他用户。",
       "missing_token": "认证失败，请重试。",
@@ -130,7 +146,7 @@
     "title": "重置密码",
     "sendLink": "发送重置链接",
     "sending": "发送中",
-    "sent": "重置链接已发送至 {{email}}，请检查收件箱。",
+    "sent": "重置链接已发送至 {email}，请检查收件箱。",
     "sendError": "发送重置链接失败。",
     "backToSignIn": "返回登录",
     "verifying": "验证链接中",

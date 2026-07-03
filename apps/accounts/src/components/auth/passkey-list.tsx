@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getIdToken } from "firebase/auth";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import {
   toast,
   ConfirmDialog,
@@ -29,7 +29,7 @@ interface PasskeyListProps {
  * the parent to trigger a refresh after a new registration.
  */
 export function PasskeyList({ version }: PasskeyListProps) {
-  const { t } = useTranslation();
+  const t = useTranslations();
   const [credentials, setCredentials] = useState<CredentialSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { onAuthStateChanged, signOut, type User } from "firebase/auth";
 import { usePathname, useRouter } from "next/navigation";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { getFirebaseAuth } from "@/lib/firebase/auth";
 import { clearSession } from "@/lib/api/auth-session";
 import { Skeleton, SettingsSidebarLayout } from "@Hashibutogarasu/ui";
@@ -27,7 +27,7 @@ interface SettingsShellProps {
 export function SettingsShell({ children, appUrl }: SettingsShellProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const { t } = useTranslation();
+  const t = useTranslations();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 

@@ -7,7 +7,7 @@ import {
   reauthenticateWithCredential,
   signOut,
 } from "firebase/auth";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { toast } from "@Hashibutogarasu/ui";
 import { useSettingsUser } from "@/components/settings/user-context";
 import { getFirebaseAuth } from "@/lib/firebase/auth";
@@ -24,7 +24,7 @@ import { Label } from "@Hashibutogarasu/ui";
  * in the parent then redirects to `/`.
  */
 export function DangerZone() {
-  const { t } = useTranslation();
+  const t = useTranslations();
   const { user } = useSettingsUser();
   const [confirming, setConfirming] = useState(false);
   const [password, setPassword] = useState("");

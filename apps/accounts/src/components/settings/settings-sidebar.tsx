@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { User, Shield, Link as LinkIcon } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import {
   SettingsSidebar as UiSettingsSidebar,
   type SidebarNavItem,
@@ -27,7 +27,7 @@ interface Props {
  * translated labels, active-path detection, and Next.js client-side links.
  */
 export function SettingsSidebar({ user, appUrl, onSignOut }: Props) {
-  const { t } = useTranslation();
+  const t = useTranslations();
   const pathname = usePathname();
 
   const navItems: SidebarNavItem[] = NAV_ITEMS_DEFS.map(({ href, icon, labelKey }) => ({

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { updateProfile } from "firebase/auth";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { toast } from "@Hashibutogarasu/ui";
 import { getFirebaseAuth } from "@/lib/firebase/auth";
 import { useSettingsUser } from "@/components/settings/user-context";
@@ -14,7 +14,7 @@ import { ProfileIcon } from "./profile-icon";
 
 /** Displays the user's avatar (uploadable) and allows editing their display name. */
 export function ProfileSection() {
-  const { t } = useTranslation();
+  const t = useTranslations();
   const { user, updateUser } = useSettingsUser();
   const [displayName, setDisplayName] = useState(user.displayName ?? "");
   const [saving, setSaving] = useState(false);
@@ -70,7 +70,7 @@ export function ProfileSection() {
  * its final structure and stays disabled until the user is ready.
  */
 export function ProfileSectionSkeleton() {
-  const { t } = useTranslation();
+  const t = useTranslations();
 
   return (
     <div className="space-y-4">

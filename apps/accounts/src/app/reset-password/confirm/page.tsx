@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { ResetPasswordConfirmForm } from "@/components/auth/reset-password-confirm-form";
 
-export const metadata: Metadata = {
-  title: "New Password — Karasu Lab",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("Metadata");
+  return { title: t("resetPasswordConfirm.title") };
+}
 
 interface Props {
   searchParams: Promise<{ uid?: string; token?: string }>;

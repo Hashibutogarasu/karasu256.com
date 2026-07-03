@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { signIn as nextAuthSignIn } from "next-auth/react";
 import { getFirebaseAuth } from "@/lib/firebase/auth";
 import { createSession } from "@/lib/api/auth-session";
@@ -24,7 +24,7 @@ import { SocialButtons } from "./social-buttons";
  */
 export function SignInCard() {
   const router = useRouter();
-  const { t } = useTranslation();
+  const t = useTranslations();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
