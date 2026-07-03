@@ -74,7 +74,7 @@ export function EditOAuthClientDialog({
   }
 
   async function handleFileSelected(file: File) {
-    const url = await upload(file);
+    const url = await upload(file, `oauth/${client.id}/icon.png`);
     if (!url) return;
     setIconUrl(url);
     setIconPreview(URL.createObjectURL(file));

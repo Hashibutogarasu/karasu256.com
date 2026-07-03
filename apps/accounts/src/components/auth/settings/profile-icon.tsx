@@ -49,7 +49,7 @@ export function ProfileIcon() {
     e.target.value = "";
     if (!file) return;
 
-    const url = await upload(file);
+    const url = await upload(file, `users/${user.uid}/avatar.png`);
     if (!url) {
       toast.error(t("profile.uploadFailed"));
       return;
