@@ -26,3 +26,16 @@ function getAdminApp(): App {
 export function getAdminAuth() {
   return getAdminAuthSdk(getAdminApp());
 }
+
+/**
+ * Returns the given user's Firebase Auth `photoURL`, or `null` if the user
+ * has none set or doesn't exist.
+ */
+export async function getFirebaseUserIcon(uid: string): Promise<string | null> {
+  try {
+    const user = await getAdminAuth().getUser(uid);
+    return user.photoURL ?? null;
+  } catch {
+    return null;
+  }
+}

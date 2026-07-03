@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
-import { ImageUploadProvider } from '@Hashibutogarasu/utils/client';
 import { ProfileSection } from '@/components/auth/settings/profile-section';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -9,9 +8,5 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function ProfilePage() {
-  return (
-    <ImageUploadProvider>
-      <ProfileSection />
-    </ImageUploadProvider>
-  );
+  return <ProfileSection />;
 }

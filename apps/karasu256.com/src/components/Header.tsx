@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getUser } from '@Hashibutogarasu/db';
+import { getFirebaseUserIcon } from '@/lib/firebase-admin';
 import { getSessionUser } from '@/lib/firebase-session';
 import { AuthButton } from '@/components/auth-button';
 
@@ -9,7 +9,7 @@ import { AuthButton } from '@/components/auth-button';
  */
 const Header = async () => {
   const sessionUser = await getSessionUser();
-  const dbUser = sessionUser ? await getUser(sessionUser.uid) : null;
+  const iconUrl = sessionUser ? await getFirebaseUserIcon(sessionUser.uid) : null;
   const accountsUrl = process.env.NEXT_PUBLIC_ACCOUNTS_URL ?? '#';
 
   return (
@@ -27,7 +27,7 @@ const Header = async () => {
               uid={sessionUser?.uid ?? null}
               displayName={sessionUser?.name ?? null}
               email={sessionUser?.email ?? null}
-              iconUrl={dbUser?.iconUrl ?? null}
+              iconUrl={iconUrl}
             />
           </li>
         </ul>
