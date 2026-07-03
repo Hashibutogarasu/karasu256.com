@@ -22,7 +22,7 @@ Copy `.env.example` to `.env.local` and fill in all values before running locall
 
 ## Architecture
 
-This is a **Next.js 16 App Router** authentication portal for Karasu Lab. Its sole purpose is sign-in, sign-out, and passkey management.
+This is a **Next.js 16 App Router** account portal for Karasu Lab. Its sole purpose is sign-in, sign-out, and passkey management.
 
 ### Authentication flow
 
