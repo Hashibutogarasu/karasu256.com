@@ -89,11 +89,16 @@ export function ProviderSection({ providers, initialProviders }: ProviderSection
     setLoading(providerId);
     try {
       await bridgeFirebaseSession();
-      await authClient.linkSocial({
+      const { error } = await authClient.linkSocial({
         provider: providerId,
         callbackURL: '/settings/linking',
         errorCallbackURL: '/settings/linking',
       });
+      if (error) {
+        const key = `connections.error.${error.code?.toLowerCase()}`;
+        toast.error(t.has(key) ? t(key) : t('connections.error.unknown'));
+        setLoading(null);
+      }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : String(err));
       setLoading(null);
