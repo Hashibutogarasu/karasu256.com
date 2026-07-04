@@ -8,14 +8,15 @@ import { ImageUploadProvider } from '@Hashibutogarasu/utils/client';
 import {
   deleteApiKey,
   deleteOAuthClient,
-  getPermissionSections,
+  getAvailableScopes,
+  groupScopesBySection,
   listApiKeys,
   listOAuthClients,
   type ApiKeyCreated,
   type ApiKeySummary,
   type OAuthClientCreated,
   type OAuthClientSummary,
-  type SectionMeta,
+  type PermissionSection,
 } from '@/lib/api/developer';
 import { ApiKeyRow } from './api-key-row';
 import { OAuthClientRow } from './oauth-client-row';
@@ -28,8 +29,9 @@ import { RotateSecretDialog } from './rotate-secret-dialog';
 type PendingDelete = { type: 'client'; id: string; name: string } | { type: 'key'; id: string; name: string };
 
 /**
- * Developer settings section. Manages OAuth clients and API keys with
- * collapsible lists and creation/edit dialogs.
+ * Developer settings section. Manages OAuth clients (backed by
+ * accounts.karasu256.com's better-auth OAuth authorization server) and API
+ * keys, with collapsible lists and creation/edit dialogs.
  */
 export function DeveloperSection() {
   const t = useTranslations();
@@ -37,7 +39,7 @@ export function DeveloperSection() {
   const [loading, setLoading] = useState(true);
   const [clients, setClients] = useState<OAuthClientSummary[]>([]);
   const [keys, setKeys] = useState<ApiKeySummary[]>([]);
-  const [sections, setSections] = useState<SectionMeta[]>([]);
+  const [sections, setSections] = useState<PermissionSection[]>([]);
   const [clientDialogOpen, setClientDialogOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<OAuthClientSummary | null>(null);
   const [testingClient, setTestingClient] = useState<OAuthClientSummary | null>(null);
@@ -46,9 +48,11 @@ export function DeveloperSection() {
   const [pendingDelete, setPendingDelete] = useState<PendingDelete | null>(null);
 
   useEffect(() => {
-    void Promise.all([listOAuthClients().then(setClients), listApiKeys().then(setKeys), getPermissionSections().then(setSections)]).finally(() =>
-      setLoading(false)
-    );
+    void Promise.all([
+      listOAuthClients().then(setClients),
+      listApiKeys().then(setKeys),
+      getAvailableScopes().then((scopes) => setSections(groupScopesBySection(scopes))),
+    ]).finally(() => setLoading(false));
   }, []);
 
   function handleClientCreated(client: OAuthClientCreated) {
@@ -56,7 +60,7 @@ export function DeveloperSection() {
   }
 
   function handleClientUpdated(updated: OAuthClientSummary) {
-    setClients((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
+    setClients((prev) => prev.map((c) => (c.client_id === updated.client_id ? updated : c)));
   }
 
   function handleKeyCreated(key: ApiKeyCreated) {
@@ -67,7 +71,7 @@ export function DeveloperSection() {
     if (!pendingDelete) return;
     if (pendingDelete.type === 'client') {
       await deleteOAuthClient(pendingDelete.id);
-      setClients((prev) => prev.filter((c) => c.id !== pendingDelete.id));
+      setClients((prev) => prev.filter((c) => c.client_id !== pendingDelete.id));
     } else {
       await deleteApiKey(pendingDelete.id);
       setKeys((prev) => prev.filter((k) => k.id !== pendingDelete.id));
@@ -114,12 +118,11 @@ export function DeveloperSection() {
             ) : (
               clients.map((c) => (
                 <OAuthClientRow
-                  key={c.id}
+                  key={c.client_id}
                   client={c}
-                  sections={sections}
                   onTest={setTestingClient}
                   onEdit={setEditingClient}
-                  onDelete={(id) => setPendingDelete({ type: 'client', id, name: c.name })}
+                  onDelete={(clientId) => setPendingDelete({ type: 'client', id: clientId, name: c.client_name ?? c.client_id })}
                   onRotateSecret={setRotatingClient}
                 />
               ))
@@ -187,8 +190,8 @@ export function DeveloperSection() {
             onOpenChange={(open) => {
               if (!open) setRotatingClient(null);
             }}
-            clientId={rotatingClient.id}
-            clientName={rotatingClient.name}
+            clientId={rotatingClient.client_id}
+            clientName={rotatingClient.client_name ?? rotatingClient.client_id}
           />
         )}
         <ConfirmDialog

@@ -1,16 +1,16 @@
 import { ApiError } from '@Hashibutogarasu/utils/client';
+import { authClient, bridgeFirebaseSession } from '@/lib/auth/auth-client';
 
 export interface OAuthClientSummary {
-  id: string;
-  name: string;
-  iconUrl: string | null;
-  callbackUris: string[];
-  permissions: number;
-  createdAt: string;
+  client_id: string;
+  client_name?: string;
+  logo_uri?: string;
+  redirect_uris: string[];
+  scope?: string;
 }
 
 export interface OAuthClientCreated extends OAuthClientSummary {
-  secret: string;
+  client_secret: string;
 }
 
 export interface ApiKeySummary {
@@ -25,77 +25,55 @@ export interface ApiKeyCreated extends ApiKeySummary {
   key: string;
 }
 
-export interface SectionMeta {
-  key: string;
-  labelKey: string;
-  descriptionKey?: string;
-  readMask: number;
-  writeMask: number;
-}
-
 /**
- * @throws {ApiError} When the request fails with a non-ok HTTP status.
+ * Lists the OAuth clients owned by the current user, via
+ * accounts.karasu256.com's better-auth OAuth authorization server.
  */
 export async function listOAuthClients(): Promise<OAuthClientSummary[]> {
-  const res = await fetch('/api/oauth/clients');
-  if (!res.ok) throw ApiError.fromResponse(res);
-  return res.json() as Promise<OAuthClientSummary[]>;
+  await bridgeFirebaseSession();
+  const { data, error } = await authClient.oauth2.getClients();
+  if (error) throw new ApiError(error.status, error.message ?? 'Request failed');
+  return (data ?? []) as OAuthClientSummary[];
 }
 
-/**
- * @throws {ApiError} When the request fails with a non-ok HTTP status.
- */
 export async function createOAuthClient(input: {
-  name: string;
-  callbackUris: string[];
-  iconUrl?: string;
-  permissions: number;
+  client_name: string;
+  redirect_uris: string[];
+  logo_uri?: string;
+  scope: string;
 }): Promise<OAuthClientCreated> {
-  const res = await fetch('/api/oauth/clients', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(input),
-  });
-  if (!res.ok) throw ApiError.fromResponse(res);
-  return res.json() as Promise<OAuthClientCreated>;
+  await bridgeFirebaseSession();
+  const { data, error } = await authClient.oauth2.createClient(input);
+  if (error) throw new ApiError(error.status, error.message ?? 'Request failed');
+  return data as OAuthClientCreated;
 }
 
-/**
- * @throws {ApiError} When the request fails with a non-ok HTTP status.
- */
 export async function updateOAuthClient(
-  id: string,
-  input: Partial<{
-    name: string;
-    callbackUris: string[];
-    iconUrl: string | null;
-    permissions: number;
+  clientId: string,
+  update: Partial<{
+    client_name: string;
+    redirect_uris: string[];
+    logo_uri: string;
+    scope: string;
   }>
 ): Promise<OAuthClientSummary> {
-  const res = await fetch(`/api/oauth/clients/${id}`, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(input),
-  });
-  if (!res.ok) throw ApiError.fromResponse(res);
-  return res.json() as Promise<OAuthClientSummary>;
+  await bridgeFirebaseSession();
+  const { data, error } = await authClient.oauth2.updateClient({ client_id: clientId, update });
+  if (error) throw new ApiError(error.status, error.message ?? 'Request failed');
+  return data as OAuthClientSummary;
 }
 
-/**
- * @throws {ApiError} When the request fails with a non-ok HTTP status.
- */
-export async function deleteOAuthClient(id: string): Promise<void> {
-  const res = await fetch(`/api/oauth/clients/${id}`, { method: 'DELETE' });
-  if (!res.ok && res.status !== 204) throw ApiError.fromResponse(res);
+export async function deleteOAuthClient(clientId: string): Promise<void> {
+  await bridgeFirebaseSession();
+  const { error } = await authClient.oauth2.deleteClient({ client_id: clientId });
+  if (error) throw new ApiError(error.status, error.message ?? 'Request failed');
 }
 
-/**
- * @throws {ApiError} When the request fails with a non-ok HTTP status.
- */
-export async function rotateOAuthClientSecret(id: string): Promise<{ secret: string }> {
-  const res = await fetch(`/api/oauth/clients/${id}/secret`, { method: 'POST' });
-  if (!res.ok) throw ApiError.fromResponse(res);
-  return res.json() as Promise<{ secret: string }>;
+export async function rotateOAuthClientSecret(clientId: string): Promise<{ client_secret: string }> {
+  await bridgeFirebaseSession();
+  const { data, error } = await authClient.oauth2.client.rotateSecret({ client_id: clientId });
+  if (error) throw new ApiError(error.status, error.message ?? 'Request failed');
+  return data as { client_secret: string };
 }
 
 /**
@@ -129,10 +107,32 @@ export async function deleteApiKey(id: string): Promise<void> {
 }
 
 /**
+ * Returns the catalog of OAuth scopes an OAuth client can request.
+ *
  * @throws {ApiError} When the request fails with a non-ok HTTP status.
  */
-export async function getPermissionSections(): Promise<SectionMeta[]> {
+export async function getAvailableScopes(): Promise<string[]> {
   const res = await fetch('/api/permissions/sections');
   if (!res.ok) throw ApiError.fromResponse(res);
-  return res.json() as Promise<SectionMeta[]>;
+  return res.json() as Promise<string[]>;
+}
+
+export interface PermissionSection {
+  key: string;
+  canRead: boolean;
+  canWrite: boolean;
+}
+
+/** Groups `"read:<key>"`/`"write:<key>"` scope strings by their section key. */
+export function groupScopesBySection(scopes: string[]): PermissionSection[] {
+  const byKey = new Map<string, PermissionSection>();
+  for (const scope of scopes) {
+    const [mode, key] = scope.split(':');
+    if (!key || (mode !== 'read' && mode !== 'write')) continue;
+    const section = byKey.get(key) ?? { key, canRead: false, canWrite: false };
+    if (mode === 'read') section.canRead = true;
+    else section.canWrite = true;
+    byKey.set(key, section);
+  }
+  return [...byKey.values()];
 }

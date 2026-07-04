@@ -1,27 +1,37 @@
-import { bigint, pgTable, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
+import { index, pgTable, text, timestamp, varchar } from 'drizzle-orm/pg-core';
 import { oauthClients } from './oauth-clients';
+import { oauthRefreshTokens } from './oauth-refresh-tokens';
+import { sessions } from './auth-sessions';
 import { users } from './users';
 
-export const oauthAccessTokens = pgTable('oauth_access_tokens', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  /** SHA-256 digest of the raw access token. */
-  tokenHash: varchar('token_hash', { length: 255 }).notNull(),
-  /** First 12 characters of the raw token for display (e.g. "tok_XXXXXXXX"). */
-  tokenPrefix: varchar('token_prefix', { length: 12 }).notNull(),
-  clientId: uuid('client_id')
-    .notNull()
-    .references(() => oauthClients.id, { onDelete: 'cascade' }),
-  userId: varchar('user_id', { length: 128 })
-    .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
-  /** Bitmask of permissions granted to this token. */
-  permissions: bigint('permissions', { mode: 'bigint' }).notNull(),
-  expiresAt: timestamp('expires_at').notNull(),
-  /** Set when the token is explicitly revoked. Null means the token is still valid. */
-  revokedAt: timestamp('revoked_at'),
-  lastUsedAt: timestamp('last_used_at'),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-});
+/**
+ * `@better-auth/oauth-provider`'s `oauthAccessToken` model. Only populated
+ * for opaque access tokens (no audience); JWT access tokens are verified
+ * locally and never written here. Replaces the old `oauth_access_tokens` table.
+ */
+export const oauthAccessTokens = pgTable(
+  'oauth_access_token',
+  {
+    id: text('id').primaryKey(),
+    token: text('token').unique(),
+    clientId: text('client_id')
+      .notNull()
+      .references(() => oauthClients.clientId, { onDelete: 'cascade' }),
+    sessionId: text('session_id').references(() => sessions.id, { onDelete: 'set null' }),
+    userId: varchar('user_id', { length: 128 }).references(() => users.id, { onDelete: 'cascade' }),
+    referenceId: text('reference_id'),
+    refreshId: text('refresh_id').references(() => oauthRefreshTokens.id, { onDelete: 'cascade' }),
+    expiresAt: timestamp('expires_at'),
+    createdAt: timestamp('created_at'),
+    scopes: text('scopes').array().notNull(),
+  },
+  (t) => [
+    index('oauthAccessToken_clientId_idx').on(t.clientId),
+    index('oauthAccessToken_sessionId_idx').on(t.sessionId),
+    index('oauthAccessToken_userId_idx').on(t.userId),
+    index('oauthAccessToken_refreshId_idx').on(t.refreshId),
+  ]
+);
 
 export type OAuthAccessToken = typeof oauthAccessTokens.$inferSelect;
 export type NewOAuthAccessToken = typeof oauthAccessTokens.$inferInsert;

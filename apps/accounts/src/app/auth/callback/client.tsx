@@ -3,7 +3,6 @@
 import { useEffect } from 'react';
 import { signInWithCustomToken } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
-import { signIn as nextAuthSignIn } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
@@ -12,8 +11,8 @@ import { createSession } from '@/lib/api/auth-session';
 
 /**
  * Retrieves the Firebase custom token issued by the OAuth signIn callback,
- * completes Firebase authentication, and establishes both the session cookie
- * and the NextAuth JWT before redirecting to the settings page.
+ * completes Firebase authentication, and establishes the session cookie
+ * before redirecting to the settings page.
  *
  * On failure, redirects to /oauth/error.
  */
@@ -33,7 +32,6 @@ export function OAuthCallbackClient() {
       const credential = await signInWithCustomToken(getFirebaseAuth(), customToken);
       const idToken = await credential.user.getIdToken();
       await createSession(idToken);
-      nextAuthSignIn('credentials', { idToken, redirect: false }).catch(() => {});
       router.replace('/settings');
     }
 

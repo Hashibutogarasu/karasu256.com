@@ -1,4 +1,4 @@
-import { SESSION_COOKIE_NAME } from './next-auth';
+import { SESSION_COOKIE_NAME } from './session-cookie';
 
 export interface DeleteUploadedImageOptions {
   /** Base URL of the image API, e.g. `https://cdn.karasu256.com`. */

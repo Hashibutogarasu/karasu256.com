@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server';
-import { getRegisteredSections } from '@Hashibutogarasu/db';
+
+/**
+ * OAuth scopes an OAuth client may request. Mirrors the scopes declared in
+ * `apps/accounts/src/lib/auth/server.ts`'s `oauthProvider({ scopes })` and
+ * the `Read()`/`Write()` route guards actually enforced by this app's API
+ * routes (currently just `/api/profile`) — update both places together when
+ * adding a new scope.
+ */
+const AVAILABLE_SCOPES = ['read:profile', 'write:profile'];
 
 export async function GET() {
-  const sections = getRegisteredSections().map((s) => ({
-    key: s.key,
-    labelKey: s.labelKey,
-    descriptionKey: s.descriptionKey,
-    readMask: Number(s.readMask),
-    writeMask: Number(s.writeMask),
-  }));
-  return NextResponse.json(sections);
+  return NextResponse.json(AVAILABLE_SCOPES);
 }

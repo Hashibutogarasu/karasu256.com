@@ -31,7 +31,7 @@ export function RotateSecretDialog({ open, onOpenChange, clientId, clientName }:
   async function handleConfirm() {
     setLoading(true);
     try {
-      const { secret } = await rotateOAuthClientSecret(clientId);
+      const { client_secret: secret } = await rotateOAuthClientSecret(clientId);
       setNewSecret(secret);
     } finally {
       setLoading(false);

@@ -3,13 +3,12 @@
 import { useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { faGoogle, faGithub } from '@fortawesome/free-brands-svg-icons';
-import type { ProviderAccountSummary } from '@Hashibutogarasu/db';
 import type { Provider } from '@/components/auth/settings/provider-section';
 
 const ProviderSectionLazy = dynamic(() => import('@/components/auth/settings/provider-section').then((m) => m.ProviderSection), { ssr: false });
 
 interface ProviderSectionClientProps {
-  initialProviders: ProviderAccountSummary[];
+  initialProviders: string[];
 }
 
 /** @returns ProviderSection loaded client-side only, with OAuth providers resolved via useMemo. */

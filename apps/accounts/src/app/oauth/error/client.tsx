@@ -10,13 +10,14 @@ import { Button } from '@Hashibutogarasu/ui';
 /**
  * Displays an error message when the OAuth sign-in flow fails.
  *
- * Translates the `code` query parameter directly via `oauthError.{code}`;
- * falls back to a generic message for unknown or missing codes.
+ * Translates better-auth's `error` query parameter directly via
+ * `oauthError.{error}`; falls back to a generic message for unknown or
+ * missing codes.
  */
 export function OAuthErrorClient() {
   const t = useTranslations();
   const searchParams = useSearchParams();
-  const code = searchParams.get('code');
+  const code = searchParams.get('error');
 
   const key = code ? `oauthError.${code}` : null;
   const message = key && t.has(key) ? t(key) : t('oauthError.message');

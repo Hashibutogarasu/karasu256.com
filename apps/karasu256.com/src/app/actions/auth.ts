@@ -2,11 +2,10 @@
 
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { SESSION_COOKIE_NAME, AUTH_TOKEN_COOKIE_NAME } from '@Hashibutogarasu/utils/server';
+import { SESSION_COOKIE_NAME } from '@Hashibutogarasu/utils/server';
 
 /**
- * Clears the Firebase session cookie and the NextAuth JWT, then redirects to
- * the home page.
+ * Clears the Firebase session cookie, then redirects to the home page.
  */
 export async function signOutAction() {
   const store = await cookies();
@@ -15,17 +14,6 @@ export async function signOutAction() {
 
   store.set({
     name: SESSION_COOKIE_NAME,
-    value: '',
-    httpOnly: true,
-    secure,
-    sameSite: 'lax',
-    path: '/',
-    ...(domain ? { domain } : {}),
-    maxAge: 0,
-  });
-
-  store.set({
-    name: AUTH_TOKEN_COOKIE_NAME,
     value: '',
     httpOnly: true,
     secure,
