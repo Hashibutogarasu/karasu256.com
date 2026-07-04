@@ -33,7 +33,7 @@ export { ConfirmDialog, type ConfirmDialogProps } from './components/confirm-dia
 export { DeleteIconButton, type DeleteIconButtonProps } from './components/delete-icon-button';
 export { FileUploadButton, type FileUploadButtonProps } from './components/file-upload-button';
 export { SettingsItem } from './components/settings-item';
-export { SigningOutView } from './components/signing-out-view';
+export { LoadingView } from './components/loading-view';
 export {
   DropdownMenu,
   DropdownMenuTrigger,
