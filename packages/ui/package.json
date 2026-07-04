@@ -19,5 +19,8 @@
   "peerDependencies": {
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "shadcn": "^4.13.0"
   }
 }

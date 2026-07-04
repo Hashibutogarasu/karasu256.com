@@ -8,6 +8,10 @@ import { useOAuthErrorMessage } from '@/lib/i18n/use-oauth-error-message';
 import { Button, Dialog, DialogBackdrop, DialogClose, DialogPopup, DialogPortal, DialogTitle, Input, Label } from '@Hashibutogarasu/ui';
 import type { OAuthClientSummary } from '@/lib/api/developer';
 
+const ACCOUNTS_URL = process.env.NEXT_PUBLIC_ACCOUNTS_URL as string;
+/** better-auth's internal `baseURL` (and therefore the only valid `resource`/audience) includes the `/api/auth` mount path. */
+const OAUTH_ISSUER = `${ACCOUNTS_URL}/api/auth`;
+
 const STEP_LABELS = ['authorize', 'access_token', 'profile_read', 'profile_write'] as const;
 type StepLabel = (typeof STEP_LABELS)[number];
 type StepStatus = 'waiting' | 'running' | 'success' | 'error';
@@ -35,10 +39,24 @@ function failStep(label: StepLabel, error: string) {
   return (prev: StepState[]): StepState[] => prev.map((s) => (s.label === label ? { ...s, status: 'error', error } : s));
 }
 
+function base64url(bytes: ArrayBuffer): string {
+  return btoa(String.fromCharCode(...new Uint8Array(bytes)))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+}
+
+async function createPkcePair(): Promise<{ verifier: string; challenge: string }> {
+  const verifier = base64url(crypto.getRandomValues(new Uint8Array(32)).buffer);
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier));
+  return { verifier, challenge: base64url(digest) };
+}
+
 /**
- * Dialog that tests the full OAuth flow for the given client by opening the
- * real authorization page in a popup window. Uses only standard API endpoints:
- * /api/oauth/token for code exchange, /api/profile for read and write.
+ * Dialog that tests the full OAuth flow for the given client by opening
+ * accounts.karasu256.com's real authorization page in a popup window,
+ * exchanging the resulting code at its `/oauth2/token` endpoint (PKCE
+ * required), then calling `/api/profile` for read and write.
  */
 export function OAuthClientTestDialog({ open, onOpenChange, client, spinner: SpinnerComponent = DefaultSpinner }: OAuthClientTestDialogProps) {
   const t = useTranslations();
@@ -47,6 +65,7 @@ export function OAuthClientTestDialog({ open, onOpenChange, client, spinner: Spi
   const popupRef = useRef<Window | null>(null);
   const clientRef = useRef(client);
   const secretRef = useRef(secret);
+  const verifierRef = useRef('');
 
   useEffect(() => {
     clientRef.current = client;
@@ -82,17 +101,19 @@ export function OAuthClientTestDialog({ open, onOpenChange, client, spinner: Spi
       void (async () => {
         try {
           const currentClient = clientRef.current;
-          const redirectUri = currentClient.callbackUris[0] ?? '';
+          const redirectUri = currentClient.redirect_uris[0] ?? '';
 
-          const tokenRes = await fetch('/api/oauth/token', {
+          const tokenRes = await fetch(`${ACCOUNTS_URL}/api/auth/oauth2/token`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: new URLSearchParams({
               grant_type: 'authorization_code',
               code,
-              client_id: currentClient.id,
+              client_id: currentClient.client_id,
               client_secret: secretRef.current,
               redirect_uri: redirectUri,
+              code_verifier: verifierRef.current,
+              resource: OAUTH_ISSUER,
             }).toString(),
           });
 
@@ -177,8 +198,8 @@ export function OAuthClientTestDialog({ open, onOpenChange, client, spinner: Spi
     return () => clearInterval(interval);
   }, [isWaitingForCode, t]);
 
-  function startTest() {
-    const redirectUri = client.callbackUris[0];
+  async function startTest() {
+    const redirectUri = client.redirect_uris[0];
     if (!redirectUri) {
       setSteps((prev) =>
         prev.map((s) => (s.label === 'authorize' ? { ...s, status: 'error', error: t('settings.developer.test.noCallbackUri') } : s))
@@ -188,14 +209,19 @@ export function OAuthClientTestDialog({ open, onOpenChange, client, spinner: Spi
 
     setSteps(makeInitialSteps().map((s) => (s.label === 'authorize' ? { ...s, status: 'running' } : s)));
 
+    const { verifier, challenge } = await createPkcePair();
+    verifierRef.current = verifier;
+
     const url =
-      `/oauth/authorize?` +
+      `${ACCOUNTS_URL}/api/auth/oauth2/authorize?` +
       new URLSearchParams({
-        client_id: client.id,
+        client_id: client.client_id,
         redirect_uri: redirectUri,
         response_type: 'code',
-        permissions: String(client.permissions),
+        scope: client.scope ?? '',
         state: crypto.randomUUID(),
+        code_challenge: challenge,
+        code_challenge_method: 'S256',
       }).toString();
 
     const popup = window.open(url, 'oauth_test', 'popup=yes,width=520,height=640');
@@ -229,7 +255,7 @@ export function OAuthClientTestDialog({ open, onOpenChange, client, spinner: Spi
       <DialogPortal>
         <DialogBackdrop />
         <DialogPopup className="max-w-md w-full p-6 space-y-4">
-          <DialogTitle>{t('settings.developer.test.title', { name: client.name })}</DialogTitle>
+          <DialogTitle>{t('settings.developer.test.title', { name: client.client_name ?? client.client_id })}</DialogTitle>
 
           <div className="space-y-1.5">
             <Label htmlFor="oauth-test-secret">{t('settings.developer.test.clientSecret')}</Label>
@@ -258,7 +284,7 @@ export function OAuthClientTestDialog({ open, onOpenChange, client, spinner: Spi
             ) : (
               <DialogClose render={<Button variant="ghost">{t('settings.developer.dialog.done')}</Button>} />
             )}
-            <Button onClick={startTest} disabled={isRunning || !secret.trim()}>
+            <Button onClick={() => void startTest()} disabled={isRunning || !secret.trim()}>
               {hasStarted && !isRunning ? t('settings.developer.test.runAgain') : t('settings.developer.test.run')}
             </Button>
           </div>

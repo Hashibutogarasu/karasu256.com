@@ -3,11 +3,13 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGoogle, faGithub } from '@fortawesome/free-brands-svg-icons';
 import { Button } from '@Hashibutogarasu/ui';
+import { authClient } from '@/lib/auth/client';
 
 /**
- * Renders Google and GitHub OAuth sign-in buttons that navigate to the
- * server-side OAuth initiation route, which delegates the full OAuth flow to
- * NextAuth and issues a Firebase custom token on completion.
+ * Renders Google and GitHub sign-in buttons. Delegates the OAuth handshake
+ * to better-auth; on success the callback signs in to the linked provider's
+ * existing user and, via `bridgeFirebaseSessionForSocialSignIn`, hands off
+ * to `/auth/callback` to establish the real Firebase session.
  */
 export function SocialButtons() {
   return (
@@ -15,7 +17,7 @@ export function SocialButtons() {
       <Button
         variant="outline"
         onClick={() => {
-          window.location.href = '/api/auth/oauth-signin/google';
+          void authClient.signIn.social({ provider: 'google', callbackURL: '/settings' });
         }}
       >
         <FontAwesomeIcon icon={faGoogle} />
@@ -24,7 +26,7 @@ export function SocialButtons() {
       <Button
         variant="outline"
         onClick={() => {
-          window.location.href = '/api/auth/oauth-signin/github';
+          void authClient.signIn.social({ provider: 'github', callbackURL: '/settings' });
         }}
       >
         <FontAwesomeIcon icon={faGithub} />

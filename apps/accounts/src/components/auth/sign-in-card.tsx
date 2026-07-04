@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { signIn as nextAuthSignIn } from 'next-auth/react';
 import { getFirebaseAuth } from '@/lib/firebase/auth';
 import { createSession } from '@/lib/api/auth-session';
 import { Container, CardContent, CardHeader } from '@Hashibutogarasu/ui';
@@ -19,8 +18,7 @@ import { SocialButtons } from './social-buttons';
  *
  * On Firebase auth state change to a signed-in user:
  * 1. Creates a Firebase session cookie via {@link createSession}.
- * 2. Creates a NextAuth JWT (cross-domain) via credentials sign-in.
- * 3. Redirects to `/settings`.
+ * 2. Redirects to `/settings`.
  */
 export function SignInCard() {
   const router = useRouter();
@@ -39,7 +37,6 @@ export function SignInCard() {
       try {
         const idToken = await user.getIdToken();
         await createSession(idToken);
-        nextAuthSignIn('credentials', { idToken, redirect: false }).catch(() => {});
         router.replace('/settings');
       } catch {
         redirecting = false;

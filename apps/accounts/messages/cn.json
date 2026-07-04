@@ -115,7 +115,10 @@
     "error": {
       "provider_already_linked": "此账户已关联至其他用户。",
       "missing_token": "认证失败，请重试。",
-      "unknown": "发生错误，请重试。"
+      "unknown": "发生错误，请重试。",
+      "unable_to_link_account": "关联失败，请重试。",
+      "email_doesn't_match": "关联账户的邮箱地址不匹配。",
+      "account_already_linked_to_different_user": "此账户已关联至其他用户。"
     }
   },
   "dangerZone": {
@@ -135,7 +138,8 @@
     "message": "验证账户时发生错误，请重试。",
     "account_not_linked": "此账户尚未关联。请先通过邮箱/密码登录，然后在设置页面进行关联。",
     "user_not_found": "此账户不存在，请使用其他方式登录。",
-    "backToSignIn": "返回登录"
+    "backToSignIn": "返回登录",
+    "signup_disabled": "此提供商尚未关联。请先通过邮箱/密码登录，然后在设置页面进行关联。"
   },
   "passwordStrength": {
     "weak": "弱",
@@ -158,5 +162,11 @@
     "setting": "设置中",
     "setDone": "密码已设置，请登录。",
     "setError": "设置密码失败。"
+  },
+  "oauthConsent": {
+    "title": "是否授权此应用？",
+    "description": "{name} 请求访问以下内容：",
+    "accept": "允许",
+    "deny": "拒绝"
   }
 }

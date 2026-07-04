@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { and, eq } from 'drizzle-orm';
 import { getDb } from '@Hashibutogarasu/db';
-import { providerAccounts } from '@Hashibutogarasu/db/schema';
+import { accounts } from '@Hashibutogarasu/db/schema';
 import { requireSession } from '@/lib/api/require-session';
 
 /**
@@ -15,9 +15,9 @@ export async function DELETE(_request: NextRequest, { params }: { params: Promis
   const { providerId } = await params;
   const db = getDb();
   const result = await db
-    .delete(providerAccounts)
-    .where(and(eq(providerAccounts.userId, user.uid), eq(providerAccounts.provider, providerId)))
-    .returning({ id: providerAccounts.id });
+    .delete(accounts)
+    .where(and(eq(accounts.userId, user.uid), eq(accounts.providerId, providerId)))
+    .returning({ id: accounts.id });
 
   if (result.length === 0) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 });

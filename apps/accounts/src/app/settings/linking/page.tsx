@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
-import { getProviderAccounts } from '@Hashibutogarasu/db';
+import { getLinkedProviderIds } from '@Hashibutogarasu/db';
 import { getSessionUser } from '@/lib/session-user';
 import { ProviderSectionClient } from './provider-section-client';
 
@@ -11,6 +11,6 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function LinkingPage() {
   const sessionUser = await getSessionUser();
-  const initialProviders = sessionUser ? await getProviderAccounts(sessionUser.uid) : [];
+  const initialProviders = sessionUser ? await getLinkedProviderIds(sessionUser.uid) : [];
   return <ProviderSectionClient initialProviders={initialProviders} />;
 }

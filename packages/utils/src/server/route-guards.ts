@@ -9,8 +9,8 @@ export type RouteAuthMethod = 'apiKey' | 'oauthApp';
 export interface RouteAuthContext {
   userId: string;
   authMethod: RouteAuthMethod;
-  /** Granted permission bitmask. `null` for API keys, which are unscoped. */
-  permissions: bigint | null;
+  /** Granted OAuth scopes (e.g. `"read:profile"`). `null` for API keys, which are unscoped. */
+  scopes: string[] | null;
 }
 
 /**
@@ -19,24 +19,15 @@ export interface RouteAuthContext {
  */
 export interface TokenValidator {
   validateApiKey(token: string): Promise<{ userId: string } | null>;
-  validateOauthToken(token: string): Promise<{ userId: string; permissions: bigint } | null>;
-}
-
-/**
- * Evaluates a permission bitmask against a section key.
- * Implemented by the consuming app on top of its own permission registry.
- */
-export interface PermissionChecker {
-  hasPermission(mask: bigint, sectionKey: string, mode: 'read' | 'write'): boolean;
+  validateOauthToken(token: string): Promise<{ userId: string; scopes: string[] } | null>;
 }
 
 /**
  * Dependencies injected by the consuming app to bind the route guards
- * to its own token storage, permission registry, and routing conventions.
+ * to its own token storage and routing conventions.
  */
 export interface RouteAuthDeps {
   validator: TokenValidator;
-  permissionChecker: PermissionChecker;
   /** Derives the permission section key for a request, e.g. from its pathname. */
   deriveSectionKey: (request: Request) => string;
 }
@@ -73,12 +64,12 @@ function insufficientScope(): Response {
 }
 
 /**
- * Returns route guard decorators bound to the given token validator,
- * permission checker, and section-key derivation strategy.
+ * Returns route guard decorators bound to the given token validator and
+ * section-key derivation strategy.
  *
- * Mirrors the dependency-injection shape of `makeFirebaseAuthorize` — the
- * consuming app supplies the storage-backed implementations so this package
- * never depends on a database client directly.
+ * Mirrors the dependency-injection shape used elsewhere in this package —
+ * the consuming app supplies the storage-backed implementations so this
+ * package never depends on a database client directly.
  *
  * `APIKeyRoute`, `OauthAppRoute`, `Read`, and `Write` may be composed in any
  * order (e.g. `APIKeyRoute()(OauthAppRoute()(Read()(handler)))`). Each call
@@ -106,7 +97,7 @@ export function createRouteAuth(deps: RouteAuthDeps) {
       if (meta.allowApiKey) {
         const apiKeyResult = await deps.validator.validateApiKey(token);
         if (apiKeyResult) {
-          auth = { userId: apiKeyResult.userId, authMethod: 'apiKey', permissions: null };
+          auth = { userId: apiKeyResult.userId, authMethod: 'apiKey', scopes: null };
         }
       }
 
@@ -116,7 +107,7 @@ export function createRouteAuth(deps: RouteAuthDeps) {
           auth = {
             userId: oauthResult.userId,
             authMethod: 'oauthApp',
-            permissions: oauthResult.permissions,
+            scopes: oauthResult.scopes,
           };
         }
       }
@@ -125,8 +116,8 @@ export function createRouteAuth(deps: RouteAuthDeps) {
 
       if (meta.permission && auth.authMethod === 'oauthApp') {
         const sectionKey = meta.permission.sectionKey ?? deps.deriveSectionKey(request);
-        const granted = deps.permissionChecker.hasPermission(auth.permissions ?? BigInt(0), sectionKey, meta.permission.mode);
-        if (!granted) return insufficientScope();
+        const requiredScope = `${meta.permission.mode}:${sectionKey}`;
+        if (!auth.scopes?.includes(requiredScope)) return insufficientScope();
       }
 
       return inner(...args, auth);

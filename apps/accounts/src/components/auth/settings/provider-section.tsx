@@ -9,10 +9,9 @@ import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { useTranslations } from 'next-intl';
 import { toast, SettingsAccordion, SettingsItem, Spinner } from '@Hashibutogarasu/ui';
 import { unlinkProvider } from '@Hashibutogarasu/utils/client';
-import type { ProviderAccountSummary } from '@Hashibutogarasu/db';
 import { getFirebaseAuth } from '@/lib/firebase/auth';
 import { listPasskeyCredentials } from '@/lib/api/passkey-credentials';
-import { buildConnectUrl } from '@/lib/redirect';
+import { authClient, bridgeFirebaseSession } from '@/lib/auth/client';
 import { Button } from '@Hashibutogarasu/ui';
 
 export interface Provider {
@@ -23,13 +22,17 @@ export interface Provider {
 
 interface ProviderSectionProps {
   providers: Provider[];
-  initialProviders: ProviderAccountSummary[];
+  initialProviders: string[];
 }
 
 /**
  * Displays linked OAuth providers with link/unlink controls.
- * Linking redirects the browser to the provider via /api/auth/connect/[provider].
- * Unlinking removes the entry from the database without touching Firebase Auth.
+ *
+ * Linking first calls the Firebase session bridge (`/api/auth/firebase-bridge`)
+ * to establish a better-auth session for the current Firebase user, then
+ * hands off to `authClient.linkSocial`, which drives the OAuth handshake.
+ * Unlinking removes the entry from `packages/db`'s `accounts` table without
+ * touching Firebase Auth.
  * Unlinking the last provider is blocked when the user has no registered passkeys.
  */
 export function ProviderSection({ providers, initialProviders }: ProviderSectionProps) {
@@ -39,7 +42,7 @@ export function ProviderSection({ providers, initialProviders }: ProviderSection
   const searchParams = useSearchParams();
   const [authUser, setAuthUser] = useState<User | null>(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
-  const [linked, setLinked] = useState<ProviderAccountSummary[]>(initialProviders);
+  const [linked, setLinked] = useState<string[]>(initialProviders);
   const [loading, setLoading] = useState<string | null>(null);
   const [hasPasskeys, setHasPasskeys] = useState(false);
   const handledParamsRef = useRef<string | null>(null);
@@ -78,20 +81,30 @@ export function ProviderSection({ providers, initialProviders }: ProviderSection
   }, []);
 
   const dataReady = !loadingAuth;
-  const linkedIds = new Set(linked.map((p) => p.provider));
+  const linkedIds = new Set(linked);
   const hasPasswordProvider = (authUser?.providerData ?? []).some((p) => p.providerId === 'password');
   const canUnlink = linked.length > 1 || hasPasskeys || hasPasswordProvider;
 
-  function handleLink(providerId: string) {
+  async function handleLink(providerId: string) {
     setLoading(providerId);
-    window.location.href = buildConnectUrl(providerId, '/settings/linking');
+    try {
+      await bridgeFirebaseSession();
+      await authClient.linkSocial({
+        provider: providerId,
+        callbackURL: '/settings/linking',
+        errorCallbackURL: '/settings/linking',
+      });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err));
+      setLoading(null);
+    }
   }
 
   async function handleUnlink(providerId: string) {
     setLoading(providerId);
     try {
       await unlinkProvider(providerId);
-      setLinked((prev) => prev.filter((p) => p.provider !== providerId));
+      setLinked((prev) => prev.filter((p) => p !== providerId));
     } catch (err) {
       toast.error(err instanceof Error ? err.message : String(err));
     } finally {

@@ -115,7 +115,10 @@
     "error": {
       "provider_already_linked": "このアカウントは別のユーザーに連携済みです。",
       "missing_token": "認証に失敗しました。もう一度お試しください。",
-      "unknown": "エラーが発生しました。もう一度お試しください。"
+      "unknown": "エラーが発生しました。もう一度お試しください。",
+      "unable_to_link_account": "連携に失敗しました。もう一度お試しください。",
+      "email_doesn't_match": "連携しようとしたアカウントのメールアドレスが一致しません。",
+      "account_already_linked_to_different_user": "このアカウントは別のユーザーに連携済みです。"
     }
   },
   "dangerZone": {
@@ -135,7 +138,8 @@
     "message": "アカウントの認証中にエラーが発生しました。もう一度お試しください。",
     "account_not_linked": "このアカウントはまだ連携されていません。メール/パスワードでサインインしてから設定画面で連携してください。",
     "user_not_found": "このアカウントは存在しません。別の方法でサインインしてください。",
-    "backToSignIn": "サインインに戻る"
+    "backToSignIn": "サインインに戻る",
+    "signup_disabled": "このプロバイダーはまだ連携されていません。メール/パスワードでサインインしてから設定画面で連携してください。"
   },
   "passwordStrength": {
     "weak": "弱い",
@@ -158,5 +162,11 @@
     "setting": "設定中",
     "setDone": "パスワードを設定しました。サインインしてください。",
     "setError": "パスワードの設定に失敗しました。"
+  },
+  "oauthConsent": {
+    "title": "連携を許可しますか？",
+    "description": "{name} が以下の情報へのアクセスを求めています。",
+    "accept": "許可する",
+    "deny": "拒否する"
   }
 }

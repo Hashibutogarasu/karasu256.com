@@ -1,8 +1,19 @@
 import { eq } from 'drizzle-orm';
+import { oauthProviderResourceClient } from '@better-auth/oauth-provider/resource-client';
 import { createRouteAuth } from '@Hashibutogarasu/utils/server';
-import { getDb, hasPermission } from '@Hashibutogarasu/db';
-import { apiKeys, oauthAccessTokens } from '@Hashibutogarasu/db/schema';
+import { getDb } from '@Hashibutogarasu/db';
+import { apiKeys } from '@Hashibutogarasu/db/schema';
 import { hashSecret } from '@/lib/crypto';
+
+/**
+ * better-auth's internal `baseURL` — and therefore the JWT `iss`/`aud` and
+ * the JWKS location — includes the auth mount path (`/api/auth`), not just
+ * the origin. `OAUTH_ISSUER_URL` is the bare origin; this appends the path
+ * better-auth actually uses everywhere it needs the full issuer identifier.
+ */
+const OAUTH_ISSUER = `${process.env.OAUTH_ISSUER_URL}/api/auth`;
+
+const resourceClient = oauthProviderResourceClient();
 
 /**
  * Looks up a raw API key token and returns its owner, or `null` if the key
@@ -21,30 +32,24 @@ async function validateApiKey(token: string): Promise<{ userId: string } | null>
 }
 
 /**
- * Looks up a raw OAuth access token and returns its owner and granted
- * permission bitmask. Expired or revoked tokens are treated as unknown.
+ * Verifies a bearer token issued by accounts.karasu256.com's OAuth/OIDC
+ * authorization server. Access tokens are JWTs, so this is a local,
+ * DB-independent verification against the authorization server's published
+ * JWKS — see `@better-auth/oauth-provider`'s recommendations for why this is
+ * preferred over an opaque-token DB lookup or remote introspection.
  */
-async function validateOauthToken(token: string): Promise<{ userId: string; permissions: bigint } | null> {
-  const db = getDb();
-  const tokenHash = await hashSecret(token);
-  const now = new Date();
-
-  const [row] = await db
-    .select({
-      id: oauthAccessTokens.id,
-      userId: oauthAccessTokens.userId,
-      permissions: oauthAccessTokens.permissions,
-      expiresAt: oauthAccessTokens.expiresAt,
-      revokedAt: oauthAccessTokens.revokedAt,
-    })
-    .from(oauthAccessTokens)
-    .where(eq(oauthAccessTokens.tokenHash, tokenHash));
-
-  if (!row || row.revokedAt !== null || row.expiresAt <= now) return null;
-
-  await db.update(oauthAccessTokens).set({ lastUsedAt: now }).where(eq(oauthAccessTokens.id, row.id));
-
-  return { userId: row.userId, permissions: row.permissions };
+async function validateOauthToken(token: string): Promise<{ userId: string; scopes: string[] } | null> {
+  try {
+    const payload = await resourceClient.getActions().verifyAccessToken(token, {
+      verifyOptions: { audience: OAUTH_ISSUER, issuer: OAUTH_ISSUER },
+      jwksUrl: `${OAUTH_ISSUER}/jwks`,
+    });
+    if (!payload.sub) return null;
+    const scopes = typeof payload.scope === 'string' ? payload.scope.split(' ') : [];
+    return { userId: payload.sub, scopes };
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -59,6 +64,5 @@ function deriveSectionKey(request: Request): string {
 
 export const { APIKeyRoute, OauthAppRoute, Read, Write } = createRouteAuth({
   validator: { validateApiKey, validateOauthToken },
-  permissionChecker: { hasPermission },
   deriveSectionKey,
 });

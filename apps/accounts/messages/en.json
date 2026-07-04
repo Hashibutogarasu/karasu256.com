@@ -115,7 +115,10 @@
     "error": {
       "provider_already_linked": "This account is already connected to another user.",
       "missing_token": "Authentication failed. Please try again.",
-      "unknown": "An error occurred. Please try again."
+      "unknown": "An error occurred. Please try again.",
+      "unable_to_link_account": "Failed to link this account. Please try again.",
+      "email_doesn't_match": "The linked account's email address does not match.",
+      "account_already_linked_to_different_user": "This account is already connected to another user."
     }
   },
   "dangerZone": {
@@ -135,7 +138,8 @@
     "message": "An error occurred while authenticating your account. Please try again.",
     "account_not_linked": "This account is not yet linked. Sign in with email/password first, then connect it from the settings page.",
     "user_not_found": "This account no longer exists. Please sign in with a different method.",
-    "backToSignIn": "Back to sign in"
+    "backToSignIn": "Back to sign in",
+    "signup_disabled": "This provider is not linked yet. Sign in with email/password first, then connect it from the settings page."
   },
   "passwordStrength": {
     "weak": "Weak",
@@ -158,5 +162,11 @@
     "setting": "Setting",
     "setDone": "Password set. Please sign in.",
     "setError": "Failed to set password."
+  },
+  "oauthConsent": {
+    "title": "Authorize this app?",
+    "description": "{name} is requesting access to the following:",
+    "accept": "Allow",
+    "deny": "Deny"
   }
 }

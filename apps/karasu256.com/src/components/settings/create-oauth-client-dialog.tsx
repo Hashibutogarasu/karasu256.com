@@ -16,30 +16,30 @@ import {
   Label,
   R2Image,
 } from '@Hashibutogarasu/ui';
-import { createOAuthClient, type OAuthClientCreated, type SectionMeta } from '@/lib/api/developer';
+import { createOAuthClient, type OAuthClientCreated, type PermissionSection } from '@/lib/api/developer';
 import { useImageUpload } from '@Hashibutogarasu/utils/client';
 
 interface CreateOAuthClientDialogProps {
   open: boolean;
   onOpenChange: (_open: boolean) => void;
-  sections: SectionMeta[];
+  sections: PermissionSection[];
   onCreated: (_client: OAuthClientCreated) => void;
 }
 
 /**
  * Dialog for creating a new OAuth client. Handles icon upload to the image API,
- * permission bitmask construction, and displays the raw secret once after creation.
- * Accepts multiple callback URIs, one per line.
+ * scope selection, and displays the raw secret once after creation.
+ * Accepts multiple redirect URIs, one per line.
  */
 export function CreateOAuthClientDialog({ open, onOpenChange, sections, onCreated }: CreateOAuthClientDialogProps) {
   const t = useTranslations();
   const { uploading, upload } = useImageUpload();
 
   const [name, setName] = useState('');
-  const [callbackUrisText, setCallbackUrisText] = useState('');
+  const [redirectUrisText, setRedirectUrisText] = useState('');
   const [iconUrl, setIconUrl] = useState('');
   const [iconPreview, setIconPreview] = useState('');
-  const [permissions, setPermissions] = useState(0);
+  const [scopes, setScopes] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
   const [created, setCreated] = useState<OAuthClientCreated | null>(null);
   const [copied, setCopied] = useState(false);
@@ -51,8 +51,13 @@ export function CreateOAuthClientDialog({ open, onOpenChange, sections, onCreate
       .filter(Boolean);
   }
 
-  function toggleMask(mask: number) {
-    setPermissions((prev) => ((prev & mask) !== 0 ? prev & ~mask : prev | mask));
+  function toggleScope(scope: string) {
+    setScopes((prev) => {
+      const next = new Set(prev);
+      if (next.has(scope)) next.delete(scope);
+      else next.add(scope);
+      return next;
+    });
   }
 
   async function handleFileSelected(file: File) {
@@ -65,25 +70,25 @@ export function CreateOAuthClientDialog({ open, onOpenChange, sections, onCreate
   function handleClose() {
     onOpenChange(false);
     setName('');
-    setCallbackUrisText('');
+    setRedirectUrisText('');
     setIconUrl('');
     setIconPreview('');
-    setPermissions(0);
+    setScopes(new Set());
     setCreated(null);
     setCopied(false);
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const uris = parseUris(callbackUrisText);
+    const uris = parseUris(redirectUrisText);
     if (uris.length === 0) return;
     setLoading(true);
     try {
       const result = await createOAuthClient({
-        name: name.trim(),
-        callbackUris: uris,
-        iconUrl: iconUrl || undefined,
-        permissions,
+        client_name: name.trim(),
+        redirect_uris: uris,
+        logo_uri: iconUrl || undefined,
+        scope: [...scopes].join(' '),
       });
       setCreated(result);
       onCreated(result);
@@ -94,11 +99,11 @@ export function CreateOAuthClientDialog({ open, onOpenChange, sections, onCreate
 
   async function handleCopy() {
     if (!created) return;
-    await navigator.clipboard.writeText(created.secret);
+    await navigator.clipboard.writeText(created.client_secret);
     setCopied(true);
   }
 
-  const uris = parseUris(callbackUrisText);
+  const uris = parseUris(redirectUrisText);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -118,8 +123,8 @@ export function CreateOAuthClientDialog({ open, onOpenChange, sections, onCreate
                 <Label htmlFor="callback-uris">{t('settings.developer.dialog.callbackUris')}</Label>
                 <textarea
                   id="callback-uris"
-                  value={callbackUrisText}
-                  onChange={(e) => setCallbackUrisText(e.target.value)}
+                  value={redirectUrisText}
+                  onChange={(e) => setRedirectUrisText(e.target.value)}
                   rows={3}
                   placeholder="https://example.com/callback"
                   className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono resize-none focus:outline-none focus:ring-2 focus:ring-ring"
@@ -148,17 +153,20 @@ export function CreateOAuthClientDialog({ open, onOpenChange, sections, onCreate
                   <div className="rounded-lg border border-border divide-y divide-border">
                     {sections.map((s) => (
                       <div key={s.key} className="px-3 py-2 space-y-1">
-                        <p className="text-sm font-medium">{t(s.labelKey)}</p>
-                        {s.descriptionKey && <p className="text-xs text-muted-foreground">{t(s.descriptionKey)}</p>}
+                        <p className="text-sm font-medium">{t(`permissions.sections.${s.key}.label`)}</p>
                         <div className="flex gap-4 mt-1">
-                          <label className="flex items-center gap-1.5 text-sm">
-                            <Checkbox checked={(permissions & s.readMask) !== 0} onCheckedChange={() => toggleMask(s.readMask)} />
-                            {t('settings.developer.dialog.read')}
-                          </label>
-                          <label className="flex items-center gap-1.5 text-sm">
-                            <Checkbox checked={(permissions & s.writeMask) !== 0} onCheckedChange={() => toggleMask(s.writeMask)} />
-                            {t('settings.developer.dialog.write')}
-                          </label>
+                          {s.canRead && (
+                            <label className="flex items-center gap-1.5 text-sm">
+                              <Checkbox checked={scopes.has(`read:${s.key}`)} onCheckedChange={() => toggleScope(`read:${s.key}`)} />
+                              {t('settings.developer.dialog.read')}
+                            </label>
+                          )}
+                          {s.canWrite && (
+                            <label className="flex items-center gap-1.5 text-sm">
+                              <Checkbox checked={scopes.has(`write:${s.key}`)} onCheckedChange={() => toggleScope(`write:${s.key}`)} />
+                              {t('settings.developer.dialog.write')}
+                            </label>
+                          )}
                         </div>
                       </div>
                     ))}
@@ -182,7 +190,7 @@ export function CreateOAuthClientDialog({ open, onOpenChange, sections, onCreate
           ) : (
             <div className="space-y-4">
               <p className="text-sm text-muted-foreground">{t('settings.developer.dialog.secretNotice')}</p>
-              <Input readOnly value={created.secret} className="font-mono text-xs" />
+              <Input readOnly value={created.client_secret} className="font-mono text-xs" />
               <div className="flex justify-end gap-2">
                 <Button variant="secondary" onClick={handleCopy}>
                   {copied ? '✓' : t('settings.developer.dialog.copySecret')}

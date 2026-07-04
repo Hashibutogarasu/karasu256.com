@@ -16,39 +16,39 @@ import {
   Label,
   R2Image,
 } from '@Hashibutogarasu/ui';
-import { updateOAuthClient, type OAuthClientSummary, type SectionMeta } from '@/lib/api/developer';
+import { updateOAuthClient, type OAuthClientSummary, type PermissionSection } from '@/lib/api/developer';
 import { useImageUpload } from '@Hashibutogarasu/utils/client';
 
 interface EditOAuthClientDialogProps {
   open: boolean;
   onOpenChange: (_open: boolean) => void;
   client: OAuthClientSummary;
-  sections: SectionMeta[];
+  sections: PermissionSection[];
   onUpdated: (_client: OAuthClientSummary) => void;
 }
 
 /**
- * Dialog for editing an existing OAuth client. Updates name, callback URIs,
- * icon, and permissions. The client secret cannot be changed here.
+ * Dialog for editing an existing OAuth client. Updates name, redirect URIs,
+ * icon, and scopes. The client secret cannot be changed here.
  */
 export function EditOAuthClientDialog({ open, onOpenChange, client, sections, onUpdated }: EditOAuthClientDialogProps) {
   const t = useTranslations();
   const { uploading, upload } = useImageUpload();
 
-  const [name, setName] = useState(client.name);
-  const [callbackUrisText, setCallbackUrisText] = useState(client.callbackUris.join('\n'));
-  const [iconUrl, setIconUrl] = useState(client.iconUrl ?? '');
-  const [iconPreview, setIconPreview] = useState(client.iconUrl ?? '');
-  const [permissions, setPermissions] = useState(client.permissions);
+  const [name, setName] = useState(client.client_name ?? '');
+  const [redirectUrisText, setRedirectUrisText] = useState(client.redirect_uris.join('\n'));
+  const [iconUrl, setIconUrl] = useState(client.logo_uri ?? '');
+  const [iconPreview, setIconPreview] = useState(client.logo_uri ?? '');
+  const [scopes, setScopes] = useState<Set<string>>(new Set(client.scope?.split(' ') ?? []));
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (open) {
-      setName(client.name);
-      setCallbackUrisText(client.callbackUris.join('\n'));
-      setIconUrl(client.iconUrl ?? '');
-      setIconPreview(client.iconUrl ?? '');
-      setPermissions(client.permissions);
+      setName(client.client_name ?? '');
+      setRedirectUrisText(client.redirect_uris.join('\n'));
+      setIconUrl(client.logo_uri ?? '');
+      setIconPreview(client.logo_uri ?? '');
+      setScopes(new Set(client.scope?.split(' ') ?? []));
     }
   }, [open, client]);
 
@@ -59,12 +59,17 @@ export function EditOAuthClientDialog({ open, onOpenChange, client, sections, on
       .filter(Boolean);
   }
 
-  function toggleMask(mask: number) {
-    setPermissions((prev) => ((prev & mask) !== 0 ? prev & ~mask : prev | mask));
+  function toggleScope(scope: string) {
+    setScopes((prev) => {
+      const next = new Set(prev);
+      if (next.has(scope)) next.delete(scope);
+      else next.add(scope);
+      return next;
+    });
   }
 
   async function handleFileSelected(file: File) {
-    const url = await upload(file, `oauth/${client.id}/icon.png`);
+    const url = await upload(file, `oauth/${client.client_id}/icon.png`);
     if (!url) return;
     setIconUrl(url);
     setIconPreview(URL.createObjectURL(file));
@@ -72,15 +77,15 @@ export function EditOAuthClientDialog({ open, onOpenChange, client, sections, on
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const uris = parseUris(callbackUrisText);
+    const uris = parseUris(redirectUrisText);
     if (uris.length === 0) return;
     setLoading(true);
     try {
-      const updated = await updateOAuthClient(client.id, {
-        name: name.trim(),
-        callbackUris: uris,
-        iconUrl: iconUrl.trim() || null,
-        permissions,
+      const updated = await updateOAuthClient(client.client_id, {
+        client_name: name.trim(),
+        redirect_uris: uris,
+        logo_uri: iconUrl.trim(),
+        scope: [...scopes].join(' '),
       });
       onUpdated(updated);
       onOpenChange(false);
@@ -89,7 +94,7 @@ export function EditOAuthClientDialog({ open, onOpenChange, client, sections, on
     }
   }
 
-  const uris = parseUris(callbackUrisText);
+  const uris = parseUris(redirectUrisText);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -108,8 +113,8 @@ export function EditOAuthClientDialog({ open, onOpenChange, client, sections, on
               <Label htmlFor="edit-callback-uris">{t('settings.developer.dialog.callbackUris')}</Label>
               <textarea
                 id="edit-callback-uris"
-                value={callbackUrisText}
-                onChange={(e) => setCallbackUrisText(e.target.value)}
+                value={redirectUrisText}
+                onChange={(e) => setRedirectUrisText(e.target.value)}
                 rows={3}
                 placeholder="https://example.com/callback"
                 className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono resize-none focus:outline-none focus:ring-2 focus:ring-ring"
@@ -138,17 +143,20 @@ export function EditOAuthClientDialog({ open, onOpenChange, client, sections, on
                 <div className="rounded-lg border border-border divide-y divide-border">
                   {sections.map((s) => (
                     <div key={s.key} className="px-3 py-2 space-y-1">
-                      <p className="text-sm font-medium">{t(s.labelKey)}</p>
-                      {s.descriptionKey && <p className="text-xs text-muted-foreground">{t(s.descriptionKey)}</p>}
+                      <p className="text-sm font-medium">{t(`permissions.sections.${s.key}.label`)}</p>
                       <div className="flex gap-4 mt-1">
-                        <label className="flex items-center gap-1.5 text-sm">
-                          <Checkbox checked={(permissions & s.readMask) !== 0} onCheckedChange={() => toggleMask(s.readMask)} />
-                          {t('settings.developer.dialog.read')}
-                        </label>
-                        <label className="flex items-center gap-1.5 text-sm">
-                          <Checkbox checked={(permissions & s.writeMask) !== 0} onCheckedChange={() => toggleMask(s.writeMask)} />
-                          {t('settings.developer.dialog.write')}
-                        </label>
+                        {s.canRead && (
+                          <label className="flex items-center gap-1.5 text-sm">
+                            <Checkbox checked={scopes.has(`read:${s.key}`)} onCheckedChange={() => toggleScope(`read:${s.key}`)} />
+                            {t('settings.developer.dialog.read')}
+                          </label>
+                        )}
+                        {s.canWrite && (
+                          <label className="flex items-center gap-1.5 text-sm">
+                            <Checkbox checked={scopes.has(`write:${s.key}`)} onCheckedChange={() => toggleScope(`write:${s.key}`)} />
+                            {t('settings.developer.dialog.write')}
+                          </label>
+                        )}
                       </div>
                     </div>
                   ))}

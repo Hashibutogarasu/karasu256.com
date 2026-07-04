@@ -1,10 +1,3 @@
-export { makeFirebaseAuthorize, makeNextAuthCookies, SESSION_COOKIE_NAME, AUTH_TOKEN_COOKIE_NAME } from './next-auth';
-export {
-  createRouteAuth,
-  type RouteAuthContext,
-  type RouteAuthDeps,
-  type RouteAuthMethod,
-  type TokenValidator,
-  type PermissionChecker,
-} from './route-guards';
+export { SESSION_COOKIE_NAME } from './session-cookie';
+export { createRouteAuth, type RouteAuthContext, type RouteAuthDeps, type RouteAuthMethod, type TokenValidator } from './route-guards';
 export { deleteUploadedImage, type DeleteUploadedImageOptions } from './delete-uploaded-image';
