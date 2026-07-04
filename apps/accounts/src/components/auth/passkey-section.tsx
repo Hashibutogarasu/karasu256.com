@@ -9,7 +9,7 @@ import { toast } from '@Hashibutogarasu/ui';
 import { getFirebaseAuth } from '@/lib/firebase/auth';
 import { authenticateWithPasskey } from '@/lib/api/passkey-authenticate';
 import { PasskeyError } from '@/lib/api/passkey-errors';
-import { Button } from '@Hashibutogarasu/ui';
+import { Button, Spinner } from '@Hashibutogarasu/ui';
 
 /**
  * Renders the passkey sign-in button for unauthenticated users.
@@ -36,7 +36,7 @@ export function PasskeySection() {
 
   return (
     <Button variant="outline" className="w-full" onClick={handleSignIn} disabled={loading}>
-      <FontAwesomeIcon icon={faFingerprint} />
+      {loading ? <Spinner /> : <FontAwesomeIcon icon={faFingerprint} />}
       {loading ? t('passkey.waiting') : t('passkey.signIn')}
     </Button>
   );
