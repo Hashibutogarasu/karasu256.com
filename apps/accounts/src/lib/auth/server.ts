@@ -48,12 +48,10 @@ export const auth = betterAuth({
       domain: process.env.BASE_DOMAIN,
     },
   },
+  hooks: {
+    after: bridgeFirebaseSessionForSocialSignIn,
+  },
   databaseHooks: {
-    session: {
-      create: {
-        after: bridgeFirebaseSessionForSocialSignIn,
-      },
-    },
     user: {
       update: {
         after: syncProfileImageToFirebase,
