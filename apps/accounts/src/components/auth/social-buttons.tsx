@@ -17,7 +17,7 @@ export function SocialButtons() {
       <Button
         variant="outline"
         onClick={() => {
-          void authClient.signIn.social({ provider: 'google', callbackURL: '/settings' });
+          void authClient.signIn.social({ provider: 'google', callbackURL: '/auth/callback' });
         }}
       >
         <FontAwesomeIcon icon={faGoogle} />
@@ -26,7 +26,7 @@ export function SocialButtons() {
       <Button
         variant="outline"
         onClick={() => {
-          void authClient.signIn.social({ provider: 'github', callbackURL: '/settings' });
+          void authClient.signIn.social({ provider: 'github', callbackURL: '/auth/callback' });
         }}
       >
         <FontAwesomeIcon icon={faGithub} />
