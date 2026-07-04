@@ -11,7 +11,7 @@ import { toast, SettingsAccordion, SettingsItem, Spinner } from '@Hashibutogaras
 import { unlinkProvider } from '@Hashibutogarasu/utils/client';
 import { getFirebaseAuth } from '@/lib/firebase/auth';
 import { listPasskeyCredentials } from '@/lib/api/passkey-credentials';
-import { authClient, callFirebaseBridge } from '@/lib/auth/client';
+import { authClient, bridgeFirebaseSession } from '@/lib/auth/client';
 import { Button } from '@Hashibutogarasu/ui';
 
 export interface Provider {
@@ -88,7 +88,7 @@ export function ProviderSection({ providers, initialProviders }: ProviderSection
   async function handleLink(providerId: string) {
     setLoading(providerId);
     try {
-      await callFirebaseBridge();
+      await bridgeFirebaseSession();
       await authClient.linkSocial({
         provider: providerId,
         callbackURL: '/settings/linking',

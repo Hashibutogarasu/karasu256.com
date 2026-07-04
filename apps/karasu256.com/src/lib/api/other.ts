@@ -1,5 +1,5 @@
 import { ApiError } from '@Hashibutogarasu/utils/client';
-import { authClient, bridgeFirebaseSession } from '@/lib/auth/auth-client';
+import { authClient, bridgeFirebaseSession } from '@/lib/auth/client';
 
 export interface AuthorizedAppSummary {
   /** The `oauthConsent` row's own id — required to revoke via `deleteOAuthConsent`. */
