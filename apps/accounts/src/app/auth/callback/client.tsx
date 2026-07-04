@@ -4,8 +4,7 @@ import { useEffect } from 'react';
 import { signInWithCustomToken } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { LoadingView } from '@Hashibutogarasu/ui';
 import { getFirebaseAuth } from '@/lib/firebase/auth';
 import { createSession } from '@/lib/api/auth-session';
 
@@ -38,10 +37,5 @@ export function OAuthCallbackClient() {
     completeSignIn().catch(() => router.replace('/oauth/error'));
   }, [router]);
 
-  return (
-    <div className="flex flex-col items-center gap-3 text-muted-foreground">
-      <FontAwesomeIcon icon={faSpinner} className="animate-spin text-2xl" />
-      <p className="text-sm">{t('oauthCallback.redirecting')}</p>
-    </div>
-  );
+  return <LoadingView message={t('oauthCallback.redirecting')} />;
 }

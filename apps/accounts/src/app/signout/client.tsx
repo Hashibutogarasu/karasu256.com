@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { signOut } from 'firebase/auth';
 import { useTranslations } from 'next-intl';
-import { SigningOutView } from '@Hashibutogarasu/ui';
+import { LoadingView } from '@Hashibutogarasu/ui';
 import { getFirebaseAuth } from '@/lib/firebase/auth';
 import { clearSession } from '@/lib/api/auth-session';
 
@@ -28,5 +28,5 @@ export function SignOutClient() {
     performSignOut();
   }, [searchParams]);
 
-  return <SigningOutView message={t('settings.signingOut')} />;
+  return <LoadingView message={t('settings.signingOut')} />;
 }
