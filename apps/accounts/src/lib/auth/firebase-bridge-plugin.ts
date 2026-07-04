@@ -16,6 +16,10 @@ export const FIREBASE_BRIDGE_PATH = '/firebase-bridge';
  * The resulting `users` row is keyed by the Firebase UID via
  * `internalAdapter.createUser({ id: uid, ... })` — `forceAllowId` in
  * better-auth's create pipeline honors an explicitly supplied `id`.
+ *
+ * Also backfills a null `email` on a pre-existing row (e.g. from the
+ * NextAuth migration), since better-auth's `linkSocial` flow requires a
+ * non-null `session.user.email` to build its OAuth state.
  */
 export function firebaseSessionBridgePlugin(): BetterAuthPlugin {
   return {
@@ -48,6 +52,10 @@ export function firebaseSessionBridgePlugin(): BetterAuthPlugin {
             email: email ?? `${uid}@users.noreply.karasu256.internal`,
             emailVerified,
             name: name ?? uid,
+          });
+        } else if (!user.email) {
+          user = await ctx.context.internalAdapter.updateUser(uid, {
+            email: email ?? `${uid}@users.noreply.karasu256.internal`,
           });
         }
 
