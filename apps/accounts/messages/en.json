@@ -118,7 +118,8 @@
       "unknown": "An error occurred. Please try again.",
       "unable_to_link_account": "Failed to link this account. Please try again.",
       "email_doesn't_match": "The linked account's email address does not match.",
-      "account_already_linked_to_different_user": "This account is already connected to another user."
+      "account_already_linked_to_different_user": "This account is already connected to another user.",
+      "invalid_origin": "Could not start linking because the request came from an unexpected origin. Please try again."
     }
   },
   "dangerZone": {

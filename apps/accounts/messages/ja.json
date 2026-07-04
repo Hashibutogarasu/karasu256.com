@@ -118,7 +118,8 @@
       "unknown": "エラーが発生しました。もう一度お試しください。",
       "unable_to_link_account": "連携に失敗しました。もう一度お試しください。",
       "email_doesn't_match": "連携しようとしたアカウントのメールアドレスが一致しません。",
-      "account_already_linked_to_different_user": "このアカウントは別のユーザーに連携済みです。"
+      "account_already_linked_to_different_user": "このアカウントは別のユーザーに連携済みです。",
+      "invalid_origin": "予期しないアクセス元からのリクエストのため、連携を開始できませんでした。もう一度お試しください。"
     }
   },
   "dangerZone": {
