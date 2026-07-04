@@ -1,5 +1,5 @@
-import type { Session, User } from 'better-auth/types';
-import type { GenericEndpointContext } from '@better-auth/core';
+import { createAuthMiddleware } from 'better-auth/api';
+import type { User } from 'better-auth/types';
 import { getAdminAuth } from '@/lib/firebase-admin';
 
 /**
@@ -10,19 +10,27 @@ import { getAdminAuth } from '@/lib/firebase-admin';
  * mints a short-lived Firebase custom token via the same cookie handoff the
  * old NextAuth flow used: `/auth/callback` (unchanged) exchanges it for a
  * real Firebase session cookie.
+ *
+ * Implemented as a top-level `hooks.after` middleware rather than a
+ * `databaseHooks.session.create.after` hook — the latter runs outside the
+ * endpoint's response context, so `ctx.setCookie` there does not reliably
+ * attach to the actual HTTP response.
  */
-export async function bridgeFirebaseSessionForSocialSignIn(session: Session, context: GenericEndpointContext | null): Promise<void> {
-  if (!context?.path?.startsWith('/callback/')) return;
+export const bridgeFirebaseSessionForSocialSignIn = createAuthMiddleware(async (ctx) => {
+  if (!ctx.path.startsWith('/callback/')) return;
 
-  const customToken = await getAdminAuth().createCustomToken(session.userId);
-  context.setCookie('oauth_custom_token', customToken, {
+  const newSession = ctx.context.newSession;
+  if (!newSession) return;
+
+  const customToken = await getAdminAuth().createCustomToken(newSession.session.userId);
+  ctx.setCookie('oauth_custom_token', customToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     path: '/',
     maxAge: 60,
   });
-}
+});
 
 /**
  * Firebase's own user record is the single source of truth for the site's
