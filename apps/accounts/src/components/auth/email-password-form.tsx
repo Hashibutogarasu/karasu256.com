@@ -8,7 +8,7 @@ import { faRightToBracket, faUserPlus } from '@fortawesome/free-solid-svg-icons'
 import { useTranslations } from 'next-intl';
 import { toast } from '@Hashibutogarasu/ui';
 import { signInWithEmailPassword, registerWithEmailPassword } from '@/lib/api/auth-email-password';
-import { Button, Input, Label, PasswordInput } from '@Hashibutogarasu/ui';
+import { Button, Checkbox, Input, Label, PasswordInput } from '@Hashibutogarasu/ui';
 import { Tabs, TabsContent, TabsList, TabsTrigger, AnimatedHeight } from '@Hashibutogarasu/ui';
 import { LocalizedPasswordStrengthIndicator } from './localized-password-strength-indicator';
 
@@ -22,9 +22,12 @@ export function EmailPasswordForm() {
   const [tab, setTab] = useState('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const activeIndex = tab === 'signin' ? 0 : 1;
+  const registerDisabled = loading || !email || !password || !agreedToTerms;
+  const termsUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? ''}/terms`;
 
   function showAuthError(err: unknown) {
     const code = err instanceof FirebaseError ? err.code.replace('auth/', '') : 'unknown';
@@ -140,7 +143,19 @@ export function EmailPasswordForm() {
               />
               <LocalizedPasswordStrengthIndicator password={password} />
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
+            <div className="flex items-start gap-2">
+              <Checkbox id="register-terms" checked={agreedToTerms} onCheckedChange={setAgreedToTerms} className="mt-0.5" />
+              <Label htmlFor="register-terms" className="font-normal text-sm leading-snug">
+                {t.rich('signIn.agreeToTerms', {
+                  terms: (chunks) => (
+                    <a href={termsUrl} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-foreground">
+                      {chunks}
+                    </a>
+                  ),
+                })}
+              </Label>
+            </div>
+            <Button type="submit" className="w-full" disabled={registerDisabled}>
               <FontAwesomeIcon icon={faUserPlus} />
               {loading ? t('signIn.creatingAccount') : t('signIn.createAccount')}
             </Button>

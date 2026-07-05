@@ -28,6 +28,7 @@
     "signingIn": "登录中",
     "createAccount": "创建账户",
     "creatingAccount": "创建账户中",
+    "agreeToTerms": "我同意<terms>服务条款</terms>",
     "or": "或",
     "error": {
       "invalid-credential": "电子邮件或密码不正确",

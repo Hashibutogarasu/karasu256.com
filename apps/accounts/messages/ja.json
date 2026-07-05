@@ -28,6 +28,7 @@
     "signingIn": "サインイン中",
     "createAccount": "アカウント作成",
     "creatingAccount": "アカウント作成中",
+    "agreeToTerms": "<terms>利用規約</terms>に同意します",
     "or": "または",
     "error": {
       "invalid-credential": "メールアドレスまたはパスワードが正しくありません",
