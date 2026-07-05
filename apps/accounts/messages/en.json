@@ -28,6 +28,7 @@
     "signingIn": "Signing in",
     "createAccount": "Create account",
     "creatingAccount": "Creating account",
+    "agreeToTerms": "I agree to the <terms>Terms of Service</terms>",
     "or": "or",
     "error": {
       "invalid-credential": "Incorrect email address or password",
