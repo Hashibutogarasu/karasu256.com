@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { DecodedIdToken } from 'firebase-admin/auth';
 
-import { getSessionUser } from '@/lib/firebase-session';
+import { getSessionUser } from '@Hashibutogarasu/utils/server';
 
 type SessionResult = { user: DecodedIdToken; error: null } | { user: null; error: NextResponse };
 

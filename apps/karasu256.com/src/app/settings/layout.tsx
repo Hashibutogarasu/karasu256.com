@@ -2,7 +2,7 @@ import React from 'react';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
-import { getSessionUser } from '@/lib/firebase-session';
+import { getSessionUser } from '@Hashibutogarasu/utils/server';
 import { SettingsShell } from '@/components/settings-shell';
 
 export async function generateMetadata(): Promise<Metadata> {

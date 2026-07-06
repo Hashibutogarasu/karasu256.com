@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
-import { getFirebaseUserIcon } from '@/lib/firebase-admin';
-import { getSessionUser } from '@/lib/firebase-session';
+import { getFirebaseUserIcon, getSessionUser } from '@Hashibutogarasu/utils/server';
 import { ProfileSection } from '@/components/settings/profile-section';
 
 export async function generateMetadata(): Promise<Metadata> {
