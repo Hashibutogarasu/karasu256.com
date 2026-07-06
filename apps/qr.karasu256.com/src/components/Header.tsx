@@ -17,7 +17,7 @@ const Header = async () => {
     <UiHeader
       logo={
         <Link href="/" className="hover:text-gray-600 transition-colors">
-          Karasu QR
+          QR Tools
         </Link>
       }
     >
