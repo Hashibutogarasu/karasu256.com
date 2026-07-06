@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { Code2, Layers, User } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { SettingsSidebar, SettingsSidebarLayout, type SidebarNavItem, type SettingsSidebarUser } from '@Hashibutogarasu/ui';
-import { signOutAction } from '@/app/actions/auth';
+import { signOutAction } from '@Hashibutogarasu/utils/server/sign-out';
 
 const NAV_ITEMS_DEFS = [
   { href: '/settings/profile', icon: User, labelKey: 'settings.sections.profile' },

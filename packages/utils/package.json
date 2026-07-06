@@ -4,6 +4,7 @@
   "private": true,
   "exports": {
     "./server": "./src/server/index.ts",
+    "./server/sign-out": "./src/server/sign-out.ts",
     "./email": "./src/email/index.ts",
     "./client": "./src/client/index.ts",
     "./validation": "./src/validation/index.ts"
