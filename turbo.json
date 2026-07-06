@@ -1,5 +1,6 @@
 {
   "$schema": "https://v2-10-0.turborepo.dev/schema.json",
+  "envMode": "loose",
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
