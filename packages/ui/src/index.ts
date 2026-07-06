@@ -65,3 +65,4 @@ export {
 export { Header, type HeaderProps } from './components/header';
 export { PopUpMenuProvider, PopUpMenu, type PopUpMenuProps, type PopUpMenuUser } from './components/popup-menu';
 export { UserIcon, type UserIconProps, type KarasuUser } from './components/user-icon';
+export { AccountMenu, type AccountMenuProps, type AccountMenuLabels } from './components/account-menu';

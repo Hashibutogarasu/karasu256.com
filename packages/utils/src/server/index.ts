@@ -3,3 +3,4 @@ export { createRouteAuth, type RouteAuthContext, type RouteAuthDeps, type RouteA
 export { deleteUploadedImage, type DeleteUploadedImageOptions } from './delete-uploaded-image';
 export { getAdminAuth, getFirebaseUserIcon } from './firebase-admin';
 export { getSessionUser } from './firebase-session';
+export { signOutAction } from './sign-out';

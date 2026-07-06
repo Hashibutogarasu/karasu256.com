@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import { Header as UiHeader } from '@Hashibutogarasu/ui';
-import { getFirebaseUserIcon, getSessionUser } from '@Hashibutogarasu/utils/server';
-import { AccountMenu } from '@/components/account-menu';
+import { getTranslations } from 'next-intl/server';
+import { Header as UiHeader, AccountMenu } from '@Hashibutogarasu/ui';
+import { getFirebaseUserIcon, getSessionUser, signOutAction } from '@Hashibutogarasu/utils/server';
 
 /**
  * Site-wide header. Reads the Firebase session (shared with
@@ -11,7 +11,9 @@ import { AccountMenu } from '@/components/account-menu';
 const Header = async () => {
   const sessionUser = await getSessionUser();
   const iconUrl = sessionUser ? await getFirebaseUserIcon(sessionUser.uid) : null;
-  const accountsUrl = process.env.NEXT_PUBLIC_ACCOUNTS_URL ?? '#';
+  const accountsUrl = process.env.NEXT_PUBLIC_ACCOUNTS_URL;
+  const rootUrl = process.env.NEXT_PUBLIC_ROOT_URL;
+  const t = await getTranslations('header');
 
   return (
     <UiHeader
@@ -22,11 +24,12 @@ const Header = async () => {
       }
     >
       <AccountMenu
-        accountsUrl={accountsUrl}
-        uid={sessionUser?.uid ?? null}
-        displayName={sessionUser?.name ?? null}
-        email={sessionUser?.email ?? null}
-        iconUrl={iconUrl}
+        user={sessionUser ? { uid: sessionUser.uid, iconUrl, displayName: sessionUser.name ?? null, email: sessionUser.email ?? null } : null}
+        signInHref={accountsUrl}
+        settingsHref={`${rootUrl}/settings`}
+        onSignOut={signOutAction}
+        labels={{ signIn: t('signIn'), settings: t('settings'), signOut: t('signOut') }}
+        triggerAriaLabel={t('accountMenuLabel')}
       />
     </UiHeader>
   );
