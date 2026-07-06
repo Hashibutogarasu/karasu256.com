@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { getDb } from '@Hashibutogarasu/db';
 import { users } from '@Hashibutogarasu/db/schema';
 import { APIKeyRoute, OauthAppRoute, Read, Write } from '@/lib/api/route-auth';
-import { getAdminAuth } from '@/lib/firebase-admin';
+import { getAdminAuth } from '@Hashibutogarasu/utils/server';
 
 const patchBodySchema = z.object({ name: z.string().nullable() });
 
