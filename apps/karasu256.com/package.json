@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "dotenvx run -f .env.local -- next dev --port 3000",
+    "dev": "next dev --port 3000",
     "build": "next build",
     "deploy": "bash ../../scripts/vercel-deploy.sh .",
     "deploy:prod": "bash ../../scripts/vercel-deploy.sh . --prod",
@@ -16,7 +16,6 @@
     "@Hashibutogarasu/utils": "workspace:*",
     "@base-ui/react": "^1.6.0",
     "@better-auth/oauth-provider": "^1.6.23",
-    "@dotenvx/dotenvx": "^1.75.1",
     "@mdx-js/loader": "^3.1.1",
     "@mdx-js/mdx": "^3.1.1",
     "@mdx-js/react": "^3.1.1",

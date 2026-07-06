@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "dotenvx run -f .env.local -- next dev --port 3001",
+    "dev": "next dev --port 3001",
     "build": "next build",
     "deploy": "bash ../../scripts/vercel-deploy.sh .",
     "deploy:prod": "bash ../../scripts/vercel-deploy.sh . --prod",
@@ -18,7 +18,6 @@
     "@better-auth/core": "^1.6.23",
     "@better-auth/drizzle-adapter": "^1.6.23",
     "@better-auth/oauth-provider": "^1.6.23",
-    "@dotenvx/dotenvx": "^1.75.1",
     "@fortawesome/fontawesome-svg-core": "^7.2.0",
     "@fortawesome/free-brands-svg-icons": "^7.2.0",
     "@fortawesome/free-regular-svg-icons": "^7.2.0",
