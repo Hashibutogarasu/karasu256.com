@@ -23,18 +23,10 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files — plain files are blocked; encrypted files are allowed
+# env files — everything ignored except the example template
 .env*
-# .env.local.unencrypted is the plaintext editing source used by the pre-commit hook;
-# it is blocked by .env* above and must never be committed.
-# .env.local is encrypted by dotenvx and safe to commit
-!.env.local
-!**/.env.local
 !.env.example
 !**/.env.example
-# private decryption keys must never be committed
-.env.keys
-**/.env.keys
 
 # vercel
 .vercel

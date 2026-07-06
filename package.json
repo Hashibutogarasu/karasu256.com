@@ -4,18 +4,17 @@
   "private": true,
   "packageManager": "pnpm@11.8.0",
   "scripts": {
-    "dev": "pnpm sync-env && turbo dev",
+    "dev": "turbo dev",
     "build": "turbo build",
     "deploy": "turbo deploy",
     "deploy:prod": "turbo deploy:prod",
     "lint": "turbo lint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "sync-env": "bash scripts/sync-env.sh",
     "prepare": "simple-git-hooks"
   },
   "simple-git-hooks": {
-    "pre-commit": "pnpm exec pretty-quick --staged && bash scripts/pre-commit.sh"
+    "pre-commit": "pnpm exec pretty-quick --staged"
   },
   "pnpm": {
     "overrides": {
@@ -23,7 +22,6 @@
     }
   },
   "devDependencies": {
-    "@dotenvx/dotenvx": "^1.75.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "prettier": "3.5.3",
