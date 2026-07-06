@@ -5,8 +5,6 @@
   "scripts": {
     "dev": "next dev --port 3000",
     "build": "next build",
-    "deploy": "bash ../../scripts/vercel-deploy.sh .",
-    "deploy:prod": "bash ../../scripts/vercel-deploy.sh . --prod",
     "start": "next start --port 3000",
     "lint": "eslint"
   },
