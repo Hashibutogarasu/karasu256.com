@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
-import { PopUpMenuProvider, R2StorageProvider } from '@Hashibutogarasu/ui';
+import { PopUpMenuProvider, R2StorageProvider, RedisProvider } from '@Hashibutogarasu/ui';
 import './globals.css';
 import Header from '@/components/Header';
 
@@ -34,10 +34,12 @@ export default async function RootLayout({
       <body className="min-h-full flex flex-col">
         <NextIntlClientProvider messages={messages}>
           <R2StorageProvider imageApiUrl={process.env.NEXT_PUBLIC_IMAGE_API_URL!}>
-            <PopUpMenuProvider>
-              <Header />
-              <main className="flex-1 flex flex-col">{children}</main>
-            </PopUpMenuProvider>
+            <RedisProvider redisURL={process.env.REDIS_URL!}>
+              <PopUpMenuProvider>
+                <Header />
+                <main className="flex-1 flex flex-col">{children}</main>
+              </PopUpMenuProvider>
+            </RedisProvider>
           </R2StorageProvider>
         </NextIntlClientProvider>
       </body>
