@@ -15,9 +15,9 @@ import {
   Input,
   Label,
   R2Image,
+  useR2Storage,
 } from '@Hashibutogarasu/ui';
 import { updateOAuthClient, type OAuthClientSummary, type PermissionSection } from '@/lib/api/developer';
-import { useImageUpload } from '@Hashibutogarasu/utils/client';
 
 interface EditOAuthClientDialogProps {
   open: boolean;
@@ -33,7 +33,7 @@ interface EditOAuthClientDialogProps {
  */
 export function EditOAuthClientDialog({ open, onOpenChange, client, sections, onUpdated }: EditOAuthClientDialogProps) {
   const t = useTranslations();
-  const { uploading, upload } = useImageUpload();
+  const { uploading, upload } = useR2Storage();
 
   const [name, setName] = useState(client.client_name ?? '');
   const [redirectUrisText, setRedirectUrisText] = useState(client.redirect_uris.join('\n'));
