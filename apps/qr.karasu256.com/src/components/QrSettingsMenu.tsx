@@ -18,12 +18,14 @@ export function QrSettingsMenu() {
         <FontAwesomeIcon icon={faGear} />
       </MenuTrigger>
       <MenuContent>
-        <SwitchMenuItem checked={enabled} onCheckedChange={toggle}>
+        <SwitchMenuItem checked={enabled} onCheckedChange={toggle} className="hover:bg-accent hover:text-accent-foreground">
           {t('autoRegenerate.label')}
         </SwitchMenuItem>
         <MenuSeparator />
         <MenuSub highlightItemOnHover={false}>
-          <MenuSubTrigger openOnHover={false}>{t('interval.label')}</MenuSubTrigger>
+          <MenuSubTrigger openOnHover={false} className="hover:bg-accent hover:text-accent-foreground">
+            {t('interval.label')}
+          </MenuSubTrigger>
           <MenuSubContent>
             <IntervalMenu intervalSeconds={intervalSeconds} onSelect={setIntervalSeconds} />
           </MenuSubContent>

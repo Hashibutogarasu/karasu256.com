@@ -65,7 +65,7 @@ export function IntervalMenu({ intervalSeconds, onSelect }: IntervalMenuProps) {
         />
       </div>
       {presets.map((seconds) => (
-        <MenuItem key={seconds} onClick={() => onSelect(seconds)}>
+        <MenuItem key={seconds} onClick={() => onSelect(seconds)} className="hover:bg-accent hover:text-accent-foreground">
           {t('interval.seconds', { seconds })}
         </MenuItem>
       ))}
