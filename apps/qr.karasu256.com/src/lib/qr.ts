@@ -3,7 +3,7 @@ import 'server-only';
 import { cookies } from 'next/headers';
 import { createId } from '@paralleldrive/cuid2';
 import QRCode from 'qrcode';
-import { useRedis } from '@Hashibutogarasu/ui';
+import { useRedis } from '@Hashibutogarasu/ui/redis';
 import { SESSION_COOKIE_NAME, deleteUploadedImage, getSessionUser, uploadImage, uploadImageAnonymous } from '@Hashibutogarasu/utils/server';
 
 const QR_IMAGE_WIDTH = 512;
@@ -43,7 +43,7 @@ async function resolveSession(): Promise<{ uid: string | null; sessionCookie: st
 
 async function uploadForUser(buffer: Buffer, uid: string, sessionCookie: string): Promise<{ path: string; url: string }> {
   const path = `qr/${uid}/${Date.now()}.png`;
-  const file = new File([buffer], 'qr.png', { type: 'image/png' });
+  const file = new File([Uint8Array.from(buffer)], 'qr.png', { type: 'image/png' });
   const result = await uploadImage(file, {
     imageApiUrl: process.env.NEXT_PUBLIC_IMAGE_API_URL!,
     sessionCookie,

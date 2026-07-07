@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
-import { PopUpMenuProvider, R2StorageProvider, RedisProvider } from '@Hashibutogarasu/ui';
+import { PopUpMenuProvider, R2StorageProvider } from '@Hashibutogarasu/ui';
+import { RedisProvider } from '@Hashibutogarasu/ui/redis';
 import './globals.css';
 import Header from '@/components/Header';
 

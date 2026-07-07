@@ -4,6 +4,7 @@
   "private": true,
   "exports": {
     ".": "./src/index.ts",
+    "./redis": "./src/components/redis-provider.tsx",
     "./styles/base.css": "./src/styles/base.css"
   },
   "dependencies": {

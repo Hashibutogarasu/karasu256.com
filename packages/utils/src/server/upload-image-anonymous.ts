@@ -17,7 +17,7 @@ export type UploadImageAnonymousResult = { ok: true; url: string } | { ok: false
  */
 export async function uploadImageAnonymous(buffer: Buffer, options: UploadImageAnonymousOptions): Promise<UploadImageAnonymousResult> {
   const form = new FormData();
-  form.append('file', new Blob([buffer], { type: options.contentType }), 'upload');
+  form.append('file', new Blob([Uint8Array.from(buffer)], { type: options.contentType }), 'upload');
   form.append('path', options.path);
 
   const res = await fetch(`${options.apiUrl}/upload/anonymous`, {
@@ -30,5 +30,5 @@ export async function uploadImageAnonymous(buffer: Buffer, options: UploadImageA
     return { ok: false, status: res.status, error: body.error };
   }
   const { url } = (await res.json()) as { url: string };
-  return { ok: true, status: res.status, url };
+  return { ok: true, url };
 }
