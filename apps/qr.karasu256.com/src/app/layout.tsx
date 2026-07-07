@@ -1,11 +1,15 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
+import { config } from '@fortawesome/fontawesome-svg-core';
+import '@fortawesome/fontawesome-svg-core/styles.css';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
 import { PopUpMenuProvider, R2StorageProvider } from '@Hashibutogarasu/ui';
 import { RedisProvider } from '@Hashibutogarasu/ui/redis';
 import './globals.css';
 import Header from '@/components/Header';
+
+config.autoAddCss = false;
 
 const geistSans = Geist({
   variable: '--font-geist-sans',

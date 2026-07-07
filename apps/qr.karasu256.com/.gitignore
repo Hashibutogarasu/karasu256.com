@@ -27,3 +27,9 @@ Thumbs.db
 *.tsbuildinfo
 next-env.d.ts
 .vercel
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
