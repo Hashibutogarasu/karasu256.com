@@ -35,7 +35,7 @@ export function IntervalMenu({ intervalSeconds, onSelect }: IntervalMenuProps) {
 
   return (
     <ScrollableSubMenu
-      trigger={t('interval.label')}
+      trigger={t('interval.label', { seconds: intervalSeconds })}
       onLoadMore={() => setPresetCount((count) => count + PRESET_STEP_SECONDS)}
       pinned={
         <TextInputMenuItem

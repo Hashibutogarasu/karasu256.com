@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'メニュー' }).click();
-  await page.getByText('更新間隔', { exact: true }).click();
+  await page.getByText(/^更新間隔\(\d+秒\)$/).click();
   await page.locator('[data-slot="dropdown-menu-sub-content"]').waitFor({ state: 'visible' });
 });
 

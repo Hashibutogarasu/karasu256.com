@@ -13,7 +13,7 @@
       "label": "自動生成"
     },
     "interval": {
-      "label": "更新間隔",
+      "label": "更新間隔({seconds}秒)",
       "seconds": "{seconds}秒",
       "customPlaceholder": "秒数を入力"
     }
