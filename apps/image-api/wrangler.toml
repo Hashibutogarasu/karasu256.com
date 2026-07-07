@@ -10,11 +10,10 @@ custom_domain = true
 binding = "IMAGES"
 bucket_name = "karasu-lab-cdn"
 
-# Created via `wrangler kv namespace create RATE_LIMIT_KV`; replace the id
-# below with the value that command prints.
+# Created via `wrangler kv namespace create RATE_LIMIT_KV`.
 [[kv_namespaces]]
 binding = "RATE_LIMIT_KV"
-id = "REPLACE_WITH_RATE_LIMIT_KV_ID"
+id = "dda7387a349f4de3b1698f20e713294d"
 
 [vars]
 FIREBASE_PROJECT_ID = "karasu-lab-application"
