@@ -7,11 +7,13 @@ import { Redis } from 'ioredis';
  * Client Components can consume a Context). `RedisProvider` therefore cannot
  * follow the `React.createContext` pattern used by `R2StorageProvider`.
  *
- * Instead, `RedisProvider` is a Server Component that renders its children
- * unchanged, registering the supplied `redisURL` in module scope. `useRedis()`
- * lazily creates a connection-reusing singleton client from that registered
- * URL. This module must never be imported from a Client Component: ioredis
- * is a Node.js-only package and has no browser build.
+ * `RedisProvider` is a Server Component that renders its children unchanged,
+ * registering the supplied `redisURL` in module scope for Server Components
+ * in the same page tree. Route Handlers never render `layout.tsx`, so
+ * `RedisProvider` never runs for them; callers outside the page tree must
+ * pass `redisURL` to `useRedis()` explicitly instead. This module must never
+ * be imported from a Client Component: ioredis is a Node.js-only package and
+ * has no browser build.
  */
 export interface RedisProviderProps {
   /** Full Redis connection string, e.g. `redis://default:password@host:6379`. Server-only. */
@@ -35,17 +37,21 @@ export interface UseRedisResult {
 }
 
 /**
- * Returns a lazily-created, connection-reusing Redis client backed by the
- * URL supplied to the nearest `RedisProvider`. Must only be called from
- * server code (Route Handlers, Server Components, Server Actions) — never
- * from a Client Component, since ioredis cannot run in the browser.
+ * Returns a lazily-created, connection-reusing Redis client backed by
+ * `redisURL`, or by the URL registered by the nearest `RedisProvider` when
+ * omitted. Callers outside the page tree (Route Handlers, Server Actions
+ * invoked directly) must pass `redisURL` explicitly, since `RedisProvider`
+ * only runs for Server Components rendered as part of a page. Must only be
+ * called from server code — never from a Client Component, since ioredis
+ * cannot run in the browser.
  */
-export function useRedis(): UseRedisResult {
-  if (!registeredRedisURL) {
-    throw new Error('useRedis must be called within a RedisProvider tree');
+export function useRedis(redisURL?: string): UseRedisResult {
+  const url = redisURL ?? registeredRedisURL;
+  if (!url) {
+    throw new Error('useRedis requires a redisURL argument, or must be called within a RedisProvider tree');
   }
   if (!client) {
-    client = new Redis(registeredRedisURL);
+    client = new Redis(url);
   }
   const activeClient = client;
 

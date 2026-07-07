@@ -24,12 +24,12 @@ function redisKeyFor(uid: string | null): string {
 }
 
 async function readCachedQr(uid: string | null): Promise<CachedQr | null> {
-  const cached = await useRedis().get(redisKeyFor(uid));
+  const cached = await useRedis(process.env.REDIS_URL).get(redisKeyFor(uid));
   return cached ? (JSON.parse(cached) as CachedQr) : null;
 }
 
 async function writeCachedQr(uid: string | null, qr: CachedQr): Promise<void> {
-  await useRedis().set(redisKeyFor(uid), JSON.stringify(qr), CACHE_TTL_SECONDS);
+  await useRedis(process.env.REDIS_URL).set(redisKeyFor(uid), JSON.stringify(qr), CACHE_TTL_SECONDS);
 }
 
 /** Reads the caller's Firebase uid and raw session cookie, or nulls when signed out. */
