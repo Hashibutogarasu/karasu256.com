@@ -37,6 +37,14 @@ export interface ScrollableSubMenuProps {
  * `observe()` call always reports the current state per spec), so loading
  * keeps going until the sentinel genuinely leaves the popup's visible
  * bounds — at which point real scrolling takes over as expected.
+ *
+ * The sentinel is wired up through a callback ref rather than a plain
+ * `useRef` + mount-only `useEffect`: `MenuSubContent`'s children (and thus
+ * the sentinel) only enter the DOM once the submenu itself opens, which
+ * happens well after `ScrollableSubMenu` — the component that owns
+ * `MenuSub` — first mounts. A mount-only effect would find the ref still
+ * null and never retry; the callback ref instead sets everything up exactly
+ * when the sentinel node actually appears.
  */
 export function ScrollableSubMenu({
   trigger,
@@ -46,17 +54,18 @@ export function ScrollableSubMenu({
   maxHeight = 'min(70vh, var(--available-height))',
   children,
 }: ScrollableSubMenuProps) {
-  const sentinelRef = React.useRef<HTMLDivElement>(null);
+  const sentinelRef = React.useRef<HTMLDivElement | null>(null);
   const observerRef = React.useRef<IntersectionObserver | null>(null);
   const onLoadMoreRef = React.useRef(onLoadMore);
   onLoadMoreRef.current = onLoadMore;
 
-  React.useEffect(() => {
-    const sentinel = sentinelRef.current;
-    if (!sentinel) return;
+  const attachSentinel = React.useCallback((node: HTMLDivElement | null) => {
+    observerRef.current?.disconnect();
+    observerRef.current = null;
+    sentinelRef.current = node;
+    if (!node) return;
 
-    const root = sentinel.closest<HTMLElement>('[data-slot="dropdown-menu-sub-content"]');
-
+    const root = node.closest<HTMLElement>('[data-slot="dropdown-menu-sub-content"]');
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0]?.isIntersecting) {
@@ -65,9 +74,8 @@ export function ScrollableSubMenu({
       },
       { root }
     );
+    observer.observe(node);
     observerRef.current = observer;
-    observer.observe(sentinel);
-    return () => observer.disconnect();
   }, []);
 
   React.useEffect(() => {
@@ -87,7 +95,7 @@ export function ScrollableSubMenu({
       <DropdownMenuSubContent style={{ maxHeight }}>
         {pinned && <div className="sticky top-0 z-10 bg-popover">{pinned}</div>}
         {children}
-        <div ref={sentinelRef} aria-hidden="true" className="h-px" />
+        <div ref={attachSentinel} aria-hidden="true" className="h-px" />
       </DropdownMenuSubContent>
     </DropdownMenuSub>
   );
