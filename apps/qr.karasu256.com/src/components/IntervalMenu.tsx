@@ -19,12 +19,27 @@ export interface IntervalMenuProps {
  * `MenuSubContent`'s own `overflow-y-auto` popup element, found via
  * `closest()`, since `MenuSubContent` is a plain function component with no
  * forwarded ref to grab directly.
+ *
+ * `IntersectionObserver` only fires when the sentinel's intersection with
+ * `root` *crosses* the threshold, not merely while it remains intersecting.
+ * Right after the popup opens, the preset list is shorter than the popup, so
+ * the sentinel is already visible and stays that way after the first batch
+ * is appended — no further crossing ever happens, so the callback silently
+ * stops firing forever even though the popup still has room to grow.
+ * Re-registering the same observer on the sentinel after every batch forces
+ * a fresh notification for its current intersection state (per spec, a new
+ * `observe()` call always reports the current state), which keeps the list
+ * growing until the sentinel genuinely leaves `root`'s visible bounds — at
+ * which point real scrolling takes over. Deferring to the observer (rather
+ * than measuring `getBoundingClientRect` synchronously) also avoids racing
+ * the popup's own async reposition/resize logic while the list grows.
  */
 export function IntervalMenu({ intervalSeconds, onSelect }: IntervalMenuProps) {
   const t = useTranslations('qr');
   const [customValue, setCustomValue] = React.useState(String(intervalSeconds));
   const [presetCount, setPresetCount] = React.useState(INITIAL_PRESET_COUNT);
   const sentinelRef = React.useRef<HTMLDivElement>(null);
+  const observerRef = React.useRef<IntersectionObserver | null>(null);
 
   React.useEffect(() => {
     const sentinel = sentinelRef.current;
@@ -40,9 +55,19 @@ export function IntervalMenu({ intervalSeconds, onSelect }: IntervalMenuProps) {
       },
       { root }
     );
+    observerRef.current = observer;
     observer.observe(sentinel);
     return () => observer.disconnect();
   }, []);
+
+  React.useEffect(() => {
+    const sentinel = sentinelRef.current;
+    const observer = observerRef.current;
+    if (!sentinel || !observer) return;
+
+    observer.unobserve(sentinel);
+    observer.observe(sentinel);
+  }, [presetCount]);
 
   const handleCustomSubmit = (value: string) => {
     const seconds = Number(value);
