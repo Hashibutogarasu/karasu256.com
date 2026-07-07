@@ -14,7 +14,7 @@ export function QrSettingsMenu() {
 
   return (
     <Menu>
-      <MenuTrigger render={<Button variant="ghost" size="icon" aria-label={t('settingsMenuLabel')} />}>
+      <MenuTrigger render={<Button variant="secondary" size="icon" className="rounded-full" aria-label={t('settingsMenuLabel')} />}>
         <FontAwesomeIcon icon={faGear} />
       </MenuTrigger>
       <MenuContent>
@@ -23,7 +23,7 @@ export function QrSettingsMenu() {
         </SwitchMenuItem>
         <MenuSeparator />
         <MenuSub>
-          <MenuSubTrigger>{t('interval.label')}</MenuSubTrigger>
+          <MenuSubTrigger openOnHover={false}>{t('interval.label')}</MenuSubTrigger>
           <MenuSubContent>
             <IntervalMenu intervalSeconds={intervalSeconds} onSelect={setIntervalSeconds} />
           </MenuSubContent>
