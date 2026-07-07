@@ -1,7 +1,9 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useRef, useState, useTransition } from 'react';
 import { useTranslations } from 'next-intl';
+import { createId } from '@paralleldrive/cuid2';
+import QRCode from 'qrcode';
 import { R2Image, Button, ProgressBar } from '@Hashibutogarasu/ui';
 import type { QrData } from '@/lib/qr';
 import { AutoRegenerateProvider, useAutoRegenerate } from '@/hooks/use-auto-regenerate';
@@ -11,14 +13,37 @@ export interface QrDisplayProps {
   initialQr: QrData;
 }
 
-/** Displays the current QR code and lets the caller regenerate it via the `/api/qr` route, manually or on an auto-regenerate interval. */
+/**
+ * Displays the current QR code and lets the caller regenerate it, manually
+ * or on an auto-regenerate interval. Regeneration is client-predicted: the
+ * new content id is created and rendered locally as a data URL right away,
+ * while `/api/qr` encodes that same content and syncs it to R2 and Redis in
+ * the background, swapping in the canonical URL once done. Sync responses
+ * that arrive after a newer regeneration started are dropped so a slow
+ * request can never overwrite a fresher QR.
+ */
 export default function QrDisplay({ initialQr }: QrDisplayProps) {
   const [qr, setQr] = useState(initialQr);
   const [isPending, startTransition] = useTransition();
+  const latestContentRef = useRef(initialQr.content);
 
   const regenerate = async () => {
-    const res = await fetch('/api/qr', { method: 'POST' });
-    if (res.ok) setQr(await res.json());
+    const content = createId();
+    latestContentRef.current = content;
+
+    const dataUrl = await QRCode.toDataURL(content, { width: 512 });
+    if (latestContentRef.current !== content) return;
+    setQr({ content, url: dataUrl, createdAt: new Date().toISOString() });
+
+    const res = await fetch('/api/qr', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content }),
+    });
+    if (!res.ok) return;
+
+    const synced = (await res.json()) as QrData;
+    if (latestContentRef.current === synced.content) setQr(synced);
   };
 
   return (
