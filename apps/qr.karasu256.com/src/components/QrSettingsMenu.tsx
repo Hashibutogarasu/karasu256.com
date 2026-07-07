@@ -14,7 +14,7 @@ export function QrSettingsMenu() {
 
   return (
     <Menu highlightItemOnHover={false}>
-      <MenuTrigger render={<Button variant="secondary" size="icon" className="rounded-full" aria-label={t('settingsMenuLabel')} />}>
+      <MenuTrigger render={<Button variant="outline" size="icon" className="rounded-full" aria-label={t('settingsMenuLabel')} />}>
         <FontAwesomeIcon icon={faGear} />
       </MenuTrigger>
       <MenuContent>
