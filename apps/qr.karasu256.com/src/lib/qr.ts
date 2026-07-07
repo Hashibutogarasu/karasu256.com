@@ -65,28 +65,32 @@ async function uploadAnonymous(buffer: Buffer): Promise<{ path: string; url: str
 }
 
 /**
- * Generates a new random QR, uploads it under the caller's path scheme, and
- * replaces the cached entry. For signed-in callers, the previous R2 object
- * is deleted on a best-effort basis; anonymous uploads have no delete
- * credentials and are left for R2 lifecycle rules to expire.
+ * Generates a QR for `content` (a fresh random id unless the client already
+ * predicted one), uploads it under the caller's path scheme, and replaces
+ * the cached entry. The previous-cache read runs in parallel with the R2
+ * upload, and the cache write in parallel with the best-effort delete of the
+ * previous R2 object; anonymous uploads have no delete credentials and are
+ * left for R2 lifecycle rules to expire.
  */
-async function generateAndCacheQr(uid: string | null, sessionCookie: string | null): Promise<QrData> {
-  const content = createId();
+async function generateAndCacheQr(uid: string | null, sessionCookie: string | null, content: string = createId()): Promise<QrData> {
   const buffer = await QRCode.toBuffer(content, { type: 'png', width: QR_IMAGE_WIDTH });
 
-  const previous = uid ? await readCachedQr(uid) : null;
-
-  const { path, url } = uid && sessionCookie ? await uploadForUser(buffer, uid, sessionCookie) : await uploadAnonymous(buffer);
+  const [previous, { path, url }] = await Promise.all([
+    uid ? readCachedQr(uid) : null,
+    uid && sessionCookie ? uploadForUser(buffer, uid, sessionCookie) : uploadAnonymous(buffer),
+  ]);
 
   const qr: CachedQr = { content, path, url, createdAt: new Date().toISOString() };
-  await writeCachedQr(uid, qr);
 
-  if (uid && sessionCookie && previous) {
-    await deleteUploadedImage(previous.url, {
-      imageApiUrl: process.env.NEXT_PUBLIC_IMAGE_API_URL!,
-      sessionCookie,
-    });
-  }
+  await Promise.all([
+    writeCachedQr(uid, qr),
+    uid && sessionCookie && previous
+      ? deleteUploadedImage(previous.url, {
+          imageApiUrl: process.env.NEXT_PUBLIC_IMAGE_API_URL!,
+          sessionCookie,
+        })
+      : null,
+  ]);
 
   return { content: qr.content, url: qr.url, createdAt: qr.createdAt };
 }
@@ -99,8 +103,12 @@ export async function getOrCreateQr(): Promise<QrData> {
   return generateAndCacheQr(uid, sessionCookie);
 }
 
-/** Always generates a fresh QR for the current caller, replacing the cached one. */
-export async function regenerateQr(): Promise<QrData> {
+/**
+ * Always generates a fresh QR for the current caller, replacing the cached
+ * one. When the client already rendered a predicted QR locally, it passes
+ * that same `content` so the server-side image encodes identical data.
+ */
+export async function regenerateQr(content?: string): Promise<QrData> {
   const { uid, sessionCookie } = await resolveSession();
-  return generateAndCacheQr(uid, sessionCookie);
+  return generateAndCacheQr(uid, sessionCookie, content);
 }
