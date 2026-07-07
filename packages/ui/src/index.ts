@@ -74,4 +74,5 @@ export { AccountMenu, type AccountMenuProps, type AccountMenuLabels } from './co
 export { ProgressBar, type ProgressBarProps } from './components/progress-bar';
 export { SwitchMenuItem, type SwitchMenuItemProps } from './components/switch-menu-item';
 export { TextInputMenuItem, type TextInputMenuItemProps } from './components/text-input-menu-item';
+export { ScrollableSubMenu, type ScrollableSubMenuProps } from './components/scrollable-sub-menu';
 export { Switch } from './components/ui/switch';

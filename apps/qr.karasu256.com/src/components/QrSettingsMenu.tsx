@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGear } from '@fortawesome/free-solid-svg-icons';
-import { Button, Menu, MenuTrigger, MenuContent, MenuSeparator, MenuSub, MenuSubTrigger, MenuSubContent, SwitchMenuItem } from '@Hashibutogarasu/ui';
+import { Button, Menu, MenuTrigger, MenuContent, MenuSeparator, SwitchMenuItem } from '@Hashibutogarasu/ui';
 import { useAutoRegenerate } from '@/hooks/use-auto-regenerate';
 import { IntervalMenu } from './IntervalMenu';
 
@@ -22,14 +22,7 @@ export function QrSettingsMenu() {
           {t('autoRegenerate.label')}
         </SwitchMenuItem>
         <MenuSeparator />
-        <MenuSub highlightItemOnHover={false}>
-          <MenuSubTrigger openOnHover={false} className="hover:bg-accent hover:text-accent-foreground">
-            {t('interval.label')}
-          </MenuSubTrigger>
-          <MenuSubContent>
-            <IntervalMenu intervalSeconds={intervalSeconds} onSelect={setIntervalSeconds} />
-          </MenuSubContent>
-        </MenuSub>
+        <IntervalMenu intervalSeconds={intervalSeconds} onSelect={setIntervalSeconds} />
       </MenuContent>
     </Menu>
   );
