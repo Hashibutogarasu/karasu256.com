@@ -22,7 +22,7 @@ export function QrSettingsMenu() {
           {t('autoRegenerate.label')}
         </SwitchMenuItem>
         <MenuSeparator />
-        <MenuSub>
+        <MenuSub highlightItemOnHover={false}>
           <MenuSubTrigger openOnHover={false}>{t('interval.label')}</MenuSubTrigger>
           <MenuSubContent>
             <IntervalMenu intervalSeconds={intervalSeconds} onSelect={setIntervalSeconds} />
