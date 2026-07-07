@@ -21,6 +21,7 @@
     "paths": {
       "@/*": ["./src/*"],
       "@Hashibutogarasu/ui": ["../../packages/ui/src/index.ts"],
+      "@Hashibutogarasu/ui/redis": ["../../packages/ui/src/components/redis-provider.tsx"],
       "@Hashibutogarasu/utils/server": ["../../packages/utils/src/server/index.ts"]
     }
   },

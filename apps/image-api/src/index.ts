@@ -7,6 +7,7 @@ interface Env {
   IMAGES: R2Bucket;
   FIREBASE_PROJECT_ID: string;
   CDN_BASE_URL: string;
+  RATE_LIMIT_KV: KVNamespace;
 }
 
 const SESSION_COOKIE_NAME = 'session';
@@ -96,7 +97,36 @@ function isValidUploadPath(path: string, uid: string): boolean {
   const avatarMatch = path.match(/^users\/([^/]+)\/avatar\.png$/);
   if (avatarMatch) return avatarMatch[1] === uid;
 
+  const qrMatch = path.match(/^qr\/([^/]+)\/(\d+)\.png$/);
+  if (qrMatch) return qrMatch[1] === uid;
+
   return /^oauth\/([^/]+)\/icon\.png$/.test(path);
+}
+
+/**
+ * Checks whether an anonymous upload path matches the fixed
+ * `qr/anonymous/{datetime}.png` scheme, since anonymous callers have no uid
+ * to scope a path to.
+ */
+function isValidAnonymousUploadPath(path: string): boolean {
+  return /^qr\/anonymous\/\d+\.png$/.test(path);
+}
+
+/**
+ * Approximates a per-IP request count over a rolling hour using a
+ * read-then-write KV counter keyed by the current hour bucket. Cloudflare's
+ * native rate limiting binding only supports 10s/60s windows, unsuitable for
+ * an hourly quota, so this accepts a small race-condition margin of error in
+ * exchange for a simple hourly counter.
+ */
+async function checkAndIncrementRateLimit(ip: string, env: Env, limit = 500, windowSeconds = 3600, kvTtlSeconds = 3700): Promise<boolean> {
+  const hourBucket = Math.floor(Date.now() / (windowSeconds * 1000));
+  const key = `ratelimit:anon:${ip}:${hourBucket}`;
+  const current = parseInt((await env.RATE_LIMIT_KV.get(key)) ?? '0', 10);
+  if (current >= limit) return false;
+
+  await env.RATE_LIMIT_KV.put(key, String(current + 1), { expirationTtl: kvTtlSeconds });
+  return true;
 }
 
 function corsHeaders(origin: string): Record<string, string> {
@@ -177,6 +207,52 @@ async function deleteImage(pathname: string, request: Request, env: Env, cors: R
   return new Response(null, { status: 204, headers: cors });
 }
 
+/**
+ * Handles unauthenticated uploads restricted to the `qr/anonymous/{datetime}.png`
+ * path scheme, rate-limited per IP since there is no uid to scope abuse to.
+ */
+async function handleAnonymousUpload(request: Request, env: Env, cors: Record<string, string>): Promise<Response> {
+  const ip = request.headers.get('CF-Connecting-IP');
+  if (!ip) return json({ error: 'Bad Request' }, 400, cors);
+
+  const allowed = await checkAndIncrementRateLimit(ip, env);
+  if (!allowed) {
+    return json({ error: 'Rate limit exceeded' }, 429, { ...cors, 'Retry-After': '3600' });
+  }
+
+  const contentType = request.headers.get('content-type') ?? '';
+  if (!contentType.includes('multipart/form-data')) {
+    return json({ error: 'Expected multipart/form-data' }, 400, cors);
+  }
+
+  const formData = await request.formData();
+  const fileResult = z.instanceof(File).safeParse(formData.get('file'));
+  if (!fileResult.success) {
+    return json({ error: 'Missing file field' }, 400, cors);
+  }
+  const file = fileResult.data;
+
+  const path = stringOrNull(formData.get('path'));
+  if (!path || !isValidAnonymousUploadPath(path)) {
+    return json({ error: 'Invalid upload path' }, 400, cors);
+  }
+
+  if (!ALLOWED_TYPES.has(file.type)) {
+    return json({ error: 'Unsupported image type. Allowed: jpeg, png, webp.' }, 400, cors);
+  }
+
+  const buffer = await file.arrayBuffer();
+  if (buffer.byteLength > MAX_FILE_BYTES) {
+    return json({ error: 'File exceeds 5 MB limit' }, 413, cors);
+  }
+
+  await env.IMAGES.put(path, buffer, {
+    httpMetadata: { contentType: file.type },
+  });
+
+  return json({ url: `${env.CDN_BASE_URL}/${path}` }, 200, cors);
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const cors = corsHeaders(resolveAllowedOrigin(request.headers.get('Origin')));
@@ -194,6 +270,10 @@ export default {
 
     if (request.method === 'DELETE') {
       return deleteImage(pathname, request, env, cors);
+    }
+
+    if (pathname === '/upload/anonymous' && request.method === 'POST') {
+      return handleAnonymousUpload(request, env, cors);
     }
 
     if (pathname !== '/upload' || request.method !== 'POST') {
