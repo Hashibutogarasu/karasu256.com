@@ -2,12 +2,14 @@
 
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { SESSION_COOKIE_NAME } from '@Hashibutogarasu/utils/server';
+import { SESSION_COOKIE_NAME } from './session-cookie';
 
 /**
- * Clears the Firebase session cookie, then redirects to the home page.
+ * Clears the Firebase session cookie, then redirects to the accounts
+ * portal's sign-out page. Shared across apps so every subdomain signs out
+ * the same way.
  */
-export async function signOutAction() {
+export async function signOutAction(): Promise<void> {
   const store = await cookies();
   const domain = process.env.BASE_DOMAIN ? `.${process.env.BASE_DOMAIN}` : undefined;
   const secure = process.env.NODE_ENV === 'production';

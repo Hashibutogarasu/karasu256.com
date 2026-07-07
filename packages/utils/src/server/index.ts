@@ -4,3 +4,4 @@ export { deleteUploadedImage, type DeleteUploadedImageOptions } from './delete-u
 export { uploadImage, type UploadImageOptions, type UploadImageResult } from './upload-image';
 export { getAdminAuth, getFirebaseUserIcon } from './firebase-admin';
 export { getSessionUser } from './firebase-session';
+export { signOutAction } from './sign-out';
