@@ -36,13 +36,13 @@ interface QrDisplayInnerProps {
 
 function QrDisplayInner({ qr, isPending, onRegenerate }: QrDisplayInnerProps) {
   const t = useTranslations('qr');
-  const { progress } = useAutoRegenerate();
+  const { remaining } = useAutoRegenerate();
 
   return (
     <>
       <R2Image src={qr.url} alt={t('imageAlt')} className="size-64 md:size-96" />
       <div className="mt-4 w-64 md:w-96">
-        <ProgressBar value={progress} />
+        <ProgressBar value={remaining} />
       </div>
       <div className="flex w-64 items-center justify-end gap-2 md:w-96">
         <Button onClick={onRegenerate} disabled={isPending} className="w-[90%]">

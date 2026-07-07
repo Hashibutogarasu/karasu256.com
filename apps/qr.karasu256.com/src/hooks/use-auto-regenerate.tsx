@@ -8,8 +8,8 @@ const DEFAULT_INTERVAL_SECONDS = 30;
 export interface AutoRegenerateContextValue {
   enabled: boolean;
   intervalSeconds: number;
-  /** 0–1, elapsed fraction of the current interval. Always 0 when disabled. */
-  progress: number;
+  /** 0–1, remaining fraction of the current interval, counting down to 0. Always 0 when disabled. */
+  remaining: number;
   toggle: () => void;
   setIntervalSeconds: (seconds: number) => void;
 }
@@ -30,14 +30,14 @@ export interface AutoRegenerateProviderProps {
 
 /**
  * Drives a client-side countdown that calls `onTick` once per
- * `intervalSeconds` while `enabled`, exposing the elapsed fraction as
- * `progress` for a progress bar. `onTick` is read from a ref so changing its
- * identity across renders doesn't restart the countdown.
+ * `intervalSeconds` while `enabled`, exposing the remaining fraction as
+ * `remaining` for a countdown progress bar. `onTick` is read from a ref so
+ * changing its identity across renders doesn't restart the countdown.
  */
 export function AutoRegenerateProvider({ onTick, children }: AutoRegenerateProviderProps) {
   const [enabled, setEnabled] = React.useState(false);
   const [intervalSeconds, setIntervalSecondsState] = React.useState(DEFAULT_INTERVAL_SECONDS);
-  const [progress, setProgress] = React.useState(0);
+  const [remaining, setRemaining] = React.useState(0);
 
   const onTickRef = React.useRef(onTick);
   onTickRef.current = onTick;
@@ -46,22 +46,23 @@ export function AutoRegenerateProvider({ onTick, children }: AutoRegenerateProvi
 
   React.useEffect(() => {
     if (!enabled) {
-      setProgress(0);
+      setRemaining(0);
       return;
     }
 
     let startedAt = Date.now();
+    setRemaining(1);
 
     const id = setInterval(async () => {
       const elapsed = Date.now() - startedAt;
       const fraction = Math.min(1, elapsed / (intervalSeconds * 1000));
-      setProgress(fraction);
+      setRemaining(1 - fraction);
 
       if (fraction >= 1 && !isTickingRef.current) {
         isTickingRef.current = true;
         await onTickRef.current();
         startedAt = Date.now();
-        setProgress(0);
+        setRemaining(1);
         isTickingRef.current = false;
       }
     }, TICK_RESOLUTION_MS);
@@ -73,11 +74,11 @@ export function AutoRegenerateProvider({ onTick, children }: AutoRegenerateProvi
     () => ({
       enabled,
       intervalSeconds,
-      progress,
+      remaining,
       toggle: () => setEnabled((e) => !e),
       setIntervalSeconds: (seconds: number) => setIntervalSecondsState(seconds),
     }),
-    [enabled, intervalSeconds, progress]
+    [enabled, intervalSeconds, remaining]
   );
 
   return <AutoRegenerateContext.Provider value={value}>{children}</AutoRegenerateContext.Provider>;
