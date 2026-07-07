@@ -16,11 +16,6 @@
   "simple-git-hooks": {
     "pre-commit": "pnpm exec pretty-quick --staged"
   },
-  "pnpm": {
-    "overrides": {
-      "jwks-rsa>jose": "^5.10.0"
-    }
-  },
   "devDependencies": {
     "@types/react": "^19",
     "@types/react-dom": "^19",
