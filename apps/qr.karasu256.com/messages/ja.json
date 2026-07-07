@@ -7,6 +7,15 @@
   },
   "qr": {
     "imageAlt": "QRコード",
-    "regenerate": "再生成 / Regenerate"
+    "regenerate": "再生成",
+    "settingsMenuLabel": "メニュー",
+    "autoRegenerate": {
+      "label": "自動生成"
+    },
+    "interval": {
+      "label": "更新間隔",
+      "seconds": "{seconds}秒",
+      "customPlaceholder": "秒数を入力"
+    }
   }
 }
