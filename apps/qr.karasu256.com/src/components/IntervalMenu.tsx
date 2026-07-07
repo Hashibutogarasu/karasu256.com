@@ -12,7 +12,14 @@ export interface IntervalMenuProps {
   onSelect: (seconds: number) => void;
 }
 
-/** The contents of the "interval" submenu: a custom-value input pinned to the top, and an infinitely-growing list of preset values below it. */
+/**
+ * The contents of the "interval" submenu: a custom-value input pinned to the
+ * top, and an infinitely-growing list of preset values below it. The
+ * scrolling ancestor for the preset list's `IntersectionObserver` is
+ * `MenuSubContent`'s own `overflow-y-auto` popup element, found via
+ * `closest()`, since `MenuSubContent` is a plain function component with no
+ * forwarded ref to grab directly.
+ */
 export function IntervalMenu({ intervalSeconds, onSelect }: IntervalMenuProps) {
   const t = useTranslations('qr');
   const [customValue, setCustomValue] = React.useState(String(intervalSeconds));
@@ -23,11 +30,16 @@ export function IntervalMenu({ intervalSeconds, onSelect }: IntervalMenuProps) {
     const sentinel = sentinelRef.current;
     if (!sentinel) return;
 
-    const observer = new IntersectionObserver((entries) => {
-      if (entries[0]?.isIntersecting) {
-        setPresetCount((count) => count + PRESET_STEP_SECONDS);
-      }
-    });
+    const root = sentinel.closest<HTMLElement>('[data-slot="dropdown-menu-sub-content"]');
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setPresetCount((count) => count + PRESET_STEP_SECONDS);
+        }
+      },
+      { root }
+    );
     observer.observe(sentinel);
     return () => observer.disconnect();
   }, []);

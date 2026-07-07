@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import { DropdownMenuItem } from './ui/dropdown-menu';
 import { Input } from './input';
 import { cn } from '../lib/utils';
 
@@ -15,22 +14,24 @@ export interface TextInputMenuItemProps {
 }
 
 /**
- * A menu item holding a text input, for entering a custom value inline
- * without closing the menu. Arrow key presses are kept from the menu's
- * roving focus so they move the text cursor instead of the menu highlight.
- * Sticky positioning is the caller's responsibility, not this component's.
+ * A plain row (deliberately not a `Menu.Item`) holding a text input, for
+ * entering a custom value inline without closing the menu. Base UI's Menu
+ * attaches a root-level keydown listener for type-ahead search that
+ * intercepts keystrokes bubbling from any descendant, including a `Menu.Item`
+ * wrapping this input; rendering as a plain, non-item element keeps this row
+ * out of the menu's composite item list, and the input additionally stops
+ * propagation on every key as a second line of defense. Sticky positioning is
+ * the caller's responsibility, not this component's.
  */
 export function TextInputMenuItem({ value, onChange, onSubmit, placeholder, className, ...ariaProps }: TextInputMenuItemProps) {
   return (
-    <DropdownMenuItem closeOnClick={false} render={<div />} className={cn('flex', className)}>
+    <div className={cn('flex items-center gap-1.5 rounded-md px-1.5 py-1', className)}>
       <Input
         value={value}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={(e) => {
-          if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-            e.stopPropagation();
-          }
+          e.stopPropagation();
           if (e.key === 'Enter') {
             e.preventDefault();
             onSubmit(value);
@@ -38,6 +39,6 @@ export function TextInputMenuItem({ value, onChange, onSubmit, placeholder, clas
         }}
         {...ariaProps}
       />
-    </DropdownMenuItem>
+    </div>
   );
 }
