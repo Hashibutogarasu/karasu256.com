@@ -1,4 +1,9 @@
 {
   "buildCommand": "cd ../.. && pnpm turbo build --filter=accounts.karasu256.com",
-  "installCommand": "cd ../.. && pnpm install --frozen-lockfile"
+  "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
+  "build": {
+    "env": {
+      "ENABLE_EXPERIMENTAL_COREPACK": "1"
+    }
+  }
 }
