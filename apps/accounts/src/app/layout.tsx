@@ -5,7 +5,7 @@ import '@fortawesome/fontawesome-svg-core/styles.css';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages, getTranslations } from 'next-intl/server';
 import './globals.css';
-import { Toaster } from '@Hashibutogarasu/ui';
+import { R2StorageProvider, Toaster } from '@Hashibutogarasu/ui';
 
 config.autoAddCss = false;
 
@@ -56,8 +56,10 @@ export default async function RootLayout({
   return (
     <html lang={locale} className={`${geistSans.variable} ${geistMono.variable} h-full`}>
       <body className="min-h-full flex flex-col bg-background text-foreground antialiased">
-        <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>
-        <Toaster />
+        <R2StorageProvider imageApiUrl={process.env.NEXT_PUBLIC_IMAGE_API_URL!}>
+          <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>
+          <Toaster />
+        </R2StorageProvider>
       </body>
     </html>
   );

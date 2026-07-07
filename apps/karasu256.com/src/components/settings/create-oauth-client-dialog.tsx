@@ -15,9 +15,9 @@ import {
   Input,
   Label,
   R2Image,
+  useR2Storage,
 } from '@Hashibutogarasu/ui';
 import { createOAuthClient, type OAuthClientCreated, type PermissionSection } from '@/lib/api/developer';
-import { useImageUpload } from '@Hashibutogarasu/utils/client';
 
 interface CreateOAuthClientDialogProps {
   open: boolean;
@@ -33,7 +33,7 @@ interface CreateOAuthClientDialogProps {
  */
 export function CreateOAuthClientDialog({ open, onOpenChange, sections, onCreated }: CreateOAuthClientDialogProps) {
   const t = useTranslations();
-  const { uploading, upload } = useImageUpload();
+  const { uploading, upload } = useR2Storage();
 
   const [name, setName] = useState('');
   const [redirectUrisText, setRedirectUrisText] = useState('');

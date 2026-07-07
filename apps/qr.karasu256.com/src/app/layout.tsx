@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
-import { PopUpMenuProvider } from '@Hashibutogarasu/ui';
+import { PopUpMenuProvider, R2StorageProvider } from '@Hashibutogarasu/ui';
 import './globals.css';
 import Header from '@/components/Header';
 
@@ -27,10 +27,12 @@ export default function RootLayout({
   return (
     <html lang="ja" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
-        <PopUpMenuProvider>
-          <Header />
-          <main className="flex-1 flex flex-col">{children}</main>
-        </PopUpMenuProvider>
+        <R2StorageProvider imageApiUrl={process.env.NEXT_PUBLIC_IMAGE_API_URL!}>
+          <PopUpMenuProvider>
+            <Header />
+            <main className="flex-1 flex flex-col">{children}</main>
+          </PopUpMenuProvider>
+        </R2StorageProvider>
       </body>
     </html>
   );

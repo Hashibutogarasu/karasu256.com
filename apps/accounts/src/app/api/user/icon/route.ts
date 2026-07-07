@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { deleteUploadedImage } from '@Hashibutogarasu/utils/server';
+import { deleteUploadedImage, uploadImage } from '@Hashibutogarasu/utils/server';
 import { getAdminAuth } from '@/lib/firebase-admin';
 import { getProviderProfile } from '@/lib/auth/provider-profile';
 import { requireSession } from '@/lib/api/require-session';
@@ -47,20 +47,15 @@ export async function POST(request: NextRequest) {
   const sessionCookie = (await cookies()).get(SESSION_COOKIE_NAME)?.value;
   if (!sessionCookie) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const uploadForm = new FormData();
-  uploadForm.append('file', file);
-  uploadForm.append('path', `users/${user.uid}/avatar.png`);
-
-  const uploadRes = await fetch(`${imageApiUrl}/upload`, {
-    method: 'POST',
-    body: uploadForm,
-    headers: { Cookie: `${SESSION_COOKIE_NAME}=${sessionCookie}` },
+  const result = await uploadImage(file, {
+    imageApiUrl,
+    sessionCookie,
+    path: `users/${user.uid}/avatar.png`,
   });
-  if (!uploadRes.ok) {
-    const body = await uploadRes.json().catch(() => ({ error: 'upload_failed' }));
-    return NextResponse.json(body, { status: uploadRes.status });
+  if (!result.ok) {
+    return NextResponse.json({ error: result.error }, { status: result.status });
   }
-  const { url } = (await uploadRes.json()) as { url: string };
+  const { url } = result;
 
   const previous = await getAdminAuth().getUser(user.uid);
   await getAdminAuth().updateUser(user.uid, { photoURL: url });

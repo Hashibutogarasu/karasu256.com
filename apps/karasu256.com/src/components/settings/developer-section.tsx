@@ -3,8 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { AnimatedList, Button, ConfirmDialog, SettingsAccordion, SettingsItem, Skeleton } from '@Hashibutogarasu/ui';
-import { ImageUploadProvider } from '@Hashibutogarasu/utils/client';
+import { AnimatedList, Button, ConfirmDialog, R2StorageProvider, SettingsAccordion, SettingsItem, Skeleton } from '@Hashibutogarasu/ui';
 import {
   deleteApiKey,
   deleteOAuthClient,
@@ -79,7 +78,7 @@ export function DeveloperSection() {
   }
 
   return (
-    <ImageUploadProvider>
+    <R2StorageProvider imageApiUrl={process.env.NEXT_PUBLIC_IMAGE_API_URL!}>
       <div className="space-y-6">
         <h1 className="text-xl font-semibold">{t('settings.developer.title')}</h1>
 
@@ -208,6 +207,6 @@ export function DeveloperSection() {
           onConfirm={confirmDelete}
         />
       </div>
-    </ImageUploadProvider>
+    </R2StorageProvider>
   );
 }
