@@ -1,8 +1,8 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { ArrowRight } from 'lucide-react';
 import { UserAvatar } from '@Hashibutogarasu/ui';
+import { AccountPortalLink } from './account-portal-link';
 
 interface ProfileSectionProps {
   uid: string;
@@ -16,7 +16,7 @@ interface ProfileSectionProps {
  */
 export function ProfileSection({ uid, email, iconUrl }: ProfileSectionProps) {
   const t = useTranslations();
-  const accountsUrl = process.env.NEXT_PUBLIC_ACCOUNTS_URL ?? '#';
+  const accountsUrl = process.env.NEXT_PUBLIC_ACCOUNTS_URL;
 
   return (
     <div className="space-y-6">
@@ -30,13 +30,7 @@ export function ProfileSection({ uid, email, iconUrl }: ProfileSectionProps) {
         </div>
       </div>
 
-      <div className="rounded-lg border border-border p-4 flex items-center justify-between gap-4">
-        <p className="text-sm text-muted-foreground">{t('settings.profile.accountSettingsDescription')}</p>
-        <a href={`${accountsUrl}/settings`} className="inline-flex shrink-0 items-center gap-1 text-sm font-medium text-primary hover:underline">
-          {t('settings.profile.accountSettings')}
-          <ArrowRight className="size-4" />
-        </a>
-      </div>
+      <AccountPortalLink accountsUrl={accountsUrl} />
     </div>
   );
 }
