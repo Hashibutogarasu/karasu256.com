@@ -9,6 +9,12 @@ export interface ScrollableSubMenuProps {
   pinned?: React.ReactNode;
   onLoadMore: () => void;
   triggerClassName?: string;
+  /**
+   * CSS `max-height` value for the popup. Defaults to 70% of the viewport
+   * height, capped at `--available-height` (the space actually free between
+   * the trigger and the viewport edge) so it never overflows the screen.
+   */
+  maxHeight?: string;
   children: React.ReactNode;
 }
 
@@ -32,7 +38,14 @@ export interface ScrollableSubMenuProps {
  * keeps going until the sentinel genuinely leaves the popup's visible
  * bounds — at which point real scrolling takes over as expected.
  */
-export function ScrollableSubMenu({ trigger, pinned, onLoadMore, triggerClassName, children }: ScrollableSubMenuProps) {
+export function ScrollableSubMenu({
+  trigger,
+  pinned,
+  onLoadMore,
+  triggerClassName,
+  maxHeight = 'min(70vh, var(--available-height))',
+  children,
+}: ScrollableSubMenuProps) {
   const sentinelRef = React.useRef<HTMLDivElement>(null);
   const observerRef = React.useRef<IntersectionObserver | null>(null);
   const onLoadMoreRef = React.useRef(onLoadMore);
@@ -71,7 +84,7 @@ export function ScrollableSubMenu({ trigger, pinned, onLoadMore, triggerClassNam
       <DropdownMenuSubTrigger openOnHover={false} className={cn('hover:bg-accent hover:text-accent-foreground', triggerClassName)}>
         {trigger}
       </DropdownMenuSubTrigger>
-      <DropdownMenuSubContent>
+      <DropdownMenuSubContent style={{ maxHeight }}>
         {pinned && <div className="sticky top-0 z-10 bg-popover">{pinned}</div>}
         {children}
         <div ref={sentinelRef} aria-hidden="true" className="h-px" />
