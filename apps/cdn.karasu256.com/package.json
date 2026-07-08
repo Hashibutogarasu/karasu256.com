@@ -1,5 +1,5 @@
 {
-  "name": "image-api",
+  "name": "cdn.karasu256.com",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,11 +9,13 @@
   },
   "dependencies": {
     "@Hashibutogarasu/utils": "workspace:*",
-    "jose": "^5.10.0",
-    "zod": "^4.4.3"
+    "@elysiajs/cors": "^1.4.2",
+    "elysia": "^1.4.29",
+    "jose": "^5.10.0"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20250620.0",
+    "@sinclair/typebox": "^0.34.49",
+    "openapi-types": "^12.1.3",
     "wrangler": "^4.0.0"
   }
 }
