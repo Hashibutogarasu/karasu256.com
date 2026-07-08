@@ -153,4 +153,37 @@ test.describe('multi-account switching', () => {
     const { accounts } = (await listRes.json()) as { accounts: { uid: string }[] };
     expect(accounts.some((a) => a.uid === accountB.uid)).toBe(false);
   });
+
+  /**
+   * Regression test: re-bridging an already-added account used to always mint
+   * a brand new better-auth session, silently burning through `multiSession`'s
+   * `maximumSessions` slots on repeat clicks. That let the *next* distinct
+   * account's device-session cookie get dropped without the bridge endpoint
+   * ever reporting an error — see `findBridgedSessionForUser` in
+   * `firebase-bridge-plugin.ts`.
+   */
+  test('re-adding an already-bridged account reuses its device session', async ({ page, context }) => {
+    await context.addCookies(accountA.cookies);
+    await page.goto('/settings');
+
+    const firstAdd = await page.request.post('/api/auth/accounts/add', {
+      data: { idToken: accountB.idToken },
+    });
+    expect(firstAdd.ok()).toBeTruthy();
+    const first = (await firstAdd.json()) as { sessionToken: string };
+
+    const secondAdd = await page.request.post('/api/auth/accounts/add', {
+      data: { idToken: accountB.idToken },
+    });
+    expect(secondAdd.ok()).toBeTruthy();
+    const second = (await secondAdd.json()) as { sessionToken: string };
+
+    expect(second.sessionToken).toBe(first.sessionToken);
+
+    const listRes = await page.request.get('/api/auth/accounts');
+    const { accounts } = (await listRes.json()) as { accounts: { uid: string }[] };
+    expect(accounts.filter((a) => a.uid === accountB.uid)).toHaveLength(1);
+
+    await page.request.post('/api/auth/accounts/remove', { data: { sessionToken: second.sessionToken } });
+  });
 });
