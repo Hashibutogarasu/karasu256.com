@@ -1,4 +1,4 @@
-import { createAuthMiddleware } from 'better-auth/api';
+import { createAuthMiddleware, APIError } from 'better-auth/api';
 import type { User } from 'better-auth/types';
 import { getAdminAuth } from '@/lib/firebase-admin';
 
@@ -15,6 +15,13 @@ import { getAdminAuth } from '@/lib/firebase-admin';
  * `databaseHooks.session.create.after` hook — the latter runs outside the
  * endpoint's response context, so `ctx.setCookie` there does not reliably
  * attach to the actual HTTP response.
+ *
+ * If minting the token fails (e.g. the better-auth `session.userId` has no
+ * corresponding Firebase user), this rethrows as an `APIError` — a plain
+ * thrown error from a `hooks.after` middleware is not recognized by
+ * better-auth's dispatch pipeline (only `APIError` instances are), so it
+ * would otherwise propagate uncaught instead of being routed through the
+ * configured `onAPIError.errorURL` (`/oauth/error`).
  */
 export const bridgeFirebaseSessionForSocialSignIn = createAuthMiddleware(async (ctx) => {
   if (!ctx.path.startsWith('/callback/')) return;
@@ -22,7 +29,15 @@ export const bridgeFirebaseSessionForSocialSignIn = createAuthMiddleware(async (
   const newSession = ctx.context.newSession;
   if (!newSession) return;
 
-  const customToken = await getAdminAuth().createCustomToken(newSession.session.userId);
+  let customToken: string;
+  try {
+    customToken = await getAdminAuth().createCustomToken(newSession.session.userId);
+  } catch (err) {
+    throw new APIError('INTERNAL_SERVER_ERROR', {
+      message: `Failed to mint Firebase custom token for user ${newSession.session.userId}: ${err instanceof Error ? err.message : String(err)}`,
+    });
+  }
+
   ctx.setCookie('oauth_custom_token', customToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
