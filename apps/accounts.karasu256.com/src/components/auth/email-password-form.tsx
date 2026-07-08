@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { FirebaseError } from 'firebase/app';
+import type { Auth, User } from 'firebase/auth';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRightToBracket, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 import { useTranslations } from 'next-intl';
@@ -12,12 +13,19 @@ import { Button, Checkbox, Input, Label, PasswordInput } from '@Hashibutogarasu/
 import { Tabs, TabsContent, TabsList, TabsTrigger, AnimatedHeight } from '@Hashibutogarasu/ui';
 import { LocalizedPasswordStrengthIndicator } from './localized-password-strength-indicator';
 
+export interface EmailPasswordFormProps {
+  /** Firebase Auth instance to authenticate against. Defaults to the app's primary instance. */
+  auth?: Auth;
+  /** Called after a successful sign-in or account creation, in addition to the default `onAuthStateChanged`-driven flow. */
+  onSuccess?: (user: User) => void;
+}
+
 /**
  * Renders a tabbed email/password form that handles both sign-in and account
  * creation against Firebase Auth. Both tabs share the same email and password
  * state so the user can fill in credentials once and choose the action.
  */
-export function EmailPasswordForm() {
+export function EmailPasswordForm({ auth, onSuccess }: EmailPasswordFormProps = {}) {
   const t = useTranslations();
   const [tab, setTab] = useState('signin');
   const [email, setEmail] = useState('');
@@ -39,7 +47,8 @@ export function EmailPasswordForm() {
     e.preventDefault();
     setLoading(true);
     try {
-      await signInWithEmailPassword(email, password);
+      const credential = await signInWithEmailPassword(email, password, auth);
+      onSuccess?.(credential.user);
     } catch (err) {
       showAuthError(err);
     } finally {
@@ -51,7 +60,8 @@ export function EmailPasswordForm() {
     e.preventDefault();
     setLoading(true);
     try {
-      await registerWithEmailPassword(email, password);
+      const credential = await registerWithEmailPassword(email, password, auth);
+      onSuccess?.(credential.user);
     } catch (err) {
       showAuthError(err);
     } finally {

@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { ChevronsUpDown, ExternalLink, LogOut, type LucideIcon } from 'lucide-react';
+import { ChevronsUpDown, ExternalLink, LogOut, Plus, X, type LucideIcon } from 'lucide-react';
 import { cn } from '../lib/utils';
 import {
   Sidebar,
@@ -53,6 +53,18 @@ export interface SettingsSidebarProps {
   backToAppLabel?: string;
   onSignOut: () => void;
   signOutLabel: string;
+  /** Other accounts added on this device, excluding the active `user`. Omit/empty to hide the account-switcher section entirely. */
+  accounts?: SettingsSidebarUser[];
+  /** Invoked with the uid of the account to switch to. */
+  onSwitchAccount?: (uid: string) => void;
+  /** Invoked when the user wants to add another account. */
+  onAddAccount?: () => void;
+  /** Invoked with the uid of an account the user wants to remove from this device (the active one keeps using the plain sign-out button instead). */
+  onRemoveAccount?: (uid: string) => void;
+  /** Label for the "add another account" menu item. Required when `onAddAccount` is provided. */
+  addAccountLabel?: string;
+  /** Screen-reader label for a "remove this account" control shown next to each other account. Required when `onRemoveAccount` is provided. */
+  removeAccountLabel?: string;
   /**
    * Renders a navigation link for each nav item.
    * The consumer is responsible for the link element (e.g. Next.js `Link` or `<a>`).
@@ -74,6 +86,12 @@ export function SettingsSidebar({
   backToAppLabel,
   onSignOut,
   signOutLabel,
+  accounts,
+  onSwitchAccount,
+  onAddAccount,
+  onRemoveAccount,
+  addAccountLabel,
+  removeAccountLabel,
   renderLink,
 }: SettingsSidebarProps) {
   return (
@@ -96,6 +114,12 @@ export function SettingsSidebar({
           backToAppLabel={backToAppLabel}
           onSignOut={onSignOut}
           signOutLabel={signOutLabel}
+          accounts={accounts}
+          onSwitchAccount={onSwitchAccount}
+          onAddAccount={onAddAccount}
+          onRemoveAccount={onRemoveAccount}
+          addAccountLabel={addAccountLabel}
+          removeAccountLabel={removeAccountLabel}
         />
       </SidebarFooter>
 
@@ -197,9 +221,27 @@ interface SidebarUserMenuProps {
   backToAppLabel?: string;
   onSignOut: () => void;
   signOutLabel: string;
+  accounts?: SettingsSidebarUser[];
+  onSwitchAccount?: (uid: string) => void;
+  onAddAccount?: () => void;
+  onRemoveAccount?: (uid: string) => void;
+  addAccountLabel?: string;
+  removeAccountLabel?: string;
 }
 
-function SidebarUserMenu({ user, backToAppHref, backToAppLabel, onSignOut, signOutLabel }: SidebarUserMenuProps) {
+function SidebarUserMenu({
+  user,
+  backToAppHref,
+  backToAppLabel,
+  onSignOut,
+  signOutLabel,
+  accounts,
+  onSwitchAccount,
+  onAddAccount,
+  onRemoveAccount,
+  addAccountLabel,
+  removeAccountLabel,
+}: SidebarUserMenuProps) {
   const { state, isMobile } = useSidebar();
   const isIconMode = state === 'collapsed' && !isMobile;
 
@@ -272,6 +314,42 @@ function SidebarUserMenu({ user, backToAppHref, backToAppLabel, onSignOut, signO
               <LogOut className="size-4" />
               {signOutLabel}
             </DropdownMenuItem>
+            {accounts && accounts.length > 0 && (
+              <>
+                <DropdownMenuSeparator />
+                {accounts.map((account) => {
+                  const accountName = account.displayName ?? account.email?.split('@')[0] ?? '';
+                  return (
+                    <DropdownMenuItem key={account.uid} className="gap-2" onClick={() => onSwitchAccount?.(account.uid)}>
+                      <UserAvatar uid={account.uid} iconUrl={account.photoURL} size={20} />
+                      <div className="grid flex-1 min-w-0 leading-tight">
+                        <span className="truncate text-sm">{accountName}</span>
+                        <span className="truncate text-xs text-muted-foreground">{account.email}</span>
+                      </div>
+                      {onRemoveAccount && (
+                        <button
+                          type="button"
+                          aria-label={removeAccountLabel}
+                          className="shrink-0 rounded p-0.5 text-muted-foreground hover:text-foreground hover:bg-sidebar-accent"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onRemoveAccount(account.uid);
+                          }}
+                        >
+                          <X className="size-3.5" />
+                        </button>
+                      )}
+                    </DropdownMenuItem>
+                  );
+                })}
+              </>
+            )}
+            {onAddAccount && (
+              <DropdownMenuItem onClick={onAddAccount}>
+                <Plus className="size-4" />
+                {addAccountLabel}
+              </DropdownMenuItem>
+            )}
           </DropdownMenuPopup>
         </DropdownMenuPositioner>
       </DropdownMenuPortal>
