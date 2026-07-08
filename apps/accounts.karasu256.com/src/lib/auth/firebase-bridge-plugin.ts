@@ -68,7 +68,7 @@ async function findBridgedSessionForUser(ctx: GenericEndpointContext, uid: strin
     const token = await ctx.getSignedCookie(name, ctx.context.secret);
     if (!token) continue;
     const existing = await ctx.context.internalAdapter.findSession(token);
-    if (existing?.user.id === uid) return existing.session;
+    if (existing?.user.id === uid && existing.session.expiresAt > new Date()) return existing.session;
   }
   return null;
 }
