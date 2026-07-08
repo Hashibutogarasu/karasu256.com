@@ -1,0 +1,7 @@
+# Documents the full merged config shape (config.default.yml + the
+# environment-specific file selected by NODE_ENV). Not read by the app.
+webauthn:
+  rpId: accounts.karasu256.com
+  rpName: Karasu Lab
+  expectedOrigins:
+    - https://accounts.karasu256.com
