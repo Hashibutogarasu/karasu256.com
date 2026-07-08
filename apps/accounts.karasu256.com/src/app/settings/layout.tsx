@@ -8,10 +8,11 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 /**
- * Reads NEXT_PUBLIC_APP_URL at request time on the server and passes it to
- * the client shell as a prop, preventing the value from being undefined when
- * the variable is absent from the client-side build bundle.
+ * Settings layout. The "back to app" URL is no longer passed down from here —
+ * {@link SettingsShell} derives it client-side from the current hostname, so
+ * it doesn't depend on `NEXT_PUBLIC_APP_URL` being correctly configured per
+ * deployment environment.
  */
 export default function SettingsLayout({ children }: { children: React.ReactNode }) {
-  return <SettingsShell appUrl={process.env.NEXT_PUBLIC_APP_URL}>{children}</SettingsShell>;
+  return <SettingsShell>{children}</SettingsShell>;
 }
