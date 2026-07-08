@@ -8,6 +8,7 @@ import { toast } from '@Hashibutogarasu/ui';
 import { getFirebaseAuth } from '@/lib/firebase/auth';
 import { clearSession } from '@/lib/api/auth-session';
 import { listAccounts, switchAccount, removeAccount, type AccountSummary } from '@/lib/api/accounts';
+import { getMainAppUrl } from '@/lib/get-main-app-url';
 import { Skeleton, SettingsSidebarLayout } from '@Hashibutogarasu/ui';
 import { SettingsSidebar } from '@/components/settings/settings-sidebar';
 import { AddAccountDialog } from '@/components/settings/add-account-dialog';
@@ -16,7 +17,6 @@ import { ProfileSectionSkeleton } from '@/components/auth/settings/profile-secti
 
 interface SettingsShellProps {
   children: React.ReactNode;
-  appUrl: string | undefined;
 }
 
 /**
@@ -27,7 +27,7 @@ interface SettingsShellProps {
  * and on /settings/profile which shows {@link ProfileSectionSkeleton} so only
  * the identicon and display name are skeletonized while the form stays disabled.
  */
-export function SettingsShell({ children, appUrl }: SettingsShellProps) {
+export function SettingsShell({ children }: SettingsShellProps) {
   const router = useRouter();
   const pathname = usePathname();
   const t = useTranslations();
@@ -35,6 +35,11 @@ export function SettingsShell({ children, appUrl }: SettingsShellProps) {
   const [loading, setLoading] = useState(true);
   const [accounts, setAccounts] = useState<AccountSummary[]>([]);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [appUrl, setAppUrl] = useState<string>();
+
+  useEffect(() => {
+    setAppUrl(getMainAppUrl());
+  }, []);
 
   const isLinkingPage = pathname === '/settings/linking';
   const isProfilePage = pathname === '/settings/profile';
