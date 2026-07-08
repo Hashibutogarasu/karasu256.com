@@ -23,6 +23,11 @@
       "developer": "Developer"
     },
     "signOut": "Sign out",
+    "accountSwitcher": {
+      "addAccount": "Add another account",
+      "switchAccount": "Switch to this account",
+      "removeAccount": "Remove this account from this device"
+    },
     "profile": {
       "title": "Profile",
       "email": "Email address",

@@ -23,6 +23,11 @@
       "developer": "开发者"
     },
     "signOut": "退出登录",
+    "accountSwitcher": {
+      "addAccount": "添加其他账户",
+      "switchAccount": "切换到此账户",
+      "removeAccount": "从此设备移除此账户"
+    },
     "profile": {
       "title": "个人资料",
       "email": "电子邮箱",

@@ -73,7 +73,12 @@
     "back": "Back",
     "backToApp": "Back to karasu256.com",
     "signOut": "Sign out",
-    "signingOut": "Signing out"
+    "signingOut": "Signing out",
+    "accountSwitcher": {
+      "addAccount": "Add another account",
+      "switchAccount": "Switch to this account",
+      "removeAccount": "Remove this account from this device"
+    }
   },
   "profile": {
     "title": "Profile",

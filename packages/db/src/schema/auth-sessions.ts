@@ -17,6 +17,10 @@ export const sessions = pgTable(
     userId: varchar('user_id', { length: 128 })
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
+    /** AES-256-GCM ciphertext of the Firebase session cookie bridged to this session, for multi-account switching. */
+    firebaseSessionCookieEnc: text('firebase_session_cookie_enc'),
+    /** Mirrors the bridged Firebase session cookie's own expiry, for multi-account switching. */
+    firebaseCookieExpiresAt: timestamp('firebase_cookie_expires_at'),
   },
   (t) => [index('session_userId_idx').on(t.userId)]
 );

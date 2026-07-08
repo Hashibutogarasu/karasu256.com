@@ -1,19 +1,23 @@
 import { betterAuth } from 'better-auth';
 import { oauthProvider } from '@better-auth/oauth-provider';
 import { jwt } from 'better-auth/plugins/jwt';
-import { multiSession } from 'better-auth/plugins';
+import { multiSession, testUtils } from 'better-auth/plugins';
 import { nextCookies } from 'better-auth/next-js';
 import { authOptions } from '@/lib/auth/auth-options';
 import { firebaseSessionBridgePlugin } from '@/lib/auth/firebase-bridge-plugin';
 
 /**
- * The single better-auth instance for the monorepo, hosted on
- * accounts.karasu256.com. Scoped to two responsibilities only: running the
- * Google/GitHub OAuth handshake for social sign-in/linking, and acting as
- * the OAuth 2.1 / OIDC authorization server for third-party apps. Firebase
- * Auth remains the source of truth for the site's own login/session.
+ * Test-only better-auth instance, identical to `server.ts` plus the
+ * `testUtils` plugin. Kept separate from the production instance per
+ * `testUtils`'s own docstring recommendation — mixing it into production
+ * config would expose privileged helpers (`ctx.test.createUser`, `.login`,
+ * `.deleteUser`, ...) on that instance's context.
+ *
+ * Only ever imported from the test-only route guarded by
+ * `process.env.NODE_ENV !== 'production'` (see
+ * `src/app/api/test/accounts/route.ts`) and the Playwright E2E suite.
  */
-export const auth = betterAuth({
+export const testAuth = betterAuth({
   ...authOptions,
   plugins: [
     jwt(),
@@ -26,6 +30,7 @@ export const auth = betterAuth({
     }),
     firebaseSessionBridgePlugin(),
     multiSession({ maximumSessions: 5 }),
+    testUtils(),
     nextCookies(),
   ],
 });

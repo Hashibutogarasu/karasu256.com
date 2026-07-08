@@ -23,6 +23,11 @@
       "developer": "デベロッパー"
     },
     "signOut": "サインアウト",
+    "accountSwitcher": {
+      "addAccount": "別のアカウントを追加",
+      "switchAccount": "このアカウントに切り替える",
+      "removeAccount": "このデバイスからこのアカウントを削除"
+    },
     "profile": {
       "title": "プロフィール",
       "email": "メールアドレス",
