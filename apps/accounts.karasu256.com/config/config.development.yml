@@ -1,0 +1,4 @@
+webauthn:
+  rpId: localhost
+  expectedOrigins:
+    - http://localhost:3001
