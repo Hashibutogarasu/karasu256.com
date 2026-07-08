@@ -73,7 +73,12 @@
     "back": "戻る",
     "backToApp": "karasu256.comへ戻る",
     "signOut": "サインアウト",
-    "signingOut": "サインアウト中"
+    "signingOut": "サインアウト中",
+    "accountSwitcher": {
+      "addAccount": "別のアカウントを追加",
+      "switchAccount": "このアカウントに切り替える",
+      "removeAccount": "このデバイスからこのアカウントを削除"
+    }
   },
   "profile": {
     "title": "プロフィール",

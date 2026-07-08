@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { signInWithCustomToken } from 'firebase/auth';
+import { signInWithCustomToken, type Auth, type User } from 'firebase/auth';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFingerprint } from '@fortawesome/free-solid-svg-icons';
 import { useTranslations } from 'next-intl';
@@ -11,13 +11,20 @@ import { authenticateWithPasskey } from '@/lib/api/passkey-authenticate';
 import { PasskeyError } from '@/lib/api/passkey-errors';
 import { Button, Spinner } from '@Hashibutogarasu/ui';
 
+export interface PasskeySectionProps {
+  /** Firebase Auth instance to authenticate against. Defaults to the app's primary instance. */
+  auth?: Auth;
+  /** Called after a successful sign-in, in addition to the default `onAuthStateChanged`-driven flow. */
+  onSuccess?: (user: User) => void;
+}
+
 /**
  * Renders the passkey sign-in button for unauthenticated users.
  *
  * Uses a discoverable credential lookup so no email is required.
  * Delegates the WebAuthn + server round-trips to {@link authenticateWithPasskey}.
  */
-export function PasskeySection() {
+export function PasskeySection({ auth, onSuccess }: PasskeySectionProps = {}) {
   const t = useTranslations();
   const [loading, setLoading] = useState(false);
 
@@ -25,7 +32,8 @@ export function PasskeySection() {
     setLoading(true);
     try {
       const customToken = await authenticateWithPasskey();
-      await signInWithCustomToken(getFirebaseAuth(), customToken);
+      const credential = await signInWithCustomToken(auth ?? getFirebaseAuth(), customToken);
+      onSuccess?.(credential.user);
     } catch (err) {
       const key = err instanceof PasskeyError ? err.i18nKey : 'passkey.error.unknown';
       toast.error(t(key));

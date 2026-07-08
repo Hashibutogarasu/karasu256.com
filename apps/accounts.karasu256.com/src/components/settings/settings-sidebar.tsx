@@ -16,13 +16,17 @@ interface Props {
   user: SettingsSidebarUser | null;
   appUrl: string | undefined;
   onSignOut: () => void;
+  accounts?: SettingsSidebarUser[];
+  onSwitchAccount?: (uid: string) => void;
+  onAddAccount?: () => void;
+  onRemoveAccount?: (uid: string) => void;
 }
 
 /**
  * Accounts-specific settings sidebar. Wraps {@link UiSettingsSidebar} with
  * translated labels, active-path detection, and Next.js client-side links.
  */
-export function SettingsSidebar({ user, appUrl, onSignOut }: Props) {
+export function SettingsSidebar({ user, appUrl, onSignOut, accounts, onSwitchAccount, onAddAccount, onRemoveAccount }: Props) {
   const t = useTranslations();
   const pathname = usePathname();
 
@@ -44,6 +48,12 @@ export function SettingsSidebar({ user, appUrl, onSignOut }: Props) {
       backToAppLabel={t('settings.backToApp')}
       onSignOut={onSignOut}
       signOutLabel={t('settings.signOut')}
+      accounts={accounts}
+      onSwitchAccount={onSwitchAccount}
+      onAddAccount={onAddAccount}
+      onRemoveAccount={onRemoveAccount}
+      addAccountLabel={t('settings.accountSwitcher.addAccount')}
+      removeAccountLabel={t('settings.accountSwitcher.removeAccount')}
       renderLink={({ href, className, title, 'aria-current': ariaCurrent, children }) => (
         <Link href={href} className={className} title={title} aria-current={ariaCurrent}>
           {children}

@@ -1,13 +1,16 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { onAuthStateChanged, signOut, type User } from 'firebase/auth';
+import { useCallback, useEffect, useState } from 'react';
+import { onAuthStateChanged, signInWithCustomToken, signOut, type User } from 'firebase/auth';
 import { usePathname, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { toast } from '@Hashibutogarasu/ui';
 import { getFirebaseAuth } from '@/lib/firebase/auth';
 import { clearSession } from '@/lib/api/auth-session';
+import { listAccounts, switchAccount, removeAccount, type AccountSummary } from '@/lib/api/accounts';
 import { Skeleton, SettingsSidebarLayout } from '@Hashibutogarasu/ui';
 import { SettingsSidebar } from '@/components/settings/settings-sidebar';
+import { AddAccountDialog } from '@/components/settings/add-account-dialog';
 import { UserContext } from '@/components/settings/user-context';
 import { ProfileSectionSkeleton } from '@/components/auth/settings/profile-section';
 
@@ -30,9 +33,20 @@ export function SettingsShell({ children, appUrl }: SettingsShellProps) {
   const t = useTranslations();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [accounts, setAccounts] = useState<AccountSummary[]>([]);
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
 
   const isLinkingPage = pathname === '/settings/linking';
   const isProfilePage = pathname === '/settings/profile';
+
+  const refreshAccounts = useCallback(async (activeUid: string | undefined) => {
+    try {
+      const result = await listAccounts();
+      setAccounts(result.accounts.filter((a) => a.uid !== activeUid));
+    } catch {
+      /* noop — account switcher is a non-critical enhancement */
+    }
+  }, []);
 
   useEffect(() => {
     return onAuthStateChanged(getFirebaseAuth(), async (u) => {
@@ -45,15 +59,47 @@ export function SettingsShell({ children, appUrl }: SettingsShellProps) {
         } catch (_) {
           /* noop */
         }
-        setUser(getFirebaseAuth().currentUser ?? u);
+        const current = getFirebaseAuth().currentUser ?? u;
+        setUser(current);
         setLoading(false);
+        void refreshAccounts(current.uid);
       }
     });
-  }, [router]);
+  }, [router, refreshAccounts]);
+
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('addAccount') === '1') {
+      setAddDialogOpen(true);
+      router.replace(pathname);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function handleSignOut() {
     await clearSession();
     await signOut(getFirebaseAuth());
+  }
+
+  async function handleSwitchAccount(uid: string) {
+    const target = accounts.find((a) => a.uid === uid);
+    if (!target) return;
+    try {
+      const result = await switchAccount(target.sessionToken);
+      await signInWithCustomToken(getFirebaseAuth(), result.customToken);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err));
+    }
+  }
+
+  async function handleRemoveAccount(uid: string) {
+    const target = accounts.find((a) => a.uid === uid);
+    if (!target) return;
+    try {
+      await removeAccount(target.sessionToken);
+      void refreshAccounts(user?.uid);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err));
+    }
   }
 
   function renderContent() {
@@ -95,8 +141,23 @@ export function SettingsShell({ children, appUrl }: SettingsShellProps) {
     : null;
 
   return (
-    <SettingsSidebarLayout sidebar={<SettingsSidebar user={sidebarUser} appUrl={appUrl} onSignOut={handleSignOut} />}>
-      {renderContent()}
-    </SettingsSidebarLayout>
+    <>
+      <SettingsSidebarLayout
+        sidebar={
+          <SettingsSidebar
+            user={sidebarUser}
+            appUrl={appUrl}
+            onSignOut={handleSignOut}
+            accounts={accounts}
+            onSwitchAccount={handleSwitchAccount}
+            onAddAccount={() => setAddDialogOpen(true)}
+            onRemoveAccount={handleRemoveAccount}
+          />
+        }
+      >
+        {renderContent()}
+      </SettingsSidebarLayout>
+      <AddAccountDialog open={addDialogOpen} onOpenChange={setAddDialogOpen} onAdded={() => void refreshAccounts(user?.uid)} />
+    </>
   );
 }

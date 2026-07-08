@@ -9,9 +9,8 @@ const webauthnSchema = z.object({
   expectedOrigins: z.array(z.string().url()).min(1),
 });
 
-const yamlSchema = z.object({
-  development: z.object({ webauthn: webauthnSchema }),
-  production: z.object({ webauthn: webauthnSchema }),
+const configFileSchema = z.object({
+  webauthn: webauthnSchema.partial(),
 });
 
 const envSchema = z.object({
@@ -37,21 +36,38 @@ export type ServerConfig = {
 
 let cached: ServerConfig | undefined;
 
+/** Reads and validates one `config/*.yml` file as a partial config. */
+function readConfigFile(fileName: string) {
+  const filePath = path.join(process.cwd(), 'config', fileName);
+  const raw = fs.readFileSync(filePath, 'utf-8');
+  return configFileSchema.parse(parseYaml(raw));
+}
+
 /**
- * Returns the validated server configuration, merging `config/app.yml`
- * (environment-keyed non-secrets) with server-only environment variables.
- * Result is cached for the lifetime of the Node.js process.
+ * Selects the environment-specific config file name: `config.preview.yml` on
+ * Vercel Preview deployments (`VERCEL_ENV=preview`, e.g. dev.accounts.karasu256.com,
+ * which serves a real host distinct from both localhost and production),
+ * otherwise `config.production.yml` or `config.development.yml` by `NODE_ENV`.
+ */
+function getEnvConfigFileName(): string {
+  if (process.env.VERCEL_ENV === 'preview') return 'config.preview.yml';
+  return process.env.NODE_ENV === 'production' ? 'config.production.yml' : 'config.development.yml';
+}
+
+/**
+ * Returns the validated server configuration, merging `config/config.default.yml`
+ * with the environment-specific config file (the latter overriding the
+ * former) and server-only environment variables. Result is cached for the
+ * lifetime of the Node.js process.
  *
- * @throws when the YAML file is missing or any required value fails validation.
+ * @throws when a config file is missing or the merged result fails validation.
  */
 export function getServerConfig(): ServerConfig {
   if (cached !== undefined) return cached;
 
-  const filePath = path.join(process.cwd(), 'config', 'app.yml');
-  const raw = fs.readFileSync(filePath, 'utf-8');
-  const yamlData = yamlSchema.parse(parseYaml(raw));
-  const envKey = process.env.NODE_ENV === 'production' ? 'production' : 'development';
-  const { webauthn } = yamlData[envKey];
+  const defaults = readConfigFile('config.default.yml');
+  const overrides = readConfigFile(getEnvConfigFileName());
+  const webauthn = webauthnSchema.parse({ ...defaults.webauthn, ...overrides.webauthn });
 
   const envData = envSchema.parse({
     firebaseAdmin: {
