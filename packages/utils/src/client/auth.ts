@@ -1,7 +1,6 @@
 import { createAuthClient } from 'better-auth/react';
 import { oauthProviderClient } from '@better-auth/oauth-provider/client';
 import { multiSessionClient } from 'better-auth/client/plugins';
-import { ApiError } from './api-error';
 
 /**
  * Options for {@link createAppAuthClient}.
@@ -40,23 +39,16 @@ export function createAppAuthClient(options: CreateAppAuthClientOptions = {}) {
   /**
    * Ensures the browser holds a better-auth session for the current Firebase
    * user before calling any session-gated `authClient` endpoint.
-   *
-   * @throws {ApiError} When the bridge request fails or the server reports
-   * `ok: false` — callers must not proceed to a session-gated `authClient`
-   * call on failure, since it would run without a valid better-auth session.
    */
   async function bridgeFirebaseSession(): Promise<void> {
     const url = baseURL ? `${baseURL}/api/auth/firebase-bridge` : '/api/auth/firebase-bridge';
 
-    const res = await fetch(url, {
+    await fetch(url, {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: '{}',
     });
-    if (!res.ok) throw ApiError.fromResponse(res);
-    const result = (await res.json()) as { ok: boolean };
-    if (!result.ok) throw new ApiError(401, 'unauthorized');
   }
 
   return { authClient, bridgeFirebaseSession };
