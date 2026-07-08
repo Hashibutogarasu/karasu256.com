@@ -44,10 +44,21 @@ function readConfigFile(fileName: string) {
 }
 
 /**
+ * Selects the environment-specific config file name: `config.preview.yml` on
+ * Vercel Preview deployments (`VERCEL_ENV=preview`, e.g. dev.accounts.karasu256.com,
+ * which serves a real host distinct from both localhost and production),
+ * otherwise `config.production.yml` or `config.development.yml` by `NODE_ENV`.
+ */
+function getEnvConfigFileName(): string {
+  if (process.env.VERCEL_ENV === 'preview') return 'config.preview.yml';
+  return process.env.NODE_ENV === 'production' ? 'config.production.yml' : 'config.development.yml';
+}
+
+/**
  * Returns the validated server configuration, merging `config/config.default.yml`
- * with the environment-specific `config/config.{development,production}.yml`
- * (the latter overriding the former) and server-only environment variables.
- * Result is cached for the lifetime of the Node.js process.
+ * with the environment-specific config file (the latter overriding the
+ * former) and server-only environment variables. Result is cached for the
+ * lifetime of the Node.js process.
  *
  * @throws when a config file is missing or the merged result fails validation.
  */
@@ -55,8 +66,7 @@ export function getServerConfig(): ServerConfig {
   if (cached !== undefined) return cached;
 
   const defaults = readConfigFile('config.default.yml');
-  const envFileName = process.env.NODE_ENV === 'production' ? 'config.production.yml' : 'config.development.yml';
-  const overrides = readConfigFile(envFileName);
+  const overrides = readConfigFile(getEnvConfigFileName());
   const webauthn = webauthnSchema.parse({ ...defaults.webauthn, ...overrides.webauthn });
 
   const envData = envSchema.parse({
