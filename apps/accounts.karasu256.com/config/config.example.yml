@@ -1,5 +1,7 @@
 # Documents the full merged config shape (config.default.yml + the
-# environment-specific file selected by NODE_ENV). Not read by the app.
+# environment-specific file selected by VERCEL_ENV/NODE_ENV — see
+# config.preview.yml, config.development.yml, config.production.yml).
+# Not read by the app.
 webauthn:
   rpId: accounts.karasu256.com
   rpName: Karasu Lab
