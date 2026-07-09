@@ -144,6 +144,7 @@ export function SettingsShell({ children }: SettingsShellProps) {
     }
     return (
       <UserContext.Provider
+        key={user!.uid}
         value={{
           user: user!,
           updateUser: (patch) => setUser((u) => u && { ...u, ...patch }),
