@@ -18,7 +18,9 @@ interface UserAvatarProps {
  */
 export function UserAvatar({ uid, iconUrl, size = 64, className }: UserAvatarProps) {
   if (iconUrl) {
-    return <img src={iconUrl} alt="" style={{ width: size, height: size }} className={cn('rounded-full object-cover shrink-0', className)} />;
+    return (
+      <img src={iconUrl} alt="" style={{ width: size, height: size }} className={cn('rounded-full object-cover shrink-0 max-w-none', className)} />
+    );
   }
   return <Identicon value={uid} size={size} className={className} />;
 }
