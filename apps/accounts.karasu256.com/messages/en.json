@@ -77,7 +77,8 @@
     "accountSwitcher": {
       "addAccount": "Add another account",
       "switchAccount": "Switch to this account",
-      "removeAccount": "Remove this account from this device"
+      "removeAccount": "Remove this account from this device",
+      "switchingAccount": "Switching accounts."
     }
   },
   "profile": {

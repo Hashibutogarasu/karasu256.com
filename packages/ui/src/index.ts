@@ -34,6 +34,8 @@ export { DeleteIconButton, type DeleteIconButtonProps } from './components/delet
 export { FileUploadButton, type FileUploadButtonProps } from './components/file-upload-button';
 export { SettingsItem } from './components/settings-item';
 export { LoadingView } from './components/loading-view';
+export { OverlayContainer, type OverlayContainerProps } from './components/overlay-container';
+export { SwitchingAccountOverlay, type SwitchingAccountOverlayProps } from './components/switching-account-overlay';
 export {
   DropdownMenu,
   DropdownMenuTrigger,

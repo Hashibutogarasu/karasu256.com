@@ -9,7 +9,7 @@ import { getFirebaseAuth } from '@/lib/firebase/auth';
 import { clearSession, resyncSession } from '@/lib/api/auth-session';
 import { listAccounts, switchAccount, removeAccount, type AccountSummary } from '@/lib/api/accounts';
 import { getMainAppUrl } from '@/lib/get-main-app-url';
-import { Skeleton, SettingsSidebarLayout } from '@Hashibutogarasu/ui';
+import { Skeleton, SettingsSidebarLayout, SwitchingAccountOverlay } from '@Hashibutogarasu/ui';
 import { SettingsSidebar } from '@/components/settings/settings-sidebar';
 import { AddAccountDialog } from '@/components/settings/add-account-dialog';
 import { UserContext } from '@/components/settings/user-context';
@@ -45,6 +45,7 @@ export function SettingsShell({ children }: SettingsShellProps) {
   const [accounts, setAccounts] = useState<AccountSummary[]>([]);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [appUrl, setAppUrl] = useState<string>();
+  const [switchingAccount, setSwitchingAccount] = useState(false);
 
   useEffect(() => {
     setAppUrl(getMainAppUrl());
@@ -106,11 +107,14 @@ export function SettingsShell({ children }: SettingsShellProps) {
   async function handleSwitchAccount(uid: string) {
     const target = accounts.find((a) => a.uid === uid);
     if (!target) return;
+    setSwitchingAccount(true);
     try {
       const result = await switchAccount(target.sessionToken);
       await signInWithCustomToken(getFirebaseAuth(), result.customToken);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : String(err));
+    } finally {
+      setSwitchingAccount(false);
     }
   }
 
@@ -182,6 +186,7 @@ export function SettingsShell({ children }: SettingsShellProps) {
         {renderContent()}
       </SettingsSidebarLayout>
       <AddAccountDialog open={addDialogOpen} onOpenChange={setAddDialogOpen} onAdded={() => void refreshAccounts(user?.uid)} />
+      {switchingAccount && <SwitchingAccountOverlay message={t('settings.accountSwitcher.switchingAccount')} />}
     </>
   );
 }
