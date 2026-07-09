@@ -30,7 +30,7 @@ bucket_name = "karasu-lab-cdn-dev"
 # the id below with the value that command prints.
 [[env.dev.kv_namespaces]]
 binding = "RATE_LIMIT_KV"
-id = "REPLACE_WITH_RATE_LIMIT_KV_DEV_ID"
+id = "c3fb9b94d2074304986c58049620d0b4"
 
 [env.dev.vars]
 FIREBASE_PROJECT_ID = "karasu-lab-application"
