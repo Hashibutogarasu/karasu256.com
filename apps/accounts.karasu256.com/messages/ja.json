@@ -77,7 +77,8 @@
     "accountSwitcher": {
       "addAccount": "別のアカウントを追加",
       "switchAccount": "このアカウントに切り替える",
-      "removeAccount": "このデバイスからこのアカウントを削除"
+      "removeAccount": "このデバイスからこのアカウントを削除",
+      "switchingAccount": "アカウントを切り替えています。"
     }
   },
   "profile": {
