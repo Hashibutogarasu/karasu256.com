@@ -34,17 +34,16 @@ export interface LocaleSwitcherProps {
  * responsible for reloading/re-rendering after `onSelectLocale` resolves.
  */
 export function LocaleSwitcher({ locales, currentLocale, onSelectLocale, triggerAriaLabel = 'Language' }: LocaleSwitcherProps) {
-  const [isPending, startTransition] = React.useTransition();
+  const [isPending, setIsPending] = React.useState(false);
 
-  const handleSelect = (code: string) => {
+  const handleSelect = async (code: string) => {
     if (code === currentLocale || isPending) {
       return;
     }
 
-    startTransition(async () => {
-      await onSelectLocale(code);
-      window.location.reload();
-    });
+    setIsPending(true);
+    await onSelectLocale(code);
+    window.location.reload();
   };
 
   return (
