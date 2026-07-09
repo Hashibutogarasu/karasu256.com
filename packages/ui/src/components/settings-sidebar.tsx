@@ -29,6 +29,7 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { Skeleton } from './skeleton';
 import { UserAvatar } from './user-avatar';
+import './sidebar-user-trigger.css';
 
 export interface SidebarNavItem {
   href: string;
@@ -247,8 +248,6 @@ function SidebarUserMenu({
   addAccountLabel,
   removeAccountLabel,
 }: SidebarUserMenuProps) {
-  const { state, isMobile } = useSidebar();
-  const isIconMode = state === 'collapsed' && !isMobile;
   const [switchingUid, setSwitchingUid] = React.useState<string | null>(null);
 
   const displayName = React.useMemo(() => (user ? resolveDisplayName(user) : ''), [user]);
@@ -271,8 +270,8 @@ function SidebarUserMenu({
     return (
       <SidebarMenu>
         <SidebarMenuItem>
-          <div className="flex items-center gap-2 h-12 px-2 overflow-hidden">
-            <Skeleton className="size-8 rounded-full shrink-0" />
+          <div className="flex h-12 items-center gap-2 overflow-hidden pr-2 pl-0">
+            <Skeleton className="size-8 shrink-0 rounded-full" />
             <div className="flex-1 min-w-0 space-y-1 group-data-[collapsible=icon]:hidden">
               <Skeleton className="h-3 w-24" />
               <Skeleton className="h-3 w-32" />
@@ -283,18 +282,18 @@ function SidebarUserMenu({
     );
   }
 
-  const tooltipLabel = displayName || user.email || '';
-
   const trigger = (
     <DropdownMenuTrigger
       className={cn(
-        'flex w-full items-center gap-2 overflow-hidden rounded-md text-sm text-left cursor-pointer',
-        'transition-colors outline-none ring-sidebar-ring',
+        'sidebar-user-trigger group/avatar flex h-12 w-full items-center gap-2 overflow-hidden rounded-md pr-2 pl-0 text-sm text-left cursor-pointer',
+        'outline-none ring-sidebar-ring',
         'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
-        'h-12 px-2'
+        'group-data-[collapsible=icon]:hover:bg-transparent! group-data-[collapsible=icon]:hover:text-inherit!'
       )}
     >
-      <UserAvatar uid={user.uid} iconUrl={user.photoURL} size={32} />
+      <span className="sidebar-user-trigger flex size-8 shrink-0 items-center justify-center rounded-md group-data-[collapsible=icon]:group-hover/avatar:inset-ring-2! group-data-[collapsible=icon]:group-hover/avatar:inset-ring-sidebar-ring!">
+        <UserAvatar uid={user.uid} iconUrl={user.photoURL} size={32} />
+      </span>
       <div className="grid flex-1 min-w-0 leading-tight group-data-[collapsible=icon]:hidden">
         <span className="truncate text-sm font-semibold">{displayName}</span>
         <span className="truncate text-xs text-sidebar-foreground/70">{user.email}</span>
@@ -306,16 +305,7 @@ function SidebarUserMenu({
   return (
     <DropdownMenu>
       <SidebarMenu>
-        <SidebarMenuItem>
-          {isIconMode ? (
-            <Tooltip>
-              <TooltipTrigger render={trigger} />
-              <TooltipContent side="right">{tooltipLabel}</TooltipContent>
-            </Tooltip>
-          ) : (
-            trigger
-          )}
-        </SidebarMenuItem>
+        <SidebarMenuItem>{trigger}</SidebarMenuItem>
       </SidebarMenu>
       <DropdownMenuPortal>
         <DropdownMenuPositioner side="top" align="start" sideOffset={4}>
