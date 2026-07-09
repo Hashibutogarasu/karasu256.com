@@ -37,7 +37,6 @@ export function PasskeySection({ auth, onSuccess }: PasskeySectionProps = {}) {
     } catch (err) {
       const key = err instanceof PasskeyError ? err.i18nKey : 'passkey.error.unknown';
       toast.error(t(key));
-    } finally {
       setLoading(false);
     }
   }
