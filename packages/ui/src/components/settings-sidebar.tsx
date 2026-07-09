@@ -29,6 +29,7 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { Skeleton } from './skeleton';
 import { UserAvatar } from './user-avatar';
+import './sidebar-user-trigger.css';
 
 export interface SidebarNavItem {
   href: string;
@@ -55,8 +56,8 @@ export interface SettingsSidebarProps {
   signOutLabel: string;
   /** Other accounts added on this device, excluding the active `user`. Omit/empty to hide the account-switcher section entirely. */
   accounts?: SettingsSidebarUser[];
-  /** Invoked with the uid of the account to switch to. */
-  onSwitchAccount?: (uid: string) => void;
+  /** Invoked with the uid of the account to switch to. May return a promise; account items are disabled while it's pending. */
+  onSwitchAccount?: (uid: string) => void | Promise<void>;
   /** Invoked when the user wants to add another account. */
   onAddAccount?: () => void;
   /** Invoked with the uid of an account the user wants to remove from this device (the active one keeps using the plain sign-out button instead). */
@@ -215,6 +216,11 @@ function NavItem({ item, isActive, isIconMode, renderLink }: NavItemProps) {
   );
 }
 
+/** Falls back to the local part of the email when no display name is set. */
+function resolveDisplayName(entry: { displayName: string | null; email: string | null }): string {
+  return entry.displayName ?? entry.email?.split('@')[0] ?? '';
+}
+
 interface SidebarUserMenuProps {
   user: SettingsSidebarUser | null;
   backToAppHref?: string;
@@ -222,7 +228,7 @@ interface SidebarUserMenuProps {
   onSignOut: () => void;
   signOutLabel: string;
   accounts?: SettingsSidebarUser[];
-  onSwitchAccount?: (uid: string) => void;
+  onSwitchAccount?: (uid: string) => void | Promise<void>;
   onAddAccount?: () => void;
   onRemoveAccount?: (uid: string) => void;
   addAccountLabel?: string;
@@ -235,22 +241,37 @@ function SidebarUserMenu({
   backToAppLabel,
   onSignOut,
   signOutLabel,
-  accounts,
+  accounts: accountsProp,
   onSwitchAccount,
   onAddAccount,
   onRemoveAccount,
   addAccountLabel,
   removeAccountLabel,
 }: SidebarUserMenuProps) {
-  const { state, isMobile } = useSidebar();
-  const isIconMode = state === 'collapsed' && !isMobile;
+  const [switchingUid, setSwitchingUid] = React.useState<string | null>(null);
+
+  const displayName = React.useMemo(() => (user ? resolveDisplayName(user) : ''), [user]);
+  const accounts = React.useMemo(
+    () => (accountsProp ?? []).map((account) => ({ ...account, displayName: resolveDisplayName(account) })),
+    [accountsProp]
+  );
+
+  async function handleSwitchAccount(uid: string) {
+    if (switchingUid) return;
+    setSwitchingUid(uid);
+    try {
+      await onSwitchAccount?.(uid);
+    } finally {
+      setSwitchingUid(null);
+    }
+  }
 
   if (!user) {
     return (
       <SidebarMenu>
         <SidebarMenuItem>
-          <div className="flex items-center gap-2 h-12 px-2 overflow-hidden">
-            <Skeleton className="size-8 rounded-full shrink-0" />
+          <div className="flex h-12 items-center gap-2 overflow-hidden pr-2 pl-0">
+            <Skeleton className="size-8 shrink-0 rounded-full" />
             <div className="flex-1 min-w-0 space-y-1 group-data-[collapsible=icon]:hidden">
               <Skeleton className="h-3 w-24" />
               <Skeleton className="h-3 w-32" />
@@ -261,19 +282,18 @@ function SidebarUserMenu({
     );
   }
 
-  const displayName = user.displayName ?? user.email?.split('@')[0] ?? '';
-  const tooltipLabel = displayName || user.email || '';
-
   const trigger = (
     <DropdownMenuTrigger
       className={cn(
-        'flex w-full items-center gap-2 overflow-hidden rounded-md text-sm text-left cursor-pointer',
-        'transition-colors outline-none ring-sidebar-ring',
+        'sidebar-user-trigger group/avatar flex h-12 w-full items-center gap-2 overflow-hidden rounded-md pr-2 pl-0 text-sm text-left cursor-pointer',
+        'outline-none ring-sidebar-ring',
         'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
-        'h-12 px-2'
+        'group-data-[collapsible=icon]:hover:bg-transparent! group-data-[collapsible=icon]:hover:text-inherit!'
       )}
     >
-      <UserAvatar uid={user.uid} iconUrl={user.photoURL} size={32} />
+      <span className="sidebar-user-trigger flex size-8 shrink-0 items-center justify-center rounded-md group-data-[collapsible=icon]:group-hover/avatar:inset-ring-2! group-data-[collapsible=icon]:group-hover/avatar:inset-ring-sidebar-ring!">
+        <UserAvatar uid={user.uid} iconUrl={user.photoURL} size={32} />
+      </span>
       <div className="grid flex-1 min-w-0 leading-tight group-data-[collapsible=icon]:hidden">
         <span className="truncate text-sm font-semibold">{displayName}</span>
         <span className="truncate text-xs text-sidebar-foreground/70">{user.email}</span>
@@ -285,16 +305,7 @@ function SidebarUserMenu({
   return (
     <DropdownMenu>
       <SidebarMenu>
-        <SidebarMenuItem>
-          {isIconMode ? (
-            <Tooltip>
-              <TooltipTrigger render={trigger} />
-              <TooltipContent side="right">{tooltipLabel}</TooltipContent>
-            </Tooltip>
-          ) : (
-            trigger
-          )}
-        </SidebarMenuItem>
+        <SidebarMenuItem>{trigger}</SidebarMenuItem>
       </SidebarMenu>
       <DropdownMenuPortal>
         <DropdownMenuPositioner side="top" align="start" sideOffset={4}>
@@ -314,23 +325,28 @@ function SidebarUserMenu({
               <LogOut className="size-4" />
               {signOutLabel}
             </DropdownMenuItem>
-            {accounts && accounts.length > 0 && (
+            {accounts.length > 0 && (
               <>
                 <DropdownMenuSeparator />
                 {accounts.map((account) => {
-                  const accountName = account.displayName ?? account.email?.split('@')[0] ?? '';
                   return (
-                    <DropdownMenuItem key={account.uid} className="gap-2" onClick={() => onSwitchAccount?.(account.uid)}>
+                    <DropdownMenuItem
+                      key={account.uid}
+                      className="gap-2"
+                      disabled={switchingUid !== null}
+                      onClick={() => handleSwitchAccount(account.uid)}
+                    >
                       <UserAvatar uid={account.uid} iconUrl={account.photoURL} size={20} />
                       <div className="grid flex-1 min-w-0 leading-tight">
-                        <span className="truncate text-sm">{accountName}</span>
+                        <span className="truncate text-sm">{account.displayName}</span>
                         <span className="truncate text-xs text-muted-foreground">{account.email}</span>
                       </div>
                       {onRemoveAccount && (
                         <button
                           type="button"
                           aria-label={removeAccountLabel}
-                          className="shrink-0 rounded p-0.5 text-muted-foreground hover:text-foreground hover:bg-sidebar-accent"
+                          disabled={switchingUid !== null}
+                          className="shrink-0 rounded p-0.5 text-muted-foreground hover:text-foreground hover:bg-sidebar-accent disabled:pointer-events-none disabled:opacity-50"
                           onClick={(e) => {
                             e.stopPropagation();
                             onRemoveAccount(account.uid);

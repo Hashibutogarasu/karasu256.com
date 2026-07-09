@@ -27,6 +27,11 @@ export interface ProviderProfile {
  * `secretConfig`, both present on `AuthContext` independent of `Options`, so the
  * cast to the generic `AuthContext` is safe.
  *
+ * Decrypting can throw (better-auth's `isLikelyEncrypted` heuristic misjudges
+ * some plaintext tokens — e.g. legacy 40-char hex GitHub tokens — as
+ * ciphertext, so `symmetricDecrypt` fails with "invalid tag"). That's treated
+ * the same as any other unresolvable profile rather than propagating a 500.
+ *
  * @returns `null` when the provider isn't linked or its profile can't be resolved.
  */
 export async function getProviderProfile(uid: string, providerId: string): Promise<ProviderProfile | null> {
@@ -37,9 +42,16 @@ export async function getProviderProfile(uid: string, providerId: string): Promi
   const provider = ctx.socialProviders.find((p) => p.id === providerId);
   if (!provider) return null;
 
-  const accessToken = tokens.accessToken ? await decryptOAuthToken(tokens.accessToken, ctx) : undefined;
-  const refreshToken = tokens.refreshToken ? await decryptOAuthToken(tokens.refreshToken, ctx) : undefined;
-  const idToken = tokens.idToken ? await decryptOAuthToken(tokens.idToken, ctx) : undefined;
+  let accessToken: string | undefined;
+  let refreshToken: string | undefined;
+  let idToken: string | undefined;
+  try {
+    accessToken = tokens.accessToken ? await decryptOAuthToken(tokens.accessToken, ctx) : undefined;
+    refreshToken = tokens.refreshToken ? await decryptOAuthToken(tokens.refreshToken, ctx) : undefined;
+    idToken = tokens.idToken ? await decryptOAuthToken(tokens.idToken, ctx) : undefined;
+  } catch {
+    return null;
+  }
 
   let info = await provider.getUserInfo({ accessToken, refreshToken, idToken }).catch(() => null);
 

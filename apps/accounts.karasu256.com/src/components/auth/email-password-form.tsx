@@ -51,7 +51,6 @@ export function EmailPasswordForm({ auth, onSuccess }: EmailPasswordFormProps = 
       onSuccess?.(credential.user);
     } catch (err) {
       showAuthError(err);
-    } finally {
       setLoading(false);
     }
   }
@@ -64,7 +63,6 @@ export function EmailPasswordForm({ auth, onSuccess }: EmailPasswordFormProps = 
       onSuccess?.(credential.user);
     } catch (err) {
       showAuthError(err);
-    } finally {
       setLoading(false);
     }
   }
