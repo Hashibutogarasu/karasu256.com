@@ -186,7 +186,7 @@ export function SettingsShell({ children }: SettingsShellProps) {
         {renderContent()}
       </SettingsSidebarLayout>
       <AddAccountDialog open={addDialogOpen} onOpenChange={setAddDialogOpen} onAdded={() => void refreshAccounts(user?.uid)} />
-      {switchingAccount && <SwitchingAccountOverlay message={t('settings.accountSwitcher.switchingAccount')} />}
+      <SwitchingAccountOverlay open={switchingAccount} message={t('settings.accountSwitcher.switchingAccount')} />
     </>
   );
 }
