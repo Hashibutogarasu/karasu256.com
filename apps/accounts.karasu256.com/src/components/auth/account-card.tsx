@@ -1,12 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { onAuthStateChanged, signOut, type User } from 'firebase/auth';
+import { onAuthStateChanged, signInWithCustomToken, signOut, type User } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
 import { getFirebaseAuth } from '@/lib/firebase/auth';
-import { clearSession } from '@/lib/api/auth-session';
+import { clearSession, resyncSession } from '@/lib/api/auth-session';
 import { Button } from '@Hashibutogarasu/ui';
 import { Card, CardContent, CardHeader, CardTitle } from '@Hashibutogarasu/ui';
 import { Identicon } from '@Hashibutogarasu/ui';
@@ -18,9 +18,13 @@ import { PasskeyCreateDialog } from './passkey-create-dialog';
 /**
  * Account management card for authenticated users.
  *
- * When Firebase reports no active client session, calls {@link clearSession}
- * to remove the server-side cookie before redirecting to `/`, preventing a
- * redirect loop caused by a stale cookie.
+ * When Firebase reports no active client session, first tries
+ * {@link resyncSession} to restore it from the server-side cookie — client
+ * persistence can be lost independently of that cookie (e.g. a browser
+ * evicting site storage across a cross-site redirect round trip). Only if
+ * that recovery fails does it call {@link clearSession} to remove the
+ * server-side cookie before redirecting to `/`, preventing a redirect loop
+ * caused by a genuinely stale cookie.
  */
 export function AccountCard() {
   const router = useRouter();
@@ -31,6 +35,15 @@ export function AccountCard() {
   useEffect(() => {
     return onAuthStateChanged(getFirebaseAuth(), async (u) => {
       if (!u) {
+        const customToken = await resyncSession();
+        if (customToken) {
+          try {
+            await signInWithCustomToken(getFirebaseAuth(), customToken);
+            return;
+          } catch {
+            /* fall through to sign-out below */
+          }
+        }
         await clearSession();
         router.replace('/');
       } else {
