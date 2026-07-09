@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { cn } from '../lib/utils';
-import { LocaleSwitcher } from './locale-switcher';
+import { LocaleSwitcher, type LocaleOption } from './locale-switcher';
 
 export interface HeaderProps {
   /** Leading site title/logo slot. */
@@ -10,10 +10,11 @@ export interface HeaderProps {
   className?: string;
   /**
    * Available locales, keyed by locale code with each value the translated
-   * display label (e.g. `{ ja: '日本語', en: 'English' }`). Omit to hide the
+   * display label and flag country code (e.g.
+   * `{ ja: { label: '日本語', countryCode: 'JP' } }`). Omit to hide the
    * language switcher entirely.
    */
-  locales?: Record<string, string>;
+  locales?: Record<string, Omit<LocaleOption, 'code'>>;
   /** The locale currently in effect. Required to render the switcher. */
   currentLocale?: string;
   /** Invoked with the newly selected locale code. Required to render the switcher. */
@@ -29,7 +30,7 @@ export interface HeaderProps {
  * `locales`, `currentLocale`, and `onLocaleChange` are all provided.
  */
 export function Header({ logo, children, className, locales, currentLocale, onLocaleChange, localeMenuAriaLabel }: HeaderProps) {
-  const localeOptions = locales ? Object.entries(locales).map(([code, label]) => ({ code, label })) : null;
+  const localeOptions = locales ? Object.entries(locales).map(([code, option]) => ({ code, ...option })) : null;
 
   return (
     <header

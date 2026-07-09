@@ -1,13 +1,13 @@
 import Link from 'next/link';
 import { getLocale, getTranslations } from 'next-intl/server';
-import { Header as UiHeader, AccountMenu } from '@Hashibutogarasu/ui';
+import { Header as UiHeader, AccountMenu, type CountryCode } from '@Hashibutogarasu/ui';
 import { getFirebaseUserIcon, getSessionUser, signOutAction, setLocaleAction } from '@Hashibutogarasu/utils/server';
 import { locales } from '@/i18n/locales';
 
-const localeLabels: Record<(typeof locales)[number], string> = {
-  ja: '日本語',
-  en: 'English',
-  cn: '中文',
+const localeLabels: Record<(typeof locales)[number], { label: string; countryCode: CountryCode }> = {
+  ja: { label: '日本語', countryCode: 'JP' },
+  en: { label: 'English', countryCode: 'US' },
+  cn: { label: '中文', countryCode: 'CN' },
 };
 
 /**
