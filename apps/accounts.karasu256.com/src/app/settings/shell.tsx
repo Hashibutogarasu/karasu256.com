@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { toast } from '@Hashibutogarasu/ui';
 import { getFirebaseAuth } from '@/lib/firebase/auth';
-import { clearSession } from '@/lib/api/auth-session';
+import { clearSession, resyncSession } from '@/lib/api/auth-session';
 import { listAccounts, switchAccount, removeAccount, type AccountSummary } from '@/lib/api/accounts';
 import { getMainAppUrl } from '@/lib/get-main-app-url';
 import { Skeleton, SettingsSidebarLayout } from '@Hashibutogarasu/ui';
@@ -26,6 +26,15 @@ interface SettingsShellProps {
  * directly so the provider buttons can appear (disabled) without a skeleton,
  * and on /settings/profile which shows {@link ProfileSectionSkeleton} so only
  * the identicon and display name are skeletonized while the form stays disabled.
+ *
+ * When Firebase reports no client-side user, this does not immediately treat
+ * it as a sign-out: client-side Firebase Auth persistence can be lost (e.g. a
+ * browser evicting site storage across the cross-site redirect round trip
+ * that `ProviderSection`'s "link account" flow drives through a social
+ * provider and back to `/settings/linking`) while the server session cookie
+ * is still valid. It first tries {@link resyncSession} to mint a fresh
+ * custom token from that cookie and restore the client session, only
+ * clearing the server session and redirecting away if that recovery fails too.
  */
 export function SettingsShell({ children }: SettingsShellProps) {
   const router = useRouter();
@@ -56,6 +65,15 @@ export function SettingsShell({ children }: SettingsShellProps) {
   useEffect(() => {
     return onAuthStateChanged(getFirebaseAuth(), async (u) => {
       if (!u) {
+        const customToken = await resyncSession();
+        if (customToken) {
+          try {
+            await signInWithCustomToken(getFirebaseAuth(), customToken);
+            return;
+          } catch {
+            /* fall through to sign-out below */
+          }
+        }
         await clearSession();
         router.replace('/');
       } else {

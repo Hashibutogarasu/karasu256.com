@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { createAuthEndpoint } from 'better-auth/api';
-import { setSessionCookie } from 'better-auth/cookies';
+import { setSessionCookie, parseCookies } from 'better-auth/cookies';
+import type { GenericEndpointContext } from '@better-auth/core';
 import { getAdminAuth } from '@/lib/firebase-admin';
 import { SESSION_COOKIE_NAME } from '@/lib/session';
 import { getDb, sessions } from '@Hashibutogarasu/db';
@@ -42,6 +43,34 @@ async function storeFirebaseCookieOnSession(sessionId: string, firebaseSessionCo
       firebaseCookieExpiresAt: new Date(claims.exp * 1000),
     })
     .where(eq(sessions.id, sessionId));
+}
+
+/**
+ * Finds a session already bridged for `uid` on this device, identified by the
+ * request's `_multi-<token>` cookies — the same device-session cookies
+ * `multiSession`'s own `listDeviceSessions` endpoint reads. Both bridge
+ * endpoints below reuse a hit instead of unconditionally minting a new
+ * session: re-bridging the same account (e.g. every "link account" click
+ * re-bridges the primary user; re-running "add account" against an
+ * already-added secondary account does too) otherwise burns through
+ * `multiSession`'s `maximumSessions` slots with throwaway duplicates. Once
+ * that cap is hit, `multiSession`'s `after` hook silently stops issuing the
+ * `_multi-<token>` cookie for the *next* distinct account without surfacing
+ * an error, so the bridge endpoint still reports success even though the
+ * account never appears in the device's account list.
+ */
+async function findBridgedSessionForUser(ctx: GenericEndpointContext, uid: string) {
+  const cookieHeader = ctx.headers?.get('cookie');
+  if (!cookieHeader) return null;
+
+  for (const name of parseCookies(cookieHeader).keys()) {
+    if (!name.includes('_multi-')) continue;
+    const token = await ctx.getSignedCookie(name, ctx.context.secret);
+    if (!token) continue;
+    const existing = await ctx.context.internalAdapter.findSession(token);
+    if (existing?.user.id === uid) return existing.session;
+  }
+  return null;
 }
 
 /**
@@ -104,7 +133,7 @@ export function firebaseSessionBridgePlugin() {
           });
         }
 
-        const session = await ctx.context.internalAdapter.createSession(uid, false);
+        const session = (await findBridgedSessionForUser(ctx, uid)) ?? (await ctx.context.internalAdapter.createSession(uid, false));
         await storeFirebaseCookieOnSession(session.id, sessionCookie, claims);
         await setSessionCookie(ctx, { session, user });
 
@@ -138,7 +167,7 @@ export function firebaseSessionBridgePlugin() {
             user = await ctx.context.internalAdapter.updateUser(uid, { email });
           }
 
-          const session = await ctx.context.internalAdapter.createSession(uid, false);
+          const session = (await findBridgedSessionForUser(ctx, uid)) ?? (await ctx.context.internalAdapter.createSession(uid, false));
           await storeFirebaseCookieOnSession(session.id, ctx.body.firebaseSessionCookie, claims);
           await setSessionCookie(ctx, { session, user });
 
