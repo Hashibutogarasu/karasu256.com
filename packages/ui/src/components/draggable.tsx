@@ -24,11 +24,12 @@ export interface DraggableProps {
  */
 export function Draggable({ id, children, className, disabled, dragThreshold = 4 }: DraggableProps) {
   const ref = React.useRef<HTMLDivElement>(null);
-  const { isDragging, activePayload, beginDrag } = useDragAndDrop();
+  const { isDragging, disabled: contextDisabled, activePayload, beginDrag } = useDragAndDrop();
   const isThisDragging = isDragging && activePayload?.id === id;
+  const isDisabled = disabled || contextDisabled;
 
   function handlePointerDown(event: React.PointerEvent<HTMLDivElement>) {
-    if (disabled || !event.isPrimary || event.button !== 0 || !ref.current) return;
+    if (isDisabled || !event.isPrimary || event.button !== 0 || !ref.current) return;
 
     const startX = event.clientX;
     const startY = event.clientY;
@@ -78,7 +79,7 @@ export function Draggable({ id, children, className, disabled, dragThreshold = 4
     <div
       ref={ref}
       onPointerDown={handlePointerDown}
-      className={cn('cursor-grab touch-none select-none', className)}
+      className={cn(isDisabled ? 'select-none' : 'cursor-grab touch-none select-none', className)}
       style={{ opacity: isThisDragging ? 0 : 1, pointerEvents: isThisDragging ? 'none' : undefined }}
     >
       {children}

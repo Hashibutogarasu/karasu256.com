@@ -17,6 +17,8 @@ import {
 export interface TopPageSidebarProps {
   children?: ReactNode;
   onDrop?: (_payload: DragPayload) => void;
+  /** Rendered on the right side of the title row, e.g. a `LockIcon`. */
+  titleActions?: ReactNode[];
 }
 
 /**
@@ -29,7 +31,7 @@ export interface TopPageSidebarProps {
  * whole (viewport-tall) sidebar, so the floating ghost morphs to a
  * reasonably sized shape instead of the sidebar's full height.
  */
-export function TopPageSidebar({ children, onDrop }: TopPageSidebarProps) {
+export function TopPageSidebar({ children, onDrop, titleActions }: TopPageSidebarProps) {
   const t = useTranslations();
   const sidebarRef = useRef<HTMLDivElement>(null);
   const slotRef = useRef<HTMLDivElement>(null);
@@ -52,6 +54,9 @@ export function TopPageSidebar({ children, onDrop }: TopPageSidebarProps) {
         <div className="flex items-center gap-2 px-1 py-1">
           <SidebarTrigger className="shrink-0" />
           <span className="truncate text-sm font-medium group-data-[collapsible=icon]:hidden">{t('home.sidebar.title')}</span>
+          {titleActions && titleActions.length > 0 && (
+            <div className="ml-auto flex shrink-0 items-center gap-1 group-data-[collapsible=icon]:hidden">{titleActions}</div>
+          )}
         </div>
       </SidebarHeader>
       <SidebarContent>

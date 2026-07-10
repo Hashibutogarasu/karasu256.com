@@ -47,6 +47,7 @@ export {
 } from './components/drag-and-drop-context';
 export { Draggable, type DraggableProps } from './components/draggable';
 export { DragAndDropArea, type DragAndDropAreaProps } from './components/drag-and-drop-area';
+export { LockIcon, type LockIconProps } from './components/lock-icon';
 export {
   DropdownMenu,
   DropdownMenuTrigger,

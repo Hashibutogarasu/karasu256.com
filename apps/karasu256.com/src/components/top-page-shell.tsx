@@ -1,7 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { DragAndDropArea, DragAndDropProvider, SettingsSidebarLayout } from '@Hashibutogarasu/ui';
+import { DragAndDropArea, DragAndDropProvider, LockIcon, SettingsSidebarLayout } from '@Hashibutogarasu/ui';
 import { useDragAndDropPlacement } from '@/hooks/use-drag-and-drop-placement';
 import { TopPageSidebar } from './top-page-sidebar';
 import { DraggableUserProfileItem, type DraggableUserProfileItemUser } from './draggable-user-profile-item';
@@ -13,19 +14,28 @@ export interface TopPageShellProps {
 /**
  * Top-page playground: a home-page sidebar holding a draggable user-profile
  * item, plus three `DragAndDropArea` panes it can be dropped into. Placement
- * is persisted via `useDragAndDropPlacement` so it survives a reload.
+ * is persisted via `useDragAndDropPlacement` so it survives a reload. A
+ * `LockIcon` in the sidebar title toggles `locked`, which disables dragging
+ * across the whole `DragAndDropProvider` subtree so items become plain,
+ * touchable content instead.
  */
 export function TopPageShell({ user }: TopPageShellProps) {
   const t = useTranslations();
   const { placements, setPlacement } = useDragAndDropPlacement();
+  const [locked, setLocked] = useState(false);
   const profileArea = placements['user-profile'] ?? 'sidebar';
   const profileItem = user ? <DraggableUserProfileItem user={user} /> : null;
 
   return (
-    <DragAndDropProvider onDropOutside={(payload) => setPlacement(payload.id, 'sidebar')}>
+    <DragAndDropProvider disabled={locked} onDropOutside={(payload) => setPlacement(payload.id, 'sidebar')}>
       <SettingsSidebarLayout
         sidebar={
-          <TopPageSidebar onDrop={(payload) => setPlacement(payload.id, 'sidebar')}>{profileArea === 'sidebar' ? profileItem : null}</TopPageSidebar>
+          <TopPageSidebar
+            onDrop={(payload) => setPlacement(payload.id, 'sidebar')}
+            titleActions={[<LockIcon key="lock" locked={locked} onLockedChange={setLocked} />]}
+          >
+            {profileArea === 'sidebar' ? profileItem : null}
+          </TopPageSidebar>
         }
       >
         <div className="grid flex-1 grid-cols-1 gap-6 md:grid-cols-3">

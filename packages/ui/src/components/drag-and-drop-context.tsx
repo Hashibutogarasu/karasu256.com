@@ -31,6 +31,8 @@ export interface DragAndDropShape {
 
 export interface DragAndDropContextValue {
   isDragging: boolean;
+  /** When true, `Draggable` ignores pointer-down and never starts a drag — set via `DragAndDropProvider`'s `disabled` prop. */
+  disabled: boolean;
   activePayload: DragPayload | null;
   hoveredAreaId: string | null;
   beginDrag: (payload: DragPayload, pointer: { clientX: number; clientY: number }) => void;
@@ -59,6 +61,8 @@ export interface DragAndDropProviderProps {
   children: React.ReactNode;
   /** Called when a drag ends without landing on any registered `DragAndDropArea`/target — e.g. to send the item back to a default location. */
   onDropOutside?: (payload: DragPayload) => void;
+  /** When true, every `Draggable` in this subtree ignores pointer-down and its content becomes plain, non-draggable content instead. */
+  disabled?: boolean;
 }
 
 /**
@@ -69,7 +73,7 @@ export interface DragAndDropProviderProps {
  * currently hovered, via a CSS transition gated by the `data-morphed`
  * attribute — see `drag-and-drop-context.css`.
  */
-export function DragAndDropProvider({ children, onDropOutside }: DragAndDropProviderProps) {
+export function DragAndDropProvider({ children, onDropOutside, disabled = false }: DragAndDropProviderProps) {
   const [activePayload, setActivePayload] = React.useState<DragPayload | null>(null);
   const [pointer, setPointer] = React.useState<PointerPosition | null>(null);
   const [hoveredShape, setHoveredShape] = React.useState<DragAndDropShape | null>(null);
@@ -129,13 +133,14 @@ export function DragAndDropProvider({ children, onDropOutside }: DragAndDropProv
   const value = React.useMemo<DragAndDropContextValue>(
     () => ({
       isDragging,
+      disabled,
       activePayload,
       hoveredAreaId: hoveredShape?.id ?? null,
       beginDrag,
       registerHover,
       clearHover,
     }),
-    [isDragging, activePayload, hoveredShape, beginDrag, registerHover, clearHover]
+    [isDragging, disabled, activePayload, hoveredShape, beginDrag, registerHover, clearHover]
   );
 
   return (
