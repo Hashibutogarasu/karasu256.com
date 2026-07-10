@@ -32,7 +32,9 @@ export interface DragAndDropAreaProps {
  * never references this component. While empty, its bottom edge is also a
  * resize handle: dragging it persists a freely chosen height for that
  * state via the enclosing `DragAndDropProvider`'s height map, keyed by this
- * area's own `id` — no per-area wiring is needed from the caller.
+ * area's own `id` — no per-area wiring is needed from the caller. A
+ * manually set height carries over once an item is dropped in, so the area
+ * doesn't collapse back to its content size the moment it becomes `filled`.
  */
 export function DragAndDropArea({ id, children, onDrop, className, filled, minHeight = 80 }: DragAndDropAreaProps) {
   const ref = React.useRef<HTMLDivElement>(null);
@@ -77,7 +79,7 @@ export function DragAndDropArea({ id, children, onDrop, className, filled, minHe
       data-hovered={isHovered ? '' : undefined}
       onPointerEnter={handlePointerEnter}
       onPointerLeave={handlePointerLeave}
-      style={!filled && height !== undefined ? { height, alignSelf: 'start' } : undefined}
+      style={height !== undefined ? { height, alignSelf: 'start' } : undefined}
       className={cn(
         'relative flex items-center justify-center overflow-hidden rounded-[32px] transition-colors duration-200',
         filled ? 'border-2 border-transparent' : cn('border-2 border-dashed p-6', disabled ? 'border-foreground/0' : 'border-foreground/15'),
