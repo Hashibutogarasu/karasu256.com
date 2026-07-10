@@ -26,7 +26,16 @@ export {
   type SettingsSidebarProps,
   type SettingsSidebarLayoutProps,
 } from './components/settings-sidebar';
-export { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarTrigger, SidebarRail } from './components/ui/sidebar';
+export {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarTrigger,
+  SidebarRail,
+} from './components/ui/sidebar';
 export { Checkbox } from './components/checkbox';
 export { Badge, badgeVariants, type BadgeProps } from './components/badge';
 export { SettingsAccordion, type SettingsAccordionProps } from './components/settings-accordion';
