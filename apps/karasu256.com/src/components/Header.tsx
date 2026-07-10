@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { Header as UiHeader, AccountMenu } from '@Hashibutogarasu/ui';
-import { getFirebaseUserIcon, getSessionUser, signOutAction } from '@Hashibutogarasu/utils/server';
+import { getFirebaseUserProfile, getSessionUser, signOutAction } from '@Hashibutogarasu/utils/server';
 
 /**
  * Site-wide header. Reads the Firebase session to show an account menu when
@@ -9,7 +9,7 @@ import { getFirebaseUserIcon, getSessionUser, signOutAction } from '@Hashibutoga
  */
 const Header = async () => {
   const sessionUser = await getSessionUser();
-  const iconUrl = sessionUser ? await getFirebaseUserIcon(sessionUser.uid) : null;
+  const { displayName, photoURL: iconUrl } = await getFirebaseUserProfile(sessionUser?.uid);
   const accountsUrl = process.env.NEXT_PUBLIC_ACCOUNTS_URL;
   const t = await getTranslations('header');
 
@@ -22,7 +22,7 @@ const Header = async () => {
       }
     >
       <AccountMenu
-        user={sessionUser ? { uid: sessionUser.uid, iconUrl, displayName: sessionUser.name ?? null, email: sessionUser.email ?? null } : null}
+        user={sessionUser ? { uid: sessionUser.uid, iconUrl, displayName, email: sessionUser.email ?? null } : null}
         signInHref={accountsUrl}
         settingsHref="/settings"
         onSignOut={signOutAction}
