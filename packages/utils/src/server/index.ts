@@ -6,3 +6,4 @@ export { uploadImageAnonymous, type UploadImageAnonymousOptions, type UploadImag
 export { getAdminAuth, getFirebaseUserIcon } from './firebase-admin';
 export { getSessionUser } from './firebase-session';
 export { signOutAction } from './sign-out';
+export { setLocaleAction } from './set-locale';

@@ -1,17 +1,25 @@
 import Link from 'next/link';
-import { getTranslations } from 'next-intl/server';
-import { Header as UiHeader, AccountMenu } from '@Hashibutogarasu/ui';
-import { getFirebaseUserIcon, getSessionUser, signOutAction } from '@Hashibutogarasu/utils/server';
+import { getLocale, getTranslations } from 'next-intl/server';
+import { Header as UiHeader, AccountMenu, type CountryCode } from '@Hashibutogarasu/ui';
+import { getFirebaseUserIcon, getSessionUser, signOutAction, setLocaleAction } from '@Hashibutogarasu/utils/server';
+import { locales } from '@/i18n/locales';
+
+const localeLabels: Record<(typeof locales)[number], { label: string; countryCode: CountryCode }> = {
+  ja: { label: '日本語', countryCode: 'JP' },
+  en: { label: 'English', countryCode: 'US' },
+  cn: { label: '中文', countryCode: 'CN' },
+};
 
 /**
  * Site-wide header. Reads the Firebase session to show an account menu when
- * authenticated, or a sign-in button when not.
+ * authenticated, or a sign-in button when not, plus a language switcher.
  */
 const Header = async () => {
   const sessionUser = await getSessionUser();
   const iconUrl = sessionUser ? await getFirebaseUserIcon(sessionUser.uid) : null;
   const accountsUrl = process.env.NEXT_PUBLIC_ACCOUNTS_URL;
   const t = await getTranslations('header');
+  const currentLocale = await getLocale();
 
   return (
     <UiHeader
@@ -20,6 +28,9 @@ const Header = async () => {
           Karasu Lab
         </Link>
       }
+      locales={localeLabels}
+      currentLocale={currentLocale}
+      onLocaleChange={setLocaleAction}
     >
       <AccountMenu
         user={sessionUser ? { uid: sessionUser.uid, iconUrl, displayName: sessionUser.name ?? null, email: sessionUser.email ?? null } : null}

@@ -1,0 +1,21 @@
+{
+  "header": {
+    "signIn": "Sign in",
+    "accountMenuLabel": "Account menu",
+    "settings": "Settings",
+    "signOut": "Sign out"
+  },
+  "qr": {
+    "imageAlt": "QR code",
+    "regenerate": "Regenerate",
+    "settingsMenuLabel": "Menu",
+    "autoRegenerate": {
+      "label": "Auto-regenerate"
+    },
+    "interval": {
+      "label": "Refresh interval ({seconds}s)",
+      "seconds": "{seconds}s",
+      "customPlaceholder": "Enter seconds"
+    }
+  }
+}
