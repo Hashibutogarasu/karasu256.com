@@ -216,9 +216,9 @@ function NavItem({ item, isActive, isIconMode, renderLink }: NavItemProps) {
   );
 }
 
-/** Falls back to the local part of the email when no display name is set. */
+/** Returns the Firebase display name, or an empty string when none is set. */
 function resolveDisplayName(entry: { displayName: string | null; email: string | null }): string {
-  return entry.displayName ?? entry.email?.split('@')[0] ?? '';
+  return entry.displayName ?? '';
 }
 
 interface SidebarUserMenuProps {
@@ -295,7 +295,7 @@ function SidebarUserMenu({
         <UserAvatar uid={user.uid} iconUrl={user.photoURL} size={32} />
       </span>
       <div className="grid flex-1 min-w-0 leading-tight group-data-[collapsible=icon]:hidden">
-        <span className="truncate text-sm font-semibold">{displayName}</span>
+        {displayName && <span className="truncate text-sm font-semibold">{displayName}</span>}
         <span className="truncate text-xs text-sidebar-foreground/70">{user.email}</span>
       </div>
       <ChevronsUpDown className="ml-auto size-4 shrink-0 group-data-[collapsible=icon]:hidden" />
@@ -311,7 +311,7 @@ function SidebarUserMenu({
         <DropdownMenuPositioner side="top" align="start" sideOffset={4}>
           <DropdownMenuPopup>
             <div className="px-3 py-2">
-              <p className="text-sm font-medium truncate">{displayName}</p>
+              {displayName && <p className="text-sm font-medium truncate">{displayName}</p>}
               <p className="text-xs text-muted-foreground truncate">{user.email}</p>
             </div>
             <DropdownMenuSeparator />
@@ -338,7 +338,7 @@ function SidebarUserMenu({
                     >
                       <UserAvatar uid={account.uid} iconUrl={account.photoURL} size={20} />
                       <div className="grid flex-1 min-w-0 leading-tight">
-                        <span className="truncate text-sm">{account.displayName}</span>
+                        {account.displayName && <span className="truncate text-sm">{account.displayName}</span>}
                         <span className="truncate text-xs text-muted-foreground">{account.email}</span>
                       </div>
                       {onRemoveAccount && (

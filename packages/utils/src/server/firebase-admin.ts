@@ -27,14 +27,21 @@ export function getAdminAuth() {
 }
 
 /**
- * Returns the given user's Firebase Auth `photoURL`, or `null` if the user
- * has none set or doesn't exist.
+ * Returns the given user's live Firebase Auth `displayName` and `photoURL`.
+ *
+ * Unlike a session cookie's decoded claims, this always reflects the
+ * current Firebase Auth record, so it stays correct after the user updates
+ * their profile without needing to sign in again. Fields are `null` if
+ * unset, the user doesn't exist, or `uid` is `null`/`undefined`.
  */
-export async function getFirebaseUserIcon(uid: string): Promise<string | null> {
+export async function getFirebaseUserProfile(uid: string | null | undefined): Promise<{ displayName: string | null; photoURL: string | null }> {
+  if (!uid) {
+    return { displayName: null, photoURL: null };
+  }
   try {
     const user = await getAdminAuth().getUser(uid);
-    return user.photoURL ?? null;
+    return { displayName: user.displayName ?? null, photoURL: user.photoURL ?? null };
   } catch {
-    return null;
+    return { displayName: null, photoURL: null };
   }
 }
