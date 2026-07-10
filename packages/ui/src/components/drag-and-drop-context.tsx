@@ -38,6 +38,9 @@ export interface DragAndDropContextValue {
   beginDrag: (payload: DragPayload, pointer: { clientX: number; clientY: number }) => void;
   registerHover: (shape: DragAndDropShape) => void;
   clearHover: (id: string) => void;
+  /** Per-area manually resized heights (px), keyed by the area's own `id` — so a `DragAndDropArea` only needs its `id` to read/write its height. */
+  heights: Record<string, number>;
+  setAreaHeight: (id: string, height: number) => void;
 }
 
 const DragAndDropContext = React.createContext<DragAndDropContextValue | null>(null);
@@ -63,6 +66,10 @@ export interface DragAndDropProviderProps {
   onDropOutside?: (payload: DragPayload) => void;
   /** When true, every `Draggable` in this subtree ignores pointer-down and its content becomes plain, non-draggable content instead. */
   disabled?: boolean;
+  /** Initial per-area heights (px), keyed by area id — e.g. hydrated from storage. */
+  initialHeights?: Record<string, number>;
+  /** Called with the full updated heights map whenever any area's height changes — e.g. to persist it. */
+  onHeightsChange?: (heights: Record<string, number>) => void;
 }
 
 /**
@@ -73,10 +80,11 @@ export interface DragAndDropProviderProps {
  * currently hovered, via a CSS transition gated by the `data-morphed`
  * attribute — see `drag-and-drop-context.css`.
  */
-export function DragAndDropProvider({ children, onDropOutside, disabled = false }: DragAndDropProviderProps) {
+export function DragAndDropProvider({ children, onDropOutside, disabled = false, initialHeights = {}, onHeightsChange }: DragAndDropProviderProps) {
   const [activePayload, setActivePayload] = React.useState<DragPayload | null>(null);
   const [pointer, setPointer] = React.useState<PointerPosition | null>(null);
   const [hoveredShape, setHoveredShape] = React.useState<DragAndDropShape | null>(null);
+  const [heights, setHeights] = React.useState<Record<string, number>>(initialHeights);
 
   const activePayloadRef = React.useRef(activePayload);
   activePayloadRef.current = activePayload;
@@ -84,6 +92,8 @@ export function DragAndDropProvider({ children, onDropOutside, disabled = false 
   hoveredShapeRef.current = hoveredShape;
   const onDropOutsideRef = React.useRef(onDropOutside);
   onDropOutsideRef.current = onDropOutside;
+  const onHeightsChangeRef = React.useRef(onHeightsChange);
+  onHeightsChangeRef.current = onHeightsChange;
 
   const isDragging = activePayload !== null;
 
@@ -99,6 +109,19 @@ export function DragAndDropProvider({ children, onDropOutside, disabled = false 
   const clearHover = React.useCallback((id: string) => {
     setHoveredShape((prev) => (prev?.id === id ? null : prev));
   }, []);
+
+  const setAreaHeight = React.useCallback((id: string, height: number) => {
+    setHeights((prev) => ({ ...prev, [id]: height }));
+  }, []);
+
+  const isFirstHeightsRenderRef = React.useRef(true);
+  React.useEffect(() => {
+    if (isFirstHeightsRenderRef.current) {
+      isFirstHeightsRenderRef.current = false;
+      return;
+    }
+    onHeightsChangeRef.current?.(heights);
+  }, [heights]);
 
   React.useEffect(() => {
     if (!isDragging) return;
@@ -139,8 +162,10 @@ export function DragAndDropProvider({ children, onDropOutside, disabled = false 
       beginDrag,
       registerHover,
       clearHover,
+      heights,
+      setAreaHeight,
     }),
-    [isDragging, disabled, activePayload, hoveredShape, beginDrag, registerHover, clearHover]
+    [isDragging, disabled, activePayload, hoveredShape, beginDrag, registerHover, clearHover, heights, setAreaHeight]
   );
 
   return (
