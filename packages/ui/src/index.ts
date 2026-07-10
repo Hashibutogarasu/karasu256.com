@@ -41,6 +41,7 @@ export {
   DragAndDropProvider,
   useDragAndDrop,
   type DragAndDropContextValue,
+  type DragAndDropProviderProps,
   type DragAndDropShape,
   type DragPayload,
 } from './components/drag-and-drop-context';

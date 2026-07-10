@@ -22,16 +22,20 @@ export function TopPageShell({ user }: TopPageShellProps) {
   const profileItem = user ? <DraggableUserProfileItem user={user} /> : null;
 
   return (
-    <DragAndDropProvider>
-      <SettingsSidebarLayout sidebar={<TopPageSidebar>{profileArea === 'sidebar' ? profileItem : null}</TopPageSidebar>}>
+    <DragAndDropProvider onDropOutside={(payload) => setPlacement(payload.id, 'sidebar')}>
+      <SettingsSidebarLayout
+        sidebar={
+          <TopPageSidebar onDrop={(payload) => setPlacement(payload.id, 'sidebar')}>{profileArea === 'sidebar' ? profileItem : null}</TopPageSidebar>
+        }
+      >
         <div className="grid flex-1 grid-cols-1 gap-6 md:grid-cols-3">
-          <DragAndDropArea id="left-pane" onDrop={(payload) => setPlacement(payload.id, 'left-pane')}>
+          <DragAndDropArea id="left-pane" filled={profileArea === 'left-pane'} onDrop={(payload) => setPlacement(payload.id, 'left-pane')}>
             {profileArea === 'left-pane' ? profileItem : <span className="text-sm text-muted-foreground">{t('home.panes.left')}</span>}
           </DragAndDropArea>
-          <DragAndDropArea id="center-pane" onDrop={(payload) => setPlacement(payload.id, 'center-pane')}>
+          <DragAndDropArea id="center-pane" filled={profileArea === 'center-pane'} onDrop={(payload) => setPlacement(payload.id, 'center-pane')}>
             {profileArea === 'center-pane' ? profileItem : <span className="text-sm text-muted-foreground">{t('home.panes.center')}</span>}
           </DragAndDropArea>
-          <DragAndDropArea id="right-pane" onDrop={(payload) => setPlacement(payload.id, 'right-pane')}>
+          <DragAndDropArea id="right-pane" filled={profileArea === 'right-pane'} onDrop={(payload) => setPlacement(payload.id, 'right-pane')}>
             {profileArea === 'right-pane' ? profileItem : <span className="text-sm text-muted-foreground">{t('home.panes.right')}</span>}
           </DragAndDropArea>
         </div>

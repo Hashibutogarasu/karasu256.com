@@ -9,19 +9,27 @@ export interface DragAndDropAreaProps {
   children?: React.ReactNode;
   onDrop?: (payload: DragPayload) => void;
   className?: string;
+  /** Set when this area already holds a dropped item, hiding the empty-state dashed border/faint content. */
+  filled?: boolean;
 }
 
 /**
- * A rounded (5%), dashed drop zone that centers `children`. Its dashed
- * border fades in while any drag is active and highlights further while
- * directly hovered. While a drag is active it pushes its own geometry (and
- * `onDrop`) into the enclosing `DragAndDropProvider` on pointer-enter so the
- * floating ghost can morph to match its shape — the dragged item itself
- * never references this component.
+ * A rounded (32px), dashed drop zone that centers `children`. Empty areas
+ * stay faint at rest; only the specific area currently hovered by an active
+ * drag fades in to a brighter border/background and full-opacity content —
+ * sibling areas that aren't hovered stay faint even while a drag is in
+ * progress elsewhere. An area already holding a dropped item (`filled`)
+ * stretches `children` to fill its exact size, so the item itself takes on
+ * the container's shape instead of floating small inside it. While a drag
+ * is active it pushes its own geometry (and `onDrop`) into the enclosing
+ * `DragAndDropProvider` on pointer-enter so the floating ghost can morph to
+ * match its shape — the dragged item itself never references this
+ * component.
  */
-export function DragAndDropArea({ id, children, onDrop, className }: DragAndDropAreaProps) {
+export function DragAndDropArea({ id, children, onDrop, className, filled }: DragAndDropAreaProps) {
   const ref = React.useRef<HTMLDivElement>(null);
   const { isDragging, hoveredAreaId, registerHover, clearHover } = useDragAndDrop();
+  const isHovered = hoveredAreaId === id;
 
   function handlePointerEnter() {
     if (!isDragging || !ref.current) return;
@@ -38,19 +46,21 @@ export function DragAndDropArea({ id, children, onDrop, className }: DragAndDrop
     <div
       ref={ref}
       data-slot="drag-and-drop-area"
-      data-dragging={isDragging ? '' : undefined}
-      data-hovered={hoveredAreaId === id ? '' : undefined}
+      data-hovered={isHovered ? '' : undefined}
       onPointerEnter={handlePointerEnter}
       onPointerLeave={handlePointerLeave}
       className={cn(
-        'flex items-center justify-center rounded-[5%] p-6',
-        'border-2 border-dashed border-foreground/0 transition-colors duration-200',
-        'data-dragging:border-foreground/25',
-        'data-hovered:border-foreground/50 data-hovered:bg-foreground/5',
+        'flex items-center justify-center overflow-hidden rounded-[32px] transition-colors duration-200',
+        filled ? 'border-2 border-transparent' : 'border-2 border-dashed p-6 border-foreground/15',
+        'data-hovered:border-foreground/60 data-hovered:bg-foreground/5',
         className
       )}
     >
-      {children}
+      <div
+        className={cn('transition-opacity duration-200', filled ? 'h-full w-full' : undefined, filled || isHovered ? 'opacity-100' : 'opacity-40')}
+      >
+        {children}
+      </div>
     </div>
   );
 }
