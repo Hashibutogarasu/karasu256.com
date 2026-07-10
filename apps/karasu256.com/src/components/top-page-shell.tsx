@@ -21,13 +21,18 @@ export interface TopPageShellProps {
  */
 export function TopPageShell({ user }: TopPageShellProps) {
   const t = useTranslations();
-  const { placements, setPlacement } = useDragAndDropPlacement();
+  const { placements, setPlacement, heights, setHeights } = useDragAndDropPlacement();
   const [locked, setLocked] = useState(false);
   const profileArea = placements['user-profile'] ?? 'sidebar';
   const profileItem = user ? <DraggableUserProfileItem user={user} /> : null;
 
   return (
-    <DragAndDropProvider disabled={locked} onDropOutside={(payload) => setPlacement(payload.id, 'sidebar')}>
+    <DragAndDropProvider
+      disabled={locked}
+      onDropOutside={(payload) => setPlacement(payload.id, 'sidebar')}
+      initialHeights={heights}
+      onHeightsChange={setHeights}
+    >
       <SettingsSidebarLayout
         sidebar={
           <TopPageSidebar
@@ -38,14 +43,29 @@ export function TopPageShell({ user }: TopPageShellProps) {
           </TopPageSidebar>
         }
       >
-        <div className="grid flex-1 grid-cols-1 gap-6 md:grid-cols-3">
-          <DragAndDropArea id="left-pane" filled={profileArea === 'left-pane'} onDrop={(payload) => setPlacement(payload.id, 'left-pane')}>
+        <div className="flex flex-1 flex-col items-stretch gap-6 md:flex-row md:items-start">
+          <DragAndDropArea
+            id="left-pane"
+            className="md:flex-1"
+            filled={profileArea === 'left-pane'}
+            onDrop={(payload) => setPlacement(payload.id, 'left-pane')}
+          >
             {profileArea === 'left-pane' ? profileItem : <span className="text-sm text-muted-foreground">{t('home.panes.left')}</span>}
           </DragAndDropArea>
-          <DragAndDropArea id="center-pane" filled={profileArea === 'center-pane'} onDrop={(payload) => setPlacement(payload.id, 'center-pane')}>
+          <DragAndDropArea
+            id="center-pane"
+            className="md:flex-1"
+            filled={profileArea === 'center-pane'}
+            onDrop={(payload) => setPlacement(payload.id, 'center-pane')}
+          >
             {profileArea === 'center-pane' ? profileItem : <span className="text-sm text-muted-foreground">{t('home.panes.center')}</span>}
           </DragAndDropArea>
-          <DragAndDropArea id="right-pane" filled={profileArea === 'right-pane'} onDrop={(payload) => setPlacement(payload.id, 'right-pane')}>
+          <DragAndDropArea
+            id="right-pane"
+            className="md:flex-1"
+            filled={profileArea === 'right-pane'}
+            onDrop={(payload) => setPlacement(payload.id, 'right-pane')}
+          >
             {profileArea === 'right-pane' ? profileItem : <span className="text-sm text-muted-foreground">{t('home.panes.right')}</span>}
           </DragAndDropArea>
         </div>

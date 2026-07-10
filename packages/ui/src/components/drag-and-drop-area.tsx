@@ -11,6 +11,8 @@ export interface DragAndDropAreaProps {
   className?: string;
   /** Set when this area already holds a dropped item, hiding the empty-state dashed border/faint content. */
   filled?: boolean;
+  /** Minimum height, in pixels, the bottom-edge resize handle can shrink this area to. */
+  minHeight?: number;
 }
 
 /**
@@ -27,12 +29,18 @@ export interface DragAndDropAreaProps {
  * inside it. While a drag is active it pushes its own geometry (and
  * `onDrop`) into the enclosing `DragAndDropProvider` on pointer-enter so the
  * floating ghost can morph to match its shape — the dragged item itself
- * never references this component.
+ * never references this component. While empty, its bottom edge is also a
+ * resize handle: dragging it persists a freely chosen height for that
+ * state via the enclosing `DragAndDropProvider`'s height map, keyed by this
+ * area's own `id` — no per-area wiring is needed from the caller. A
+ * manually set height carries over once an item is dropped in, so the area
+ * doesn't collapse back to its content size the moment it becomes `filled`.
  */
-export function DragAndDropArea({ id, children, onDrop, className, filled }: DragAndDropAreaProps) {
+export function DragAndDropArea({ id, children, onDrop, className, filled, minHeight = 80 }: DragAndDropAreaProps) {
   const ref = React.useRef<HTMLDivElement>(null);
-  const { isDragging, disabled, hoveredAreaId, registerHover, clearHover } = useDragAndDrop();
+  const { isDragging, disabled, hoveredAreaId, registerHover, clearHover, heights, setAreaHeight } = useDragAndDrop();
   const isHovered = hoveredAreaId === id;
+  const height = heights[id];
 
   function handlePointerEnter() {
     if (!isDragging || !ref.current) return;
@@ -45,6 +53,25 @@ export function DragAndDropArea({ id, children, onDrop, className, filled }: Dra
     clearHover(id);
   }
 
+  function handleResizePointerDown(event: React.PointerEvent<HTMLDivElement>) {
+    if (filled || !ref.current) return;
+    event.stopPropagation();
+    const startY = event.clientY;
+    const startHeight = ref.current.getBoundingClientRect().height;
+
+    function handleResizeMove(moveEvent: PointerEvent) {
+      setAreaHeight(id, Math.max(minHeight, startHeight + (moveEvent.clientY - startY)));
+    }
+
+    function handleResizeUp() {
+      window.removeEventListener('pointermove', handleResizeMove);
+      window.removeEventListener('pointerup', handleResizeUp);
+    }
+
+    window.addEventListener('pointermove', handleResizeMove);
+    window.addEventListener('pointerup', handleResizeUp);
+  }
+
   return (
     <div
       ref={ref}
@@ -52,8 +79,9 @@ export function DragAndDropArea({ id, children, onDrop, className, filled }: Dra
       data-hovered={isHovered ? '' : undefined}
       onPointerEnter={handlePointerEnter}
       onPointerLeave={handlePointerLeave}
+      style={height !== undefined ? { height, alignSelf: 'start' } : undefined}
       className={cn(
-        'flex items-center justify-center overflow-hidden rounded-[32px] transition-colors duration-200',
+        'relative flex items-center justify-center overflow-hidden rounded-[32px] transition-colors duration-200',
         filled ? 'border-2 border-transparent' : cn('border-2 border-dashed p-6', disabled ? 'border-foreground/0' : 'border-foreground/15'),
         'data-hovered:border-foreground/60 data-hovered:bg-foreground/5',
         className
@@ -68,6 +96,7 @@ export function DragAndDropArea({ id, children, onDrop, className, filled }: Dra
       >
         {children}
       </div>
+      {!filled && <div onPointerDown={handleResizePointerDown} className="absolute inset-x-0 bottom-0 h-2 cursor-row-resize touch-none" />}
     </div>
   );
 }
