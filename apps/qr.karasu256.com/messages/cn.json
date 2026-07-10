@@ -1,0 +1,21 @@
+{
+  "header": {
+    "signIn": "登录",
+    "accountMenuLabel": "账户菜单",
+    "settings": "设置",
+    "signOut": "退出登录"
+  },
+  "qr": {
+    "imageAlt": "二维码",
+    "regenerate": "重新生成",
+    "settingsMenuLabel": "菜单",
+    "autoRegenerate": {
+      "label": "自动生成"
+    },
+    "interval": {
+      "label": "刷新间隔（{seconds}秒）",
+      "seconds": "{seconds}秒",
+      "customPlaceholder": "输入秒数"
+    }
+  }
+}
