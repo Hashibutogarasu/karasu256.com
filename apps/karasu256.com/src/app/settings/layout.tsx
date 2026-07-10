@@ -2,7 +2,7 @@ import React from 'react';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
-import { getFirebaseUserIcon, getSessionUser } from '@Hashibutogarasu/utils/server';
+import { getFirebaseUserProfile, getSessionUser } from '@Hashibutogarasu/utils/server';
 import { SettingsShell } from '@/components/settings-shell';
 import { MissingEnvError } from '@/lib/missing-env-error';
 
@@ -24,10 +24,10 @@ export default async function SettingsLayout({ children }: { children: React.Rea
     }
     redirect(accountsUrl);
   }
-  const photoURL = await getFirebaseUserIcon(token.uid);
+  const { displayName, photoURL } = await getFirebaseUserProfile(token.uid);
   const user = {
     uid: token.uid,
-    displayName: token.name ?? null,
+    displayName,
     email: token.email ?? null,
     photoURL,
   };

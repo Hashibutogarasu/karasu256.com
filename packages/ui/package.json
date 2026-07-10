@@ -5,7 +5,8 @@
   "exports": {
     ".": "./src/index.ts",
     "./redis": "./src/components/redis-provider.tsx",
-    "./styles/base.css": "./src/styles/base.css"
+    "./styles/base.css": "./src/styles/base.css",
+    "./styles/sidebar-theme.css": "./src/styles/sidebar-theme.css"
   },
   "dependencies": {
     "@Hashibutogarasu/utils": "workspace:*",

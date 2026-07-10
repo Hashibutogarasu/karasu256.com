@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { Header as UiHeader, AccountMenu, type CountryCode } from '@Hashibutogarasu/ui';
-import { getFirebaseUserIcon, getSessionUser, signOutAction, setLocaleAction } from '@Hashibutogarasu/utils/server';
+import { getFirebaseUserProfile, getSessionUser, signOutAction, setLocaleAction } from '@Hashibutogarasu/utils/server';
 import { locales } from '@/i18n/locales';
 
 const localeLabels: Record<(typeof locales)[number], { label: string; countryCode: CountryCode }> = {
@@ -18,7 +18,7 @@ const localeLabels: Record<(typeof locales)[number], { label: string; countryCod
  */
 const Header = async () => {
   const sessionUser = await getSessionUser();
-  const iconUrl = sessionUser ? await getFirebaseUserIcon(sessionUser.uid) : null;
+  const { displayName, photoURL: iconUrl } = await getFirebaseUserProfile(sessionUser?.uid);
   const accountsUrl = process.env.NEXT_PUBLIC_ACCOUNTS_URL;
   const rootUrl = process.env.NEXT_PUBLIC_ROOT_URL;
   const t = await getTranslations('header');
@@ -36,7 +36,7 @@ const Header = async () => {
       onLocaleChange={setLocaleAction}
     >
       <AccountMenu
-        user={sessionUser ? { uid: sessionUser.uid, iconUrl, displayName: sessionUser.name ?? null, email: sessionUser.email ?? null } : null}
+        user={sessionUser ? { uid: sessionUser.uid, iconUrl, displayName, email: sessionUser.email ?? null } : null}
         signInHref={accountsUrl}
         settingsHref={`${rootUrl}/settings`}
         onSignOut={signOutAction}
