@@ -26,6 +26,7 @@ export {
   type SettingsSidebarProps,
   type SettingsSidebarLayoutProps,
 } from './components/settings-sidebar';
+export { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarTrigger, SidebarRail } from './components/ui/sidebar';
 export { Checkbox } from './components/checkbox';
 export { Badge, badgeVariants, type BadgeProps } from './components/badge';
 export { SettingsAccordion, type SettingsAccordionProps } from './components/settings-accordion';
@@ -36,6 +37,15 @@ export { SettingsItem } from './components/settings-item';
 export { LoadingView } from './components/loading-view';
 export { OverlayContainer, type OverlayContainerProps } from './components/overlay-container';
 export { SwitchingAccountOverlay, type SwitchingAccountOverlayProps } from './components/switching-account-overlay';
+export {
+  DragAndDropProvider,
+  useDragAndDrop,
+  type DragAndDropContextValue,
+  type DragAndDropShape,
+  type DragPayload,
+} from './components/drag-and-drop-context';
+export { Draggable, type DraggableProps } from './components/draggable';
+export { DragAndDropArea, type DragAndDropAreaProps } from './components/drag-and-drop-area';
 export {
   DropdownMenu,
   DropdownMenuTrigger,

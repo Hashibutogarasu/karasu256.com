@@ -15,6 +15,16 @@
     "settings": "設定",
     "signOut": "サインアウト"
   },
+  "home": {
+    "sidebar": {
+      "title": "メニュー"
+    },
+    "panes": {
+      "left": "ここにドラッグ",
+      "center": "ここにドラッグ",
+      "right": "ここにドラッグ"
+    }
+  },
   "settings": {
     "title": "設定",
     "sections": {

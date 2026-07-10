@@ -1,0 +1,16 @@
+.dnd-ghost {
+  position: fixed;
+  z-index: 70;
+  pointer-events: none;
+  overflow: hidden;
+  transition: none;
+}
+
+.dnd-ghost[data-morphed] {
+  transition:
+    left 200ms ease,
+    top 200ms ease,
+    width 200ms ease,
+    height 200ms ease,
+    border-radius 200ms ease;
+}
