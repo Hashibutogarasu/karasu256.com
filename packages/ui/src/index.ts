@@ -78,3 +78,14 @@ export { SwitchMenuItem, type SwitchMenuItemProps } from './components/switch-me
 export { TextInputMenuItem, type TextInputMenuItemProps } from './components/text-input-menu-item';
 export { ScrollableSubMenu, type ScrollableSubMenuProps } from './components/scrollable-sub-menu';
 export { Switch } from './components/ui/switch';
+export {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuIndicator,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from './components/ui/navigation-menu';
+export { LocaleSwitcher, type LocaleOption, type LocaleSwitcherProps, type CountryCode } from './components/locale-switcher';
