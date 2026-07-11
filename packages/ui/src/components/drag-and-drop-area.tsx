@@ -39,6 +39,9 @@ export interface DragAndDropAreaProps {
  * the thin line that's precise enough for a mouse is too small to grab
  * reliably with a finger, and a small grip pill fades in to mark its
  * position for touch users, who never see the hover state a mouse would.
+ * That grip pill (and the handle's interactivity) fades out along with the
+ * rest of the empty-state affordances while the enclosing
+ * `DragAndDropProvider` is `disabled`, since resizing isn't possible either.
  */
 export function DragAndDropArea({ id, children, onDrop, className, filled, minHeight = 80 }: DragAndDropAreaProps) {
   const ref = React.useRef<HTMLDivElement>(null);
@@ -58,7 +61,7 @@ export function DragAndDropArea({ id, children, onDrop, className, filled, minHe
   }
 
   function handleResizePointerDown(event: React.PointerEvent<HTMLDivElement>) {
-    if (filled || !ref.current) return;
+    if (filled || disabled || !ref.current) return;
     event.stopPropagation();
     const startY = event.clientY;
     const startHeight = ref.current.getBoundingClientRect().height;
@@ -103,9 +106,17 @@ export function DragAndDropArea({ id, children, onDrop, className, filled, minHe
       {!filled && (
         <div
           onPointerDown={handleResizePointerDown}
-          className="group/resize absolute inset-x-0 bottom-0 flex h-2 cursor-row-resize touch-none items-center justify-center pointer-coarse:h-6"
+          className={cn(
+            'group/resize absolute inset-x-0 bottom-0 flex h-2 touch-none items-center justify-center pointer-coarse:h-6',
+            disabled ? 'pointer-events-none cursor-default' : 'cursor-row-resize'
+          )}
         >
-          <div className="h-1 w-8 rounded-full bg-foreground/0 transition-colors duration-200 group-hover/resize:bg-foreground/30 pointer-coarse:bg-foreground/20" />
+          <div
+            className={cn(
+              'h-1 w-8 rounded-full bg-foreground/0 transition-colors duration-200',
+              !disabled && 'group-hover/resize:bg-foreground/30 pointer-coarse:bg-foreground/20'
+            )}
+          />
         </div>
       )}
     </div>
