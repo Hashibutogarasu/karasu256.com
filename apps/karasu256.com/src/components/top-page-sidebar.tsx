@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, type ReactNode } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   Sidebar,
@@ -12,6 +12,7 @@ import {
   SidebarTrigger,
   SidebarRail,
   useDragAndDrop,
+  useSidebar,
   type DragPayload,
 } from '@Hashibutogarasu/ui';
 
@@ -30,13 +31,24 @@ export interface TopPageSidebarProps {
  * returned here. Hovering anywhere on the sidebar counts, but the geometry
  * handed to the drag context is measured from the small item slot, not the
  * whole (viewport-tall) sidebar, so the floating ghost morphs to a
- * reasonably sized shape instead of the sidebar's full height.
+ * reasonably sized shape instead of the sidebar's full height. On mobile the
+ * sidebar renders as a modal sheet whose full-viewport backdrop sits above
+ * the main content, so it auto-closes as soon as a drag starts — otherwise
+ * the backdrop would keep swallowing the pointer events the drop targets
+ * need to detect a hover.
  */
 export function TopPageSidebar({ children, onDrop, titleActions }: TopPageSidebarProps) {
   const t = useTranslations();
   const sidebarRef = useRef<HTMLDivElement>(null);
   const slotRef = useRef<HTMLDivElement>(null);
   const { isDragging, registerHover, clearHover } = useDragAndDrop();
+  const { isMobile, openMobile, setOpenMobile } = useSidebar();
+
+  useEffect(() => {
+    if (isDragging && isMobile && openMobile) {
+      setOpenMobile(false);
+    }
+  }, [isDragging, isMobile, openMobile, setOpenMobile]);
 
   function handlePointerEnter() {
     if (!isDragging || !slotRef.current) return;

@@ -35,6 +35,7 @@ export {
   SidebarMenuItem,
   SidebarTrigger,
   SidebarRail,
+  useSidebar,
 } from './components/ui/sidebar';
 export { Checkbox } from './components/checkbox';
 export { Badge, badgeVariants, type BadgeProps } from './components/badge';
