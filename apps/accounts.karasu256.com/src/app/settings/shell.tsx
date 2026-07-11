@@ -17,8 +17,8 @@ import { ProfileSectionSkeleton } from '@/components/auth/settings/profile-secti
 interface SettingsShellProps {
   children: React.ReactNode;
   /**
-   * "Back to app" URL derived server-side from `BASE_DOMAIN` (see
-   * {@link getMainAppUrlFromBaseDomain}). `undefined` when `BASE_DOMAIN`
+   * "Back to app" URL derived server-side from `ROOT_DOMAIN` (see
+   * {@link getMainAppUrlFromRootDomain}). `undefined` when `ROOT_DOMAIN`
    * isn't set, in which case the "back to app" link is simply omitted.
    */
   appUrl?: string;
