@@ -8,7 +8,6 @@ import { toast } from '@Hashibutogarasu/ui';
 import { getFirebaseAuth } from '@/lib/firebase/auth';
 import { clearSession, resyncSession } from '@/lib/api/auth-session';
 import { listAccounts, switchAccount, removeAccount, type AccountSummary } from '@/lib/api/accounts';
-import { getMainAppUrl } from '@/lib/get-main-app-url';
 import { Skeleton, SettingsSidebarLayout, SwitchingAccountOverlay } from '@Hashibutogarasu/ui';
 import { SettingsSidebar } from '@/components/settings/settings-sidebar';
 import { AddAccountDialog } from '@/components/settings/add-account-dialog';
@@ -17,6 +16,12 @@ import { ProfileSectionSkeleton } from '@/components/auth/settings/profile-secti
 
 interface SettingsShellProps {
   children: React.ReactNode;
+  /**
+   * "Back to app" URL derived server-side from `BASE_DOMAIN` (see
+   * {@link getMainAppUrlFromBaseDomain}). `undefined` when `BASE_DOMAIN`
+   * isn't set, in which case the "back to app" link is simply omitted.
+   */
+  appUrl?: string;
 }
 
 /**
@@ -36,7 +41,7 @@ interface SettingsShellProps {
  * custom token from that cookie and restore the client session, only
  * clearing the server session and redirecting away if that recovery fails too.
  */
-export function SettingsShell({ children }: SettingsShellProps) {
+export function SettingsShell({ children, appUrl }: SettingsShellProps) {
   const router = useRouter();
   const pathname = usePathname();
   const t = useTranslations();
@@ -44,12 +49,7 @@ export function SettingsShell({ children }: SettingsShellProps) {
   const [loading, setLoading] = useState(true);
   const [accounts, setAccounts] = useState<AccountSummary[]>([]);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
-  const [appUrl, setAppUrl] = useState<string>();
   const [switchingAccount, setSwitchingAccount] = useState(false);
-
-  useEffect(() => {
-    setAppUrl(getMainAppUrl());
-  }, []);
 
   const isLinkingPage = pathname === '/settings/linking';
   const isProfilePage = pathname === '/settings/profile';
