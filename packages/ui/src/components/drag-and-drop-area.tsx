@@ -35,6 +35,10 @@ export interface DragAndDropAreaProps {
  * area's own `id` — no per-area wiring is needed from the caller. A
  * manually set height carries over once an item is dropped in, so the area
  * doesn't collapse back to its content size the moment it becomes `filled`.
+ * The handle's hit target grows under `pointer-coarse` (touch) input, since
+ * the thin line that's precise enough for a mouse is too small to grab
+ * reliably with a finger, and a small grip pill fades in to mark its
+ * position for touch users, who never see the hover state a mouse would.
  */
 export function DragAndDropArea({ id, children, onDrop, className, filled, minHeight = 80 }: DragAndDropAreaProps) {
   const ref = React.useRef<HTMLDivElement>(null);
@@ -96,7 +100,14 @@ export function DragAndDropArea({ id, children, onDrop, className, filled, minHe
       >
         {children}
       </div>
-      {!filled && <div onPointerDown={handleResizePointerDown} className="absolute inset-x-0 bottom-0 h-2 cursor-row-resize touch-none" />}
+      {!filled && (
+        <div
+          onPointerDown={handleResizePointerDown}
+          className="group/resize absolute inset-x-0 bottom-0 flex h-2 cursor-row-resize touch-none items-center justify-center pointer-coarse:h-6"
+        >
+          <div className="h-1 w-8 rounded-full bg-foreground/0 transition-colors duration-200 group-hover/resize:bg-foreground/30 pointer-coarse:bg-foreground/20" />
+        </div>
+      )}
     </div>
   );
 }
