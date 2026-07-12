@@ -4,7 +4,7 @@ import * as schema from '@Hashibutogarasu/db/schema';
 import { sendPasswordResetEmail } from '@Hashibutogarasu/utils/email';
 import { BETTER_AUTH_SESSION_COOKIE_NAME } from '@Hashibutogarasu/utils/constants';
 import { getServerConfig } from '@/lib/config';
-import { bridgeFirebaseSessionForSocialSignIn, provisionFirebaseUser, syncNewUserToNeonAuth, syncProfileToFirebase } from '@/lib/auth/hooks';
+import { provisionFirebaseUser, syncNewUserToNeonAuth, syncProfileToFirebase } from '@/lib/auth/hooks';
 
 /**
  * Shared better-auth configuration (everything except `plugins`), used by
@@ -58,9 +58,6 @@ export const authOptions = {
       },
     },
   },
-  hooks: {
-    after: bridgeFirebaseSessionForSocialSignIn,
-  },
   databaseHooks: {
     user: {
       create: {
@@ -79,12 +76,12 @@ export const authOptions = {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID as string,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-      disableImplicitSignUp: true,
+      disableImplicitSignUp: false,
     },
     github: {
       clientId: process.env.GITHUB_CLIENT_ID as string,
       clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
-      disableImplicitSignUp: true,
+      disableImplicitSignUp: false,
     },
   },
   disabledPaths: ['/token'],

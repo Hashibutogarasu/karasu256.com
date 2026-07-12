@@ -9,17 +9,16 @@ import { authClient } from '@/lib/auth/client';
 type Provider = 'google' | 'github';
 
 /**
- * Renders Google and GitHub sign-in buttons. Delegates the OAuth handshake
- * to better-auth; on success the callback signs in to the linked provider's
- * existing user and, via `bridgeFirebaseSessionForSocialSignIn`, hands off
- * to `/auth/callback` to establish the real Firebase session.
+ * Renders Google and GitHub sign-in buttons. Delegates the entire OAuth
+ * handshake to better-auth, which establishes its own session directly —
+ * `callbackURL` is the final destination, not an intermediate handoff page.
  */
 export function SocialButtons() {
   const [loading, setLoading] = useState<Provider | null>(null);
 
   async function handleSignIn(provider: Provider) {
     setLoading(provider);
-    const { error } = await authClient.signIn.social({ provider, callbackURL: '/auth/callback' });
+    const { error } = await authClient.signIn.social({ provider, callbackURL: '/settings' });
     if (error) setLoading(null);
   }
 
