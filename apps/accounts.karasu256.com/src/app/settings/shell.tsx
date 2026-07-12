@@ -1,11 +1,9 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { signInWithCustomToken } from 'firebase/auth';
 import { usePathname, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { toast } from '@Hashibutogarasu/ui';
-import { getFirebaseAuth } from '@/lib/firebase/auth';
 import { authClient } from '@/lib/auth/client';
 import { listAccounts, switchAccount, removeAccount, type AccountSummary } from '@/lib/api/accounts';
 import { Skeleton, SettingsSidebarLayout, SwitchingAccountOverlay } from '@Hashibutogarasu/ui';
@@ -87,8 +85,7 @@ export function SettingsShell({ children, appUrl }: SettingsShellProps) {
     if (!target) return;
     setSwitchingAccount(true);
     try {
-      const result = await switchAccount(target.sessionToken);
-      await signInWithCustomToken(getFirebaseAuth(), result.customToken);
+      await switchAccount(target.sessionToken);
       await refetch();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : String(err));

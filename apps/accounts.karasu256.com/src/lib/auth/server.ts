@@ -5,7 +5,6 @@ import { jwt } from 'better-auth/plugins/jwt';
 import { multiSession } from 'better-auth/plugins';
 import { nextCookies } from 'better-auth/next-js';
 import { authOptions } from '@/lib/auth/auth-options';
-import { firebaseSessionBridgePlugin } from '@/lib/auth/firebase-bridge-plugin';
 import { getServerConfig } from '@/lib/config';
 
 const { webauthn } = getServerConfig();
@@ -31,7 +30,6 @@ export const auth = betterAuth({
       rpName: webauthn.rpName,
       origin: webauthn.expectedOrigins,
     }),
-    firebaseSessionBridgePlugin(),
     multiSession({ maximumSessions: 5 }),
     nextCookies(),
   ],
