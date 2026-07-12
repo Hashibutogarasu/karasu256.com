@@ -9,16 +9,16 @@ import { authClient } from '@/lib/auth/client';
 type Provider = 'google' | 'github';
 
 /**
- * Renders Google and GitHub sign-in buttons. Delegates the entire OAuth
- * handshake to better-auth, which establishes its own session directly —
- * `callbackURL` is the final destination, not an intermediate handoff page.
+ * Renders Google and GitHub sign-in buttons. Delegates the OAuth handshake
+ * to better-auth, which establishes its own session directly; `/auth/callback`
+ * confirms the session landed before continuing to the settings page.
  */
 export function SocialButtons() {
   const [loading, setLoading] = useState<Provider | null>(null);
 
   async function handleSignIn(provider: Provider) {
     setLoading(provider);
-    const { error } = await authClient.signIn.social({ provider, callbackURL: '/settings' });
+    const { error } = await authClient.signIn.social({ provider, callbackURL: '/auth/callback' });
     if (error) setLoading(null);
   }
 
