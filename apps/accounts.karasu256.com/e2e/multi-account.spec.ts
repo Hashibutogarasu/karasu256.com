@@ -80,14 +80,14 @@ test.describe('multi-account switching', () => {
 
   test('creates a test account and signs in', async ({ page }) => {
     await signInViaUi(page, accountA);
-    await expect(sidebarFooter(page).getByText(accountA.email)).toBeVisible();
+    await expect(sidebarFooter(page).getByText(accountA.email).first()).toBeVisible();
   });
 
   test('adds a second account and switches between them', async ({ page }) => {
     await signInViaUi(page, accountA);
-    await expect(sidebarFooter(page).getByText(accountA.email)).toBeVisible();
+    await expect(sidebarFooter(page).getByText(accountA.email).first()).toBeVisible();
 
-    await sidebarFooter(page).getByText(accountA.email).click();
+    await sidebarFooter(page).getByText(accountA.email).first().click();
     await page.getByText('別のアカウントを追加').click();
 
     const dialog = page.getByRole('dialog');
@@ -96,7 +96,7 @@ test.describe('multi-account switching', () => {
     await dialog.getByRole('button', { name: 'サインイン', exact: true }).click();
     await expect(dialog).not.toBeAttached({ timeout: 15000 });
 
-    await sidebarFooter(page).getByText(accountA.email).click();
+    await sidebarFooter(page).getByText(accountA.email).first().click();
     await expect(page.getByText(accountB.email).first()).toBeVisible();
     await page.getByText(accountB.email).first().click();
 
