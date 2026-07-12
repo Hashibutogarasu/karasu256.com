@@ -1,11 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { onAuthStateChanged } from 'firebase/auth';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { getFirebaseAuth } from '@/lib/firebase/auth';
-import { createSession } from '@/lib/api/auth-session';
+import { authClient } from '@/lib/auth/client';
 import { Container, CardContent, CardHeader } from '@Hashibutogarasu/ui';
 import { Separator } from '@Hashibutogarasu/ui';
 import { Skeleton } from '@Hashibutogarasu/ui';
@@ -14,38 +12,21 @@ import { PasskeySection } from './passkey-section';
 import { SocialButtons } from './social-buttons';
 
 /**
- * Sign-in card for unauthenticated users.
- *
- * On Firebase auth state change to a signed-in user:
- * 1. Creates a Firebase session cookie via {@link createSession}.
- * 2. Redirects to `/settings`.
+ * Sign-in card for unauthenticated users. Redirects to `/settings` once a
+ * better-auth session exists — `proxy.ts` normally does this at the edge
+ * first, so this mainly covers the moment right after one of the sign-in
+ * forms below establishes a session client-side.
  */
 export function SignInCard() {
   const router = useRouter();
   const t = useTranslations();
-  const [loading, setLoading] = useState(true);
+  const { data: session, isPending } = authClient.useSession();
 
   useEffect(() => {
-    let redirecting = false;
-    return onAuthStateChanged(getFirebaseAuth(), async (user) => {
-      if (!user) {
-        setLoading(false);
-        return;
-      }
-      if (redirecting) return;
-      redirecting = true;
-      try {
-        const idToken = await user.getIdToken();
-        await createSession(idToken);
-        router.replace('/settings');
-      } catch {
-        redirecting = false;
-        setLoading(false);
-      }
-    });
-  }, [router]);
+    if (session) router.replace('/settings');
+  }, [session, router]);
 
-  if (loading) {
+  if (isPending || session) {
     return (
       <Container className="max-w-sm">
         <CardHeader>

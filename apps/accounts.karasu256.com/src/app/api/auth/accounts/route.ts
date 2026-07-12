@@ -41,11 +41,8 @@ async function getFirebaseUsersByUid(uids: string[]): Promise<Map<string, Fireba
  * session list, cross-referenced with the encrypted Firebase session cookie
  * stored on each bridged session row.
  *
- * `activeUid` is computed from the live Firebase `SESSION_COOKIE_NAME`
- * cookie (the real source of truth for "who is logged in"), not from
- * better-auth's own active-session pointer — the two can drift (see
- * `firebase-bridge-plugin.ts`'s docstring), so trusting Firebase's cookie
- * here avoids surfacing that drift to the UI.
+ * `activeUid` is `getSessionUser()`'s id — the better-auth session behind
+ * the live session cookie (the real source of truth for "who is logged in").
  *
  * GET /api/auth/accounts
  */
@@ -85,7 +82,7 @@ async function handleGET(request: NextRequest) {
   });
 
   const activeUser = await getSessionUser();
-  return NextResponse.json({ activeUid: activeUser?.uid ?? null, accounts });
+  return NextResponse.json({ activeUid: activeUser?.id ?? null, accounts });
 }
 
 export const GET = withCors(handleGET);

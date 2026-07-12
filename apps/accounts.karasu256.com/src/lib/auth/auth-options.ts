@@ -4,7 +4,7 @@ import * as schema from '@Hashibutogarasu/db/schema';
 import { sendPasswordResetEmail } from '@Hashibutogarasu/utils/email';
 import { BETTER_AUTH_SESSION_COOKIE_NAME } from '@Hashibutogarasu/utils/constants';
 import { getServerConfig } from '@/lib/config';
-import { provisionFirebaseUser, syncNewUserToNeonAuth, syncProfileToFirebase } from '@/lib/auth/hooks';
+import { deleteFirebaseUser, provisionFirebaseUser, syncNewUserToNeonAuth, syncProfileToFirebase } from '@/lib/auth/hooks';
 
 /**
  * Shared better-auth configuration (everything except `plugins`), used by
@@ -67,6 +67,12 @@ export const authOptions = {
       update: {
         after: syncProfileToFirebase,
       },
+    },
+  },
+  user: {
+    deleteUser: {
+      enabled: true,
+      afterDelete: deleteFirebaseUser,
     },
   },
   onAPIError: {

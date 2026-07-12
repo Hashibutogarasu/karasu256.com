@@ -37,3 +37,8 @@ export async function provisionFirebaseUser(user: User): Promise<{ data: User }>
 export async function syncNewUserToNeonAuth(user: User): Promise<void> {
   await syncFirebaseUserToNeonAuth({ uid: user.id, email: user.email, name: user.name });
 }
+
+/** Removes the backing Firebase user once better-auth has deleted its own row (mirrors {@link provisionFirebaseUser}). */
+export async function deleteFirebaseUser(user: User): Promise<void> {
+  await getAdminAuth().deleteUser(user.id);
+}

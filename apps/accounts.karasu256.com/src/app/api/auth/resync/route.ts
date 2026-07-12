@@ -23,6 +23,6 @@ export async function POST() {
     return NextResponse.json({ error: 'No active session' }, { status: 401 });
   }
 
-  const customToken = await getAdminAuth().createCustomToken(sessionUser.uid);
+  const customToken = await getAdminAuth().createCustomToken(sessionUser.id);
   return NextResponse.json({ customToken });
 }

@@ -2,15 +2,13 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { onAuthStateChanged, type User } from 'firebase/auth';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLink, faLinkSlash } from '@fortawesome/free-solid-svg-icons';
 import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { useTranslations } from 'next-intl';
 import { toast, SettingsAccordion, SettingsItem, Spinner } from '@Hashibutogarasu/ui';
 import { unlinkProvider } from '@Hashibutogarasu/utils/client';
-import { getFirebaseAuth } from '@/lib/firebase/auth';
-import { authClient, bridgeFirebaseSession } from '@/lib/auth/client';
+import { authClient } from '@/lib/auth/client';
 import { Button } from '@Hashibutogarasu/ui';
 
 export interface Provider {
@@ -27,31 +25,22 @@ interface ProviderSectionProps {
 /**
  * Displays linked OAuth providers with link/unlink controls.
  *
- * Linking first calls the Firebase session bridge (`/api/auth/firebase-bridge`)
- * to establish a better-auth session for the current Firebase user, then
- * hands off to `authClient.linkSocial`, which drives the OAuth handshake.
- * Unlinking removes the entry from `packages/db`'s `accounts` table without
- * touching Firebase Auth.
- * Unlinking the last provider is blocked when the user has no registered passkeys.
+ * Linking hands off directly to `authClient.linkSocial`, which drives the
+ * OAuth handshake against the browser's own better-auth session. Unlinking
+ * removes the entry from `packages/db`'s `accounts` table.
+ * Unlinking the last provider is blocked when the user has no registered
+ * passkeys and no `credential` (email/password) account.
  */
 export function ProviderSection({ providers, initialProviders }: ProviderSectionProps) {
   const t = useTranslations();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [authUser, setAuthUser] = useState<User | null>(null);
-  const [loadingAuth, setLoadingAuth] = useState(true);
   const [linked, setLinked] = useState<string[]>(initialProviders);
   const [loading, setLoading] = useState<string | null>(null);
   const [hasPasskeys, setHasPasskeys] = useState(false);
+  const [passkeysLoaded, setPasskeysLoaded] = useState(false);
   const handledParamsRef = useRef<string | null>(null);
-
-  useEffect(() => {
-    return onAuthStateChanged(getFirebaseAuth(), (user) => {
-      setAuthUser(user);
-      setLoadingAuth(false);
-    });
-  }, []);
 
   useEffect(() => {
     const paramsKey = searchParams.toString();
@@ -74,18 +63,18 @@ export function ProviderSection({ providers, initialProviders }: ProviderSection
     void authClient.passkey
       .listUserPasskeys()
       .then(({ data }) => setHasPasskeys((data?.length ?? 0) > 0))
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setPasskeysLoaded(true));
   }, []);
 
-  const dataReady = !loadingAuth;
+  const dataReady = passkeysLoaded;
   const linkedIds = new Set(linked);
-  const hasPasswordProvider = (authUser?.providerData ?? []).some((p) => p.providerId === 'password');
+  const hasPasswordProvider = linked.includes('credential');
   const canUnlink = linked.length > 1 || hasPasskeys || hasPasswordProvider;
 
   async function handleLink(providerId: string) {
     setLoading(providerId);
     try {
-      await bridgeFirebaseSession();
       const { error } = await authClient.linkSocial({
         provider: providerId,
         callbackURL: '/settings/linking',

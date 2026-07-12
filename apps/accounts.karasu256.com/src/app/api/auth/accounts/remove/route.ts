@@ -33,7 +33,7 @@ async function handlePOST(request: NextRequest) {
   }
 
   const activeUser = await getSessionUser();
-  const wasActive = activeUser?.uid === target.user.id;
+  const wasActive = activeUser?.id === target.user.id;
 
   const revokeResponse = await auth.api.revokeDeviceSession({
     headers: request.headers,

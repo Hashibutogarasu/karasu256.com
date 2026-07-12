@@ -12,7 +12,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
   if (error) return error;
 
   const { providerId } = await params;
-  const profile = await getProviderProfile(user.uid, providerId);
+  const profile = await getProviderProfile(user.id, providerId);
   if (!profile) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
   }
