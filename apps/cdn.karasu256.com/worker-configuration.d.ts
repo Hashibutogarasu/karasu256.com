@@ -4,8 +4,8 @@
 interface __BaseEnv_Env {
   RATE_LIMIT_KV: KVNamespace;
   IMAGES: R2Bucket;
-  FIREBASE_PROJECT_ID: 'karasu-lab-application';
   CDN_BASE_URL: 'http://localhost:8788' | 'https://cdn.karasu256.com';
+  ACCOUNTS_URL: 'http://localhost:3001' | 'https://accounts.karasu256.com';
 }
 declare namespace Cloudflare {
   interface GlobalProps {
@@ -14,8 +14,8 @@ declare namespace Cloudflare {
   interface DevEnv {
     RATE_LIMIT_KV: KVNamespace;
     IMAGES: R2Bucket;
-    FIREBASE_PROJECT_ID: 'karasu-lab-application';
     CDN_BASE_URL: 'http://localhost:8788';
+    ACCOUNTS_URL: 'http://localhost:3001';
   }
   interface Env extends __BaseEnv_Env {}
 }

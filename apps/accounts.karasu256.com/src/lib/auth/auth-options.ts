@@ -1,7 +1,8 @@
 import { drizzleAdapter } from '@better-auth/drizzle-adapter';
 import { getDb } from '@Hashibutogarasu/db/client';
 import * as schema from '@Hashibutogarasu/db/schema';
-import { bridgeFirebaseSessionForSocialSignIn, syncProfileImageToFirebase } from '@/lib/auth/hooks';
+import { BETTER_AUTH_SESSION_COOKIE_NAME } from '@Hashibutogarasu/utils/constants';
+import { bridgeFirebaseSessionForSocialSignIn, syncProfileToFirebase } from '@/lib/auth/hooks';
 
 /**
  * Shared better-auth configuration (everything except `plugins`), used by
@@ -41,6 +42,11 @@ export const authOptions = {
       enabled: true,
       domain: process.env.BASE_DOMAIN,
     },
+    cookies: {
+      session_token: {
+        name: BETTER_AUTH_SESSION_COOKIE_NAME,
+      },
+    },
   },
   hooks: {
     after: bridgeFirebaseSessionForSocialSignIn,
@@ -48,7 +54,7 @@ export const authOptions = {
   databaseHooks: {
     user: {
       update: {
-        after: syncProfileImageToFirebase,
+        after: syncProfileToFirebase,
       },
     },
   },

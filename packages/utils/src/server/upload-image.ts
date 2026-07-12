@@ -1,9 +1,9 @@
-import { SESSION_COOKIE_NAME } from '../constants/session';
+import { BETTER_AUTH_SESSION_COOKIE_NAME } from '../constants/session';
 
 export interface UploadImageOptions {
   /** Base URL of the image API, e.g. `https://cdn.karasu256.com`. */
   imageApiUrl: string;
-  /** Raw value of the caller's session cookie, forwarded to authenticate the upload. */
+  /** Raw value of the caller's better-auth session cookie, forwarded to authenticate the upload. */
   sessionCookie: string;
   /** Explicit storage key (e.g. `users/{uid}/avatar.png`). When omitted, the server generates one. */
   path?: string;
@@ -23,7 +23,7 @@ export async function uploadImage(file: File, options: UploadImageOptions): Prom
   const res = await fetch(`${options.imageApiUrl}/upload`, {
     method: 'POST',
     body: form,
-    headers: { Cookie: `${SESSION_COOKIE_NAME}=${options.sessionCookie}` },
+    headers: { Cookie: `${BETTER_AUTH_SESSION_COOKIE_NAME}=${options.sessionCookie}` },
   });
 
   if (!res.ok) {

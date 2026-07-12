@@ -1,9 +1,9 @@
-import { SESSION_COOKIE_NAME } from '../constants/session';
+import { BETTER_AUTH_SESSION_COOKIE_NAME } from '../constants/session';
 
 export interface DeleteUploadedImageOptions {
   /** Base URL of the image API, e.g. `https://cdn.karasu256.com`. */
   imageApiUrl: string;
-  /** Raw value of the caller's session cookie, forwarded to authenticate the delete. */
+  /** Raw value of the caller's better-auth session cookie, forwarded to authenticate the delete. */
   sessionCookie: string;
 }
 
@@ -27,7 +27,7 @@ export async function deleteUploadedImage(iconUrl: string | null, options: Delet
 
     await fetch(`${options.imageApiUrl}/${key}`, {
       method: 'DELETE',
-      headers: { Cookie: `${SESSION_COOKIE_NAME}=${options.sessionCookie}` },
+      headers: { Cookie: `${BETTER_AUTH_SESSION_COOKIE_NAME}=${options.sessionCookie}` },
     });
   } catch {
     return;

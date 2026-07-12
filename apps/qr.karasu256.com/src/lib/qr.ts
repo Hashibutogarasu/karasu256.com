@@ -4,7 +4,13 @@ import { cookies } from 'next/headers';
 import { createId } from '@paralleldrive/cuid2';
 import QRCode from 'qrcode';
 import { useRedis } from '@Hashibutogarasu/ui/redis';
-import { SESSION_COOKIE_NAME, deleteUploadedImage, getSessionUser, uploadImage, uploadImageAnonymous } from '@Hashibutogarasu/utils/server';
+import {
+  BETTER_AUTH_SESSION_COOKIE_NAME,
+  deleteUploadedImage,
+  getSessionUser,
+  uploadImage,
+  uploadImageAnonymous,
+} from '@Hashibutogarasu/utils/server';
 
 const QR_IMAGE_WIDTH = 512;
 const CACHE_TTL_SECONDS = 60 * 60 * 24;
@@ -32,12 +38,12 @@ async function writeCachedQr(uid: string | null, qr: CachedQr): Promise<void> {
   await useRedis(process.env.REDIS_URL).set(redisKeyFor(uid), JSON.stringify(qr), CACHE_TTL_SECONDS);
 }
 
-/** Reads the caller's Firebase uid and raw session cookie, or nulls when signed out. */
+/** Reads the caller's uid and raw better-auth session cookie, or nulls when signed out. */
 async function resolveSession(): Promise<{ uid: string | null; sessionCookie: string | null }> {
   const sessionUser = await getSessionUser();
   if (!sessionUser) return { uid: null, sessionCookie: null };
 
-  const sessionCookie = (await cookies()).get(SESSION_COOKIE_NAME)?.value ?? null;
+  const sessionCookie = (await cookies()).get(BETTER_AUTH_SESSION_COOKIE_NAME)?.value ?? null;
   return { uid: sessionUser.uid, sessionCookie };
 }
 
