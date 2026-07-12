@@ -1,6 +1,3 @@
-/** Name of the Firebase session cookie shared across (sub)domains. */
-export const SESSION_COOKIE_NAME = 'session';
-
 /**
  * Name of the better-auth session cookie shared across (sub)domains. Fixed
  * explicitly (see `advanced.cookies.session_token.name` in

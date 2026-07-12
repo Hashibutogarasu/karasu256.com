@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import { getSessionCookie } from 'better-auth/cookies';
-import { SESSION_COOKIE_NAME } from '@Hashibutogarasu/utils/constants';
+import { SECURE_COOKIE_PREFIX } from 'better-auth/cookies';
+import { BETTER_AUTH_SESSION_COOKIE_NAME } from '@Hashibutogarasu/utils/constants';
 import { firebaseConfigSchema } from '@/lib/firebase/schema';
 
 /**
@@ -9,10 +9,13 @@ import { firebaseConfigSchema } from '@/lib/firebase/schema';
  * 2. Redirects unauthenticated requests away from /settings.
  * 3. Redirects authenticated requests away from the sign-in root (/).
  *
- * A request counts as authenticated if either the legacy Firebase session
- * cookie or the better-auth session cookie is present, since sign-in flows
- * that no longer bridge to a Firebase session (email/password, passkey,
- * social) only ever set the latter.
+ * A request counts as authenticated if the better-auth session cookie is
+ * present. Checked directly by name rather than via better-auth/cookies'
+ * `getSessionCookie()` helper: that helper only knows how to look up
+ * `<prefix>.session_token`-style names, but this app overrides
+ * `advanced.cookies.session_token.name` to a flat custom name
+ * (`BETTER_AUTH_SESSION_COOKIE_NAME`) with no such prefix — `getSessionCookie()`
+ * can't be configured to match it, so it always returns null here.
  *
  * Cookie verification (signature + expiry) is intentionally skipped here because
  * the Firebase Admin SDK is not Edge-runtime compatible. Full verification is
@@ -38,7 +41,9 @@ export function proxy(request: NextRequest): NextResponse {
   }
 
   const { pathname } = request.nextUrl;
-  const hasSession = Boolean(request.cookies.get(SESSION_COOKIE_NAME)?.value) || Boolean(getSessionCookie(request));
+  const hasSession =
+    Boolean(request.cookies.get(`${SECURE_COOKIE_PREFIX}${BETTER_AUTH_SESSION_COOKIE_NAME}`)?.value) ||
+    Boolean(request.cookies.get(BETTER_AUTH_SESSION_COOKIE_NAME)?.value);
 
   if (hasSession && pathname === '/') {
     return NextResponse.redirect(new URL('/settings', request.url));
