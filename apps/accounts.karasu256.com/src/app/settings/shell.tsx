@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { toast } from '@Hashibutogarasu/ui';
 import { getFirebaseAuth } from '@/lib/firebase/auth';
 import { clearSession, resyncSession } from '@/lib/api/auth-session';
+import { authClient } from '@/lib/auth/client';
 import { listAccounts, switchAccount, removeAccount, type AccountSummary } from '@/lib/api/accounts';
 import { Skeleton, SettingsSidebarLayout, SwitchingAccountOverlay } from '@Hashibutogarasu/ui';
 import { SettingsSidebar } from '@/components/settings/settings-sidebar';
@@ -100,6 +101,7 @@ export function SettingsShell({ children, appUrl }: SettingsShellProps) {
   }, []);
 
   async function handleSignOut() {
+    await authClient.signOut();
     await clearSession();
     await signOut(getFirebaseAuth());
   }

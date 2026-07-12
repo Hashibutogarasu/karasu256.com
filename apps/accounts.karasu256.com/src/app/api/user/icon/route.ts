@@ -6,7 +6,7 @@ import { getAdminAuth } from '@/lib/firebase-admin';
 import { getProviderProfile } from '@/lib/auth/provider-profile';
 import { requireSession } from '@/lib/api/require-session';
 import { badRequest } from '@/lib/api/responses';
-import { SESSION_COOKIE_NAME } from '@Hashibutogarasu/utils/constants';
+import { BETTER_AUTH_SESSION_COOKIE_NAME } from '@Hashibutogarasu/utils/constants';
 
 const putBodySchema = z.object({ providerId: z.string().min(1) });
 
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
   const file = incoming.get('file');
   if (!(file instanceof File)) return badRequest();
 
-  const sessionCookie = (await cookies()).get(SESSION_COOKIE_NAME)?.value;
+  const sessionCookie = (await cookies()).get(BETTER_AUTH_SESSION_COOKIE_NAME)?.value;
   if (!sessionCookie) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const result = await uploadImage(file, {
@@ -84,7 +84,7 @@ export async function PUT(request: NextRequest) {
   }
 
   const imageApiUrl = process.env.NEXT_PUBLIC_IMAGE_API_URL;
-  const sessionCookie = (await cookies()).get(SESSION_COOKIE_NAME)?.value;
+  const sessionCookie = (await cookies()).get(BETTER_AUTH_SESSION_COOKIE_NAME)?.value;
 
   const previous = await getAdminAuth().getUser(user.uid);
   await getAdminAuth().updateUser(user.uid, { photoURL: profile.avatarUrl });
@@ -104,7 +104,7 @@ export async function DELETE() {
   if (error) return error;
 
   const imageApiUrl = process.env.NEXT_PUBLIC_IMAGE_API_URL;
-  const sessionCookie = (await cookies()).get(SESSION_COOKIE_NAME)?.value;
+  const sessionCookie = (await cookies()).get(BETTER_AUTH_SESSION_COOKIE_NAME)?.value;
 
   const previous = await getAdminAuth().getUser(user.uid);
   await getAdminAuth().updateUser(user.uid, { photoURL: null });

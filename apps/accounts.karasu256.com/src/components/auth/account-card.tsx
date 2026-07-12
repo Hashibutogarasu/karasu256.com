@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
 import { getFirebaseAuth } from '@/lib/firebase/auth';
 import { clearSession, resyncSession } from '@/lib/api/auth-session';
+import { authClient } from '@/lib/auth/client';
 import { Button } from '@Hashibutogarasu/ui';
 import { Card, CardContent, CardHeader, CardTitle } from '@Hashibutogarasu/ui';
 import { Identicon } from '@Hashibutogarasu/ui';
@@ -54,6 +55,7 @@ export function AccountCard() {
   }, [router]);
 
   async function handleSignOut() {
+    await authClient.signOut();
     await clearSession();
     await signOut(getFirebaseAuth());
   }

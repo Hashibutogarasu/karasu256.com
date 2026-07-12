@@ -5,6 +5,7 @@ import { updateProfile } from 'firebase/auth';
 import { useTranslations } from 'next-intl';
 import { toast } from '@Hashibutogarasu/ui';
 import { getFirebaseAuth } from '@/lib/firebase/auth';
+import { authClient } from '@/lib/auth/client';
 import { useSettingsUser } from '@/components/settings/user-context';
 import { Button } from '@Hashibutogarasu/ui';
 import { Input } from '@Hashibutogarasu/ui';
@@ -22,10 +23,16 @@ export function ProfileSection() {
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
-    const currentUser = getFirebaseAuth().currentUser;
-    if (!currentUser) return;
     try {
-      await updateProfile(currentUser, { displayName });
+      // better-auth's `user` row is the source of truth; the server-side
+      // `syncProfileToFirebase` hook mirrors it onto Firebase. `updateProfile`
+      // below just refreshes the browser's own Firebase Auth state so
+      // Firebase-derived UI reflects the change immediately too.
+      await authClient.updateUser({ name: displayName });
+      const currentUser = getFirebaseAuth().currentUser;
+      if (currentUser) {
+        await updateProfile(currentUser, { displayName });
+      }
       updateUser({ displayName });
       toast.success(t('profile.saved'), { autoClose: true });
     } catch (err) {

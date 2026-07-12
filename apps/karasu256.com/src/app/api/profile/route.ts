@@ -4,7 +4,6 @@ import { z } from 'zod';
 import { getDb } from '@Hashibutogarasu/db';
 import { users } from '@Hashibutogarasu/db/schema';
 import { APIKeyRoute, OauthAppRoute, Read, Write } from '@/lib/api/route-auth';
-import { getAdminAuth } from '@Hashibutogarasu/utils/server';
 
 const patchBodySchema = z.object({ name: z.string().nullable() });
 
@@ -20,16 +19,7 @@ export const GET = APIKeyRoute()(
 
       if (!user) return NextResponse.json({ error: 'not_found' }, { status: 404 });
 
-      let { name } = user;
-      if (name === null) {
-        const firebaseUser = await getAdminAuth().getUser(user.id);
-        name = firebaseUser.displayName ?? null;
-        if (name !== null) {
-          await db.update(users).set({ name, updatedAt: new Date() }).where(eq(users.id, user.id));
-        }
-      }
-
-      return NextResponse.json({ id: user.id, name });
+      return NextResponse.json({ id: user.id, name: user.name });
     })
   )
 );

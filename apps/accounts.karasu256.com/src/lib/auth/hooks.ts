@@ -48,13 +48,18 @@ export const bridgeFirebaseSessionForSocialSignIn = createAuthMiddleware(async (
 });
 
 /**
- * Firebase's own user record is the single source of truth for the site's
- * profile photo — never a value cached in better-auth's own tables. When
- * `account.accountLinking.updateUserInfoOnLink` copies a newly linked
- * provider's avatar into better-auth's `user.image` field, mirror it onto
- * the Firebase user immediately so `photoURL` reflects it everywhere.
+ * better-auth's `user` row (name/image) is now the source of truth for
+ * profile edits — see `profile-section.tsx`, which calls
+ * `authClient.updateUser()` instead of writing to Firebase directly. Mirror
+ * both fields onto the Firebase user immediately after any update (from the
+ * profile form, or `account.accountLinking.updateUserInfoOnLink` copying a
+ * newly linked provider's avatar) so Firebase — kept only for backing ID/auth
+ * concerns — still reflects the current name and photo.
  */
-export async function syncProfileImageToFirebase(user: User & { image?: string | null }): Promise<void> {
-  if (!user.image) return;
-  await getAdminAuth().updateUser(user.id, { photoURL: user.image });
+export async function syncProfileToFirebase(user: User & { name?: string | null; image?: string | null }): Promise<void> {
+  const update: { displayName?: string; photoURL?: string } = {};
+  if (user.name) update.displayName = user.name;
+  if (user.image) update.photoURL = user.image;
+  if (Object.keys(update).length === 0) return;
+  await getAdminAuth().updateUser(user.id, update);
 }
