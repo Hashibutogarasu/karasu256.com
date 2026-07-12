@@ -1,1 +1,1 @@
-export { SESSION_COOKIE_NAME, BETTER_AUTH_SESSION_COOKIE_NAME } from './session';
+export { SESSION_COOKIE_NAME } from './session';
