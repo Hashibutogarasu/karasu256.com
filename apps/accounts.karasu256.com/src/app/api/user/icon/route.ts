@@ -6,7 +6,7 @@ import { getAdminAuth } from '@/lib/firebase-admin';
 import { getProviderProfile } from '@/lib/auth/provider-profile';
 import { requireSession } from '@/lib/api/require-session';
 import { badRequest } from '@/lib/api/responses';
-import { SESSION_COOKIE_NAME } from '@/lib/session';
+import { SESSION_COOKIE_NAME } from '@Hashibutogarasu/utils/constants';
 
 const putBodySchema = z.object({ providerId: z.string().min(1) });
 

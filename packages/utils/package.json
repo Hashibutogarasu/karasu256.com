@@ -7,7 +7,8 @@
     "./server/sign-out": "./src/server/sign-out.ts",
     "./email": "./src/email/index.ts",
     "./client": "./src/client/index.ts",
-    "./validation": "./src/validation/index.ts"
+    "./validation": "./src/validation/index.ts",
+    "./constants": "./src/constants/index.ts"
   },
   "dependencies": {
     "@better-auth/oauth-provider": "^1.6.23",

@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server';
+import { SESSION_COOKIE_NAME } from '@Hashibutogarasu/utils/constants';
 import { firebaseConfigSchema } from '@/lib/firebase/schema';
 
 /**
@@ -31,7 +32,7 @@ export function proxy(request: NextRequest): NextResponse {
   }
 
   const { pathname } = request.nextUrl;
-  const hasSession = Boolean(request.cookies.get('session')?.value);
+  const hasSession = Boolean(request.cookies.get(SESSION_COOKIE_NAME)?.value);
 
   if (hasSession && pathname === '/') {
     return NextResponse.redirect(new URL('/settings', request.url));

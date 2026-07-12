@@ -3,7 +3,7 @@ import { createAuthEndpoint } from 'better-auth/api';
 import { setSessionCookie, parseCookies } from 'better-auth/cookies';
 import type { GenericEndpointContext } from '@better-auth/core';
 import { getAdminAuth } from '@/lib/firebase-admin';
-import { SESSION_COOKIE_NAME } from '@/lib/session';
+import { SESSION_COOKIE_NAME } from '@Hashibutogarasu/utils/constants';
 import { getDb, sessions } from '@Hashibutogarasu/db';
 import { eq } from 'drizzle-orm';
 import { encryptFirebaseCookie } from '@/lib/auth/firebase-cookie-crypto';
