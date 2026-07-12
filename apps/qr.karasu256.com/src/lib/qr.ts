@@ -1,16 +1,10 @@
 import 'server-only';
 
-import { cookies } from 'next/headers';
+import { headers } from 'next/headers';
 import { createId } from '@paralleldrive/cuid2';
 import QRCode from 'qrcode';
 import { useRedis } from '@Hashibutogarasu/ui/redis';
-import {
-  BETTER_AUTH_SESSION_COOKIE_NAME,
-  deleteUploadedImage,
-  getSessionUser,
-  uploadImage,
-  uploadImageAnonymous,
-} from '@Hashibutogarasu/utils/server';
+import { deleteUploadedImage, getSessionUser, uploadImage, uploadImageAnonymous } from '@Hashibutogarasu/utils/server';
 
 const QR_IMAGE_WIDTH = 512;
 const CACHE_TTL_SECONDS = 60 * 60 * 24;
@@ -38,21 +32,21 @@ async function writeCachedQr(uid: string | null, qr: CachedQr): Promise<void> {
   await useRedis(process.env.REDIS_URL).set(redisKeyFor(uid), JSON.stringify(qr), CACHE_TTL_SECONDS);
 }
 
-/** Reads the caller's uid and raw better-auth session cookie, or nulls when signed out. */
-async function resolveSession(): Promise<{ uid: string | null; sessionCookie: string | null }> {
+/** Reads the caller's uid and raw `Cookie` request header, or nulls when signed out. */
+async function resolveSession(): Promise<{ uid: string | null; cookieHeader: string | null }> {
   const sessionUser = await getSessionUser();
-  if (!sessionUser) return { uid: null, sessionCookie: null };
+  if (!sessionUser) return { uid: null, cookieHeader: null };
 
-  const sessionCookie = (await cookies()).get(BETTER_AUTH_SESSION_COOKIE_NAME)?.value ?? null;
-  return { uid: sessionUser.uid, sessionCookie };
+  const cookieHeader = (await headers()).get('cookie');
+  return { uid: sessionUser.uid, cookieHeader };
 }
 
-async function uploadForUser(buffer: Buffer, uid: string, sessionCookie: string): Promise<{ path: string; url: string }> {
+async function uploadForUser(buffer: Buffer, uid: string, cookieHeader: string): Promise<{ path: string; url: string }> {
   const path = `qr/${uid}/${Date.now()}.png`;
   const file = new File([Uint8Array.from(buffer)], 'qr.png', { type: 'image/png' });
   const result = await uploadImage(file, {
     imageApiUrl: process.env.NEXT_PUBLIC_IMAGE_API_URL!,
-    sessionCookie,
+    cookieHeader,
     path,
   });
   if (!result.ok) throw new Error(`Failed to upload QR image: ${result.error ?? result.status}`);
@@ -78,22 +72,22 @@ async function uploadAnonymous(buffer: Buffer): Promise<{ path: string; url: str
  * previous R2 object; anonymous uploads have no delete credentials and are
  * left for R2 lifecycle rules to expire.
  */
-async function generateAndCacheQr(uid: string | null, sessionCookie: string | null, content: string = createId()): Promise<QrData> {
+async function generateAndCacheQr(uid: string | null, cookieHeader: string | null, content: string = createId()): Promise<QrData> {
   const buffer = await QRCode.toBuffer(content, { type: 'png', width: QR_IMAGE_WIDTH });
 
   const [previous, { path, url }] = await Promise.all([
     uid ? readCachedQr(uid) : null,
-    uid && sessionCookie ? uploadForUser(buffer, uid, sessionCookie) : uploadAnonymous(buffer),
+    uid && cookieHeader ? uploadForUser(buffer, uid, cookieHeader) : uploadAnonymous(buffer),
   ]);
 
   const qr: CachedQr = { content, path, url, createdAt: new Date().toISOString() };
 
   await Promise.all([
     writeCachedQr(uid, qr),
-    uid && sessionCookie && previous
+    uid && cookieHeader && previous
       ? deleteUploadedImage(previous.url, {
           imageApiUrl: process.env.NEXT_PUBLIC_IMAGE_API_URL!,
-          sessionCookie,
+          cookieHeader,
         })
       : null,
   ]);
@@ -103,10 +97,10 @@ async function generateAndCacheQr(uid: string | null, sessionCookie: string | nu
 
 /** Returns the cached QR for the current caller if present, generating and caching a new one otherwise. */
 export async function getOrCreateQr(): Promise<QrData> {
-  const { uid, sessionCookie } = await resolveSession();
+  const { uid, cookieHeader } = await resolveSession();
   const cached = await readCachedQr(uid);
   if (cached) return { content: cached.content, url: cached.url, createdAt: cached.createdAt };
-  return generateAndCacheQr(uid, sessionCookie);
+  return generateAndCacheQr(uid, cookieHeader);
 }
 
 /**
@@ -115,6 +109,6 @@ export async function getOrCreateQr(): Promise<QrData> {
  * that same `content` so the server-side image encodes identical data.
  */
 export async function regenerateQr(content?: string): Promise<QrData> {
-  const { uid, sessionCookie } = await resolveSession();
-  return generateAndCacheQr(uid, sessionCookie, content);
+  const { uid, cookieHeader } = await resolveSession();
+  return generateAndCacheQr(uid, cookieHeader, content);
 }
