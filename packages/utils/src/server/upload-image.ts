@@ -1,4 +1,4 @@
-import { SESSION_COOKIE_NAME } from './session-cookie';
+import { SESSION_COOKIE_NAME } from '../constants/session';
 
 export interface UploadImageOptions {
   /** Base URL of the image API, e.g. `https://cdn.karasu256.com`. */

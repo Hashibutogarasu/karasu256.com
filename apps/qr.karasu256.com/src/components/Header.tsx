@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { Header as UiHeader, AccountMenu, type CountryCode } from '@Hashibutogarasu/ui';
-import { getFirebaseUserProfile, getSessionUser, signOutAction, setLocaleAction } from '@Hashibutogarasu/utils/server';
+import { getFirebaseUserProfile, getSessionUser, getRootDomainUrl, signOutAction, setLocaleAction } from '@Hashibutogarasu/utils/server';
 import { locales } from '@/i18n/locales';
 
 const localeLabels: Record<(typeof locales)[number], { label: string; countryCode: CountryCode }> = {
@@ -20,7 +20,7 @@ const Header = async () => {
   const sessionUser = await getSessionUser();
   const { displayName, photoURL: iconUrl } = await getFirebaseUserProfile(sessionUser?.uid);
   const accountsUrl = process.env.NEXT_PUBLIC_ACCOUNTS_URL;
-  const rootUrl = process.env.NEXT_PUBLIC_ROOT_URL;
+  const rootUrl = await getRootDomainUrl();
   const t = await getTranslations('header');
   const currentLocale = await getLocale();
 

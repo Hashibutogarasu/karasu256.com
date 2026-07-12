@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
-import { getMainAppUrlFromRootDomain } from '@/lib/get-main-app-url';
+import { getRootDomainUrl } from '@Hashibutogarasu/utils/server';
 import { SettingsShell } from './shell';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -16,6 +16,6 @@ export async function generateMetadata(): Promise<Metadata> {
  * (`dev.accounts.karasu256.com`) to the production root domain instead of
  * the sibling preview app.
  */
-export default function SettingsLayout({ children }: { children: React.ReactNode }) {
-  return <SettingsShell appUrl={getMainAppUrlFromRootDomain()}>{children}</SettingsShell>;
+export default async function SettingsLayout({ children }: { children: React.ReactNode }) {
+  return <SettingsShell appUrl={await getRootDomainUrl()}>{children}</SettingsShell>;
 }

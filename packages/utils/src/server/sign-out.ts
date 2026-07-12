@@ -2,7 +2,7 @@
 
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { SESSION_COOKIE_NAME } from './session-cookie';
+import { SESSION_COOKIE_NAME } from '../constants/session';
 
 /**
  * Clears the Firebase session cookie, then redirects to the accounts

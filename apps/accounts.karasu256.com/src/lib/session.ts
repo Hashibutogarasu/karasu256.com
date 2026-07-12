@@ -1,10 +1,8 @@
 import { getServerConfig } from '@/lib/config';
+import { SESSION_COOKIE_NAME } from '@Hashibutogarasu/utils/constants';
 
 /** Lifetime of the session cookie: 14 days in milliseconds. */
 export const SESSION_DURATION_MS = 60 * 60 * 24 * 14 * 1000;
-
-/** Name of the session cookie shared across (sub)domains. */
-export const SESSION_COOKIE_NAME = 'session';
 
 /**
  * Builds `ResponseCookie` options for setting the session cookie.

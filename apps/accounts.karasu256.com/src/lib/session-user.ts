@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers';
 import type { DecodedIdToken } from 'firebase-admin/auth';
 import { getAdminAuth } from '@/lib/firebase-admin';
-import { SESSION_COOKIE_NAME } from '@/lib/session';
+import { SESSION_COOKIE_NAME } from '@Hashibutogarasu/utils/constants';
 
 /**
  * Reads and verifies the Firebase session cookie.

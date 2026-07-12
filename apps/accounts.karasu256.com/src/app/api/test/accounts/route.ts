@@ -5,7 +5,8 @@ import { getDb, sessions } from '@Hashibutogarasu/db';
 import { getAdminAuth } from '@/lib/firebase-admin';
 import { testAuth } from '@/lib/auth/server.test';
 import { encryptFirebaseCookie } from '@/lib/auth/firebase-cookie-crypto';
-import { buildSetCookieOptions, SESSION_COOKIE_NAME, SESSION_DURATION_MS } from '@/lib/session';
+import { buildSetCookieOptions, SESSION_DURATION_MS } from '@/lib/session';
+import { SESSION_COOKIE_NAME } from '@Hashibutogarasu/utils/constants';
 
 const postBodySchema = z.object({ label: z.string().min(1) });
 const deleteBodySchema = z.object({ uid: z.string().min(1) });
