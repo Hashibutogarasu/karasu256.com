@@ -1,7 +1,6 @@
 import { drizzleAdapter } from '@better-auth/drizzle-adapter';
 import { getDb } from '@Hashibutogarasu/db/client';
 import * as schema from '@Hashibutogarasu/db/schema';
-import { BETTER_AUTH_SESSION_COOKIE_NAME } from '@Hashibutogarasu/utils/constants';
 import { bridgeFirebaseSessionForSocialSignIn, provisionFirebaseUser, syncNewUserToNeonAuth, syncProfileToFirebase } from '@/lib/auth/hooks';
 
 /**
@@ -41,11 +40,6 @@ export const authOptions = {
     crossSubDomainCookies: {
       enabled: true,
       domain: process.env.BASE_DOMAIN,
-    },
-    cookies: {
-      session_token: {
-        name: BETTER_AUTH_SESSION_COOKIE_NAME,
-      },
     },
   },
   hooks: {

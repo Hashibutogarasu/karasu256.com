@@ -1,4 +1,4 @@
-import { cookies } from 'next/headers';
+import { headers } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { deleteUploadedImage, uploadImage } from '@Hashibutogarasu/utils/server';
@@ -6,7 +6,6 @@ import { getAdminAuth } from '@/lib/firebase-admin';
 import { getProviderProfile } from '@/lib/auth/provider-profile';
 import { requireSession } from '@/lib/api/require-session';
 import { badRequest } from '@/lib/api/responses';
-import { BETTER_AUTH_SESSION_COOKIE_NAME } from '@Hashibutogarasu/utils/constants';
 
 const putBodySchema = z.object({ providerId: z.string().min(1) });
 
@@ -18,10 +17,10 @@ async function cleanupPreviousIcon(
   previousPhotoURL: string | undefined,
   nextPhotoURL: string | null,
   imageApiUrl: string | undefined,
-  sessionCookie: string | undefined
+  cookieHeader: string | null
 ): Promise<void> {
-  if (!imageApiUrl || !sessionCookie || !previousPhotoURL || previousPhotoURL === nextPhotoURL) return;
-  await deleteUploadedImage(previousPhotoURL, { imageApiUrl, sessionCookie });
+  if (!imageApiUrl || !cookieHeader || !previousPhotoURL || previousPhotoURL === nextPhotoURL) return;
+  await deleteUploadedImage(previousPhotoURL, { imageApiUrl, cookieHeader });
 }
 
 /**
@@ -44,12 +43,12 @@ export async function POST(request: NextRequest) {
   const file = incoming.get('file');
   if (!(file instanceof File)) return badRequest();
 
-  const sessionCookie = (await cookies()).get(BETTER_AUTH_SESSION_COOKIE_NAME)?.value;
-  if (!sessionCookie) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const cookieHeader = (await headers()).get('cookie');
+  if (!cookieHeader) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const result = await uploadImage(file, {
     imageApiUrl,
-    sessionCookie,
+    cookieHeader,
     path: `users/${user.uid}/avatar.png`,
   });
   if (!result.ok) {
@@ -59,7 +58,7 @@ export async function POST(request: NextRequest) {
 
   const previous = await getAdminAuth().getUser(user.uid);
   await getAdminAuth().updateUser(user.uid, { photoURL: url });
-  await cleanupPreviousIcon(previous.photoURL, url, imageApiUrl, sessionCookie);
+  await cleanupPreviousIcon(previous.photoURL, url, imageApiUrl, cookieHeader);
 
   return NextResponse.json({ photoURL: url });
 }
@@ -84,11 +83,11 @@ export async function PUT(request: NextRequest) {
   }
 
   const imageApiUrl = process.env.NEXT_PUBLIC_IMAGE_API_URL;
-  const sessionCookie = (await cookies()).get(BETTER_AUTH_SESSION_COOKIE_NAME)?.value;
+  const cookieHeader = (await headers()).get('cookie');
 
   const previous = await getAdminAuth().getUser(user.uid);
   await getAdminAuth().updateUser(user.uid, { photoURL: profile.avatarUrl });
-  await cleanupPreviousIcon(previous.photoURL, profile.avatarUrl, imageApiUrl, sessionCookie);
+  await cleanupPreviousIcon(previous.photoURL, profile.avatarUrl, imageApiUrl, cookieHeader);
 
   return NextResponse.json({ photoURL: profile.avatarUrl });
 }
@@ -104,11 +103,11 @@ export async function DELETE() {
   if (error) return error;
 
   const imageApiUrl = process.env.NEXT_PUBLIC_IMAGE_API_URL;
-  const sessionCookie = (await cookies()).get(BETTER_AUTH_SESSION_COOKIE_NAME)?.value;
+  const cookieHeader = (await headers()).get('cookie');
 
   const previous = await getAdminAuth().getUser(user.uid);
   await getAdminAuth().updateUser(user.uid, { photoURL: null });
-  await cleanupPreviousIcon(previous.photoURL, null, imageApiUrl, sessionCookie);
+  await cleanupPreviousIcon(previous.photoURL, null, imageApiUrl, cookieHeader);
 
   return NextResponse.json({ photoURL: null });
 }
