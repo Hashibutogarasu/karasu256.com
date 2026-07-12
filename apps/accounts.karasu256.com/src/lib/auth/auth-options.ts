@@ -1,7 +1,7 @@
 import { drizzleAdapter } from '@better-auth/drizzle-adapter';
 import { getDb } from '@Hashibutogarasu/db/client';
 import * as schema from '@Hashibutogarasu/db/schema';
-import { bridgeFirebaseSessionForSocialSignIn, syncProfileToFirebase } from '@/lib/auth/hooks';
+import { bridgeFirebaseSessionForSocialSignIn, provisionFirebaseUser, syncNewUserToNeonAuth, syncProfileToFirebase } from '@/lib/auth/hooks';
 
 /**
  * Shared better-auth configuration (everything except `plugins`), used by
@@ -47,6 +47,10 @@ export const authOptions = {
   },
   databaseHooks: {
     user: {
+      create: {
+        before: provisionFirebaseUser,
+        after: syncNewUserToNeonAuth,
+      },
       update: {
         after: syncProfileToFirebase,
       },

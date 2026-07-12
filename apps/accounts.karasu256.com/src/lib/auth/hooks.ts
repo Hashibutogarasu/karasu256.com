@@ -1,6 +1,7 @@
 import { createAuthMiddleware, APIError } from 'better-auth/api';
 import type { User } from 'better-auth/types';
 import { getAdminAuth } from '@/lib/firebase-admin';
+import { syncFirebaseUserToNeonAuth } from '@/lib/neon-auth-bridge';
 
 /**
  * When a social sign-in resolves to an existing linked user (as opposed to
@@ -62,4 +63,23 @@ export async function syncProfileToFirebase(user: User & { name?: string | null;
   if (user.image) update.photoURL = user.image;
   if (Object.keys(update).length === 0) return;
   await getAdminAuth().updateUser(user.id, update);
+}
+
+/**
+ * Provisions a Firebase user for every new better-auth user and forces
+ * better-auth's `user.id` to equal the resulting Firebase UID — every table
+ * and R2/CDN storage path in this monorepo is keyed by that id.
+ */
+export async function provisionFirebaseUser(user: User): Promise<{ data: User }> {
+  const firebaseUser = await getAdminAuth().createUser({
+    email: user.email || undefined,
+    emailVerified: user.emailVerified,
+    displayName: user.name || undefined,
+  });
+  return { data: { ...user, id: firebaseUser.uid } };
+}
+
+/** Mirrors a newly created better-auth user into Neon Auth (see `neon-auth-bridge.ts`). */
+export async function syncNewUserToNeonAuth(user: User): Promise<void> {
+  await syncFirebaseUserToNeonAuth({ uid: user.id, email: user.email, name: user.name });
 }
