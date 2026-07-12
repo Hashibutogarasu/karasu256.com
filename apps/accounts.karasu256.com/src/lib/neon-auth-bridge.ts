@@ -1,6 +1,12 @@
-import type { DecodedIdToken } from 'firebase-admin/auth';
 import { getNeonAuth, deriveNeonAuthPassword } from '@Hashibutogarasu/db';
 import { ApiError } from '@Hashibutogarasu/utils/client';
+
+/** The subset of a Firebase user's claims that Neon Auth provisioning needs. */
+export interface FirebaseUserLike {
+  uid: string;
+  email?: string | null;
+  name?: string | null;
+}
 
 /**
  * Ensures a Neon Auth session exists for the given Firebase user, creating a
@@ -11,16 +17,14 @@ import { ApiError } from '@Hashibutogarasu/utils/client';
  *
  * Must be called from a Route Handler or Server Action where Next.js cookies
  * can be written.
- *
- * @param decoded - Verified Firebase ID token claims.
  */
-export async function syncFirebaseUserToNeonAuth(decoded: DecodedIdToken): Promise<void> {
-  const email = decoded.email;
+export async function syncFirebaseUserToNeonAuth(user: FirebaseUserLike): Promise<void> {
+  const email = user.email;
   if (!email) return;
 
   const auth = getNeonAuth();
-  const password = deriveNeonAuthPassword(decoded.uid);
-  const name = decoded.name ?? email;
+  const password = deriveNeonAuthPassword(user.uid);
+  const name = user.name ?? email;
 
   const signInResult = await auth.signIn.email({ email, password });
   if (!signInResult.error) return;
