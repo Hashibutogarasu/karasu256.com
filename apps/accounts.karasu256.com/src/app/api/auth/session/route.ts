@@ -1,13 +1,10 @@
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import { sql } from 'drizzle-orm';
-import { SESSION_COOKIE_NAME } from '@Hashibutogarasu/utils/constants';
 import { getAdminAuth } from '@/lib/firebase-admin';
 import { getDb, users } from '@Hashibutogarasu/db';
-import { auth } from '@/lib/auth/server';
 import { buildSetCookieOptions, SESSION_DURATION_MS } from '@/lib/session';
 import { syncFirebaseUserToNeonAuth } from '@/lib/neon-auth-bridge';
-import { forwardSetCookies } from '@/lib/auth/forward-set-cookies';
 
 /**
  * Creates a Firebase session cookie from a client-supplied ID token and stores
@@ -43,20 +40,7 @@ export async function POST(request: NextRequest) {
       await syncFirebaseUserToNeonAuth(decoded);
     } catch {}
 
-    const response = NextResponse.json({ ok: true });
-
-    // Every app now verifies "who is logged in" solely via better-auth's
-    // session, so a Firebase-only login must also mint one. Reuses the
-    // firebase-session-bridge plugin's own endpoint rather than duplicating
-    // its user/session synthesis logic here.
-    try {
-      const bridgeHeaders = new Headers(request.headers);
-      bridgeHeaders.set('cookie', `${request.headers.get('cookie') ?? ''}; ${SESSION_COOKIE_NAME}=${sessionCookie}`);
-      const bridgeResponse = await auth.api.firebaseBridge({ headers: bridgeHeaders, asResponse: true });
-      forwardSetCookies(bridgeResponse, response);
-    } catch {}
-
-    return response;
+    return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ error: 'Invalid or expired token' }, { status: 401 });
   }
