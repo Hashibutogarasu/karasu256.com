@@ -6,5 +6,5 @@ export { uploadImageAnonymous, type UploadImageAnonymousOptions, type UploadImag
 export { getSessionUser, type SessionUser } from './session';
 export { signOutAction } from './sign-out';
 export { setLocaleAction } from './set-locale';
-export { getRootDomainUrl } from './get-root-domain-url';
+export { getRootAppUrl } from './get-root-app-url';
 export { MissingEnvError } from './missing-env-error';

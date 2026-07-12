@@ -18,11 +18,12 @@ import { ProfileSectionSkeleton } from '@/components/auth/settings/profile-secti
 interface SettingsShellProps {
   children: React.ReactNode;
   /**
-   * "Back to app" URL derived server-side from `ROOT_DOMAIN` (see
-   * {@link getMainAppUrlFromRootDomain}). `undefined` when `ROOT_DOMAIN`
-   * isn't set, in which case the "back to app" link is simply omitted.
+   * "Back to app" URL, read server-side verbatim from `ROOT_APP_URL` (see
+   * {@link getRootAppUrl}). That function throws when the env var is unset,
+   * so `SettingsLayout` never renders this shell with a guessed or missing
+   * URL.
    */
-  appUrl?: string;
+  appUrl: string;
 }
 
 /**
