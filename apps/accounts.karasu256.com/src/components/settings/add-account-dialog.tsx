@@ -1,10 +1,10 @@
 'use client';
 
-import type { User } from 'firebase/auth';
+import { useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
-import { Dialog, DialogPortal, DialogBackdrop, DialogPopup, DialogTitle, toast } from '@Hashibutogarasu/ui';
-import { getSecondaryFirebaseAuth } from '@/lib/firebase/secondary-auth';
-import { addAccount } from '@/lib/api/accounts';
+import { Dialog, DialogPortal, DialogBackdrop, DialogPopup, DialogTitle, Separator, toast } from '@Hashibutogarasu/ui';
+import { authClient } from '@/lib/auth/client';
+import { EmailPasswordForm } from '@/components/auth/email-password-form';
 import { PasskeySection } from '@/components/auth/passkey-section';
 
 export interface AddAccountDialogProps {
@@ -16,31 +16,35 @@ export interface AddAccountDialogProps {
 
 /**
  * Dialog for signing in to a second (or further) account without disturbing
- * the currently active session. Renders the existing passkey sign-in form
- * against a secondary, in-memory-only Firebase Auth instance (see
- * `secondary-auth.ts`), then bridges the resulting account into this
- * device's `multiSession` list via `POST /api/auth/accounts/add`.
+ * the currently active session.
  *
- * Email/password is intentionally not offered here anymore now that
- * email/password sign-in goes through better-auth directly, which has no
- * notion of a secondary, non-disturbing browser session the way the
- * Firebase JS SDK does. Social sign-in was already excluded for the same
- * kind of reason — the Google/GitHub flow is a full-page redirect through
- * better-auth's OAuth handshake and would disturb the current tab's session.
+ * better-auth's `multiSession` plugin already keeps every sign-in as an
+ * additional device session (via a `_multi-<token>` cookie) instead of
+ * replacing existing ones — a new sign-in just becomes the *active* one. So
+ * this reuses the ordinary sign-in forms as-is, remembers which session was
+ * active before the dialog opened, and switches back to it via
+ * `authClient.multiSession.setActive()` once the new sign-in completes.
  */
 export function AddAccountDialog({ open, onOpenChange, onAdded }: AddAccountDialogProps) {
   const t = useTranslations();
+  const previousSessionToken = useRef<string | null>(null);
 
-  async function handleSignedIn(user: User) {
+  useEffect(() => {
+    if (!open) return;
+    authClient.getSession().then(({ data }) => {
+      previousSessionToken.current = data?.session.token ?? null;
+    });
+  }, [open]);
+
+  async function handleSignedIn() {
     try {
-      const idToken = await user.getIdToken();
-      await addAccount(idToken);
+      if (previousSessionToken.current) {
+        await authClient.multiSession.setActive({ sessionToken: previousSessionToken.current });
+      }
       onOpenChange(false);
       onAdded?.();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : String(err));
-    } finally {
-      await getSecondaryFirebaseAuth().signOut();
     }
   }
 
@@ -50,7 +54,9 @@ export function AddAccountDialog({ open, onOpenChange, onAdded }: AddAccountDial
         <DialogBackdrop />
         <DialogPopup>
           <DialogTitle>{t('settings.accountSwitcher.addAccount')}</DialogTitle>
-          <PasskeySection auth={getSecondaryFirebaseAuth()} onSuccess={handleSignedIn} />
+          <EmailPasswordForm onSuccess={handleSignedIn} />
+          <Separator className="my-4" />
+          <PasskeySection onSuccess={handleSignedIn} />
         </DialogPopup>
       </DialogPortal>
     </Dialog>

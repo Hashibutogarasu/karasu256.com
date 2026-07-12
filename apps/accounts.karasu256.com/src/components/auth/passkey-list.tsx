@@ -1,12 +1,15 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { getIdToken } from 'firebase/auth';
 import { useTranslations } from 'next-intl';
 import { toast, ConfirmDialog, DeleteIconButton, SettingsItem, Skeleton, AnimatedList, AnimatedListItem } from '@Hashibutogarasu/ui';
-import { getFirebaseAuth } from '@/lib/firebase/auth';
-import { listPasskeyCredentials, deletePasskeyCredential } from '@/lib/api/passkey-credentials';
-import type { CredentialSummary } from '@/app/api/passkey/credentials/route';
+import { authClient } from '@/lib/auth/client';
+
+interface CredentialSummary {
+  id: string;
+  name: string;
+  createdAt: number | null;
+}
 
 interface PasskeyListProps {
   /** Incrementing this value causes the list to re-fetch from the server. */
@@ -30,11 +33,11 @@ export function PasskeyList({ version }: PasskeyListProps) {
   const initialized = useRef(false);
 
   const fetchCredentials = useCallback(async () => {
-    const user = getFirebaseAuth().currentUser;
-    if (!user) return;
-    const idToken = await getIdToken(user);
-    setCredentials(await listPasskeyCredentials(idToken));
-  }, []);
+    const { data } = await authClient.passkey.listUserPasskeys();
+    setCredentials(
+      (data ?? []).map((p) => ({ id: p.id, name: p.name ?? t('passkey.none'), createdAt: p.createdAt ? new Date(p.createdAt).getTime() : null }))
+    );
+  }, [t]);
 
   useEffect(() => {
     if (!initialized.current) {
@@ -49,22 +52,18 @@ export function PasskeyList({ version }: PasskeyListProps) {
   }, [fetchCredentials, version]);
 
   async function handleDelete(id: string) {
-    const user = getFirebaseAuth().currentUser;
-    if (!user) return;
     setDeletingIds((prev) => new Set(prev).add(id));
-    try {
-      const idToken = await getIdToken(user);
-      await deletePasskeyCredential(id, idToken);
+    const { error } = await authClient.passkey.deletePasskey({ id });
+    if (error) {
+      toast.error(error.message ?? t('passkey.error.unknown'));
+    } else {
       setRemovingIds((prev) => new Set(prev).add(id));
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : String(err));
-    } finally {
-      setDeletingIds((prev) => {
-        const s = new Set(prev);
-        s.delete(id);
-        return s;
-      });
     }
+    setDeletingIds((prev) => {
+      const s = new Set(prev);
+      s.delete(id);
+      return s;
+    });
   }
 
   function handleRemoved(id: string) {

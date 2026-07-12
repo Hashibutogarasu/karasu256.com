@@ -25,6 +25,7 @@ export const authOptions = {
       oauthRefreshToken: schema.oauthRefreshTokens,
       oauthAccessToken: schema.oauthAccessTokens,
       oauthConsent: schema.oauthConsents,
+      passkey: schema.passkeys,
     },
   }),
   secret: process.env.BETTER_AUTH_SECRET,

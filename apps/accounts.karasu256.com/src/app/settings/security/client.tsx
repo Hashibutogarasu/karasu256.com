@@ -20,7 +20,7 @@ export function SecurityClient() {
       <Separator />
       <SettingsAccordion
         title={t('passkey.title')}
-        action={user.email ? <PasskeyCreateDialog email={user.email} onSuccess={() => setPasskeyVersion((v) => v + 1)} /> : undefined}
+        action={user.email ? <PasskeyCreateDialog onSuccess={() => setPasskeyVersion((v) => v + 1)} /> : undefined}
       >
         <PasskeyList version={passkeyVersion} />
       </SettingsAccordion>

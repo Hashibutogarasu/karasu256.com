@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { getIdToken, onAuthStateChanged, type User } from 'firebase/auth';
+import { onAuthStateChanged, type User } from 'firebase/auth';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLink, faLinkSlash } from '@fortawesome/free-solid-svg-icons';
 import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
@@ -10,7 +10,6 @@ import { useTranslations } from 'next-intl';
 import { toast, SettingsAccordion, SettingsItem, Spinner } from '@Hashibutogarasu/ui';
 import { unlinkProvider } from '@Hashibutogarasu/utils/client';
 import { getFirebaseAuth } from '@/lib/firebase/auth';
-import { listPasskeyCredentials } from '@/lib/api/passkey-credentials';
 import { authClient, bridgeFirebaseSession } from '@/lib/auth/client';
 import { Button } from '@Hashibutogarasu/ui';
 
@@ -72,11 +71,9 @@ export function ProviderSection({ providers, initialProviders }: ProviderSection
   }, [searchParams, t, router, pathname]);
 
   useEffect(() => {
-    const current = getFirebaseAuth().currentUser;
-    if (!current) return;
-    void getIdToken(current)
-      .then((idToken) => listPasskeyCredentials(idToken))
-      .then((creds) => setHasPasskeys(creds.length > 0))
+    void authClient.passkey
+      .listUserPasskeys()
+      .then(({ data }) => setHasPasskeys((data?.length ?? 0) > 0))
       .catch(() => {});
   }, []);
 

@@ -12,12 +12,17 @@ import { Button, Checkbox, Input, Label, PasswordInput } from '@Hashibutogarasu/
 import { Tabs, TabsContent, TabsList, TabsTrigger, AnimatedHeight } from '@Hashibutogarasu/ui';
 import { LocalizedPasswordStrengthIndicator } from './localized-password-strength-indicator';
 
+export interface EmailPasswordFormProps {
+  /** Called after a successful sign-in or account creation, instead of the default redirect to `/settings`. */
+  onSuccess?: () => void;
+}
+
 /**
  * Renders a tabbed email/password form that handles both sign-in and account
  * creation against better-auth. Both tabs share the same email and password
  * state so the user can fill in credentials once and choose the action.
  */
-export function EmailPasswordForm() {
+export function EmailPasswordForm({ onSuccess }: EmailPasswordFormProps = {}) {
   const t = useTranslations();
   const router = useRouter();
   const [tab, setTab] = useState('signin');
@@ -30,13 +35,18 @@ export function EmailPasswordForm() {
   const registerDisabled = loading || !email || !password || !agreedToTerms;
   const termsUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? ''}/terms`;
 
+  function handleSuccess() {
+    if (onSuccess) onSuccess();
+    else router.replace('/settings');
+  }
+
   async function handleSignIn(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     await authClient.signIn.email(
       { email, password },
       {
-        onSuccess: () => router.replace('/settings'),
+        onSuccess: handleSuccess,
         onError: (ctx) => {
           toast.error(ctx.error.message);
           setLoading(false);
@@ -51,7 +61,7 @@ export function EmailPasswordForm() {
     await authClient.signUp.email(
       { email, password, name: email },
       {
-        onSuccess: () => router.replace('/settings'),
+        onSuccess: handleSuccess,
         onError: (ctx) => {
           toast.error(ctx.error.message);
           setLoading(false);

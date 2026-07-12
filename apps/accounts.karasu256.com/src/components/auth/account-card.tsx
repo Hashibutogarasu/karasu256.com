@@ -103,7 +103,7 @@ export function AccountCard() {
         <Separator />
         <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Passkeys</p>
         <PasskeyList version={passkeyVersion} />
-        {user!.email && <PasskeyCreateDialog email={user!.email} onSuccess={() => setPasskeyVersion((v) => v + 1)} />}
+        {user!.email && <PasskeyCreateDialog onSuccess={() => setPasskeyVersion((v) => v + 1)} />}
         <Separator />
         <Button variant="ghost" className="w-full" onClick={() => router.push('/settings')}>
           Settings
