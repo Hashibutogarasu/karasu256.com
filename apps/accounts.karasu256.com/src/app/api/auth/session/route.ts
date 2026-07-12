@@ -14,6 +14,11 @@ import { forwardSetCookies } from '@/lib/auth/forward-set-cookies';
  * it as an `httpOnly` cookie, optionally scoped to `BASE_DOMAIN` for
  * cross-subdomain sharing.
  *
+ * Every app now verifies "who is logged in" solely via better-auth's own
+ * session, so a Firebase-only login must also mint one; this reuses the
+ * firebase-session-bridge plugin's own endpoint rather than duplicating its
+ * user/session synthesis logic here.
+ *
  * POST /api/auth/session
  * Body: { idToken: string }
  */
@@ -45,10 +50,6 @@ export async function POST(request: NextRequest) {
 
     const response = NextResponse.json({ ok: true });
 
-    // Every app now verifies "who is logged in" solely via better-auth's
-    // session, so a Firebase-only login must also mint one. Reuses the
-    // firebase-session-bridge plugin's own endpoint rather than duplicating
-    // its user/session synthesis logic here.
     try {
       const bridgeHeaders = new Headers(request.headers);
       bridgeHeaders.set('cookie', `${request.headers.get('cookie') ?? ''}; ${SESSION_COOKIE_NAME}=${sessionCookie}`);
