@@ -20,11 +20,13 @@ export function PasskeySection({ onSuccess }: PasskeySectionProps = {}) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
+  /**
+   * Checks the returned `error` directly rather than `fetchOptions.onError`,
+   * since WebAuthn cancellation surfaces there but not always through that
+   * callback (which only fires for server-side failures).
+   */
   async function handleSignIn() {
     setLoading(true);
-    // WebAuthn cancellation surfaces as a returned `error`, not always via
-    // `fetchOptions.onError` (that only fires for server-side failures), so
-    // check the return value directly rather than relying on the callback.
     const result = await authClient.signIn.passkey();
     if (result?.error) {
       toast.error(result.error.message ?? t('passkey.error.unknown'));
