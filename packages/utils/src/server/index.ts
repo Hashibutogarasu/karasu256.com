@@ -1,4 +1,3 @@
-export { SESSION_COOKIE_NAME, BETTER_AUTH_SESSION_COOKIE_NAME } from '../constants/session';
 export { createRouteAuth, type RouteAuthContext, type RouteAuthDeps, type RouteAuthMethod, type TokenValidator } from './route-guards';
 export { deleteUploadedImage, type DeleteUploadedImageOptions } from './delete-uploaded-image';
 export { uploadImage, type UploadImageOptions, type UploadImageResult } from './upload-image';

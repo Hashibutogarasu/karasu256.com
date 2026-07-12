@@ -1,10 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { updateProfile } from 'firebase/auth';
 import { useTranslations } from 'next-intl';
 import { toast } from '@Hashibutogarasu/ui';
-import { getFirebaseAuth } from '@/lib/firebase/auth';
 import { authClient } from '@/lib/auth/client';
 import { useSettingsUser } from '@/components/settings/user-context';
 import { Button } from '@Hashibutogarasu/ui';
@@ -17,23 +15,19 @@ import { ProfileIcon } from './profile-icon';
 export function ProfileSection() {
   const t = useTranslations();
   const { user, updateUser } = useSettingsUser();
-  const [displayName, setDisplayName] = useState(user.displayName ?? '');
+  const [displayName, setDisplayName] = useState(user.name ?? '');
   const [saving, setSaving] = useState(false);
 
+  /**
+   * better-auth's `user` row is the source of truth; the server-side
+   * `syncProfileToFirebase` hook mirrors it onto Firebase.
+   */
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
     try {
-      // better-auth's `user` row is the source of truth; the server-side
-      // `syncProfileToFirebase` hook mirrors it onto Firebase. `updateProfile`
-      // below just refreshes the browser's own Firebase Auth state so
-      // Firebase-derived UI reflects the change immediately too.
       await authClient.updateUser({ name: displayName });
-      const currentUser = getFirebaseAuth().currentUser;
-      if (currentUser) {
-        await updateProfile(currentUser, { displayName });
-      }
-      updateUser({ displayName });
+      updateUser({ name: displayName });
       toast.success(t('profile.saved'), { autoClose: true });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : String(err));
@@ -47,7 +41,7 @@ export function ProfileSection() {
       <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t('profile.title')}</p>
       <div className="flex items-center gap-3">
         <ProfileIcon />
-        <p className="text-sm text-muted-foreground break-all">{user.displayName ?? user.email ?? user.uid}</p>
+        <p className="text-sm text-muted-foreground break-all">{user.name ?? user.email ?? user.id}</p>
       </div>
       <form onSubmit={handleSave} className="space-y-3">
         <div className="space-y-1">

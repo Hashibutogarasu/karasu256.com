@@ -1,55 +1,55 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faKey } from '@fortawesome/free-solid-svg-icons';
 import { useTranslations } from 'next-intl';
 import { toast } from '@Hashibutogarasu/ui';
-import { verifyPasswordResetToken, setNewPassword } from '@Hashibutogarasu/utils/client';
+import { authClient } from '@/lib/auth/client';
 import { Button } from '@Hashibutogarasu/ui';
 import { Card, CardContent, CardHeader, CardTitle } from '@Hashibutogarasu/ui';
 import { Input } from '@Hashibutogarasu/ui';
 import { Label } from '@Hashibutogarasu/ui';
 
-type Stage = 'verifying' | 'invalid' | 'form' | 'done';
-
 interface Props {
-  uid: string;
   token: string;
 }
 
-/**
- * Verifies the one-time reset token on mount, then lets the user set a
- * new password. Renders inline error states for expired or invalid links.
- */
-export function ResetPasswordConfirmForm({ uid, token }: Props) {
+/** Lets the user set a new password using the one-time token from the reset email link. */
+export function ResetPasswordConfirmForm({ token }: Props) {
   const t = useTranslations();
-  const [stage, setStage] = useState<Stage>('verifying');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [done, setDone] = useState(false);
 
-  useEffect(() => {
-    if (!uid || !token) {
-      setStage('invalid');
-      return;
-    }
-    verifyPasswordResetToken(uid, token)
-      .then(() => setStage('form'))
-      .catch(() => setStage('invalid'));
-  }, [uid, token]);
+  if (!token) {
+    return (
+      <Card className="w-full max-w-sm">
+        <CardHeader>
+          <CardTitle>{t('resetPassword.title')}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-destructive">{t('resetPassword.invalidToken')}</p>
+          <Link href="/reset-password" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <FontAwesomeIcon icon={faArrowLeft} />
+            {t('resetPassword.requestAgain')}
+          </Link>
+        </CardContent>
+      </Card>
+    );
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    try {
-      await setNewPassword(password);
-      setStage('done');
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : String(err));
-    } finally {
-      setLoading(false);
+    const { error } = await authClient.resetPassword({ newPassword: password, token });
+    if (error) {
+      toast.error(error.message ?? t('resetPassword.invalidToken'));
+    } else {
+      setDone(true);
     }
+    setLoading(false);
   }
 
   return (
@@ -58,19 +58,15 @@ export function ResetPasswordConfirmForm({ uid, token }: Props) {
         <CardTitle>{t('resetPassword.title')}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {stage === 'verifying' && <p className="text-sm text-muted-foreground">{t('resetPassword.verifying')}</p>}
-
-        {stage === 'invalid' && (
+        {done ? (
           <div className="space-y-4">
-            <p className="text-sm text-destructive">{t('resetPassword.invalidToken')}</p>
-            <Link href="/reset-password" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <p className="text-sm text-muted-foreground">{t('resetPassword.setDone')}</p>
+            <Link href="/" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
               <FontAwesomeIcon icon={faArrowLeft} />
-              {t('resetPassword.requestAgain')}
+              {t('resetPassword.backToSignIn')}
             </Link>
           </div>
-        )}
-
-        {stage === 'form' && (
+        ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="new-password">{t('resetPassword.newPassword')}</Label>
@@ -89,16 +85,6 @@ export function ResetPasswordConfirmForm({ uid, token }: Props) {
               {loading ? t('resetPassword.setting') : t('resetPassword.setPassword')}
             </Button>
           </form>
-        )}
-
-        {stage === 'done' && (
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">{t('resetPassword.setDone')}</p>
-            <Link href="/" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-              <FontAwesomeIcon icon={faArrowLeft} />
-              {t('resetPassword.backToSignIn')}
-            </Link>
-          </div>
         )}
       </CardContent>
     </Card>

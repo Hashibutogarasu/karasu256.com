@@ -4,11 +4,9 @@ import { useState } from 'react';
 import { PlusIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button, Input, Label, toast, Dialog, DialogPortal, DialogBackdrop, DialogPopup, DialogTitle } from '@Hashibutogarasu/ui';
-import { registerPasskey } from '@/lib/api/passkey-register';
+import { authClient } from '@/lib/auth/client';
 
 interface PasskeyCreateDialogProps {
-  /** The email address of the currently signed-in user, used as the passkey username. */
-  email: string;
   /** Called after a passkey is successfully registered. */
   onSuccess?: () => void;
 }
@@ -19,7 +17,7 @@ interface PasskeyCreateDialogProps {
  * Clicking the button calls {@link e.stopPropagation} so it does not toggle
  * any parent accordion trigger.
  */
-export function PasskeyCreateDialog({ email, onSuccess }: PasskeyCreateDialogProps) {
+export function PasskeyCreateDialog({ onSuccess }: PasskeyCreateDialogProps) {
   const t = useTranslations();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
@@ -28,17 +26,16 @@ export function PasskeyCreateDialog({ email, onSuccess }: PasskeyCreateDialogPro
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    try {
-      await registerPasskey(email, name);
+    const { error } = await authClient.passkey.addPasskey({ name });
+    if (error) {
+      toast.error(error.message ?? t('passkey.error.unknown'));
+    } else {
       setName('');
       setOpen(false);
       toast.success(t('passkey.registered'), { autoClose: true });
       onSuccess?.();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : String(err));
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   }
 
   return (

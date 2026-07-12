@@ -2,31 +2,29 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { FirebaseError } from 'firebase/app';
-import type { Auth, User } from 'firebase/auth';
+import { useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRightToBracket, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 import { useTranslations } from 'next-intl';
 import { toast } from '@Hashibutogarasu/ui';
-import { signInWithEmailPassword, registerWithEmailPassword } from '@/lib/api/auth-email-password';
+import { authClient } from '@/lib/auth/client';
 import { Button, Checkbox, Input, Label, PasswordInput } from '@Hashibutogarasu/ui';
 import { Tabs, TabsContent, TabsList, TabsTrigger, AnimatedHeight } from '@Hashibutogarasu/ui';
 import { LocalizedPasswordStrengthIndicator } from './localized-password-strength-indicator';
 
 export interface EmailPasswordFormProps {
-  /** Firebase Auth instance to authenticate against. Defaults to the app's primary instance. */
-  auth?: Auth;
-  /** Called after a successful sign-in or account creation, in addition to the default `onAuthStateChanged`-driven flow. */
-  onSuccess?: (user: User) => void;
+  /** Called after a successful sign-in or account creation, instead of the default redirect to `/settings`. */
+  onSuccess?: () => void;
 }
 
 /**
  * Renders a tabbed email/password form that handles both sign-in and account
- * creation against Firebase Auth. Both tabs share the same email and password
+ * creation against better-auth. Both tabs share the same email and password
  * state so the user can fill in credentials once and choose the action.
  */
-export function EmailPasswordForm({ auth, onSuccess }: EmailPasswordFormProps = {}) {
+export function EmailPasswordForm({ onSuccess }: EmailPasswordFormProps = {}) {
   const t = useTranslations();
+  const router = useRouter();
   const [tab, setTab] = useState('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -37,34 +35,39 @@ export function EmailPasswordForm({ auth, onSuccess }: EmailPasswordFormProps = 
   const registerDisabled = loading || !email || !password || !agreedToTerms;
   const termsUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? ''}/terms`;
 
-  function showAuthError(err: unknown) {
-    const code = err instanceof FirebaseError ? err.code.replace('auth/', '') : 'unknown';
-    const key = `signIn.error.${code}`;
-    toast.error(t.has(key) ? t(key) : t('signIn.error.unknown'));
+  function handleSuccess() {
+    if (onSuccess) onSuccess();
+    else router.replace('/settings');
   }
 
   async function handleSignIn(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    try {
-      const credential = await signInWithEmailPassword(email, password, auth);
-      onSuccess?.(credential.user);
-    } catch (err) {
-      showAuthError(err);
-      setLoading(false);
-    }
+    await authClient.signIn.email(
+      { email, password },
+      {
+        onSuccess: handleSuccess,
+        onError: (ctx) => {
+          toast.error(ctx.error.message);
+          setLoading(false);
+        },
+      }
+    );
   }
 
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    try {
-      const credential = await registerWithEmailPassword(email, password, auth);
-      onSuccess?.(credential.user);
-    } catch (err) {
-      showAuthError(err);
-      setLoading(false);
-    }
+    await authClient.signUp.email(
+      { email, password, name: email },
+      {
+        onSuccess: handleSuccess,
+        onError: (ctx) => {
+          toast.error(ctx.error.message);
+          setLoading(false);
+        },
+      }
+    );
   }
 
   return (

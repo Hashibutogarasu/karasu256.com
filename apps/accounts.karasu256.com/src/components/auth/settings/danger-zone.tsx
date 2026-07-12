@@ -1,46 +1,41 @@
 'use client';
 
 import { useState } from 'react';
-import { deleteUser, EmailAuthProvider, reauthenticateWithCredential, signOut } from 'firebase/auth';
 import { useTranslations } from 'next-intl';
 import { toast } from '@Hashibutogarasu/ui';
-import { useSettingsUser } from '@/components/settings/user-context';
-import { getFirebaseAuth } from '@/lib/firebase/auth';
-import { clearSession } from '@/lib/api/auth-session';
+import { authClient } from '@/lib/auth/client';
 import { Button } from '@Hashibutogarasu/ui';
 import { Input } from '@Hashibutogarasu/ui';
 import { Label } from '@Hashibutogarasu/ui';
 
+export interface DangerZoneProps {
+  /** Whether the user has a `credential` (email/password) account. */
+  hasPasswordProvider: boolean;
+}
+
 /**
- * Account deletion UI.
- * Email/password users confirm with their current password.
- * OAuth-only users re-authenticate via popup before deletion.
- * After deletion, clears the session cookie and signs out — `onAuthStateChanged`
- * in the parent then redirects to `/`.
+ * Account deletion UI, via `authClient.deleteUser()`.
+ * Password users confirm with their current password. OAuth/passkey-only
+ * users rely on the session being "fresh" (signed in recently); if it
+ * isn't, they're asked to sign out and back in first. `SettingsShell`'s
+ * `authClient.useSession()` redirects to `/` once the account is gone.
  */
-export function DangerZone() {
+export function DangerZone({ hasPasswordProvider }: DangerZoneProps) {
   const t = useTranslations();
-  const { user } = useSettingsUser();
   const [confirming, setConfirming] = useState(false);
   const [password, setPassword] = useState('');
   const [deleting, setDeleting] = useState(false);
-
-  const hasPasswordProvider = user.providerData.some((p) => p.providerId === 'password');
 
   async function handleDelete(e: React.FormEvent) {
     e.preventDefault();
     setDeleting(true);
     try {
-      if (hasPasswordProvider) {
-        const credential = EmailAuthProvider.credential(user.email!, password);
-        await reauthenticateWithCredential(user, credential);
-        await deleteUser(user);
-      } else {
-        const res = await fetch('/api/user', { method: 'DELETE' });
-        if (!res.ok) throw new Error(t('dangerZone.reauthRequired'));
+      const { error } = await authClient.deleteUser(hasPasswordProvider ? { password } : {});
+      if (error) {
+        const isSessionExpired = error.code === authClient.$ERROR_CODES.SESSION_EXPIRED.code;
+        toast.error(isSessionExpired ? t('dangerZone.reauthRequired') : (error.message ?? t('dangerZone.reauthRequired')));
+        setDeleting(false);
       }
-      await clearSession();
-      await signOut(getFirebaseAuth());
     } catch (err) {
       toast.error(err instanceof Error ? err.message : String(err));
       setDeleting(false);

@@ -1,11 +1,20 @@
 'use client';
 
 import { createContext, useContext } from 'react';
-import type { User } from 'firebase/auth';
+
+/** The authenticated user, shaped after better-auth's `session.user`. */
+export interface SettingsUser {
+  id: string;
+  email: string;
+  emailVerified: boolean;
+  name: string;
+  image?: string | null;
+}
 
 interface UserContextValue {
-  user: User;
-  updateUser: (patch: Partial<User>) => void;
+  user: SettingsUser;
+  /** Optimistically merges a patch into the current user without waiting for a session refetch. */
+  updateUser: (patch: Partial<SettingsUser>) => void;
 }
 
 export const UserContext = createContext<UserContextValue | null>(null);

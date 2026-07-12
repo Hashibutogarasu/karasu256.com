@@ -14,7 +14,6 @@ import {
   toast,
 } from '@Hashibutogarasu/ui';
 import { uploadUserIcon, deleteUserIcon, setUserIconFromProvider, listLinkedProviders, type ProviderProfile } from '@Hashibutogarasu/utils/client';
-import { getFirebaseAuth } from '@/lib/firebase/auth';
 import { useSettingsUser } from '@/components/settings/user-context';
 
 /** Formats a submenu entry as "user name (Provider)", falling back to just the provider name. */
@@ -29,9 +28,10 @@ function providerLabel(providerId: string, profile: ProviderProfile): string {
  * reusing a linked provider's avatar, or removing the current one. Falls
  * back to an identicon when the user has no icon set.
  *
- * Linking a social provider automatically copies its avatar here too, via
- * `syncProfileImageToFirebase` on the accounts server — Firebase's own user
- * record is the single source of truth for the profile photo.
+ * The icon itself is still stored on the Firebase user record (`api/user/icon`),
+ * not in better-auth's own `image` column, so each handler below applies the
+ * URL the server returns to {@link useSettingsUser}'s context directly
+ * instead of waiting on a better-auth session refetch to pick it up.
  */
 export function ProfileIcon() {
   const t = useTranslations();
@@ -46,41 +46,31 @@ export function ProfileIcon() {
       .catch(() => {});
   }, []);
 
-  /**
-   * Reloads the client Firebase user so its cached `photoURL` reflects the
-   * value the server just wrote via the Admin SDK, then pushes it into
-   * {@link useSettingsUser}'s context so {@link UserAvatar} re-renders.
-   */
-  async function syncPhotoURL(): Promise<void> {
-    const currentUser = getFirebaseAuth().currentUser;
-    if (!currentUser) return;
-    await currentUser.reload();
-    updateUser({ photoURL: getFirebaseAuth().currentUser?.photoURL ?? null });
-  }
-
   async function handleFileSelected(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     e.target.value = '';
     if (!file) return;
 
+    let photoURL: string;
     try {
-      await uploadUserIcon(file);
+      photoURL = await uploadUserIcon(file);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : String(err));
       return;
     }
-    await syncPhotoURL();
+    updateUser({ image: photoURL });
     toast.success(t('profile.iconChanged'), { autoClose: true });
   }
 
   async function handleSelectProvider(providerId: string) {
+    let photoURL: string;
     try {
-      await setUserIconFromProvider(providerId);
+      photoURL = await setUserIconFromProvider(providerId);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : String(err));
       return;
     }
-    await syncPhotoURL();
+    updateUser({ image: photoURL });
     toast.success(t('profile.iconChanged'), { autoClose: true });
   }
 
@@ -91,7 +81,7 @@ export function ProfileIcon() {
       toast.error(err instanceof Error ? err.message : String(err));
       return;
     }
-    await syncPhotoURL();
+    updateUser({ image: null });
     toast.success(t('profile.iconChanged'), { autoClose: true });
   }
 
@@ -99,7 +89,7 @@ export function ProfileIcon() {
     <>
       <ContextMenu>
         <ContextMenuTrigger onClick={() => fileInputRef.current?.click()} aria-label={t('profile.changeIcon')}>
-          <UserAvatar uid={user.uid} iconUrl={user.photoURL} size={48} className="border border-border" />
+          <UserAvatar uid={user.id} iconUrl={user.image ?? null} size={48} className="border border-border" />
         </ContextMenuTrigger>
         <ContextMenuContent>
           <ContextMenuItem onClick={() => fileInputRef.current?.click()}>{t('profile.uploadIcon')}</ContextMenuItem>
@@ -113,7 +103,7 @@ export function ProfileIcon() {
               ))}
             </ContextMenuSubContent>
           </ContextMenuSub>
-          <ContextMenuItem variant="destructive" disabled={!user.photoURL} onClick={handleDeleteIcon}>
+          <ContextMenuItem variant="destructive" disabled={!user.image} onClick={handleDeleteIcon}>
             {t('profile.deleteIcon')}
           </ContextMenuItem>
         </ContextMenuContent>

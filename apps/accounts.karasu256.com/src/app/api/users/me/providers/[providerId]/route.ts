@@ -16,7 +16,7 @@ export async function DELETE(_request: NextRequest, { params }: { params: Promis
   const db = getDb();
   const result = await db
     .delete(accounts)
-    .where(and(eq(accounts.userId, user.uid), eq(accounts.providerId, providerId)))
+    .where(and(eq(accounts.userId, user.id), eq(accounts.providerId, providerId)))
     .returning({ id: accounts.id });
 
   if (result.length === 0) {
