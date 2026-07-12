@@ -1,7 +1,9 @@
 import { drizzleAdapter } from '@better-auth/drizzle-adapter';
 import { getDb } from '@Hashibutogarasu/db/client';
 import * as schema from '@Hashibutogarasu/db/schema';
+import { sendPasswordResetEmail } from '@Hashibutogarasu/utils/email';
 import { BETTER_AUTH_SESSION_COOKIE_NAME } from '@Hashibutogarasu/utils/constants';
+import { getServerConfig } from '@/lib/config';
 import { bridgeFirebaseSessionForSocialSignIn, provisionFirebaseUser, syncNewUserToNeonAuth, syncProfileToFirebase } from '@/lib/auth/hooks';
 
 /**
@@ -35,6 +37,13 @@ export const authOptions = {
       trustedProviders: ['google', 'github'],
       allowDifferentEmails: true,
       updateUserInfoOnLink: true,
+    },
+  },
+  emailAndPassword: {
+    enabled: true,
+    sendResetPassword: async ({ user, url }: { user: { email: string }; url: string }) => {
+      const { resend } = getServerConfig();
+      await sendPasswordResetEmail({ apiKey: resend.apiKey, from: resend.fromEmail, to: user.email, resetUrl: url });
     },
   },
   advanced: {
