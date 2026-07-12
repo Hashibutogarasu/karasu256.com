@@ -49,15 +49,15 @@ export async function POST(request: NextRequest) {
   const result = await uploadImage(file, {
     imageApiUrl,
     cookieHeader,
-    path: `users/${user.uid}/avatar.png`,
+    path: `users/${user.id}/avatar.png`,
   });
   if (!result.ok) {
     return NextResponse.json({ error: result.error }, { status: result.status });
   }
   const { url } = result;
 
-  const previous = await getAdminAuth().getUser(user.uid);
-  await getAdminAuth().updateUser(user.uid, { photoURL: url });
+  const previous = await getAdminAuth().getUser(user.id);
+  await getAdminAuth().updateUser(user.id, { photoURL: url });
   await cleanupPreviousIcon(previous.photoURL, url, imageApiUrl, cookieHeader);
 
   return NextResponse.json({ photoURL: url });
@@ -77,7 +77,7 @@ export async function PUT(request: NextRequest) {
   const parsed = putBodySchema.safeParse(await request.json());
   if (!parsed.success) return badRequest();
 
-  const profile = await getProviderProfile(user.uid, parsed.data.providerId);
+  const profile = await getProviderProfile(user.id, parsed.data.providerId);
   if (!profile || !profile.avatarUrl) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
   }
@@ -85,8 +85,8 @@ export async function PUT(request: NextRequest) {
   const imageApiUrl = process.env.NEXT_PUBLIC_IMAGE_API_URL;
   const cookieHeader = (await headers()).get('cookie');
 
-  const previous = await getAdminAuth().getUser(user.uid);
-  await getAdminAuth().updateUser(user.uid, { photoURL: profile.avatarUrl });
+  const previous = await getAdminAuth().getUser(user.id);
+  await getAdminAuth().updateUser(user.id, { photoURL: profile.avatarUrl });
   await cleanupPreviousIcon(previous.photoURL, profile.avatarUrl, imageApiUrl, cookieHeader);
 
   return NextResponse.json({ photoURL: profile.avatarUrl });
@@ -105,8 +105,8 @@ export async function DELETE() {
   const imageApiUrl = process.env.NEXT_PUBLIC_IMAGE_API_URL;
   const cookieHeader = (await headers()).get('cookie');
 
-  const previous = await getAdminAuth().getUser(user.uid);
-  await getAdminAuth().updateUser(user.uid, { photoURL: null });
+  const previous = await getAdminAuth().getUser(user.id);
+  await getAdminAuth().updateUser(user.id, { photoURL: null });
   await cleanupPreviousIcon(previous.photoURL, null, imageApiUrl, cookieHeader);
 
   return NextResponse.json({ photoURL: null });

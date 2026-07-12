@@ -6,14 +6,14 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { useTranslations } from 'next-intl';
 import { toast } from '@Hashibutogarasu/ui';
-import { requestPasswordReset } from '@Hashibutogarasu/utils/client';
+import { authClient } from '@/lib/auth/client';
 import { Button } from '@Hashibutogarasu/ui';
 import { Card, CardContent, CardHeader, CardTitle } from '@Hashibutogarasu/ui';
 import { Input } from '@Hashibutogarasu/ui';
 import { Label } from '@Hashibutogarasu/ui';
 
 /**
- * Requests a custom password-reset email via Resend and displays a
+ * Requests a password-reset email via better-auth and displays a
  * confirmation message once the server accepts the request.
  */
 export function ResetPasswordForm() {
@@ -25,14 +25,13 @@ export function ResetPasswordForm() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    try {
-      await requestPasswordReset(email);
+    const { error } = await authClient.requestPasswordReset({ email, redirectTo: '/reset-password/confirm' });
+    if (error) {
+      toast.error(error.message ?? t('resetPassword.title'));
+    } else {
       setSent(true);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : String(err));
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   }
 
   return (

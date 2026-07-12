@@ -13,8 +13,8 @@ export async function GET() {
   const { user, error } = await requireSession();
   if (error) return error;
 
-  const providerIds = await getLinkedProviderIds(user.uid);
-  const profiles = await Promise.all(providerIds.map((providerId) => getProviderProfile(user.uid, providerId)));
+  const providerIds = await getLinkedProviderIds(user.id);
+  const profiles = await Promise.all(providerIds.map((providerId) => getProviderProfile(user.id, providerId)));
 
   const result: Record<string, ProviderProfile> = {};
   providerIds.forEach((providerId, i) => {

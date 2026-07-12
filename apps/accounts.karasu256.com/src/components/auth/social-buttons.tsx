@@ -10,9 +10,8 @@ type Provider = 'google' | 'github';
 
 /**
  * Renders Google and GitHub sign-in buttons. Delegates the OAuth handshake
- * to better-auth; on success the callback signs in to the linked provider's
- * existing user and, via `bridgeFirebaseSessionForSocialSignIn`, hands off
- * to `/auth/callback` to establish the real Firebase session.
+ * to better-auth, which establishes its own session directly; `/auth/callback`
+ * confirms the session landed before continuing to the settings page.
  */
 export function SocialButtons() {
   const [loading, setLoading] = useState<Provider | null>(null);

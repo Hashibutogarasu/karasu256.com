@@ -1,21 +1,16 @@
-import { cookies } from 'next/headers';
-import type { DecodedIdToken } from 'firebase-admin/auth';
-import { getAdminAuth } from '@/lib/firebase-admin';
-import { SESSION_COOKIE_NAME } from '@Hashibutogarasu/utils/constants';
+import { headers } from 'next/headers';
+import { auth } from '@/lib/auth/server';
+
+/** The authenticated user, as returned by `auth.api.getSession`. */
+export type SessionUser = NonNullable<Awaited<ReturnType<typeof auth.api.getSession>>>['user'];
 
 /**
- * Reads and verifies the Firebase session cookie.
- * Returns the decoded token when valid, or `null` when absent or invalid.
+ * Reads and verifies the better-auth session.
+ * Returns the session's user when valid, or `null` when absent or invalid.
  *
  * Must only be called from Server Components or Route Handlers.
  */
-export async function getSessionUser(): Promise<DecodedIdToken | null> {
-  const store = await cookies();
-  const sessionCookie = store.get(SESSION_COOKIE_NAME)?.value;
-  if (!sessionCookie) return null;
-  try {
-    return await getAdminAuth().verifySessionCookie(sessionCookie, true);
-  } catch {
-    return null;
-  }
+export async function getSessionUser(): Promise<SessionUser | null> {
+  const session = await auth.api.getSession({ headers: await headers() });
+  return session?.user ?? null;
 }

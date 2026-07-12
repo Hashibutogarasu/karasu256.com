@@ -11,6 +11,6 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function LinkingPage() {
   const sessionUser = await getSessionUser();
-  const initialProviders = sessionUser ? await getLinkedProviderIds(sessionUser.uid) : [];
+  const initialProviders = sessionUser ? await getLinkedProviderIds(sessionUser.id) : [];
   return <ProviderSectionClient initialProviders={initialProviders} />;
 }

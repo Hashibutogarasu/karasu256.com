@@ -1,17 +1,15 @@
 'use client';
 
 import { useEffect } from 'react';
-import { signInWithCustomToken } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { LoadingView } from '@Hashibutogarasu/ui';
-import { getFirebaseAuth } from '@/lib/firebase/auth';
-import { createSession } from '@/lib/api/auth-session';
+import { authClient } from '@/lib/auth/client';
 
 /**
- * Retrieves the Firebase custom token issued by the OAuth signIn callback,
- * completes Firebase authentication, and establishes the session cookie
- * before redirecting to the settings page.
+ * better-auth's own OAuth callback redirects here with the session cookie
+ * already set (via `nextCookies()`), so this only confirms the session
+ * actually landed before continuing to the settings page.
  *
  * On failure, redirects to /oauth/error.
  */
@@ -21,16 +19,11 @@ export function OAuthCallbackClient() {
 
   useEffect(() => {
     async function completeSignIn() {
-      const res = await fetch('/api/auth/oauth-token');
-      if (!res.ok) {
+      const { data } = await authClient.getSession();
+      if (!data) {
         router.replace('/oauth/error');
         return;
       }
-
-      const { customToken } = (await res.json()) as { customToken: string };
-      const credential = await signInWithCustomToken(getFirebaseAuth(), customToken);
-      const idToken = await credential.user.getIdToken();
-      await createSession(idToken);
       router.replace('/settings');
     }
 
