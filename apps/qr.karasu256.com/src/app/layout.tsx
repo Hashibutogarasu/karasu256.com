@@ -9,7 +9,6 @@ import { RedisProvider } from '@Hashibutogarasu/ui/redis';
 import { getSessionUser } from '@Hashibutogarasu/utils/server';
 import './globals.css';
 import Header from '@/components/Header';
-import { authClient } from '@/lib/auth/client';
 
 config.autoAddCss = false;
 
@@ -50,7 +49,7 @@ export default async function RootLayout({
     <html lang={locale} className={`${geistSans.variable} ${geistMono.variable} ${notoSansJP.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
         <NextIntlClientProvider messages={messages}>
-          <SessionProvider authClient={authClient} initialUser={initialUser}>
+          <SessionProvider baseURL={process.env.NEXT_PUBLIC_ACCOUNTS_URL} initialUser={initialUser}>
             <R2StorageProvider imageApiUrl={process.env.NEXT_PUBLIC_IMAGE_API_URL!}>
               <RedisProvider redisURL={process.env.REDIS_URL!}>
                 <PopUpMenuProvider>

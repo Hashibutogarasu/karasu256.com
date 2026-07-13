@@ -7,7 +7,6 @@ import { PopUpMenuProvider, SessionProvider } from '@Hashibutogarasu/ui';
 import { getSessionUser } from '@Hashibutogarasu/utils/server';
 import './globals.css';
 import Header from '@/components/Header';
-import { authClient } from '@/lib/auth/client';
 
 const geistSans = Geist({
   variable: '--font-sans',
@@ -67,7 +66,7 @@ export default async function RootLayout({
     <html lang={locale} className={`${geistSans.variable} ${geistMono.variable} ${notoSansJP.variable} h-full`}>
       <body className="min-h-full flex flex-col bg-background text-foreground antialiased" style={{ '--sidebar-top': '3rem' } as React.CSSProperties}>
         <NextIntlClientProvider messages={messages}>
-          <SessionProvider authClient={authClient} initialUser={initialUser}>
+          <SessionProvider baseURL={process.env.NEXT_PUBLIC_ACCOUNTS_URL} initialUser={initialUser}>
             <PopUpMenuProvider>
               <Header />
               <main className="flex-1 flex flex-col">{children}</main>
