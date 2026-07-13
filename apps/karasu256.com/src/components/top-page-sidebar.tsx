@@ -27,21 +27,21 @@ export interface TopPageSidebarProps {
  * Home-page sidebar, separate from the settings sidebar. Unlike
  * `SettingsSidebar`, it has no footer-pinned account menu — items are
  * rendered as plain `SidebarMenuItem`s in the normal content flow. Also
- * registers itself as a drop target so an item dragged out of a pane can be
- * returned here. Hovering anywhere on the sidebar counts, but the geometry
- * handed to the drag context is measured from the small item slot, not the
- * whole (viewport-tall) sidebar, so the floating ghost morphs to a
- * reasonably sized shape instead of the sidebar's full height. On mobile the
- * sidebar renders as a modal sheet whose full-viewport backdrop sits above
- * the main content, so it auto-closes as soon as a drag starts — otherwise
- * the backdrop would keep swallowing the pointer events the drop targets
- * need to detect a hover.
+ * registers itself as a drop target (id `"sidebar"`, matched by
+ * `data-dnd-drop-target-id` anywhere within the whole sidebar) so an item
+ * dragged out of a pane can be returned here. Hovering anywhere on the
+ * sidebar counts, but the geometry handed to the drag context is measured
+ * from the small item slot via `getShape`, not the whole (viewport-tall)
+ * sidebar, so the floating ghost morphs to a reasonably sized shape instead
+ * of the sidebar's full height. On mobile the sidebar renders as a modal
+ * sheet whose full-viewport backdrop sits above the main content, so it
+ * auto-closes as soon as a drag starts — otherwise the backdrop would keep
+ * swallowing the pointer events the drop targets need to detect a hover.
  */
 export function TopPageSidebar({ children, onDrop, titleActions }: TopPageSidebarProps) {
   const t = useTranslations();
-  const sidebarRef = useRef<HTMLDivElement>(null);
   const slotRef = useRef<HTMLDivElement>(null);
-  const { isDragging, registerHover, clearHover } = useDragAndDrop();
+  const { isDragging, registerDropTarget } = useDragAndDrop();
   const { isMobile, openMobile, setOpenMobile } = useSidebar();
 
   useEffect(() => {
@@ -50,19 +50,17 @@ export function TopPageSidebar({ children, onDrop, titleActions }: TopPageSideba
     }
   }, [isDragging, isMobile, openMobile, setOpenMobile]);
 
-  function handlePointerEnter() {
-    if (!isDragging || !slotRef.current) return;
-    const rect = slotRef.current.getBoundingClientRect();
-    const borderRadius = getComputedStyle(slotRef.current).borderRadius;
-    registerHover({ id: 'sidebar', rect, borderRadius, onDrop });
-  }
-
-  function handlePointerLeave() {
-    clearHover('sidebar');
-  }
+  useEffect(
+    () =>
+      registerDropTarget('sidebar', onDrop, () => ({
+        rect: slotRef.current!.getBoundingClientRect(),
+        borderRadius: getComputedStyle(slotRef.current!).borderRadius,
+      })),
+    [onDrop, registerDropTarget]
+  );
 
   return (
-    <Sidebar collapsible="icon" ref={sidebarRef} onPointerEnter={handlePointerEnter} onPointerLeave={handlePointerLeave}>
+    <Sidebar collapsible="icon" data-dnd-drop-target-id="sidebar">
       <SidebarHeader className="border-b border-sidebar-border">
         <div className="flex items-center gap-2 px-1 py-1">
           <SidebarTrigger className="shrink-0" />

@@ -26,10 +26,11 @@ export interface DragAndDropAreaProps {
  * dropped item (`filled`) stretches `children` to fill its exact size and
  * always stays fully visible regardless of the empty-state fade, so the
  * item itself takes on the container's shape instead of floating small
- * inside it. While a drag is active it pushes its own geometry (and
- * `onDrop`) into the enclosing `DragAndDropProvider` on pointer-enter so the
- * floating ghost can morph to match its shape — the dragged item itself
- * never references this component. While empty, its bottom edge is also a
+ * inside it. Registers itself as a drop target with the enclosing
+ * `DragAndDropProvider` (matched by its `data-dnd-drop-target-id` while a
+ * drag hit-tests the pointer's position) so the floating ghost can morph to
+ * match its shape once hovered — the dragged item itself never references
+ * this component. While empty, its bottom edge is also a
  * resize handle: dragging it persists a freely chosen height for that
  * state via the enclosing `DragAndDropProvider`'s height map, keyed by this
  * area's own `id` — no per-area wiring is needed from the caller. A
@@ -45,20 +46,11 @@ export interface DragAndDropAreaProps {
  */
 export function DragAndDropArea({ id, children, onDrop, className, filled, minHeight = 80 }: DragAndDropAreaProps) {
   const ref = React.useRef<HTMLDivElement>(null);
-  const { isDragging, disabled, hoveredAreaId, registerHover, clearHover, heights, setAreaHeight } = useDragAndDrop();
+  const { disabled, hoveredAreaId, registerDropTarget, heights, setAreaHeight } = useDragAndDrop();
   const isHovered = hoveredAreaId === id;
   const height = heights[id];
 
-  function handlePointerEnter() {
-    if (!isDragging || !ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
-    const borderRadius = getComputedStyle(ref.current).borderRadius;
-    registerHover({ id, rect, borderRadius, onDrop });
-  }
-
-  function handlePointerLeave() {
-    clearHover(id);
-  }
+  React.useEffect(() => registerDropTarget(id, onDrop), [id, onDrop, registerDropTarget]);
 
   function handleResizePointerDown(event: React.PointerEvent<HTMLDivElement>) {
     if (filled || disabled || !ref.current) return;
@@ -83,9 +75,8 @@ export function DragAndDropArea({ id, children, onDrop, className, filled, minHe
     <div
       ref={ref}
       data-slot="drag-and-drop-area"
+      data-dnd-drop-target-id={id}
       data-hovered={isHovered ? '' : undefined}
-      onPointerEnter={handlePointerEnter}
-      onPointerLeave={handlePointerLeave}
       style={height !== undefined ? { height, alignSelf: 'start' } : undefined}
       className={cn(
         'relative flex items-center justify-center overflow-hidden rounded-[32px] transition-colors duration-200',
