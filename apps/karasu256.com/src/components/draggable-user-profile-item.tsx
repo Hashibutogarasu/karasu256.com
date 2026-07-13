@@ -23,7 +23,7 @@ export function DraggableUserProfileItem({ user }: DraggableUserProfileItemProps
     <Draggable id="user-profile" className="h-full w-full">
       <div className="flex h-full min-h-10 w-full items-center gap-2 rounded-md px-2 hover:bg-sidebar-accent">
         <UserAvatar uid={user.uid} iconUrl={user.photoURL} size={32} />
-        <span className="truncate text-sm font-medium group-data-[collapsible=icon]:hidden">{user.displayName ?? user.uid}</span>
+        <span className="min-w-0 truncate text-sm font-medium group-data-[collapsible=icon]:hidden">{user.displayName ?? user.uid}</span>
       </div>
     </Draggable>
   );
