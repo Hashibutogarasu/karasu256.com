@@ -16,6 +16,12 @@ import { SocialButtons } from './social-buttons';
 /**
  * Sign-in card for unauthenticated users.
  *
+ * Renders server-rendered from the start, with the sign-in button and text
+ * inputs disabled until the Firebase auth state is known (avoids a flash of
+ * enabled controls that get disabled again once a signed-in user starts
+ * redirecting). Only the external provider button area shows a skeleton, since
+ * it has no meaningful disabled state to render up front.
+ *
  * On Firebase auth state change to a signed-in user:
  * 1. Creates a Firebase session cookie via {@link createSession}.
  * 2. Redirects to `/settings`.
@@ -23,13 +29,13 @@ import { SocialButtons } from './social-buttons';
 export function SignInCard() {
   const router = useRouter();
   const t = useTranslations();
-  const [loading, setLoading] = useState(true);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     let redirecting = false;
     return onAuthStateChanged(getFirebaseAuth(), async (user) => {
       if (!user) {
-        setLoading(false);
+        setReady(true);
         return;
       }
       if (redirecting) return;
@@ -40,48 +46,30 @@ export function SignInCard() {
         router.replace('/settings');
       } catch {
         redirecting = false;
-        setLoading(false);
+        setReady(true);
       }
     });
   }, [router]);
-
-  if (loading) {
-    return (
-      <Container className="max-w-sm">
-        <CardHeader>
-          <Skeleton className="h-6 w-44" />
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="space-y-4">
-            <Skeleton className="h-8 w-full" />
-            <Skeleton className="h-9 w-full" />
-            <Skeleton className="h-9 w-full" />
-            <Skeleton className="h-8 w-full" />
-          </div>
-          <Skeleton className="h-px w-full" />
-          <div className="grid grid-cols-2 gap-2">
-            <Skeleton className="h-8 w-full" />
-            <Skeleton className="h-8 w-full" />
-          </div>
-          <Skeleton className="h-px w-full" />
-          <Skeleton className="h-8 w-full" />
-        </CardContent>
-      </Container>
-    );
-  }
 
   return (
     <Container className="max-w-sm">
       <CardHeader className="text-lg font-semibold">{t('signIn.title')}</CardHeader>
       <CardContent className="space-y-6">
-        <EmailPasswordForm />
+        <EmailPasswordForm disabled={!ready} />
         <div className="flex items-center gap-3">
           <Separator className="flex-1" />
           <span className="text-xs text-muted-foreground">{t('signIn.or')}</span>
           <Separator className="flex-1" />
         </div>
-        <SocialButtons />
-        <PasskeySection />
+        {ready ? (
+          <SocialButtons />
+        ) : (
+          <div className="grid grid-cols-2 gap-2">
+            <Skeleton className="h-8 w-full" />
+            <Skeleton className="h-8 w-full" />
+          </div>
+        )}
+        <PasskeySection disabled={!ready} />
       </CardContent>
     </Container>
   );
