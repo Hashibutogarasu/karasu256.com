@@ -1,9 +1,8 @@
 import Link from 'next/link';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { Header as UiHeader, AccountMenu, type CountryCode } from '@Hashibutogarasu/ui';
-import { getSessionUser, getRootAppUrl, signOutAction, setLocaleAction } from '@Hashibutogarasu/utils/server';
+import { getRootAppUrl, signOutAction, setLocaleAction } from '@Hashibutogarasu/utils/server';
 import { locales } from '@/i18n/locales';
-import { authClient } from '@/lib/auth/client';
 
 const localeLabels: Record<(typeof locales)[number], { label: string; countryCode: CountryCode }> = {
   ja: { label: '日本語', countryCode: 'JP' },
@@ -12,12 +11,11 @@ const localeLabels: Record<(typeof locales)[number], { label: string; countryCod
 };
 
 /**
- * Site-wide header. Reads the session (verified remotely against
- * accounts.karasu256.com) to show an account menu when authenticated, or a
- * sign-in button when not, plus a language switcher.
+ * Site-wide header. Shows an account menu (driven by the nearest
+ * `SessionProvider`, see the root layout) when authenticated, or a sign-in
+ * button when not, plus a language switcher.
  */
 const Header = async () => {
-  const sessionUser = await getSessionUser();
   const accountsUrl = process.env.NEXT_PUBLIC_ACCOUNTS_URL;
   const rootUrl = await getRootAppUrl();
   const t = await getTranslations('header');
@@ -35,10 +33,6 @@ const Header = async () => {
       onLocaleChange={setLocaleAction}
     >
       <AccountMenu
-        authClient={authClient}
-        initialUser={
-          sessionUser ? { uid: sessionUser.uid, iconUrl: sessionUser.image, displayName: sessionUser.name, email: sessionUser.email } : null
-        }
         signInHref={accountsUrl}
         settingsHref={`${rootUrl}/settings`}
         onSignOut={signOutAction}

@@ -6,10 +6,8 @@ import { UserAvatar } from './user-avatar';
 import { PopUpMenuUserContext, usePopUpMenuContext, type PopUpMenuUser } from './popup-menu';
 import { cn } from '../lib/utils';
 
-export type KarasuUser = PopUpMenuUser;
-
 export interface UserIconProps {
-  user: KarasuUser;
+  user: PopUpMenuUser;
   size?: number;
   triggerAriaLabel?: string;
   className?: string;
