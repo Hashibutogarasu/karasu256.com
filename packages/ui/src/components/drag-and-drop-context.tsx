@@ -143,13 +143,37 @@ export function DragAndDropProvider({ children, onDropOutside, disabled = false,
       setPointer({ x: event.clientX, y: event.clientY });
     }
 
+    /**
+     * Safety net for a drag whose terminating pointerup/pointercancel never
+     * reaches `window` — e.g. on mobile, a `Draggable` that lives inside a
+     * Sheet (see `TopPageSidebar`) can have its whole DOM subtree removed
+     * the instant a drag starts, and some mobile browsers then silently
+     * drop the rest of that touch's event sequence. Without this, the drag
+     * stays active forever, permanently hiding the dragged item
+     * (`Draggable` renders it at `opacity: 0` while dragging). A fresh
+     * pointerdown can only happen once the previous touch/click sequence
+     * has actually ended, so it's a reliable signal that the stuck drag's
+     * real end was simply never observed.
+     */
+    function handleStalePointerDown() {
+      endDrag();
+    }
+
+    function handleVisibilityChange() {
+      if (document.visibilityState === 'hidden') endDrag();
+    }
+
     window.addEventListener('pointermove', handlePointerMove);
     window.addEventListener('pointerup', endDrag);
     window.addEventListener('pointercancel', endDrag);
+    window.addEventListener('pointerdown', handleStalePointerDown, { capture: true });
+    document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => {
       window.removeEventListener('pointermove', handlePointerMove);
       window.removeEventListener('pointerup', endDrag);
       window.removeEventListener('pointercancel', endDrag);
+      window.removeEventListener('pointerdown', handleStalePointerDown, { capture: true });
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [isDragging]);
 
