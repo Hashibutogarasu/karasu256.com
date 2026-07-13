@@ -76,7 +76,7 @@ export function TopPageSidebar({ children, onDrop, titleActions }: TopPageSideba
         <SidebarGroup>
           <SidebarMenu>
             <SidebarMenuItem>
-              <div ref={slotRef} className="h-10 w-full rounded-md">
+              <div ref={slotRef} className="h-10 w-full min-w-0 overflow-hidden rounded-md">
                 {children}
               </div>
             </SidebarMenuItem>
