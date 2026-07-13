@@ -3,11 +3,11 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono, Noto_Sans_JP } from 'next/font/google';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages, getTranslations } from 'next-intl/server';
-import { PopUpMenuProvider, SessionProvider } from '@Hashibutogarasu/ui';
+import { PopUpMenuProvider } from '@Hashibutogarasu/ui';
 import { getSessionUser } from '@Hashibutogarasu/utils/server';
 import './globals.css';
 import Header from '@/components/Header';
-import { authClient } from '@/lib/auth/client';
+import { SessionRoot } from '@/components/SessionRoot';
 
 const geistSans = Geist({
   variable: '--font-sans',
@@ -67,12 +67,12 @@ export default async function RootLayout({
     <html lang={locale} className={`${geistSans.variable} ${geistMono.variable} ${notoSansJP.variable} h-full`}>
       <body className="min-h-full flex flex-col bg-background text-foreground antialiased" style={{ '--sidebar-top': '3rem' } as React.CSSProperties}>
         <NextIntlClientProvider messages={messages}>
-          <SessionProvider authClient={authClient} initialUser={initialUser}>
+          <SessionRoot initialUser={initialUser}>
             <PopUpMenuProvider>
               <Header />
               <main className="flex-1 flex flex-col">{children}</main>
             </PopUpMenuProvider>
-          </SessionProvider>
+          </SessionRoot>
         </NextIntlClientProvider>
       </body>
     </html>
