@@ -16,8 +16,6 @@ export interface PasskeySectionProps {
   auth?: Auth;
   /** Called after a successful sign-in, in addition to the default `onAuthStateChanged`-driven flow. */
   onSuccess?: (user: User) => void;
-  /** Disables the button, e.g. while the caller's auth state hasn't loaded yet. Defaults to `false`. */
-  disabled?: boolean;
 }
 
 /**
@@ -26,7 +24,7 @@ export interface PasskeySectionProps {
  * Uses a discoverable credential lookup so no email is required.
  * Delegates the WebAuthn + server round-trips to {@link authenticateWithPasskey}.
  */
-export function PasskeySection({ auth, onSuccess, disabled = false }: PasskeySectionProps = {}) {
+export function PasskeySection({ auth, onSuccess }: PasskeySectionProps = {}) {
   const t = useTranslations();
   const [loading, setLoading] = useState(false);
 
@@ -44,7 +42,7 @@ export function PasskeySection({ auth, onSuccess, disabled = false }: PasskeySec
   }
 
   return (
-    <Button variant="outline" className="w-full" onClick={handleSignIn} disabled={disabled || loading}>
+    <Button variant="outline" className="w-full" onClick={handleSignIn} disabled={loading}>
       {loading ? <Spinner /> : <FontAwesomeIcon icon={faFingerprint} />}
       {loading ? t('passkey.waiting') : t('passkey.signIn')}
     </Button>
