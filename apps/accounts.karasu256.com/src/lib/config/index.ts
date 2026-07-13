@@ -11,6 +11,7 @@ const webauthnSchema = z.object({
 
 const configFileSchema = z.object({
   webauthn: webauthnSchema.partial(),
+  trustedOrigins: z.array(z.string().url()).optional(),
 });
 
 const envSchema = z.object({
@@ -32,6 +33,8 @@ export type ServerConfig = {
   firebaseAdmin: z.infer<typeof envSchema>['firebaseAdmin'];
   resend: z.infer<typeof envSchema>['resend'];
   baseDomain?: string;
+  /** Origins allowed to make credentialed cross-origin calls into this app's better-auth instance (see `auth-options.ts`'s `trustedOrigins` and `lib/auth/cors.ts`). */
+  trustedOrigins: string[];
 };
 
 let cached: ServerConfig | undefined;
@@ -68,6 +71,7 @@ export function getServerConfig(): ServerConfig {
   const defaults = readConfigFile('config.default.yml');
   const overrides = readConfigFile(getEnvConfigFileName());
   const webauthn = webauthnSchema.parse({ ...defaults.webauthn, ...overrides.webauthn });
+  const trustedOrigins = overrides.trustedOrigins ?? defaults.trustedOrigins ?? [];
 
   const envData = envSchema.parse({
     firebaseAdmin: {
@@ -83,6 +87,6 @@ export function getServerConfig(): ServerConfig {
     baseDomain: process.env.BASE_DOMAIN,
   });
 
-  cached = { webauthn, ...envData };
+  cached = { webauthn, trustedOrigins, ...envData };
   return cached;
 }

@@ -1,8 +1,9 @@
 import Link from 'next/link';
 import { getLocale, getTranslations } from 'next-intl/server';
-import { Header as UiHeader, AccountMenu, type CountryCode } from '@Hashibutogarasu/ui';
+import { Header as UiHeader, type CountryCode } from '@Hashibutogarasu/ui';
 import { getSessionUser, signOutAction, setLocaleAction } from '@Hashibutogarasu/utils/server';
 import { locales } from '@/i18n/locales';
+import { HeaderAccountMenu } from './HeaderAccountMenu';
 
 const localeLabels: Record<(typeof locales)[number], { label: string; countryCode: CountryCode }> = {
   ja: { label: '日本語', countryCode: 'JP' },
@@ -32,8 +33,10 @@ const Header = async () => {
       currentLocale={currentLocale}
       onLocaleChange={setLocaleAction}
     >
-      <AccountMenu
-        user={sessionUser ? { uid: sessionUser.uid, iconUrl: sessionUser.image, displayName: sessionUser.name, email: sessionUser.email } : null}
+      <HeaderAccountMenu
+        initialUser={
+          sessionUser ? { uid: sessionUser.uid, iconUrl: sessionUser.image, displayName: sessionUser.name, email: sessionUser.email } : null
+        }
         signInHref={accountsUrl}
         settingsHref="/settings"
         onSignOut={signOutAction}
