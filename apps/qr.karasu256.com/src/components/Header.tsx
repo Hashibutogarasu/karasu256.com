@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import { getLocale, getTranslations } from 'next-intl/server';
-import { Header as UiHeader, type CountryCode } from '@Hashibutogarasu/ui';
+import { Header as UiHeader, AccountMenu, type CountryCode } from '@Hashibutogarasu/ui';
 import { getSessionUser, getRootAppUrl, signOutAction, setLocaleAction } from '@Hashibutogarasu/utils/server';
 import { locales } from '@/i18n/locales';
-import { HeaderAccountMenu } from './HeaderAccountMenu';
+import { authClient } from '@/lib/auth/client';
 
 const localeLabels: Record<(typeof locales)[number], { label: string; countryCode: CountryCode }> = {
   ja: { label: '日本語', countryCode: 'JP' },
@@ -34,7 +34,8 @@ const Header = async () => {
       currentLocale={currentLocale}
       onLocaleChange={setLocaleAction}
     >
-      <HeaderAccountMenu
+      <AccountMenu
+        authClient={authClient}
         initialUser={
           sessionUser ? { uid: sessionUser.uid, iconUrl: sessionUser.image, displayName: sessionUser.name, email: sessionUser.email } : null
         }

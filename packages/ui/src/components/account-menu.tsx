@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import type { createAppAuthClient } from '@Hashibutogarasu/utils/client';
 import { Button } from './button';
 import { UserIcon, type KarasuUser } from './user-icon';
 import { PopUpMenu } from './popup-menu';
@@ -13,8 +14,17 @@ export interface AccountMenuLabels {
 }
 
 export interface AccountMenuProps {
-  /** The signed-in user, or `null` to render a sign-in button instead. */
-  user: KarasuUser | null;
+  /**
+   * The calling app's better-auth client, as returned by
+   * `createAppAuthClient`. Its `useSession()` hook is the live source of
+   * truth for the signed-in user.
+   */
+  authClient: ReturnType<typeof createAppAuthClient>['authClient'];
+  /**
+   * Server-rendered session user, shown until `authClient.useSession()`
+   * resolves, so there is no flash of signed-out UI on first paint.
+   */
+  initialUser: KarasuUser | null;
   /** Destination for the sign-in button. */
   signInHref: string;
   /** Destination for the "settings" menu item. */
@@ -36,9 +46,21 @@ const defaultLabels: Required<AccountMenuLabels> = {
  * when authenticated. The dropdown shows the user's avatar, display name,
  * email address, a configurable settings link, and a configurable sign-out
  * action, so callers can point them at whichever app hosts settings/auth.
+ *
+ * The signed-in user is read live via `authClient.useSession()` — a
+ * cross-origin call to whichever app hosts better-auth — so signing in or
+ * out there, or in another tab, is reflected here without a full page
+ * reload.
  */
-export function AccountMenu({ user, signInHref, settingsHref, onSignOut, labels, triggerAriaLabel }: AccountMenuProps) {
+export function AccountMenu({ authClient, initialUser, signInHref, settingsHref, onSignOut, labels, triggerAriaLabel }: AccountMenuProps) {
   const { signIn, settings, signOut } = { ...defaultLabels, ...labels };
+  const { data: session, isPending } = authClient.useSession();
+
+  const user: KarasuUser | null = isPending
+    ? initialUser
+    : session
+      ? { uid: session.user.id, iconUrl: session.user.image, displayName: session.user.name, email: session.user.email }
+      : null;
 
   if (!user) {
     return (
