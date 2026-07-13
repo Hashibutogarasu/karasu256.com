@@ -12,10 +12,12 @@ import { Button, Spinner } from '@Hashibutogarasu/ui';
 export interface PasskeySectionProps {
   /** Called after a successful sign-in, instead of the default redirect to `/settings`. */
   onSuccess?: () => void;
+  /** Disables the button, e.g. while the caller's session state hasn't loaded yet. Defaults to `false`. */
+  disabled?: boolean;
 }
 
 /** Renders the passkey sign-in button for unauthenticated users. */
-export function PasskeySection({ onSuccess }: PasskeySectionProps = {}) {
+export function PasskeySection({ onSuccess, disabled = false }: PasskeySectionProps = {}) {
   const t = useTranslations();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -38,7 +40,7 @@ export function PasskeySection({ onSuccess }: PasskeySectionProps = {}) {
   }
 
   return (
-    <Button variant="outline" className="w-full" onClick={handleSignIn} disabled={loading}>
+    <Button variant="outline" className="w-full" onClick={handleSignIn} disabled={disabled || loading}>
       {loading ? <Spinner /> : <FontAwesomeIcon icon={faFingerprint} />}
       {loading ? t('passkey.waiting') : t('passkey.signIn')}
     </Button>

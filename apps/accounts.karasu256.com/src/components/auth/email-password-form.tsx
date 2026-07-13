@@ -15,6 +15,8 @@ import { LocalizedPasswordStrengthIndicator } from './localized-password-strengt
 export interface EmailPasswordFormProps {
   /** Called after a successful sign-in or account creation, instead of the default redirect to `/settings`. */
   onSuccess?: () => void;
+  /** Disables all inputs and buttons, e.g. while the caller's session state hasn't loaded yet. Defaults to `false`. */
+  disabled?: boolean;
 }
 
 /**
@@ -22,7 +24,7 @@ export interface EmailPasswordFormProps {
  * creation against better-auth. Both tabs share the same email and password
  * state so the user can fill in credentials once and choose the action.
  */
-export function EmailPasswordForm({ onSuccess }: EmailPasswordFormProps = {}) {
+export function EmailPasswordForm({ onSuccess, disabled = false }: EmailPasswordFormProps = {}) {
   const t = useTranslations();
   const router = useRouter();
   const [tab, setTab] = useState('signin');
@@ -32,7 +34,7 @@ export function EmailPasswordForm({ onSuccess }: EmailPasswordFormProps = {}) {
   const [loading, setLoading] = useState(false);
 
   const activeIndex = tab === 'signin' ? 0 : 1;
-  const registerDisabled = loading || !email || !password || !agreedToTerms;
+  const registerDisabled = disabled || loading || !email || !password || !agreedToTerms;
   const termsUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? ''}/terms`;
 
   function handleSuccess() {
@@ -103,6 +105,7 @@ export function EmailPasswordForm({ onSuccess }: EmailPasswordFormProps = {}) {
                 value={email}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                 required
+                disabled={disabled}
               />
             </div>
             <div className="space-y-2">
@@ -119,9 +122,10 @@ export function EmailPasswordForm({ onSuccess }: EmailPasswordFormProps = {}) {
                 value={password}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                 required
+                disabled={disabled}
               />
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full" disabled={disabled || loading}>
               <FontAwesomeIcon icon={faRightToBracket} />
               {loading ? t('signIn.signingIn') : t('signIn.submit')}
             </Button>
@@ -140,6 +144,7 @@ export function EmailPasswordForm({ onSuccess }: EmailPasswordFormProps = {}) {
                 value={email}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                 required
+                disabled={disabled}
               />
             </div>
             <div className="space-y-2">
@@ -151,11 +156,12 @@ export function EmailPasswordForm({ onSuccess }: EmailPasswordFormProps = {}) {
                 value={password}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                 required
+                disabled={disabled}
               />
               <LocalizedPasswordStrengthIndicator password={password} />
             </div>
             <div className="flex items-start gap-2">
-              <Checkbox id="register-terms" checked={agreedToTerms} onCheckedChange={setAgreedToTerms} className="mt-0.5" />
+              <Checkbox id="register-terms" checked={agreedToTerms} onCheckedChange={setAgreedToTerms} className="mt-0.5" disabled={disabled} />
               <Label htmlFor="register-terms" className="font-normal text-sm leading-snug">
                 {t.rich('signIn.agreeToTerms', {
                   terms: (chunks) => (
