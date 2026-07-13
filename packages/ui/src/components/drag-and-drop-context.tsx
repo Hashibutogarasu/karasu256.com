@@ -29,6 +29,12 @@ export interface DragAndDropShape {
   onDrop?: (payload: DragPayload) => void;
 }
 
+/** A drop target's geometry, for {@link DragAndDropShape} — see {@link DragAndDropContextValue.registerDropTarget}'s `getShape`. */
+export interface DropTargetShape {
+  rect: DOMRect;
+  borderRadius: string;
+}
+
 export interface DragAndDropContextValue {
   isDragging: boolean;
   /** When true, `Draggable` ignores pointer-down and never starts a drag — set via `DragAndDropProvider`'s `disabled` prop. */
@@ -36,8 +42,17 @@ export interface DragAndDropContextValue {
   activePayload: DragPayload | null;
   hoveredAreaId: string | null;
   beginDrag: (payload: DragPayload, pointer: { clientX: number; clientY: number }) => void;
-  registerHover: (shape: DragAndDropShape) => void;
-  clearHover: (id: string) => void;
+  /**
+   * Registers a drop target's own DOM element (found via
+   * `document.elementFromPoint` during a drag, matched by its
+   * `data-dnd-drop-target-id` attribute — the caller must set that
+   * attribute to `id` itself) so hovering it resolves `onDrop` and the
+   * ghost's morph shape independent of `pointerenter`/`pointerleave`
+   * ordering. `getShape` overrides the ghost's morph geometry (e.g. a small
+   * slot inside a much larger drop target); omit it to use the matched
+   * element's own rect. Returns an unregister function for effect cleanup.
+   */
+  registerDropTarget: (id: string, onDrop?: (payload: DragPayload) => void, getShape?: () => DropTargetShape) => () => void;
   /** Per-area manually resized heights (px), keyed by the area's own `id` — so a `DragAndDropArea` only needs its `id` to read/write its height. */
   heights: Record<string, number>;
   setAreaHeight: (id: string, height: number) => void;
@@ -94,6 +109,7 @@ export function DragAndDropProvider({ children, onDropOutside, disabled = false,
   onDropOutsideRef.current = onDropOutside;
   const onHeightsChangeRef = React.useRef(onHeightsChange);
   onHeightsChangeRef.current = onHeightsChange;
+  const dropTargetsRef = React.useRef(new Map<string, { onDrop?: (payload: DragPayload) => void; getShape?: () => DropTargetShape }>());
 
   const isDragging = activePayload !== null;
 
@@ -102,12 +118,11 @@ export function DragAndDropProvider({ children, onDropOutside, disabled = false,
     setPointer({ x: pointer.clientX, y: pointer.clientY });
   }, []);
 
-  const registerHover = React.useCallback((shape: DragAndDropShape) => {
-    setHoveredShape(shape);
-  }, []);
-
-  const clearHover = React.useCallback((id: string) => {
-    setHoveredShape((prev) => (prev?.id === id ? null : prev));
+  const registerDropTarget = React.useCallback((id: string, onDrop?: (payload: DragPayload) => void, getShape?: () => DropTargetShape) => {
+    dropTargetsRef.current.set(id, { onDrop, getShape });
+    return () => {
+      dropTargetsRef.current.delete(id);
+    };
   }, []);
 
   const setAreaHeight = React.useCallback((id: string, height: number) => {
@@ -155,8 +170,29 @@ export function DragAndDropProvider({ children, onDropOutside, disabled = false,
       setHoveredShape(null);
     }
 
+    /**
+     * Hit-tests the element under the pointer directly, instead of relying
+     * on each drop target's own `pointerenter`/`pointerleave` — those never
+     * fire for a target the drag started inside (the pointer was already
+     * there, so it never "entered"), which left a drag picked up from
+     * inside one area unable to hover a different one.
+     */
     function handlePointerMove(event: PointerEvent) {
       setPointer({ x: event.clientX, y: event.clientY });
+
+      const elementAtPoint = document.elementFromPoint(event.clientX, event.clientY);
+      const targetEl = elementAtPoint?.closest<HTMLElement>('[data-dnd-drop-target-id]') ?? null;
+      const targetId = targetEl?.dataset.dndDropTargetId ?? null;
+
+      setHoveredShape((prev) => {
+        if (targetId === (prev?.id ?? null)) return prev;
+        if (!targetId || !targetEl) return null;
+        const info = dropTargetsRef.current.get(targetId);
+        const shape = info?.getShape
+          ? info.getShape()
+          : { rect: targetEl.getBoundingClientRect(), borderRadius: getComputedStyle(targetEl).borderRadius };
+        return { id: targetId, rect: shape.rect, borderRadius: shape.borderRadius, onDrop: info?.onDrop };
+      });
     }
 
     window.addEventListener('pointermove', handlePointerMove);
@@ -176,12 +212,11 @@ export function DragAndDropProvider({ children, onDropOutside, disabled = false,
       activePayload,
       hoveredAreaId: hoveredShape?.id ?? null,
       beginDrag,
-      registerHover,
-      clearHover,
+      registerDropTarget,
       heights,
       setAreaHeight,
     }),
-    [isDragging, disabled, activePayload, hoveredShape, beginDrag, registerHover, clearHover, heights, setAreaHeight]
+    [isDragging, disabled, activePayload, hoveredShape, beginDrag, registerDropTarget, heights, setAreaHeight]
   );
 
   return (
