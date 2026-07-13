@@ -2,14 +2,10 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { DragAndDropArea, DragAndDropProvider, LockIcon, SettingsSidebarLayout } from '@Hashibutogarasu/ui';
+import { DragAndDropArea, DragAndDropProvider, LockIcon, SettingsSidebarLayout, useSessionUser } from '@Hashibutogarasu/ui';
 import { useDragAndDropPlacement } from '@/hooks/use-drag-and-drop-placement';
 import { TopPageSidebar } from './top-page-sidebar';
-import { DraggableUserProfileItem, type DraggableUserProfileItemUser } from './draggable-user-profile-item';
-
-export interface TopPageShellProps {
-  user: DraggableUserProfileItemUser | null;
-}
+import { DraggableUserProfileItem } from './draggable-user-profile-item';
 
 /**
  * Top-page playground: a home-page sidebar holding a draggable user-profile
@@ -18,13 +14,25 @@ export interface TopPageShellProps {
  * `LockIcon` in the sidebar title toggles `locked`, which disables dragging
  * across the whole `DragAndDropProvider` subtree so items become plain,
  * touchable content instead.
+ *
+ * Reads the signed-in user via `useSessionUser` (the same live,
+ * cross-origin session as the header's account menu) rather than a
+ * server-rendered prop, so the profile item's visibility can't disagree with
+ * the header — a server-only session lookup can fail to see a cookie the
+ * header's client-side check still finds (e.g. cross-subdomain cookie
+ * quirks on some mobile browsers), which previously left the item
+ * permanently absent for signed-in mobile users while the header correctly
+ * showed them as signed in.
  */
-export function TopPageShell({ user }: TopPageShellProps) {
+export function TopPageShell() {
   const t = useTranslations();
+  const sessionUser = useSessionUser();
   const { placements, setPlacement, heights, setHeights } = useDragAndDropPlacement();
   const [locked, setLocked] = useState(false);
   const profileArea = placements['user-profile'] ?? 'sidebar';
-  const profileItem = user ? <DraggableUserProfileItem user={user} /> : null;
+  const profileItem = sessionUser ? (
+    <DraggableUserProfileItem user={{ uid: sessionUser.uid, displayName: sessionUser.displayName ?? null, photoURL: sessionUser.iconUrl ?? null }} />
+  ) : null;
 
   return (
     <DragAndDropProvider
