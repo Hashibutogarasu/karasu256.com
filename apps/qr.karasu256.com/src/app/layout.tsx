@@ -4,12 +4,11 @@ import { config } from '@fortawesome/fontawesome-svg-core';
 import '@fortawesome/fontawesome-svg-core/styles.css';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
-import { PopUpMenuProvider, R2StorageProvider } from '@Hashibutogarasu/ui';
+import { PopUpMenuProvider, R2StorageProvider, SessionProvider } from '@Hashibutogarasu/ui';
 import { RedisProvider } from '@Hashibutogarasu/ui/redis';
 import { getSessionUser } from '@Hashibutogarasu/utils/server';
 import './globals.css';
 import Header from '@/components/Header';
-import { SessionRoot } from '@/components/SessionRoot';
 
 config.autoAddCss = false;
 
@@ -50,7 +49,7 @@ export default async function RootLayout({
     <html lang={locale} className={`${geistSans.variable} ${geistMono.variable} ${notoSansJP.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
         <NextIntlClientProvider messages={messages}>
-          <SessionRoot initialUser={initialUser}>
+          <SessionProvider baseURL={process.env.NEXT_PUBLIC_ACCOUNTS_URL} initialUser={initialUser}>
             <R2StorageProvider imageApiUrl={process.env.NEXT_PUBLIC_IMAGE_API_URL!}>
               <RedisProvider redisURL={process.env.REDIS_URL!}>
                 <PopUpMenuProvider>
@@ -59,7 +58,7 @@ export default async function RootLayout({
                 </PopUpMenuProvider>
               </RedisProvider>
             </R2StorageProvider>
-          </SessionRoot>
+          </SessionProvider>
         </NextIntlClientProvider>
       </body>
     </html>
