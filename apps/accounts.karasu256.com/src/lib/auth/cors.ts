@@ -1,15 +1,18 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { getServerConfig } from '@/lib/config';
 
 /**
  * better-auth only uses `trustedOrigins` for its own cookie/CSRF origin
  * checks — it never emits `Access-Control-*` response headers, so
- * cross-origin calls from karasu256.com (e.g. the Firebase session bridge,
- * `/oauth2/*` client management) are blocked by the browser without this.
+ * cross-origin calls from karasu256.com and qr.karasu256.com (e.g. the
+ * Firebase session bridge, `/oauth2/*` client management, and each app's
+ * `authClient.useSession()` call for shared login state) are blocked by the
+ * browser without this. Reuses the same `trustedOrigins` list read from
+ * `config/*.yml` (see `lib/config/index.ts`) so the two allowlists can't
+ * drift apart.
  */
-const ALLOWED_ORIGINS = [process.env.NEXT_PUBLIC_APP_URL].filter((v): v is string => !!v);
-
 function corsHeaders(origin: string | null): HeadersInit {
-  if (!origin || !ALLOWED_ORIGINS.includes(origin)) return {};
+  if (!origin || !getServerConfig().trustedOrigins.includes(origin)) return {};
   return {
     'Access-Control-Allow-Origin': origin,
     'Access-Control-Allow-Credentials': 'true',
