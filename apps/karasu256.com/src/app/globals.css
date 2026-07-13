@@ -80,6 +80,13 @@
 
 html {
   font-size: 150%;
+  /*
+   * Reserves the vertical scrollbar's width up front so it doesn't appear
+   * or disappear as page height changes (e.g. resizing a DragAndDropArea on
+   * the home page) — without this, that scrollbar toggling narrows/widens
+   * the whole flex row of panes on every resize.
+   */
+  scrollbar-gutter: stable;
 }
 
 @layer base {
