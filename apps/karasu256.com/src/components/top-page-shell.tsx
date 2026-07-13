@@ -51,10 +51,10 @@ export function TopPageShell() {
           </TopPageSidebar>
         }
       >
-        <div className="flex flex-1 flex-col items-stretch gap-6 md:flex-row md:items-start">
+        <div className="grid flex-1 grid-cols-1 items-stretch gap-6 md:grid-cols-3 md:items-start">
           <DragAndDropArea
             id="left-pane"
-            className="md:min-w-0 md:flex-1"
+            className="min-w-0"
             filled={profileArea === 'left-pane'}
             onDrop={(payload) => setPlacement(payload.id, 'left-pane')}
           >
@@ -62,7 +62,7 @@ export function TopPageShell() {
           </DragAndDropArea>
           <DragAndDropArea
             id="center-pane"
-            className="md:min-w-0 md:flex-1"
+            className="min-w-0"
             filled={profileArea === 'center-pane'}
             onDrop={(payload) => setPlacement(payload.id, 'center-pane')}
           >
@@ -70,7 +70,7 @@ export function TopPageShell() {
           </DragAndDropArea>
           <DragAndDropArea
             id="right-pane"
-            className="md:min-w-0 md:flex-1"
+            className="min-w-0"
             filled={profileArea === 'right-pane'}
             onDrop={(payload) => setPlacement(payload.id, 'right-pane')}
           >
