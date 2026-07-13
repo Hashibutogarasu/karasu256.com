@@ -1,0 +1,46 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+If you have read this file, respond with "にゃーん" before starting any work.
+
+## Repository overview
+
+This is a pnpm + Turborepo monorepo for Karasu Lab's web properties. It hosts several independently deployed Next.js apps and Cloudflare Workers that share a small set of internal packages.
+
+## Commands
+
+Run these from the repository root, not from inside an app directory:
+
+```bash
+pnpm dev            # Start all apps' dev servers via turbo
+pnpm build          # Build all apps via turbo
+pnpm lint           # Lint all apps via turbo
+pnpm format         # Format the whole repo with Prettier
+pnpm format:check   # Check formatting without writing
+```
+
+To target a single app or package, use turbo's filter flag, e.g. `pnpm --filter accounts.karasu256.com build` or `pnpm --filter accounts.karasu256.com dev`.
+
+Each app under `apps/*` may have its own `CLAUDE.md` with app-specific commands and architecture notes — check there first before editing that app.
+
+## Architecture
+
+### Apps (`apps/*`)
+
+- **karasu256.com** — the main marketing/landing Next.js site. Home page is a drag-and-drop playground with a persisted-placement sidebar showing the signed-in user's profile (via cross-origin session lookup), plus `/settings/profile`, `/settings/developer`, `/settings/other`, an OAuth test-callback route, and API routes for permissions, user, profile, and API keys.
+- **accounts.karasu256.com** — the account portal: sign-in/out, passkey management, and the monorepo's single better-auth instance, which also acts as the OAuth 2.1/OIDC authorization server for the other apps. See its own `CLAUDE.md` for the full authentication flow.
+- **cdn.karasu256.com** — an Elysia app on Cloudflare Workers that serves as the image/file CDN: public routes serve images by path, protected/anonymous routes handle upload and delete, backed by CORS, rate-limiting, and auth middleware.
+- **qr.karasu256.com** — a Next.js app that generates and displays a per-user (or anonymous) QR code linking to their profile/content, uploading the generated image through the CDN and caching the result in Redis.
+- **cron-jobs** — a Cloudflare Worker (`wrangler`) scaffold for scheduled jobs, depending on `@Hashibutogarasu/db` for future DB-backed tasks.
+
+### Packages (`packages/*`)
+
+- **db** — shared Drizzle ORM/Postgres data layer: schema for users, auth sessions/accounts/verifications/JWKs, passkeys, API keys, and OAuth (clients, consents, access/refresh tokens), plus query helpers.
+- **ui** — shared React component library (base-ui/shadcn-based): Button, Dialog, Card, Tabs, Sidebar/SettingsSidebar, Identicon/UserAvatar, R2Image, toast/Toaster, and a Redis client provider.
+- **utils** — shared server/client utilities: session/auth helpers, image upload/delete helpers, email templates, Zod validation, and shared constants.
+
+## Rules
+
+- For small, targeted edits, verify with a type check only (e.g. `pnpm --filter <app> exec tsc --noEmit`, or whatever the app's `CLAUDE.md` documents) rather than running a full `build`. Reserve full builds for larger changes or before opening a PR.
+- After opening a pull request, do not proactively offer to watch, babysit, or auto-fix CI for it. Only start monitoring a PR if the user explicitly asks.
