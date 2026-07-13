@@ -123,6 +123,22 @@ export function DragAndDropProvider({ children, onDropOutside, disabled = false,
     onHeightsChangeRef.current?.(heights);
   }, [heights]);
 
+  /**
+   * `initialHeights` is only used as `useState`'s initial value, so it's
+   * lost if the caller only has it available asynchronously — e.g.
+   * `useDragAndDropPlacement` starts with `{}` and hydrates from
+   * `localStorage` inside its own effect, which resolves after this
+   * component has already mounted. Adopt that first non-empty arrival once,
+   * so a stored height still restores on reload; leave `heights` alone
+   * afterward so it doesn't fight further resizes.
+   */
+  const didHydrateHeightsRef = React.useRef(false);
+  React.useEffect(() => {
+    if (didHydrateHeightsRef.current || Object.keys(initialHeights).length === 0) return;
+    didHydrateHeightsRef.current = true;
+    setHeights(initialHeights);
+  }, [initialHeights]);
+
   React.useEffect(() => {
     if (!isDragging) return;
 
