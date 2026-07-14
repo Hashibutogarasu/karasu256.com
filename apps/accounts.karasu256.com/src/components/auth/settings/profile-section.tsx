@@ -8,15 +8,21 @@ import { useSettingsUser } from '@/components/settings/user-context';
 import { Button } from '@Hashibutogarasu/ui';
 import { Input } from '@Hashibutogarasu/ui';
 import { Label } from '@Hashibutogarasu/ui';
-import { Skeleton } from '@Hashibutogarasu/ui';
 import { ProfileIcon } from './profile-icon';
 
-/** Displays the user's avatar (uploadable) and allows editing their display name. */
+/**
+ * Displays the user's avatar (uploadable) and allows editing their display
+ * name. Renders immediately (no loading skeleton) so the page is
+ * recognizable as soon as it mounts; the text input, save button, and avatar
+ * stay disabled until {@link useSettingsUser}'s `ready` flag flips true,
+ * which happens once the better-auth session resolves.
+ */
 export function ProfileSection() {
   const t = useTranslations();
-  const { user, updateUser } = useSettingsUser();
+  const { user, ready, updateUser } = useSettingsUser();
   const [displayName, setDisplayName] = useState(user.name ?? '');
   const [saving, setSaving] = useState(false);
+  const disabled = !ready || saving;
 
   /**
    * better-auth's `user` row is the source of truth; the server-side
@@ -50,43 +56,14 @@ export function ProfileSection() {
             id="display-name"
             value={displayName}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDisplayName(e.target.value)}
-            disabled={saving}
+            disabled={disabled}
             autoComplete="name"
           />
         </div>
-        <Button type="submit" variant="outline" className="w-full" disabled={saving}>
+        <Button type="submit" variant="outline" className="w-full" disabled={disabled}>
           {saving ? t('profile.saving') : t('profile.save')}
         </Button>
       </form>
-    </div>
-  );
-}
-
-/**
- * Placeholder for {@link ProfileSection} shown while the authenticated user
- * is still resolving. Mirrors the real layout so only the identicon and the
- * display name next to it appear as skeletons; the form itself renders with
- * its final structure and stays disabled until the user is ready.
- */
-export function ProfileSectionSkeleton() {
-  const t = useTranslations();
-
-  return (
-    <div className="space-y-4">
-      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t('profile.title')}</p>
-      <div className="flex items-center gap-3">
-        <Skeleton className="h-12 w-12 rounded-full" />
-        <Skeleton className="h-4 w-32" />
-      </div>
-      <div className="space-y-3">
-        <div className="space-y-1">
-          <Label htmlFor="display-name">{t('profile.displayName')}</Label>
-          <Input id="display-name" value="" disabled autoComplete="name" />
-        </div>
-        <Button type="submit" variant="outline" className="w-full" disabled>
-          {t('profile.save')}
-        </Button>
-      </div>
     </div>
   );
 }

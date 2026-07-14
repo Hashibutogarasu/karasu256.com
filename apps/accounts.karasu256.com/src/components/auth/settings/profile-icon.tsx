@@ -32,19 +32,25 @@ function providerLabel(providerId: string, profile: ProviderProfile): string {
  * not in better-auth's own `image` column, so each handler below applies the
  * URL the server returns to {@link useSettingsUser}'s context directly
  * instead of waiting on a better-auth session refetch to pick it up.
+ *
+ * Renders immediately regardless of session state; until `ready` is true
+ * (the better-auth session hasn't resolved yet) the avatar ignores clicks
+ * and the linked-provider list isn't fetched, since that request requires
+ * an authenticated session.
  */
 export function ProfileIcon() {
   const t = useTranslations();
-  const { user, updateUser } = useSettingsUser();
+  const { user, ready, updateUser } = useSettingsUser();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [providers, setProviders] = useState<Record<string, ProviderProfile>>({});
   const providerEntries = useMemo(() => Object.entries(providers), [providers]);
 
   useEffect(() => {
+    if (!ready) return;
     listLinkedProviders()
       .then(setProviders)
       .catch(() => {});
-  }, []);
+  }, [ready]);
 
   async function handleFileSelected(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -85,14 +91,24 @@ export function ProfileIcon() {
     toast.success(t('profile.iconChanged'), { autoClose: true });
   }
 
+  function openFilePicker() {
+    if (!ready) return;
+    fileInputRef.current?.click();
+  }
+
   return (
     <>
       <ContextMenu>
-        <ContextMenuTrigger onClick={() => fileInputRef.current?.click()} aria-label={t('profile.changeIcon')}>
+        <ContextMenuTrigger
+          onClick={openFilePicker}
+          aria-label={t('profile.changeIcon')}
+          aria-disabled={!ready}
+          className={!ready ? 'pointer-events-none opacity-50' : undefined}
+        >
           <UserAvatar uid={user.id} iconUrl={user.image ?? null} size={48} className="border border-border" />
         </ContextMenuTrigger>
         <ContextMenuContent>
-          <ContextMenuItem onClick={() => fileInputRef.current?.click()}>{t('profile.uploadIcon')}</ContextMenuItem>
+          <ContextMenuItem onClick={openFilePicker}>{t('profile.uploadIcon')}</ContextMenuItem>
           <ContextMenuSub>
             <ContextMenuSubTrigger disabled={providerEntries.length === 0}>{t('profile.useProviderIcon')}</ContextMenuSubTrigger>
             <ContextMenuSubContent>
@@ -108,7 +124,14 @@ export function ProfileIcon() {
           </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>
-      <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleFileSelected} />
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        className="hidden"
+        onChange={handleFileSelected}
+        disabled={!ready}
+      />
     </>
   );
 }
