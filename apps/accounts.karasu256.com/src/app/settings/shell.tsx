@@ -81,18 +81,29 @@ export function SettingsShell({ children, appUrl }: SettingsShellProps) {
     await authClient.signOut();
   }
 
-  async function handleSwitchAccount(uid: string) {
-    const target = accounts.find((a) => a.uid === uid);
-    if (!target) return;
+  /**
+   * Activates the given session token and refetches the current session,
+   * toggling {@link switchingAccount} around it to drive the overlay. Takes
+   * a token directly (rather than looking one up in `accounts`) so it can
+   * also be used to switch to an account that hasn't landed in `accounts`
+   * state yet, e.g. right after {@link AddAccountDialog} adds one.
+   */
+  async function switchToSession(sessionToken: string) {
     setSwitchingAccount(true);
     try {
-      await switchAccount(target.sessionToken);
+      await switchAccount(sessionToken);
       await refetch();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : String(err));
     } finally {
       setSwitchingAccount(false);
     }
+  }
+
+  async function handleSwitchAccount(uid: string) {
+    const target = accounts.find((a) => a.uid === uid);
+    if (!target) return;
+    await switchToSession(target.sessionToken);
   }
 
   async function handleRemoveAccount(uid: string) {
@@ -180,7 +191,13 @@ export function SettingsShell({ children, appUrl }: SettingsShellProps) {
       >
         {renderContent()}
       </SettingsSidebarLayout>
-      <AddAccountDialog open={addDialogOpen} onOpenChange={setAddDialogOpen} onAdded={() => void refreshAccounts(session?.user.id)} />
+      <AddAccountDialog
+        open={addDialogOpen}
+        onOpenChange={setAddDialogOpen}
+        onAdded={() => void refreshAccounts(session?.user.id)}
+        onSwitchAccount={switchToSession}
+        showSwitchAccountCheckBox
+      />
       <SwitchingAccountOverlay open={switchingAccount} message={t('settings.accountSwitcher.switchingAccount')} />
     </>
   );

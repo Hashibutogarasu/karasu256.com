@@ -17,6 +17,12 @@ export interface EmailPasswordFormProps {
   onSuccess?: () => void;
   /** Disables all inputs and buttons, e.g. while the caller's session state hasn't loaded yet. Defaults to `false`. */
   disabled?: boolean;
+  /** Shows a "switch to this account after adding" checkbox above the submit button in each tab. Defaults to `false`. */
+  showSwitchAccountCheckBox?: boolean;
+  /** Controlled checked state for the "switch to this account after adding" checkbox. */
+  switchToNewAccount?: boolean;
+  /** Called with the new checked state when the "switch to this account after adding" checkbox is toggled. */
+  onSwitchToNewAccountChange?: (checked: boolean) => void;
 }
 
 /**
@@ -24,7 +30,13 @@ export interface EmailPasswordFormProps {
  * creation against better-auth. Both tabs share the same email and password
  * state so the user can fill in credentials once and choose the action.
  */
-export function EmailPasswordForm({ onSuccess, disabled = false }: EmailPasswordFormProps = {}) {
+export function EmailPasswordForm({
+  onSuccess,
+  disabled = false,
+  showSwitchAccountCheckBox = false,
+  switchToNewAccount = false,
+  onSwitchToNewAccountChange,
+}: EmailPasswordFormProps = {}) {
   const t = useTranslations();
   const router = useRouter();
   const [tab, setTab] = useState('signin');
@@ -125,6 +137,19 @@ export function EmailPasswordForm({ onSuccess, disabled = false }: EmailPassword
                 disabled={disabled}
               />
             </div>
+            {showSwitchAccountCheckBox && (
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="switch-to-new-account-signin"
+                  checked={switchToNewAccount}
+                  onCheckedChange={onSwitchToNewAccountChange}
+                  disabled={disabled || loading}
+                />
+                <Label htmlFor="switch-to-new-account-signin" className="font-normal text-sm">
+                  {t('settings.accountSwitcher.switchAfterAdd')}
+                </Label>
+              </div>
+            )}
             <Button type="submit" className="w-full" disabled={disabled || loading}>
               <FontAwesomeIcon icon={faRightToBracket} />
               {loading ? t('signIn.signingIn') : t('signIn.submit')}
@@ -172,6 +197,19 @@ export function EmailPasswordForm({ onSuccess, disabled = false }: EmailPassword
                 })}
               </Label>
             </div>
+            {showSwitchAccountCheckBox && (
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="switch-to-new-account-register"
+                  checked={switchToNewAccount}
+                  onCheckedChange={onSwitchToNewAccountChange}
+                  disabled={disabled || loading}
+                />
+                <Label htmlFor="switch-to-new-account-register" className="font-normal text-sm">
+                  {t('settings.accountSwitcher.switchAfterAdd')}
+                </Label>
+              </div>
+            )}
             <Button type="submit" className="w-full" disabled={registerDisabled}>
               <FontAwesomeIcon icon={faUserPlus} />
               {loading ? t('signIn.creatingAccount') : t('signIn.createAccount')}
