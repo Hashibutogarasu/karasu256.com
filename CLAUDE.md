@@ -42,6 +42,7 @@ Each app under `apps/*` may have its own `CLAUDE.md` with app-specific commands 
 
 ## Rules
 
+- Never use `echo` as a visual separator between shell commands (e.g. `cmd1 && echo --- && cmd2`).
 - For small, targeted edits, verify with a type check only (e.g. `pnpm --filter <app> exec tsc --noEmit`, or whatever the app's `CLAUDE.md` documents) rather than running a full `build`. Reserve full builds for larger changes or before opening a PR.
 - After opening a pull request, do not proactively offer to watch, babysit, or auto-fix CI for it. Only start monitoring a PR if the user explicitly asks.
 - Before starting any work, always confirm what the repository's actual default branch is (e.g. via the GitHub API/CLI) rather than assuming `main` or `dev`. Branch and open pull requests from that default branch.
