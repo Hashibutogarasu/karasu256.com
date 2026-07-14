@@ -92,7 +92,8 @@
     "iconChanged": "アイコンを変更しました",
     "save": "保存",
     "saving": "保存中",
-    "saved": "表示名を保存しました。"
+    "saved": "表示名を保存しました。",
+    "discard": "変更を破棄"
   },
   "security": {
     "title": "セキュリティ",

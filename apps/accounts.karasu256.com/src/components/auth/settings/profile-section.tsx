@@ -10,6 +10,11 @@ import { Input } from '@Hashibutogarasu/ui';
 import { Label } from '@Hashibutogarasu/ui';
 import { ProfileIcon } from './profile-icon';
 
+/** Local, editable form fields of {@link ProfileSection}; deliberately excludes the icon, which has no local draft state of its own. */
+interface ProfileFormData {
+  displayName: string;
+}
+
 /**
  * Displays the user's avatar (uploadable) and allows editing their display
  * name. Renders immediately (no loading skeleton) so the page is
@@ -20,7 +25,9 @@ import { ProfileIcon } from './profile-icon';
 export function ProfileSection() {
   const t = useTranslations();
   const { user, ready, updateUser } = useSettingsUser();
-  const [displayName, setDisplayName] = useState(user.name ?? '');
+  const [formData, setFormData] = useState<ProfileFormData>({ displayName: user.name ?? '' });
+  /** Snapshot recorded on mount and refreshed after each successful save; discard reverts {@link formData} to this. */
+  const [initialFormData, setInitialFormData] = useState<ProfileFormData>(formData);
   const [saving, setSaving] = useState(false);
   const disabled = !ready || saving;
 
@@ -32,14 +39,20 @@ export function ProfileSection() {
     e.preventDefault();
     setSaving(true);
     try {
-      await authClient.updateUser({ name: displayName });
-      updateUser({ name: displayName });
+      await authClient.updateUser({ name: formData.displayName });
+      updateUser({ name: formData.displayName });
+      setInitialFormData(formData);
       toast.success(t('profile.saved'), { autoClose: true });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : String(err));
     } finally {
       setSaving(false);
     }
+  }
+
+  /** Reverts the form to its {@link initialFormData} snapshot; the icon isn't part of this form's local state, so it's left untouched. */
+  function handleDiscard() {
+    setFormData(initialFormData);
   }
 
   return (
@@ -54,15 +67,20 @@ export function ProfileSection() {
           <Label htmlFor="display-name">{t('profile.displayName')}</Label>
           <Input
             id="display-name"
-            value={displayName}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDisplayName(e.target.value)}
+            value={formData.displayName}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData((prev) => ({ ...prev, displayName: e.target.value }))}
             disabled={disabled}
             autoComplete="name"
           />
         </div>
-        <Button type="submit" variant="outline" className="w-full" disabled={disabled}>
-          {saving ? t('profile.saving') : t('profile.save')}
-        </Button>
+        <div className="flex gap-2">
+          <Button type="submit" variant="default" className="w-[10%]" disabled={disabled}>
+            {saving ? t('profile.saving') : t('profile.save')}
+          </Button>
+          <Button type="button" variant="secondary" onClick={handleDiscard} disabled={disabled}>
+            {t('profile.discard')}
+          </Button>
+        </div>
       </form>
     </div>
   );
