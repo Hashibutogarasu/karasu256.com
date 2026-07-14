@@ -28,6 +28,7 @@ import {
 } from './dropdown-menu';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { Skeleton } from './skeleton';
+import { Spinner } from './ui/spinner';
 import { UserAvatar } from './user-avatar';
 import './sidebar-user-trigger.css';
 
@@ -60,8 +61,13 @@ export interface SettingsSidebarProps {
   onSwitchAccount?: (uid: string) => void | Promise<void>;
   /** Invoked when the user wants to add another account. */
   onAddAccount?: () => void;
-  /** Invoked with the uid of an account the user wants to remove from this device (the active one keeps using the plain sign-out button instead). */
-  onRemoveAccount?: (uid: string) => void;
+  /**
+   * Invoked with the uid of an account the user wants to remove from this
+   * device (the active one keeps using the plain sign-out button instead).
+   * May return a promise; that account's item is disabled and its remove
+   * button shows a spinner while it's pending.
+   */
+  onRemoveAccount?: (uid: string) => void | Promise<void>;
   /** Label for the "add another account" menu item. Required when `onAddAccount` is provided. */
   addAccountLabel?: string;
   /** Screen-reader label for a "remove this account" control shown next to each other account. Required when `onRemoveAccount` is provided. */
@@ -230,7 +236,7 @@ interface SidebarUserMenuProps {
   accounts?: SettingsSidebarUser[];
   onSwitchAccount?: (uid: string) => void | Promise<void>;
   onAddAccount?: () => void;
-  onRemoveAccount?: (uid: string) => void;
+  onRemoveAccount?: (uid: string) => void | Promise<void>;
   addAccountLabel?: string;
   removeAccountLabel?: string;
 }
@@ -249,6 +255,7 @@ function SidebarUserMenu({
   removeAccountLabel,
 }: SidebarUserMenuProps) {
   const [switchingUid, setSwitchingUid] = React.useState<string | null>(null);
+  const [removingUid, setRemovingUid] = React.useState<string | null>(null);
 
   const displayName = React.useMemo(() => (user ? resolveDisplayName(user) : ''), [user]);
   const accounts = React.useMemo(
@@ -263,6 +270,16 @@ function SidebarUserMenu({
       await onSwitchAccount?.(uid);
     } finally {
       setSwitchingUid(null);
+    }
+  }
+
+  async function handleRemoveAccount(uid: string) {
+    if (removingUid) return;
+    setRemovingUid(uid);
+    try {
+      await onRemoveAccount?.(uid);
+    } finally {
+      setRemovingUid(null);
     }
   }
 
@@ -329,11 +346,12 @@ function SidebarUserMenu({
               <>
                 <DropdownMenuSeparator />
                 {accounts.map((account) => {
+                  const isRemoving = removingUid === account.uid;
                   return (
                     <DropdownMenuItem
                       key={account.uid}
                       className="gap-2"
-                      disabled={switchingUid !== null}
+                      disabled={switchingUid !== null || isRemoving}
                       onClick={() => handleSwitchAccount(account.uid)}
                     >
                       <UserAvatar uid={account.uid} iconUrl={account.photoURL} size={20} />
@@ -345,14 +363,14 @@ function SidebarUserMenu({
                         <button
                           type="button"
                           aria-label={removeAccountLabel}
-                          disabled={switchingUid !== null}
+                          disabled={switchingUid !== null || isRemoving}
                           className="shrink-0 rounded p-0.5 text-muted-foreground hover:text-foreground hover:bg-sidebar-accent disabled:pointer-events-none disabled:opacity-50"
                           onClick={(e) => {
                             e.stopPropagation();
-                            onRemoveAccount(account.uid);
+                            void handleRemoveAccount(account.uid);
                           }}
                         >
-                          <X className="size-3.5" />
+                          {isRemoving ? <Spinner className="size-3.5" /> : <X className="size-3.5" />}
                         </button>
                       )}
                     </DropdownMenuItem>
