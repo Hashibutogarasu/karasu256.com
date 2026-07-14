@@ -111,7 +111,13 @@ export function SettingsShell({ children, appUrl }: SettingsShellProps) {
     if (!target) return;
     try {
       await removeAccount(target.sessionToken);
-      void refreshAccounts(session?.user.id);
+      /**
+       * Awaited so the sidebar's remove button (whose spinner tracks this
+       * promise) doesn't flip back to its idle state until `accounts` has
+       * actually dropped this entry — otherwise it flashes re-enabled for a
+       * render or two before the list catches up.
+       */
+      await refreshAccounts(session?.user.id);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : String(err));
     }
