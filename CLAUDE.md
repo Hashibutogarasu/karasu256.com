@@ -49,3 +49,6 @@ Each app under `apps/*` may have its own `CLAUDE.md` with app-specific commands 
 - If it has been merged, open a new pull request from a fresh branch off the default branch rather than reusing the merged one.
 - If the change addresses a different concern than an existing open pull request, open a separate pull request for it instead of adding to the existing one.
 - Only add commits to an existing pull request's branch when the user explicitly asks for that.
+- When investigating how a third-party library actually works, do not read compiled/vendored output such as `node_modules`, `dist`, or `.next`.
+- Instead, ask the user which repository and branch to clone (e.g. via AskUserQuestion).
+- Once the user responds, clone that repository/branch into a temporary directory and investigate from there.
