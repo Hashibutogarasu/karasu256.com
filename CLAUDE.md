@@ -52,3 +52,6 @@ Each app under `apps/*` may have its own `CLAUDE.md` with app-specific commands 
 - When investigating how a third-party library actually works, do not read compiled/vendored output such as `node_modules`, `dist`, or `.next`.
 - Instead, ask the user which repository and branch to clone (e.g. via AskUserQuestion).
 - Once the user responds, clone that repository/branch into a temporary directory and investigate from there.
+- Do not stop to ask for confirmation on actions already authorized by these rules or by the user's instructions (e.g. recreating a branch off the default branch, opening a non-draft PR) — just proceed.
+- Re-read the root `CLAUDE.md` every 2-3 turns so its rules stay in effect over a long conversation.
+- Prefer responding in Japanese.
