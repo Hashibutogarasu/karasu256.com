@@ -29,7 +29,7 @@ Each app under `apps/*` may have its own `CLAUDE.md` with app-specific commands 
 ### Apps (`apps/*`)
 
 - **karasu256.com** — the main marketing/landing Next.js site. Home page is a drag-and-drop playground with a persisted-placement sidebar showing the signed-in user's profile (via cross-origin session lookup), plus `/settings/profile`, `/settings/developer`, `/settings/other`, an OAuth test-callback route, and API routes for permissions, user, profile, and API keys.
-- **accounts.karasu256.com** — the account portal: sign-in/out, passkey management, and the monorepo's single better-auth instance, which also acts as the OAuth 2.1/OIDC authorization server for the other apps. See its own `CLAUDE.md` for the full authentication flow.
+- **accounts.karasu256.com** — the account portal: sign-in/out, passkey management, and the monorepo's single better-auth instance, which also acts as the OAuth 2.1/OIDC authorization server for the other apps.
 - **cdn.karasu256.com** — an Elysia app on Cloudflare Workers that serves as the image/file CDN: public routes serve images by path, protected/anonymous routes handle upload and delete, backed by CORS, rate-limiting, and auth middleware.
 - **qr.karasu256.com** — a Next.js app that generates and displays a per-user (or anonymous) QR code linking to their profile/content, uploading the generated image through the CDN and caching the result in Redis.
 - **cron-jobs** — a Cloudflare Worker (`wrangler`) scaffold for scheduled jobs, depending on `@Hashibutogarasu/db` for future DB-backed tasks.
