@@ -78,7 +78,8 @@
       "addAccount": "別のアカウントを追加",
       "switchAccount": "このアカウントに切り替える",
       "removeAccount": "このデバイスからこのアカウントを削除",
-      "switchingAccount": "アカウントを切り替えています。"
+      "switchingAccount": "アカウントを切り替えています。",
+      "switchAfterAdd": "追加後にアカウントを切り替える"
     }
   },
   "profile": {
