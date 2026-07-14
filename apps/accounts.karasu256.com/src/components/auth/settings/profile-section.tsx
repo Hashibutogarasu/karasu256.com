@@ -4,11 +4,17 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { toast } from '@Hashibutogarasu/ui';
 import { authClient } from '@/lib/auth/client';
+import { hashFormData } from '@Hashibutogarasu/utils/client';
 import { useSettingsUser } from '@/components/settings/user-context';
-import { Button } from '@Hashibutogarasu/ui';
 import { Input } from '@Hashibutogarasu/ui';
 import { Label } from '@Hashibutogarasu/ui';
+import { LoadingButton } from '@/components/ui/loading-button';
 import { ProfileIcon } from './profile-icon';
+
+/** Local, editable form fields of {@link ProfileSection}; deliberately excludes the icon, which has no local draft state of its own. */
+interface ProfileFormData {
+  displayName: string;
+}
 
 /**
  * Displays the user's avatar (uploadable) and allows editing their display
@@ -20,9 +26,12 @@ import { ProfileIcon } from './profile-icon';
 export function ProfileSection() {
   const t = useTranslations();
   const { user, ready, updateUser } = useSettingsUser();
-  const [displayName, setDisplayName] = useState(user.name ?? '');
+  const [formData, setFormData] = useState<ProfileFormData>({ displayName: user.name ?? '' });
+  /** Snapshot recorded on mount and refreshed after each successful save; discard reverts {@link formData} to this. */
+  const [initialFormData, setInitialFormData] = useState<ProfileFormData>(formData);
   const [saving, setSaving] = useState(false);
   const disabled = !ready || saving;
+  const isUnchanged = hashFormData(formData) === hashFormData(initialFormData);
 
   /**
    * better-auth's `user` row is the source of truth; the server-side
@@ -32,14 +41,20 @@ export function ProfileSection() {
     e.preventDefault();
     setSaving(true);
     try {
-      await authClient.updateUser({ name: displayName });
-      updateUser({ name: displayName });
+      await authClient.updateUser({ name: formData.displayName });
+      updateUser({ name: formData.displayName });
+      setInitialFormData(formData);
       toast.success(t('profile.saved'), { autoClose: true });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : String(err));
     } finally {
       setSaving(false);
     }
+  }
+
+  /** Reverts the form to its {@link initialFormData} snapshot; the icon isn't part of this form's local state, so it's left untouched. */
+  function handleDiscard() {
+    setFormData(initialFormData);
   }
 
   return (
@@ -54,15 +69,20 @@ export function ProfileSection() {
           <Label htmlFor="display-name">{t('profile.displayName')}</Label>
           <Input
             id="display-name"
-            value={displayName}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDisplayName(e.target.value)}
+            value={formData.displayName}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData((prev) => ({ ...prev, displayName: e.target.value }))}
             disabled={disabled}
             autoComplete="name"
           />
         </div>
-        <Button type="submit" variant="outline" className="w-full" disabled={disabled}>
-          {saving ? t('profile.saving') : t('profile.save')}
-        </Button>
+        <div className="flex gap-2">
+          <LoadingButton type="submit" variant="default" className="w-[10%]" disabled={disabled || isUnchanged} loading={saving}>
+            {saving ? t('profile.saving') : t('profile.save')}
+          </LoadingButton>
+          <LoadingButton type="button" variant="secondary" onClick={handleDiscard} disabled={disabled || isUnchanged} loading={false}>
+            {t('profile.discard')}
+          </LoadingButton>
+        </div>
       </form>
     </div>
   );

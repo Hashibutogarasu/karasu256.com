@@ -6,10 +6,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLink, faLinkSlash } from '@fortawesome/free-solid-svg-icons';
 import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { useTranslations } from 'next-intl';
-import { toast, SettingsAccordion, SettingsItem, Spinner } from '@Hashibutogarasu/ui';
+import { toast, SettingsAccordion, SettingsItem } from '@Hashibutogarasu/ui';
 import { unlinkProvider } from '@Hashibutogarasu/utils/client';
 import { authClient } from '@/lib/auth/client';
-import { Button } from '@Hashibutogarasu/ui';
+import { LoadingButton } from '@/components/ui/loading-button';
 
 export interface Provider {
   id: string;
@@ -116,15 +116,27 @@ export function ProviderSection({ providers, initialProviders }: ProviderSection
                 {label}
               </span>
               {isLinked ? (
-                <Button variant="destructive" size="sm" disabled={!canUnlink || isLoading || !dataReady} onClick={() => handleUnlink(id)}>
-                  {isLoading || !dataReady ? <Spinner /> : <FontAwesomeIcon icon={faLinkSlash} />}
+                <LoadingButton
+                  variant="destructive"
+                  size="sm"
+                  disabled={!canUnlink || isLoading || !dataReady}
+                  onClick={() => handleUnlink(id)}
+                  loading={isLoading || !dataReady}
+                  icon={<FontAwesomeIcon icon={faLinkSlash} />}
+                >
                   {isLoading ? t('connections.unlinking') : t('connections.unlink')}
-                </Button>
+                </LoadingButton>
               ) : (
-                <Button variant="outline" size="sm" disabled={isLoading || !dataReady} onClick={() => handleLink(id)}>
-                  {isLoading || !dataReady ? <Spinner /> : <FontAwesomeIcon icon={faLink} />}
+                <LoadingButton
+                  variant="outline"
+                  size="sm"
+                  disabled={isLoading || !dataReady}
+                  onClick={() => handleLink(id)}
+                  loading={isLoading || !dataReady}
+                  icon={<FontAwesomeIcon icon={faLink} />}
+                >
                   {t('connections.link')}
-                </Button>
+                </LoadingButton>
               )}
             </SettingsItem>
           );

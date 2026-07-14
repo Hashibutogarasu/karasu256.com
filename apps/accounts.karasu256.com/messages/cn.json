@@ -92,7 +92,8 @@
     "iconChanged": "图标已更改。",
     "save": "保存",
     "saving": "保存中",
-    "saved": "显示名称已保存。"
+    "saved": "显示名称已保存。",
+    "discard": "放弃更改"
   },
   "security": {
     "title": "安全",

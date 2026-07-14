@@ -92,7 +92,8 @@
     "iconChanged": "Icon changed.",
     "save": "Save",
     "saving": "Saving",
-    "saved": "Display name saved."
+    "saved": "Display name saved.",
+    "discard": "Discard changes"
   },
   "security": {
     "title": "Security",
