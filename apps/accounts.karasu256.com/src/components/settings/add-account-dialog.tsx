@@ -10,8 +10,14 @@ import { PasskeySection } from '@/components/auth/passkey-section';
 export interface AddAccountDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** Called after an account is successfully added, so the caller can refresh its account list. */
-  onAdded?: () => void;
+  /**
+   * Called after an account is successfully added, with the uid of the
+   * session left active (confirmed via a fresh `authClient.getSession()`
+   * call after switching back, not read off a caller-side session that may
+   * not have caught up yet), so the caller can refresh its account list
+   * against the account that is actually active.
+   */
+  onAdded?: (activeUid: string) => void;
   /**
    * Called with the session token of the newly added account when the user
    * checked "switch to this account after adding". Should perform the same
@@ -61,7 +67,14 @@ export function AddAccountDialog({ open, onOpenChange, onAdded, onSwitchAccount,
       if (switchToNewAccount && newSession) {
         await onSwitchAccount?.(newSession.session.token);
       } else {
-        onAdded?.();
+        /**
+         * Read fresh rather than trusting `newSession` or the caller's own
+         * session state: after `setActive` reverts to the previous session,
+         * this is the only way to know for certain which account is active
+         * now, instead of assuming the revert above landed as expected.
+         */
+        const { data: activeSession } = await authClient.getSession();
+        if (activeSession) onAdded?.(activeSession.user.id);
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : String(err));

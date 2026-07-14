@@ -82,19 +82,28 @@ export function SettingsShell({ children, appUrl }: SettingsShellProps) {
   }
 
   /**
-   * Activates the given session token and refetches the current session,
-   * toggling {@link switchingAccount} around it to drive the overlay. Takes
-   * a token directly (rather than looking one up in `accounts`) so it can
-   * also be used to switch to an account that hasn't landed in `accounts`
-   * state yet, e.g. right after {@link AddAccountDialog} adds one.
+   * Activates the given session token, refetches the current session, and
+   * refreshes `accounts` against the uid the switch itself reports —
+   * rather than relying on `authClient.useSession()`'s `session` (a stale
+   * closure at call time) or on the `session`-watching effect above to
+   * eventually notice the change — so the just-activated account stops
+   * appearing as a switch target immediately, not after a follow-up render.
+   * Toggles {@link switchingAccount} around all of this to drive the
+   * overlay. Takes a token directly (rather than looking one up in
+   * `accounts`) so it can also be used to switch to an account that hasn't
+   * landed in `accounts` state yet, e.g. right after {@link AddAccountDialog}
+   * adds one.
    */
   async function switchToSession(sessionToken: string) {
     setSwitchingAccount(true);
     try {
-      await switchAccount(sessionToken);
+      const result = await switchAccount(sessionToken);
       await refetch();
+      await refreshAccounts(result.uid);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : String(err));
+      /** Resyncs `accounts` against the server so a stale/already-invalid entry that caused this failure doesn't linger and keep failing on retry. */
+      await refreshAccounts(session?.user.id);
     } finally {
       setSwitchingAccount(false);
     }
@@ -120,6 +129,8 @@ export function SettingsShell({ children, appUrl }: SettingsShellProps) {
       await refreshAccounts(session?.user.id);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : String(err));
+      /** Same self-heal as {@link switchToSession}'s catch — see there for why. */
+      await refreshAccounts(session?.user.id);
     }
   }
 
@@ -200,7 +211,7 @@ export function SettingsShell({ children, appUrl }: SettingsShellProps) {
       <AddAccountDialog
         open={addDialogOpen}
         onOpenChange={setAddDialogOpen}
-        onAdded={() => void refreshAccounts(session?.user.id)}
+        onAdded={(activeUid) => void refreshAccounts(activeUid)}
         onSwitchAccount={switchToSession}
         showSwitchAccountCheckBox
       />

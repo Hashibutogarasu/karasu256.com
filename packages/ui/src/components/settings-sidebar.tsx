@@ -256,6 +256,8 @@ function SidebarUserMenu({
 }: SidebarUserMenuProps) {
   const [switchingUid, setSwitchingUid] = React.useState<string | null>(null);
   const [removingUid, setRemovingUid] = React.useState<string | null>(null);
+  /** True while a switch or a removal is in flight for any account, serializing the two so they can never race each other against the same underlying session list. */
+  const isBusy = switchingUid !== null || removingUid !== null;
 
   const displayName = React.useMemo(() => (user ? resolveDisplayName(user) : ''), [user]);
   const accounts = React.useMemo(
@@ -264,7 +266,7 @@ function SidebarUserMenu({
   );
 
   async function handleSwitchAccount(uid: string) {
-    if (switchingUid) return;
+    if (isBusy) return;
     setSwitchingUid(uid);
     try {
       await onSwitchAccount?.(uid);
@@ -274,7 +276,7 @@ function SidebarUserMenu({
   }
 
   async function handleRemoveAccount(uid: string) {
-    if (removingUid) return;
+    if (isBusy) return;
     setRemovingUid(uid);
     try {
       await onRemoveAccount?.(uid);
@@ -348,12 +350,7 @@ function SidebarUserMenu({
                 {accounts.map((account) => {
                   const isRemoving = removingUid === account.uid;
                   return (
-                    <DropdownMenuItem
-                      key={account.uid}
-                      className="gap-2"
-                      disabled={switchingUid !== null || isRemoving}
-                      onClick={() => handleSwitchAccount(account.uid)}
-                    >
+                    <DropdownMenuItem key={account.uid} className="gap-2" disabled={isBusy} onClick={() => handleSwitchAccount(account.uid)}>
                       <UserAvatar uid={account.uid} iconUrl={account.photoURL} size={20} />
                       <div className="grid flex-1 min-w-0 leading-tight">
                         {account.displayName && <span className="truncate text-sm">{account.displayName}</span>}
@@ -363,7 +360,7 @@ function SidebarUserMenu({
                         <button
                           type="button"
                           aria-label={removeAccountLabel}
-                          disabled={switchingUid !== null || isRemoving}
+                          disabled={isBusy}
                           className="shrink-0 rounded p-0.5 text-muted-foreground hover:text-foreground hover:bg-sidebar-accent disabled:pointer-events-none disabled:opacity-50"
                           onClick={(e) => {
                             e.stopPropagation();
@@ -379,7 +376,7 @@ function SidebarUserMenu({
               </>
             )}
             {onAddAccount && (
-              <DropdownMenuItem onClick={onAddAccount}>
+              <DropdownMenuItem disabled={isBusy} onClick={onAddAccount}>
                 <Plus className="size-4" />
                 {addAccountLabel}
               </DropdownMenuItem>
