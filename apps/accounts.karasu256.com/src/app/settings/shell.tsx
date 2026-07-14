@@ -10,7 +10,6 @@ import { Skeleton, SettingsSidebarLayout, SwitchingAccountOverlay } from '@Hashi
 import { SettingsSidebar } from '@/components/settings/settings-sidebar';
 import { AddAccountDialog } from '@/components/settings/add-account-dialog';
 import { UserContext, type SettingsUser } from '@/components/settings/user-context';
-import { ProfileSectionSkeleton } from '@/components/auth/settings/profile-section';
 
 interface SettingsShellProps {
   children: React.ReactNode;
@@ -26,11 +25,13 @@ interface SettingsShellProps {
 /**
  * Settings shell. Reads the better-auth session client-side via
  * `authClient.useSession()` and provides the authenticated user via
- * UserContext. Shows skeleton in main content while the session resolves,
- * except on /settings/linking which always renders its children directly so
- * the provider buttons can appear (disabled) without a skeleton, and on
- * /settings/profile which shows {@link ProfileSectionSkeleton} so only the
- * identicon and display name are skeletonized while the form stays disabled.
+ * UserContext. Shows a generic skeleton in main content while the session
+ * resolves, except on /settings/linking and /settings/profile, which always
+ * render their children directly: /settings/linking so the provider buttons
+ * can appear (disabled) without a skeleton, and /settings/profile so its
+ * form is recognizable immediately, with `UserContext`'s `ready` flag false
+ * (and a placeholder user) until the session resolves — see `ProfileSection`
+ * for how it disables its own controls off of that flag.
  */
 export function SettingsShell({ children, appUrl }: SettingsShellProps) {
   const router = useRouter();
@@ -116,9 +117,12 @@ export function SettingsShell({ children, appUrl }: SettingsShellProps) {
   );
 
   const contextValue = useMemo(() => {
-    if (!session) return null;
+    if (!session) {
+      const pendingUser: SettingsUser = { id: '', email: '', emailVerified: false, name: '', image: null };
+      return { user: pendingUser, ready: false, updateUser };
+    }
     const userOverride = userOverrideState.userId === session.user.id ? userOverrideState.patch : {};
-    return { user: { ...session.user, ...userOverride }, updateUser };
+    return { user: { ...session.user, ...userOverride }, ready: true, updateUser };
   }, [session, userOverrideState, updateUser]);
 
   const sidebarUser = useMemo(() => {
@@ -135,10 +139,14 @@ export function SettingsShell({ children, appUrl }: SettingsShellProps) {
     if (isLinkingPage) {
       return <>{children}</>;
     }
-    if (loading || !contextValue) {
-      if (isProfilePage) {
-        return <ProfileSectionSkeleton />;
-      }
+    if (isProfilePage) {
+      return (
+        <UserContext.Provider key={contextValue.ready ? contextValue.user.id : 'pending'} value={contextValue}>
+          {children}
+        </UserContext.Provider>
+      );
+    }
+    if (loading || !session) {
       return (
         <div className="space-y-4">
           <Skeleton className="h-7 w-36" />

@@ -13,6 +13,8 @@ export interface SettingsUser {
 
 interface UserContextValue {
   user: SettingsUser;
+  /** False until the better-auth session has resolved; consumers should disable interactive controls until this is true. */
+  ready: boolean;
   /** Optimistically merges a patch into the current user without waiting for a session refetch. */
   updateUser: (patch: Partial<SettingsUser>) => void;
 }
