@@ -4,10 +4,11 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { toast } from '@Hashibutogarasu/ui';
 import { authClient } from '@/lib/auth/client';
+import { hashFormData } from '@Hashibutogarasu/utils/client';
 import { useSettingsUser } from '@/components/settings/user-context';
-import { Button } from '@Hashibutogarasu/ui';
 import { Input } from '@Hashibutogarasu/ui';
 import { Label } from '@Hashibutogarasu/ui';
+import { LoadingButton } from '@/components/ui/loading-button';
 import { ProfileIcon } from './profile-icon';
 
 /** Local, editable form fields of {@link ProfileSection}; deliberately excludes the icon, which has no local draft state of its own. */
@@ -30,6 +31,7 @@ export function ProfileSection() {
   const [initialFormData, setInitialFormData] = useState<ProfileFormData>(formData);
   const [saving, setSaving] = useState(false);
   const disabled = !ready || saving;
+  const isUnchanged = hashFormData(formData) === hashFormData(initialFormData);
 
   /**
    * better-auth's `user` row is the source of truth; the server-side
@@ -74,12 +76,12 @@ export function ProfileSection() {
           />
         </div>
         <div className="flex gap-2">
-          <Button type="submit" variant="default" className="w-[10%]" disabled={disabled}>
+          <LoadingButton type="submit" variant="default" className="w-[10%]" disabled={disabled || isUnchanged} loading={saving}>
             {saving ? t('profile.saving') : t('profile.save')}
-          </Button>
-          <Button type="button" variant="secondary" onClick={handleDiscard} disabled={disabled}>
+          </LoadingButton>
+          <LoadingButton type="button" variant="secondary" onClick={handleDiscard} disabled={disabled || isUnchanged} loading={false}>
             {t('profile.discard')}
-          </Button>
+          </LoadingButton>
         </div>
       </form>
     </div>
