@@ -17,6 +17,8 @@ export interface DragAndDropAreaProps {
   resizeEdge?: 'left' | 'right';
   /** Minimum width, in pixels, the side resize handle can shrink this area to. */
   minWidth?: number;
+  /** Upper bound, in pixels, the side resize handle can grow this area to — e.g. so it can't push the rest of the layout past the viewport. Read once when a drag starts; omit for no upper bound. */
+  getMaxWidth?: () => number;
 }
 
 /**
@@ -33,22 +35,25 @@ interface ResizeHandleProps {
   /** Multiplies the raw pointer delta before adding it to the starting size — pass +1 when dragging toward increasing coordinates should grow the element, -1 when it should shrink it. */
   sign: 1 | -1;
   min: number;
+  /** Upper bound for the resulting size, read once when a drag starts. Omit for no upper bound. */
+  getMax?: () => number;
   disabled?: boolean;
   getSize: () => number;
   onResize: (size: number) => void;
   className?: string;
 }
 
-function ResizeHandle({ axis, sign, min, disabled, getSize, onResize, className }: ResizeHandleProps) {
+function ResizeHandle({ axis, sign, min, getMax, disabled, getSize, onResize, className }: ResizeHandleProps) {
   function handlePointerDown(event: React.PointerEvent<HTMLDivElement>) {
     if (disabled) return;
     event.stopPropagation();
     const start = axis === 'x' ? event.clientX : event.clientY;
     const startSize = getSize();
+    const max = getMax ? getMax() : Infinity;
 
     function handleMove(moveEvent: PointerEvent) {
       const current = axis === 'x' ? moveEvent.clientX : moveEvent.clientY;
-      onResize(Math.max(min, startSize + sign * (current - start)));
+      onResize(Math.min(max, Math.max(min, startSize + sign * (current - start))));
     }
 
     function handleUp() {
@@ -117,7 +122,17 @@ function ResizeHandle({ axis, sign, min, disabled, getSize, onResize, className 
  * content shouldn't take away the ability to resize the layout column it
  * lives in.
  */
-export function DragAndDropArea({ id, children, onDrop, className, filled, minHeight = 80, resizeEdge, minWidth = 160 }: DragAndDropAreaProps) {
+export function DragAndDropArea({
+  id,
+  children,
+  onDrop,
+  className,
+  filled,
+  minHeight = 80,
+  resizeEdge,
+  minWidth = 160,
+  getMaxWidth,
+}: DragAndDropAreaProps) {
   const ref = React.useRef<HTMLDivElement>(null);
   const { disabled, hoveredAreaId, registerDropTarget, heights, setAreaHeight, setAreaWidth } = useDragAndDrop();
   const isHovered = hoveredAreaId === id;
@@ -164,6 +179,7 @@ export function DragAndDropArea({ id, children, onDrop, className, filled, minHe
           axis="x"
           sign={resizeEdge === 'right' ? 1 : -1}
           min={minWidth}
+          getMax={getMaxWidth}
           disabled={disabled}
           getSize={() => ref.current?.getBoundingClientRect().width ?? minWidth}
           onResize={(size) => setAreaWidth(id, size)}
