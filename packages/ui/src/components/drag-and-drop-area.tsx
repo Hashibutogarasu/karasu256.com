@@ -13,6 +13,72 @@ export interface DragAndDropAreaProps {
   filled?: boolean;
   /** Minimum height, in pixels, the bottom-edge resize handle can shrink this area to. */
   minHeight?: number;
+  /** Which side shows a width resize handle; omit for none. */
+  resizeEdge?: 'left' | 'right';
+  /** Minimum width, in pixels, the side resize handle can shrink this area to. */
+  minWidth?: number;
+}
+
+/**
+ * Direction-agnostic drag handle: measures pointer movement along whichever
+ * `axis` it's given and reports the resulting size via `onResize`, without
+ * knowing whether it visually represents a top, bottom, left, or right edge
+ * — that's purely a matter of the `className` positioning its caller passes
+ * in, and of the `sign` the caller picks to say whether dragging toward
+ * increasing screen coordinates grows or shrinks the element.
+ */
+interface ResizeHandleProps {
+  /** Pointer axis this handle measures drag distance along. */
+  axis: 'x' | 'y';
+  /** Multiplies the raw pointer delta before adding it to the starting size — pass +1 when dragging toward increasing coordinates should grow the element, -1 when it should shrink it. */
+  sign: 1 | -1;
+  min: number;
+  disabled?: boolean;
+  getSize: () => number;
+  onResize: (size: number) => void;
+  className?: string;
+}
+
+function ResizeHandle({ axis, sign, min, disabled, getSize, onResize, className }: ResizeHandleProps) {
+  function handlePointerDown(event: React.PointerEvent<HTMLDivElement>) {
+    if (disabled) return;
+    event.stopPropagation();
+    const start = axis === 'x' ? event.clientX : event.clientY;
+    const startSize = getSize();
+
+    function handleMove(moveEvent: PointerEvent) {
+      const current = axis === 'x' ? moveEvent.clientX : moveEvent.clientY;
+      onResize(Math.max(min, startSize + sign * (current - start)));
+    }
+
+    function handleUp() {
+      window.removeEventListener('pointermove', handleMove);
+      window.removeEventListener('pointerup', handleUp);
+    }
+
+    window.addEventListener('pointermove', handleMove);
+    window.addEventListener('pointerup', handleUp);
+  }
+
+  return (
+    <div
+      onPointerDown={handlePointerDown}
+      className={cn(
+        'group/resize absolute flex touch-none items-center justify-center',
+        axis === 'x' ? 'inset-y-0 w-2 pointer-coarse:w-6' : 'inset-x-0 h-2 pointer-coarse:h-6',
+        disabled ? 'pointer-events-none cursor-default' : axis === 'x' ? 'cursor-col-resize' : 'cursor-row-resize',
+        className
+      )}
+    >
+      <div
+        className={cn(
+          'rounded-full bg-foreground/0 transition-colors duration-200',
+          axis === 'x' ? 'h-8 w-1' : 'h-1 w-8',
+          !disabled && 'group-hover/resize:bg-foreground/30 pointer-coarse:bg-foreground/20'
+        )}
+      />
+    </div>
+  );
 }
 
 /**
@@ -43,33 +109,17 @@ export interface DragAndDropAreaProps {
  * That grip pill (and the handle's interactivity) fades out along with the
  * rest of the empty-state affordances while the enclosing
  * `DragAndDropProvider` is `disabled`, since resizing isn't possible either.
+ * An optional `resizeEdge` adds a matching side handle that persists a
+ * freely chosen width the same way, keyed by this area's own `id` in the
+ * enclosing `DragAndDropProvider`'s width map.
  */
-export function DragAndDropArea({ id, children, onDrop, className, filled, minHeight = 80 }: DragAndDropAreaProps) {
+export function DragAndDropArea({ id, children, onDrop, className, filled, minHeight = 80, resizeEdge, minWidth = 160 }: DragAndDropAreaProps) {
   const ref = React.useRef<HTMLDivElement>(null);
-  const { disabled, hoveredAreaId, registerDropTarget, heights, setAreaHeight } = useDragAndDrop();
+  const { disabled, hoveredAreaId, registerDropTarget, heights, setAreaHeight, setAreaWidth } = useDragAndDrop();
   const isHovered = hoveredAreaId === id;
   const height = heights[id];
 
   React.useEffect(() => registerDropTarget(id, onDrop), [id, onDrop, registerDropTarget]);
-
-  function handleResizePointerDown(event: React.PointerEvent<HTMLDivElement>) {
-    if (filled || disabled || !ref.current) return;
-    event.stopPropagation();
-    const startY = event.clientY;
-    const startHeight = ref.current.getBoundingClientRect().height;
-
-    function handleResizeMove(moveEvent: PointerEvent) {
-      setAreaHeight(id, Math.max(minHeight, startHeight + (moveEvent.clientY - startY)));
-    }
-
-    function handleResizeUp() {
-      window.removeEventListener('pointermove', handleResizeMove);
-      window.removeEventListener('pointerup', handleResizeUp);
-    }
-
-    window.addEventListener('pointermove', handleResizeMove);
-    window.addEventListener('pointerup', handleResizeUp);
-  }
 
   return (
     <div
@@ -95,20 +145,26 @@ export function DragAndDropArea({ id, children, onDrop, className, filled, minHe
         {children}
       </div>
       {!filled && (
-        <div
-          onPointerDown={handleResizePointerDown}
-          className={cn(
-            'group/resize absolute inset-x-0 bottom-0 flex h-2 touch-none items-center justify-center pointer-coarse:h-6',
-            disabled ? 'pointer-events-none cursor-default' : 'cursor-row-resize'
-          )}
-        >
-          <div
-            className={cn(
-              'h-1 w-8 rounded-full bg-foreground/0 transition-colors duration-200',
-              !disabled && 'group-hover/resize:bg-foreground/30 pointer-coarse:bg-foreground/20'
-            )}
-          />
-        </div>
+        <ResizeHandle
+          axis="y"
+          sign={1}
+          min={minHeight}
+          disabled={disabled}
+          getSize={() => ref.current?.getBoundingClientRect().height ?? minHeight}
+          onResize={(size) => setAreaHeight(id, size)}
+          className="bottom-0"
+        />
+      )}
+      {!filled && resizeEdge && (
+        <ResizeHandle
+          axis="x"
+          sign={resizeEdge === 'right' ? 1 : -1}
+          min={minWidth}
+          disabled={disabled}
+          getSize={() => ref.current?.getBoundingClientRect().width ?? minWidth}
+          onResize={(size) => setAreaWidth(id, size)}
+          className={resizeEdge === 'right' ? 'right-0' : 'left-0'}
+        />
       )}
     </div>
   );
