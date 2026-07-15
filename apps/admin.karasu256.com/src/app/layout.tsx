@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { getLocale, getMessages, getTranslations } from 'next-intl/server';
 import { NextIntlClientProvider } from 'next-intl';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Geist, Geist_Mono, Noto_Sans_JP } from 'next/font/google';
 import { PopUpMenuProvider, SessionProvider, TooltipProvider } from '@Hashibutogarasu/ui';
 import { getSessionUser } from '@Hashibutogarasu/utils/server';
 import { Header } from '@/components/header';
@@ -10,6 +10,9 @@ import './globals.css';
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] });
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] });
+
+/** CJK fallback so the ja locale renders consistently with the Geist Latin text instead of the OS default font. */
+const notoSansJP = Noto_Sans_JP({ variable: '--font-noto-jp', subsets: ['latin'] });
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('Metadata');

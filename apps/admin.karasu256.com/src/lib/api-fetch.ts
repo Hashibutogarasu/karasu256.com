@@ -1,6 +1,6 @@
 import { headers } from 'next/headers';
 
-const API_URL = process.env.API_URL ?? 'http://localhost:3001';
+const API_URL = process.env.API_URL!;
 
 export async function apiFetch(path: string, init?: RequestInit): Promise<Response> {
   const incoming = await headers();
