@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server';
+import { getSessionCookie } from 'better-auth/cookies';
 import { firebaseConfigSchema } from '@/lib/firebase/schema';
 
 /**
@@ -6,6 +7,11 @@ import { firebaseConfigSchema } from '@/lib/firebase/schema';
  * 1. Validates all required Firebase environment variables on every request.
  * 2. Redirects unauthenticated requests away from /settings.
  * 3. Redirects authenticated requests away from the sign-in root (/).
+ *
+ * A request counts as authenticated if the better-auth session cookie is
+ * present, checked via `getSessionCookie()` — this app no longer overrides
+ * better-auth's own session cookie naming, so the helper's default lookup
+ * (accounting for the `__Secure-` prefix under HTTPS) matches directly.
  *
  * Cookie verification (signature + expiry) is intentionally skipped here because
  * the Firebase Admin SDK is not Edge-runtime compatible. Full verification is
@@ -31,7 +37,7 @@ export function proxy(request: NextRequest): NextResponse {
   }
 
   const { pathname } = request.nextUrl;
-  const hasSession = Boolean(request.cookies.get('session')?.value);
+  const hasSession = Boolean(getSessionCookie(request));
 
   if (hasSession && pathname === '/') {
     return NextResponse.redirect(new URL('/settings', request.url));

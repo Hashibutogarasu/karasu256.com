@@ -1,10 +1,8 @@
-import { SESSION_COOKIE_NAME } from './session-cookie';
-
 export interface UploadImageOptions {
   /** Base URL of the image API, e.g. `https://cdn.karasu256.com`. */
   imageApiUrl: string;
-  /** Raw value of the caller's session cookie, forwarded to authenticate the upload. */
-  sessionCookie: string;
+  /** The caller's raw `Cookie` request header, forwarded verbatim to authenticate the upload. */
+  cookieHeader: string;
   /** Explicit storage key (e.g. `users/{uid}/avatar.png`). When omitted, the server generates one. */
   path?: string;
 }
@@ -13,7 +11,7 @@ export type UploadImageResult = { ok: true; status: number; url: string } | { ok
 
 /**
  * Uploads a file to the image API on behalf of an authenticated caller,
- * forwarding the session cookie for server-to-server auth.
+ * forwarding the caller's cookies verbatim for server-to-server auth.
  */
 export async function uploadImage(file: File, options: UploadImageOptions): Promise<UploadImageResult> {
   const form = new FormData();
@@ -23,7 +21,7 @@ export async function uploadImage(file: File, options: UploadImageOptions): Prom
   const res = await fetch(`${options.imageApiUrl}/upload`, {
     method: 'POST',
     body: form,
-    headers: { Cookie: `${SESSION_COOKIE_NAME}=${options.sessionCookie}` },
+    headers: { Cookie: options.cookieHeader },
   });
 
   if (!res.ok) {

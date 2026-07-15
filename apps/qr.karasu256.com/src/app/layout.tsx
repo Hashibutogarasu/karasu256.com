@@ -4,8 +4,9 @@ import { config } from '@fortawesome/fontawesome-svg-core';
 import '@fortawesome/fontawesome-svg-core/styles.css';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
-import { PopUpMenuProvider, R2StorageProvider } from '@Hashibutogarasu/ui';
+import { PopUpMenuProvider, R2StorageProvider, SessionProvider } from '@Hashibutogarasu/ui';
 import { RedisProvider } from '@Hashibutogarasu/ui/redis';
+import { getSessionUser } from '@Hashibutogarasu/utils/server';
 import './globals.css';
 import Header from '@/components/Header';
 
@@ -39,19 +40,25 @@ export default async function RootLayout({
 }>) {
   const locale = await getLocale();
   const messages = await getMessages();
+  const sessionUser = await getSessionUser();
+  const initialUser = sessionUser
+    ? { uid: sessionUser.uid, iconUrl: sessionUser.image, displayName: sessionUser.name, email: sessionUser.email }
+    : null;
 
   return (
     <html lang={locale} className={`${geistSans.variable} ${geistMono.variable} ${notoSansJP.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
         <NextIntlClientProvider messages={messages}>
-          <R2StorageProvider imageApiUrl={process.env.NEXT_PUBLIC_IMAGE_API_URL!}>
-            <RedisProvider redisURL={process.env.REDIS_URL!}>
-              <PopUpMenuProvider>
-                <Header />
-                <main className="flex-1 flex flex-col">{children}</main>
-              </PopUpMenuProvider>
-            </RedisProvider>
-          </R2StorageProvider>
+          <SessionProvider baseURL={process.env.NEXT_PUBLIC_ACCOUNTS_URL} initialUser={initialUser}>
+            <R2StorageProvider imageApiUrl={process.env.NEXT_PUBLIC_IMAGE_API_URL!}>
+              <RedisProvider redisURL={process.env.REDIS_URL!}>
+                <PopUpMenuProvider>
+                  <Header />
+                  <main className="flex-1 flex flex-col">{children}</main>
+                </PopUpMenuProvider>
+              </RedisProvider>
+            </R2StorageProvider>
+          </SessionProvider>
         </NextIntlClientProvider>
       </body>
     </html>

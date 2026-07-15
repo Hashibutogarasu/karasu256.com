@@ -7,13 +7,14 @@
     "./server/sign-out": "./src/server/sign-out.ts",
     "./email": "./src/email/index.ts",
     "./client": "./src/client/index.ts",
-    "./validation": "./src/validation/index.ts"
+    "./validation": "./src/validation/index.ts",
+    "./constants": "./src/constants/index.ts"
   },
   "dependencies": {
     "@better-auth/oauth-provider": "^1.6.23",
+    "@better-auth/passkey": "1.6.23",
     "@react-email/components": "^1.0.12",
     "better-auth": "^1.6.23",
-    "firebase-admin": "^14.0.0",
     "resend": "^4.0.0",
     "zod": "^4.4.3"
   },

@@ -1,10 +1,10 @@
 'use client';
 
-import * as React from 'react';
 import { Button } from './button';
-import { UserIcon, type KarasuUser } from './user-icon';
+import { UserIcon } from './user-icon';
 import { PopUpMenu } from './popup-menu';
 import { DropdownMenuItem } from './ui/dropdown-menu';
+import { useSessionUser } from './session-provider';
 
 export interface AccountMenuLabels {
   signIn?: string;
@@ -13,8 +13,6 @@ export interface AccountMenuLabels {
 }
 
 export interface AccountMenuProps {
-  /** The signed-in user, or `null` to render a sign-in button instead. */
-  user: KarasuUser | null;
   /** Destination for the sign-in button. */
   signInHref: string;
   /** Destination for the "settings" menu item. */
@@ -36,9 +34,14 @@ const defaultLabels: Required<AccountMenuLabels> = {
  * when authenticated. The dropdown shows the user's avatar, display name,
  * email address, a configurable settings link, and a configurable sign-out
  * action, so callers can point them at whichever app hosts settings/auth.
+ *
+ * The signed-in user is read via `useSessionUser`, which requires a
+ * `SessionProvider` ancestor (see that component for how it stays live
+ * across tabs).
  */
-export function AccountMenu({ user, signInHref, settingsHref, onSignOut, labels, triggerAriaLabel }: AccountMenuProps) {
+export function AccountMenu({ signInHref, settingsHref, onSignOut, labels, triggerAriaLabel }: AccountMenuProps) {
   const { signIn, settings, signOut } = { ...defaultLabels, ...labels };
+  const user = useSessionUser();
 
   if (!user) {
     return (

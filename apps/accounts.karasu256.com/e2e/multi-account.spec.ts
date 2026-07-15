@@ -15,8 +15,6 @@ interface CreateTestAccountResult {
   uid: string;
   email: string;
   password: string;
-  idToken: string;
-  refreshToken: string;
   sessionToken: string;
   cookies: TestCookie[];
 }
@@ -31,49 +29,27 @@ async function deleteTestAccount(request: APIRequestContext, uid: string): Promi
   await request.delete('/api/test/accounts', { data: { uid } });
 }
 
-/**
- * Intercepts the Firebase Auth REST call the real email/password form makes
- * and fulfills it with a real ID/refresh token pair obtained server-side (via
- * the Admin SDK custom-token exchange in `/api/test/accounts`) — this Firebase
- * test project doesn't have email/password sign-in enabled as a provider, so
- * the form's own request would otherwise fail with `PASSWORD_LOGIN_DISABLED`.
- * The Firebase JS SDK completes sign-in exactly as it would for a genuine
- * response; no application code is touched. Registered once per test and
- * matches by email, so it transparently covers both the primary sign-in form
- * and the add-account dialog's embedded form (a different Firebase Auth
- * instance, same intercepted network call).
- */
-async function mockPasswordSignIn(page: Page, ...accounts: CreateTestAccountResult[]) {
-  const byEmail = new Map(accounts.map((a) => [a.email, a]));
-  await page.route('**/v1/accounts:signInWithPassword*', async (route) => {
-    const body = route.request().postDataJSON() as { email: string };
-    const account = byEmail.get(body.email);
-    if (!account) {
-      await route.continue();
-      return;
-    }
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify({
-        kind: 'identitytoolkit#VerifyPasswordResponse',
-        localId: account.uid,
-        email: account.email,
-        idToken: account.idToken,
-        registered: true,
-        refreshToken: account.refreshToken,
-        expiresIn: '3600',
-      }),
-    });
-  });
-}
-
 async function signInViaUi(page: Page, account: CreateTestAccountResult) {
   await page.goto('/');
   await page.getByRole('textbox', { name: 'メールアドレス' }).fill(account.email);
   await page.getByRole('textbox', { name: 'パスワード' }).fill(account.password);
   await page.getByRole('button', { name: 'サインイン', exact: true }).click();
   await page.waitForURL('/settings');
+}
+
+/**
+ * Signs in a second account without disturbing the current one, the same way
+ * `AddAccountDialog` does under the hood — `multiSession` tracks every
+ * sign-in as an additional device session (instead of replacing the current
+ * one) and makes it the active session.
+ */
+async function addAccountViaApi(page: Page, account: CreateTestAccountResult): Promise<{ sessionToken: string }> {
+  const res = await page.request.post('/api/auth/sign-in/email', {
+    data: { email: account.email, password: account.password },
+  });
+  expect(res.ok(), `failed to add account ${account.email}`).toBeTruthy();
+  const { token } = (await res.json()) as { token: string };
+  return { sessionToken: token };
 }
 
 /** The sidebar's account-switcher popup — scoped to avoid matching the same email shown in page content. */
@@ -103,17 +79,15 @@ test.describe('multi-account switching', () => {
   });
 
   test('creates a test account and signs in', async ({ page }) => {
-    await mockPasswordSignIn(page, accountA);
     await signInViaUi(page, accountA);
-    await expect(sidebarFooter(page).getByText(accountA.email)).toBeVisible();
+    await expect(sidebarFooter(page).getByText(accountA.email).first()).toBeVisible();
   });
 
   test('adds a second account and switches between them', async ({ page }) => {
-    await mockPasswordSignIn(page, accountA, accountB);
     await signInViaUi(page, accountA);
-    await expect(sidebarFooter(page).getByText(accountA.email)).toBeVisible();
+    await expect(sidebarFooter(page).getByText(accountA.email).first()).toBeVisible();
 
-    await sidebarFooter(page).getByText(accountA.email).click();
+    await sidebarFooter(page).getByText(accountA.email).first().click();
     await page.getByText('別のアカウントを追加').click();
 
     const dialog = page.getByRole('dialog');
@@ -122,7 +96,7 @@ test.describe('multi-account switching', () => {
     await dialog.getByRole('button', { name: 'サインイン', exact: true }).click();
     await expect(dialog).not.toBeAttached({ timeout: 15000 });
 
-    await sidebarFooter(page).getByText(accountA.email).click();
+    await sidebarFooter(page).getByText(accountA.email).first().click();
     await expect(page.getByText(accountB.email).first()).toBeVisible();
     await page.getByText(accountB.email).first().click();
 
@@ -138,11 +112,7 @@ test.describe('multi-account switching', () => {
     await context.addCookies(accountA.cookies);
     await page.goto('/settings');
 
-    const addRes = await page.request.post('/api/auth/accounts/add', {
-      data: { idToken: accountB.idToken },
-    });
-    expect(addRes.ok()).toBeTruthy();
-    const added = (await addRes.json()) as { sessionToken: string };
+    const added = await addAccountViaApi(page, accountB);
 
     const removeRes = await page.request.post('/api/auth/accounts/remove', {
       data: { sessionToken: added.sessionToken },
@@ -152,38 +122,5 @@ test.describe('multi-account switching', () => {
     const listRes = await page.request.get('/api/auth/accounts');
     const { accounts } = (await listRes.json()) as { accounts: { uid: string }[] };
     expect(accounts.some((a) => a.uid === accountB.uid)).toBe(false);
-  });
-
-  /**
-   * Regression test: re-bridging an already-added account used to always mint
-   * a brand new better-auth session, silently burning through `multiSession`'s
-   * `maximumSessions` slots on repeat clicks. That let the *next* distinct
-   * account's device-session cookie get dropped without the bridge endpoint
-   * ever reporting an error — see `findBridgedSessionForUser` in
-   * `firebase-bridge-plugin.ts`.
-   */
-  test('re-adding an already-bridged account reuses its device session', async ({ page, context }) => {
-    await context.addCookies(accountA.cookies);
-    await page.goto('/settings');
-
-    const firstAdd = await page.request.post('/api/auth/accounts/add', {
-      data: { idToken: accountB.idToken },
-    });
-    expect(firstAdd.ok()).toBeTruthy();
-    const first = (await firstAdd.json()) as { sessionToken: string };
-
-    const secondAdd = await page.request.post('/api/auth/accounts/add', {
-      data: { idToken: accountB.idToken },
-    });
-    expect(secondAdd.ok()).toBeTruthy();
-    const second = (await secondAdd.json()) as { sessionToken: string };
-
-    expect(second.sessionToken).toBe(first.sessionToken);
-
-    const listRes = await page.request.get('/api/auth/accounts');
-    const { accounts } = (await listRes.json()) as { accounts: { uid: string }[] };
-    expect(accounts.filter((a) => a.uid === accountB.uid)).toHaveLength(1);
-
-    await page.request.post('/api/auth/accounts/remove', { data: { sessionToken: second.sessionToken } });
   });
 });

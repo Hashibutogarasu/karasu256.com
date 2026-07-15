@@ -2,16 +2,11 @@
 
 import { useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { signOut } from 'firebase/auth';
 import { useTranslations } from 'next-intl';
 import { LoadingView } from '@Hashibutogarasu/ui';
-import { getFirebaseAuth } from '@/lib/firebase/auth';
-import { clearSession } from '@/lib/api/auth-session';
+import { authClient } from '@/lib/auth/client';
 
-/**
- * Clears the Firebase Auth state and the server-side session cookie,
- * then navigates to the `next` search param URL.
- */
+/** Clears the better-auth session, then navigates to the `next` search param URL. */
 export function SignOutClient() {
   const searchParams = useSearchParams();
   const t = useTranslations();
@@ -19,8 +14,7 @@ export function SignOutClient() {
   useEffect(() => {
     async function performSignOut() {
       try {
-        await clearSession();
-        await signOut(getFirebaseAuth());
+        await authClient.signOut();
       } finally {
         window.location.replace(searchParams.get('next') ?? '/');
       }

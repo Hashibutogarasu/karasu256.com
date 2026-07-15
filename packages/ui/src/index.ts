@@ -26,6 +26,17 @@ export {
   type SettingsSidebarProps,
   type SettingsSidebarLayoutProps,
 } from './components/settings-sidebar';
+export {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarTrigger,
+  SidebarRail,
+  useSidebar,
+} from './components/ui/sidebar';
 export { Checkbox } from './components/checkbox';
 export { Badge, badgeVariants, type BadgeProps } from './components/badge';
 export { SettingsAccordion, type SettingsAccordionProps } from './components/settings-accordion';
@@ -36,6 +47,18 @@ export { SettingsItem } from './components/settings-item';
 export { LoadingView } from './components/loading-view';
 export { OverlayContainer, type OverlayContainerProps } from './components/overlay-container';
 export { SwitchingAccountOverlay, type SwitchingAccountOverlayProps } from './components/switching-account-overlay';
+export {
+  DragAndDropProvider,
+  useDragAndDrop,
+  type DragAndDropContextValue,
+  type DragAndDropProviderProps,
+  type DragAndDropShape,
+  type DropTargetShape,
+  type DragPayload,
+} from './components/drag-and-drop-context';
+export { Draggable, type DraggableProps } from './components/draggable';
+export { DragAndDropArea, type DragAndDropAreaProps } from './components/drag-and-drop-area';
+export { LockIcon, type LockIconProps } from './components/lock-icon';
 export {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -70,8 +93,9 @@ export {
 export { Header, type HeaderProps } from './components/header';
 export { useIsMobile } from './hooks/use-mobile';
 export { PopUpMenuProvider, PopUpMenu, type PopUpMenuProps, type PopUpMenuUser } from './components/popup-menu';
-export { UserIcon, type UserIconProps, type KarasuUser } from './components/user-icon';
+export { UserIcon, type UserIconProps } from './components/user-icon';
 export { R2StorageProvider, useR2Storage, type R2StorageProviderProps, type UseR2StorageResult } from './components/r2-storage-provider';
+export { SessionProvider, useSessionUser, type SessionProviderProps } from './components/session-provider';
 export { AccountMenu, type AccountMenuProps, type AccountMenuLabels } from './components/account-menu';
 export { ProgressBar, type ProgressBarProps } from './components/progress-bar';
 export { SwitchMenuItem, type SwitchMenuItemProps } from './components/switch-menu-item';

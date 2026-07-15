@@ -1,32 +1,49 @@
 'use client';
 
 import { useState } from 'react';
-import { updateProfile } from 'firebase/auth';
 import { useTranslations } from 'next-intl';
 import { toast } from '@Hashibutogarasu/ui';
-import { getFirebaseAuth } from '@/lib/firebase/auth';
+import { authClient } from '@/lib/auth/client';
+import { hashFormData } from '@Hashibutogarasu/utils/client';
 import { useSettingsUser } from '@/components/settings/user-context';
-import { Button } from '@Hashibutogarasu/ui';
 import { Input } from '@Hashibutogarasu/ui';
 import { Label } from '@Hashibutogarasu/ui';
-import { Skeleton } from '@Hashibutogarasu/ui';
+import { LoadingButton } from '@/components/ui/loading-button';
 import { ProfileIcon } from './profile-icon';
 
-/** Displays the user's avatar (uploadable) and allows editing their display name. */
+/** Local, editable form fields of {@link ProfileSection}; deliberately excludes the icon, which has no local draft state of its own. */
+interface ProfileFormData {
+  displayName: string;
+}
+
+/**
+ * Displays the user's avatar (uploadable) and allows editing their display
+ * name. Renders immediately (no loading skeleton) so the page is
+ * recognizable as soon as it mounts; the text input, save button, and avatar
+ * stay disabled until {@link useSettingsUser}'s `ready` flag flips true,
+ * which happens once the better-auth session resolves.
+ */
 export function ProfileSection() {
   const t = useTranslations();
-  const { user, updateUser } = useSettingsUser();
-  const [displayName, setDisplayName] = useState(user.displayName ?? '');
+  const { user, ready, updateUser } = useSettingsUser();
+  const [formData, setFormData] = useState<ProfileFormData>({ displayName: user.name ?? '' });
+  /** Snapshot recorded on mount and refreshed after each successful save; discard reverts {@link formData} to this. */
+  const [initialFormData, setInitialFormData] = useState<ProfileFormData>(formData);
   const [saving, setSaving] = useState(false);
+  const disabled = !ready || saving;
+  const isUnchanged = hashFormData(formData) === hashFormData(initialFormData);
 
+  /**
+   * better-auth's `user` row is the source of truth; the server-side
+   * `syncProfileToFirebase` hook mirrors it onto Firebase.
+   */
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
-    const currentUser = getFirebaseAuth().currentUser;
-    if (!currentUser) return;
     try {
-      await updateProfile(currentUser, { displayName });
-      updateUser({ displayName });
+      await authClient.updateUser({ name: formData.displayName });
+      updateUser({ name: formData.displayName });
+      setInitialFormData(formData);
       toast.success(t('profile.saved'), { autoClose: true });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : String(err));
@@ -35,57 +52,38 @@ export function ProfileSection() {
     }
   }
 
+  /** Reverts the form to its {@link initialFormData} snapshot; the icon isn't part of this form's local state, so it's left untouched. */
+  function handleDiscard() {
+    setFormData(initialFormData);
+  }
+
   return (
     <div className="space-y-4">
       <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t('profile.title')}</p>
       <div className="flex items-center gap-3">
         <ProfileIcon />
-        <p className="text-sm text-muted-foreground break-all">{user.displayName ?? user.email ?? user.uid}</p>
+        <p className="text-sm text-muted-foreground break-all">{user.name ?? user.email ?? user.id}</p>
       </div>
       <form onSubmit={handleSave} className="space-y-3">
         <div className="space-y-1">
           <Label htmlFor="display-name">{t('profile.displayName')}</Label>
           <Input
             id="display-name"
-            value={displayName}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDisplayName(e.target.value)}
-            disabled={saving}
+            value={formData.displayName}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData((prev) => ({ ...prev, displayName: e.target.value }))}
+            disabled={disabled}
             autoComplete="name"
           />
         </div>
-        <Button type="submit" variant="outline" className="w-full" disabled={saving}>
-          {saving ? t('profile.saving') : t('profile.save')}
-        </Button>
-      </form>
-    </div>
-  );
-}
-
-/**
- * Placeholder for {@link ProfileSection} shown while the authenticated user
- * is still resolving. Mirrors the real layout so only the identicon and the
- * display name next to it appear as skeletons; the form itself renders with
- * its final structure and stays disabled until the user is ready.
- */
-export function ProfileSectionSkeleton() {
-  const t = useTranslations();
-
-  return (
-    <div className="space-y-4">
-      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t('profile.title')}</p>
-      <div className="flex items-center gap-3">
-        <Skeleton className="h-12 w-12 rounded-full" />
-        <Skeleton className="h-4 w-32" />
-      </div>
-      <div className="space-y-3">
-        <div className="space-y-1">
-          <Label htmlFor="display-name">{t('profile.displayName')}</Label>
-          <Input id="display-name" value="" disabled autoComplete="name" />
+        <div className="flex gap-2">
+          <LoadingButton type="submit" variant="default" className="w-[10%]" disabled={disabled || isUnchanged} loading={saving}>
+            {saving ? t('profile.saving') : t('profile.save')}
+          </LoadingButton>
+          <LoadingButton type="button" variant="secondary" onClick={handleDiscard} disabled={disabled || isUnchanged} loading={false}>
+            {t('profile.discard')}
+          </LoadingButton>
         </div>
-        <Button type="submit" variant="outline" className="w-full" disabled>
-          {t('profile.save')}
-        </Button>
-      </div>
+      </form>
     </div>
   );
 }

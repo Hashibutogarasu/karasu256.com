@@ -1,9 +1,9 @@
-export { SESSION_COOKIE_NAME } from './session-cookie';
 export { createRouteAuth, type RouteAuthContext, type RouteAuthDeps, type RouteAuthMethod, type TokenValidator } from './route-guards';
 export { deleteUploadedImage, type DeleteUploadedImageOptions } from './delete-uploaded-image';
 export { uploadImage, type UploadImageOptions, type UploadImageResult } from './upload-image';
 export { uploadImageAnonymous, type UploadImageAnonymousOptions, type UploadImageAnonymousResult } from './upload-image-anonymous';
-export { getAdminAuth, getFirebaseUserProfile } from './firebase-admin';
-export { getSessionUser } from './firebase-session';
+export { getSessionUser, type SessionUser } from './session';
 export { signOutAction } from './sign-out';
 export { setLocaleAction } from './set-locale';
+export { getRootAppUrl } from './get-root-app-url';
+export { MissingEnvError } from './missing-env-error';

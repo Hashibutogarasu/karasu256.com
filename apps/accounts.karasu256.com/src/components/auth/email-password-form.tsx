@@ -2,31 +2,43 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { FirebaseError } from 'firebase/app';
-import type { Auth, User } from 'firebase/auth';
+import { useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRightToBracket, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 import { useTranslations } from 'next-intl';
 import { toast } from '@Hashibutogarasu/ui';
-import { signInWithEmailPassword, registerWithEmailPassword } from '@/lib/api/auth-email-password';
+import { authClient } from '@/lib/auth/client';
 import { Button, Checkbox, Input, Label, PasswordInput } from '@Hashibutogarasu/ui';
 import { Tabs, TabsContent, TabsList, TabsTrigger, AnimatedHeight } from '@Hashibutogarasu/ui';
 import { LocalizedPasswordStrengthIndicator } from './localized-password-strength-indicator';
 
 export interface EmailPasswordFormProps {
-  /** Firebase Auth instance to authenticate against. Defaults to the app's primary instance. */
-  auth?: Auth;
-  /** Called after a successful sign-in or account creation, in addition to the default `onAuthStateChanged`-driven flow. */
-  onSuccess?: (user: User) => void;
+  /** Called after a successful sign-in or account creation, instead of the default redirect to `/settings`. */
+  onSuccess?: () => void;
+  /** Disables all inputs and buttons, e.g. while the caller's session state hasn't loaded yet. Defaults to `false`. */
+  disabled?: boolean;
+  /** Shows a "switch to this account after adding" checkbox above the submit button in each tab. Defaults to `false`. */
+  showSwitchAccountCheckBox?: boolean;
+  /** Controlled checked state for the "switch to this account after adding" checkbox. */
+  switchToNewAccount?: boolean;
+  /** Called with the new checked state when the "switch to this account after adding" checkbox is toggled. */
+  onSwitchToNewAccountChange?: (checked: boolean) => void;
 }
 
 /**
  * Renders a tabbed email/password form that handles both sign-in and account
- * creation against Firebase Auth. Both tabs share the same email and password
+ * creation against better-auth. Both tabs share the same email and password
  * state so the user can fill in credentials once and choose the action.
  */
-export function EmailPasswordForm({ auth, onSuccess }: EmailPasswordFormProps = {}) {
+export function EmailPasswordForm({
+  onSuccess,
+  disabled = false,
+  showSwitchAccountCheckBox = false,
+  switchToNewAccount = false,
+  onSwitchToNewAccountChange,
+}: EmailPasswordFormProps = {}) {
   const t = useTranslations();
+  const router = useRouter();
   const [tab, setTab] = useState('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -34,37 +46,42 @@ export function EmailPasswordForm({ auth, onSuccess }: EmailPasswordFormProps = 
   const [loading, setLoading] = useState(false);
 
   const activeIndex = tab === 'signin' ? 0 : 1;
-  const registerDisabled = loading || !email || !password || !agreedToTerms;
+  const registerDisabled = disabled || loading || !email || !password || !agreedToTerms;
   const termsUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? ''}/terms`;
 
-  function showAuthError(err: unknown) {
-    const code = err instanceof FirebaseError ? err.code.replace('auth/', '') : 'unknown';
-    const key = `signIn.error.${code}`;
-    toast.error(t.has(key) ? t(key) : t('signIn.error.unknown'));
+  function handleSuccess() {
+    if (onSuccess) onSuccess();
+    else router.replace('/settings');
   }
 
   async function handleSignIn(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    try {
-      const credential = await signInWithEmailPassword(email, password, auth);
-      onSuccess?.(credential.user);
-    } catch (err) {
-      showAuthError(err);
-      setLoading(false);
-    }
+    await authClient.signIn.email(
+      { email, password },
+      {
+        onSuccess: handleSuccess,
+        onError: (ctx) => {
+          toast.error(ctx.error.message);
+          setLoading(false);
+        },
+      }
+    );
   }
 
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    try {
-      const credential = await registerWithEmailPassword(email, password, auth);
-      onSuccess?.(credential.user);
-    } catch (err) {
-      showAuthError(err);
-      setLoading(false);
-    }
+    await authClient.signUp.email(
+      { email, password, name: email },
+      {
+        onSuccess: handleSuccess,
+        onError: (ctx) => {
+          toast.error(ctx.error.message);
+          setLoading(false);
+        },
+      }
+    );
   }
 
   return (
@@ -100,6 +117,7 @@ export function EmailPasswordForm({ auth, onSuccess }: EmailPasswordFormProps = 
                 value={email}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                 required
+                disabled={disabled}
               />
             </div>
             <div className="space-y-2">
@@ -116,9 +134,23 @@ export function EmailPasswordForm({ auth, onSuccess }: EmailPasswordFormProps = 
                 value={password}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                 required
+                disabled={disabled}
               />
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
+            {showSwitchAccountCheckBox && (
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="switch-to-new-account-signin"
+                  checked={switchToNewAccount}
+                  onCheckedChange={onSwitchToNewAccountChange}
+                  disabled={disabled || loading}
+                />
+                <Label htmlFor="switch-to-new-account-signin" className="font-normal text-sm">
+                  {t('settings.accountSwitcher.switchAfterAdd')}
+                </Label>
+              </div>
+            )}
+            <Button type="submit" className="w-full" disabled={disabled || loading}>
               <FontAwesomeIcon icon={faRightToBracket} />
               {loading ? t('signIn.signingIn') : t('signIn.submit')}
             </Button>
@@ -137,6 +169,7 @@ export function EmailPasswordForm({ auth, onSuccess }: EmailPasswordFormProps = 
                 value={email}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                 required
+                disabled={disabled}
               />
             </div>
             <div className="space-y-2">
@@ -148,11 +181,12 @@ export function EmailPasswordForm({ auth, onSuccess }: EmailPasswordFormProps = 
                 value={password}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                 required
+                disabled={disabled}
               />
               <LocalizedPasswordStrengthIndicator password={password} />
             </div>
             <div className="flex items-start gap-2">
-              <Checkbox id="register-terms" checked={agreedToTerms} onCheckedChange={setAgreedToTerms} className="mt-0.5" />
+              <Checkbox id="register-terms" checked={agreedToTerms} onCheckedChange={setAgreedToTerms} className="mt-0.5" disabled={disabled} />
               <Label htmlFor="register-terms" className="font-normal text-sm leading-snug">
                 {t.rich('signIn.agreeToTerms', {
                   terms: (chunks) => (
@@ -163,6 +197,19 @@ export function EmailPasswordForm({ auth, onSuccess }: EmailPasswordFormProps = 
                 })}
               </Label>
             </div>
+            {showSwitchAccountCheckBox && (
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="switch-to-new-account-register"
+                  checked={switchToNewAccount}
+                  onCheckedChange={onSwitchToNewAccountChange}
+                  disabled={disabled || loading}
+                />
+                <Label htmlFor="switch-to-new-account-register" className="font-normal text-sm">
+                  {t('settings.accountSwitcher.switchAfterAdd')}
+                </Label>
+              </div>
+            )}
             <Button type="submit" className="w-full" disabled={registerDisabled}>
               <FontAwesomeIcon icon={faUserPlus} />
               {loading ? t('signIn.creatingAccount') : t('signIn.createAccount')}

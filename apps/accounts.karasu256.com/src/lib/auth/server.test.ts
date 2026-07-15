@@ -1,10 +1,13 @@
 import { betterAuth } from 'better-auth';
+import { passkey } from '@better-auth/passkey';
 import { oauthProvider } from '@better-auth/oauth-provider';
 import { jwt } from 'better-auth/plugins/jwt';
 import { multiSession, testUtils } from 'better-auth/plugins';
 import { nextCookies } from 'better-auth/next-js';
 import { authOptions } from '@/lib/auth/auth-options';
-import { firebaseSessionBridgePlugin } from '@/lib/auth/firebase-bridge-plugin';
+import { getServerConfig } from '@/lib/config';
+
+const { webauthn } = getServerConfig();
 
 /**
  * Test-only better-auth instance, identical to `server.ts` plus the
@@ -28,7 +31,11 @@ export const testAuth = betterAuth({
       allowDynamicClientRegistration: false,
       accessTokenExpiresIn: 15 * 60,
     }),
-    firebaseSessionBridgePlugin(),
+    passkey({
+      rpID: webauthn.rpId,
+      rpName: webauthn.rpName,
+      origin: webauthn.expectedOrigins,
+    }),
     multiSession({ maximumSessions: 5 }),
     testUtils(),
     nextCookies(),

@@ -1,11 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { eq } from 'drizzle-orm';
-import { getDb, sessions } from '@Hashibutogarasu/db';
-import { getAdminAuth } from '@/lib/firebase-admin';
 import { testAuth } from '@/lib/auth/server.test';
-import { encryptFirebaseCookie } from '@/lib/auth/firebase-cookie-crypto';
-import { buildSetCookieOptions, SESSION_COOKIE_NAME, SESSION_DURATION_MS } from '@/lib/session';
 
 const postBodySchema = z.object({ label: z.string().min(1) });
 const deleteBodySchema = z.object({ uid: z.string().min(1) });
@@ -22,34 +17,14 @@ function guardTestMode(): NextResponse | null {
   return null;
 }
 
-async function mintFirebaseTokens(uid: string): Promise<{ idToken: string; refreshToken: string }> {
-  const customToken = await getAdminAuth().createCustomToken(uid);
-  const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
-  const res = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=${apiKey}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ token: customToken, returnSecureToken: true }),
-  });
-  if (!res.ok) {
-    throw new Error(`Failed to exchange Firebase custom token: ${res.status}`);
-  }
-  const { idToken, refreshToken } = (await res.json()) as { idToken: string; refreshToken: string };
-  return { idToken, refreshToken };
-}
-
 /**
- * Creates a real Firebase test user and signs it in — both as a real Firebase
- * session cookie (via a custom-token exchange, since the Admin SDK alone
- * cannot mint an ID token) and as a bridged better-auth `multiSession` device
- * session (via the test-only `testAuth` instance's `ctx.test.login`, per
- * better-auth's `testUtils` plugin). Returns every cookie needed for
- * Playwright's `context.addCookies()` to start a test already signed in, an
- * `idToken` the test can feed into the real `/api/auth/accounts/add`
- * endpoint, and an `idToken`/`refreshToken` pair the E2E spec uses to mock
- * the Firebase Auth REST response for email/password sign-in — this lets the
- * test drive the app's real sign-in form UI without depending on whichever
- * providers happen to be enabled for the Firebase project behind this
- * environment.
+ * Creates a real better-auth test user with a working `credential`
+ * (email/password) account and signs it in as a bridged `multiSession`
+ * device session (via the test-only `testAuth` instance's `ctx.test.login`,
+ * per better-auth's `testUtils` plugin). Returns the plaintext password and
+ * every cookie Playwright's `context.addCookies()` needs to start a test
+ * already signed in, so the E2E spec can drive the app's real sign-in form
+ * UI end-to-end without mocking anything.
  *
  * POST /api/test/accounts
  * Body: { label: string }
@@ -65,54 +40,27 @@ export async function POST(request: NextRequest) {
 
   const email = `e2e-${parsed.data.label}-${Date.now()}@example.test`;
   const password = crypto.randomUUID();
-  const firebaseUser = await getAdminAuth().createUser({ email, emailVerified: true, password });
-  const uid = firebaseUser.uid;
-
-  const { idToken, refreshToken } = await mintFirebaseTokens(uid);
-  const firebaseSessionCookie = await getAdminAuth().createSessionCookie(idToken, { expiresIn: SESSION_DURATION_MS });
 
   const ctx = await testAuth.$context;
-  const testUser = ctx.test.createUser({ id: uid, email, name: email });
-  await ctx.test.saveUser(testUser);
-  const { token, cookies } = await ctx.test.login({ userId: uid });
+  const user = await ctx.test.saveUser(ctx.test.createUser({ email, name: email }));
 
-  await getDb()
-    .update(sessions)
-    .set({
-      firebaseSessionCookieEnc: encryptFirebaseCookie(firebaseSessionCookie),
-      firebaseCookieExpiresAt: new Date(Date.now() + SESSION_DURATION_MS),
-    })
-    .where(eq(sessions.token, token));
-
-  const firebaseCookieOptions = buildSetCookieOptions(firebaseSessionCookie);
-
-  return NextResponse.json({
-    uid,
-    email,
-    password,
-    idToken,
-    refreshToken,
-    sessionToken: token,
-    cookies: [
-      ...cookies,
-      {
-        name: SESSION_COOKIE_NAME,
-        value: firebaseSessionCookie,
-        domain: firebaseCookieOptions.domain ?? 'localhost',
-        path: firebaseCookieOptions.path,
-        httpOnly: firebaseCookieOptions.httpOnly,
-        secure: firebaseCookieOptions.secure,
-        sameSite: 'Lax',
-        expires: Math.floor((Date.now() + SESSION_DURATION_MS) / 1000),
-      },
-    ],
+  const passwordHash = await ctx.password.hash(password);
+  await ctx.internalAdapter.linkAccount({
+    userId: user.id,
+    providerId: 'credential',
+    accountId: user.id,
+    password: passwordHash,
   });
+
+  const { token, cookies } = await ctx.test.login({ userId: user.id });
+
+  return NextResponse.json({ uid: user.id, email, password, sessionToken: token, cookies });
 }
 
 /**
- * Deletes a test account created via `POST`, from both Firebase and the
- * better-auth `users`/`session` rows (which cascade-delete via the schema's
- * `onDelete: 'cascade'` foreign key).
+ * Deletes a test account created via `POST`, from better-auth's
+ * `users`/`session`/`account` rows (which cascade-delete via the schema's
+ * `onDelete: 'cascade'` foreign keys).
  *
  * DELETE /api/test/accounts
  * Body: { uid: string }
@@ -128,9 +76,6 @@ export async function DELETE(request: NextRequest) {
 
   const ctx = await testAuth.$context;
   await ctx.test.deleteUser(parsed.data.uid);
-  await getAdminAuth()
-    .deleteUser(parsed.data.uid)
-    .catch(() => {});
 
   return NextResponse.json({ ok: true });
 }

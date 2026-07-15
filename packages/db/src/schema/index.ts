@@ -1,7 +1,6 @@
 export { users, type User, type NewUser } from './users';
-export { passwordResetTokens, type PasswordResetToken, type NewPasswordResetToken } from './password-reset-tokens';
 export { apiKeys, type ApiKey, type NewApiKey } from './api-keys';
-export { passkeyCredentials, type PasskeyCredential, type NewPasskeyCredential } from './passkey-credentials';
+export { passkeys, type Passkey, type NewPasskey } from './passkeys';
 export { sessions, type Session, type NewSession } from './auth-sessions';
 export { accounts, type Account, type NewAccount } from './auth-accounts';
 export { verifications, type Verification, type NewVerification } from './auth-verifications';

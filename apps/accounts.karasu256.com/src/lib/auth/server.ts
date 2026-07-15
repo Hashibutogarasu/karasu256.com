@@ -1,17 +1,18 @@
 import { betterAuth } from 'better-auth';
+import { passkey } from '@better-auth/passkey';
 import { oauthProvider } from '@better-auth/oauth-provider';
 import { jwt } from 'better-auth/plugins/jwt';
 import { multiSession } from 'better-auth/plugins';
 import { nextCookies } from 'better-auth/next-js';
 import { authOptions } from '@/lib/auth/auth-options';
-import { firebaseSessionBridgePlugin } from '@/lib/auth/firebase-bridge-plugin';
+import { getServerConfig } from '@/lib/config';
+
+const { webauthn } = getServerConfig();
 
 /**
  * The single better-auth instance for the monorepo, hosted on
- * accounts.karasu256.com. Scoped to two responsibilities only: running the
- * Google/GitHub OAuth handshake for social sign-in/linking, and acting as
- * the OAuth 2.1 / OIDC authorization server for third-party apps. Firebase
- * Auth remains the source of truth for the site's own login/session.
+ * accounts.karasu256.com. Firebase Auth remains a backing ID/profile store
+ * (see `hooks.ts`), but better-auth is now the sole session authority.
  */
 export const auth = betterAuth({
   ...authOptions,
@@ -24,7 +25,11 @@ export const auth = betterAuth({
       allowDynamicClientRegistration: false,
       accessTokenExpiresIn: 15 * 60,
     }),
-    firebaseSessionBridgePlugin(),
+    passkey({
+      rpID: webauthn.rpId,
+      rpName: webauthn.rpName,
+      origin: webauthn.expectedOrigins,
+    }),
     multiSession({ maximumSessions: 5 }),
     nextCookies(),
   ],

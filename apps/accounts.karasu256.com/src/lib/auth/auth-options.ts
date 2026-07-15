@@ -1,7 +1,9 @@
 import { drizzleAdapter } from '@better-auth/drizzle-adapter';
 import { getDb } from '@Hashibutogarasu/db/client';
 import * as schema from '@Hashibutogarasu/db/schema';
-import { bridgeFirebaseSessionForSocialSignIn, syncProfileImageToFirebase } from '@/lib/auth/hooks';
+import { sendPasswordResetEmail } from '@Hashibutogarasu/utils/email';
+import { getServerConfig } from '@/lib/config';
+import { deleteFirebaseUser, provisionFirebaseUser, syncNewUserToNeonAuth, syncProfileToFirebase } from '@/lib/auth/hooks';
 
 /**
  * Shared better-auth configuration (everything except `plugins`), used by
@@ -22,11 +24,12 @@ export const authOptions = {
       oauthRefreshToken: schema.oauthRefreshTokens,
       oauthAccessToken: schema.oauthAccessTokens,
       oauthConsent: schema.oauthConsents,
+      passkey: schema.passkeys,
     },
   }),
   secret: process.env.BETTER_AUTH_SECRET,
   baseURL: process.env.BETTER_AUTH_URL,
-  trustedOrigins: [process.env.BETTER_AUTH_URL, process.env.NEXT_PUBLIC_APP_URL].filter((v): v is string => !!v),
+  trustedOrigins: getServerConfig().trustedOrigins,
   account: {
     encryptOAuthTokens: true,
     accountLinking: {
@@ -36,20 +39,34 @@ export const authOptions = {
       updateUserInfoOnLink: true,
     },
   },
+  emailAndPassword: {
+    enabled: true,
+    sendResetPassword: async ({ user, url }: { user: { email: string }; url: string }) => {
+      const { resend } = getServerConfig();
+      await sendPasswordResetEmail({ apiKey: resend.apiKey, from: resend.fromEmail, to: user.email, resetUrl: url });
+    },
+  },
   advanced: {
     crossSubDomainCookies: {
       enabled: true,
       domain: process.env.BASE_DOMAIN,
     },
   },
-  hooks: {
-    after: bridgeFirebaseSessionForSocialSignIn,
-  },
   databaseHooks: {
     user: {
-      update: {
-        after: syncProfileImageToFirebase,
+      create: {
+        before: provisionFirebaseUser,
+        after: syncNewUserToNeonAuth,
       },
+      update: {
+        after: syncProfileToFirebase,
+      },
+    },
+  },
+  user: {
+    deleteUser: {
+      enabled: true,
+      afterDelete: deleteFirebaseUser,
     },
   },
   onAPIError: {
@@ -59,12 +76,12 @@ export const authOptions = {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID as string,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-      disableImplicitSignUp: true,
+      disableImplicitSignUp: false,
     },
     github: {
       clientId: process.env.GITHUB_CLIENT_ID as string,
       clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
-      disableImplicitSignUp: true,
+      disableImplicitSignUp: false,
     },
   },
   disabledPaths: ['/token'],

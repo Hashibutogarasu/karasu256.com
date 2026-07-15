@@ -1,38 +1,44 @@
 'use client';
 
 import { useState } from 'react';
-import { EmailAuthProvider, linkWithCredential, reauthenticateWithCredential, updatePassword } from 'firebase/auth';
-import { FirebaseError } from 'firebase/app';
 import { useTranslations } from 'next-intl';
 import { toast } from '@Hashibutogarasu/ui';
-import { getFirebaseAuth } from '@/lib/firebase/auth';
+import { authClient } from '@/lib/auth/client';
+import { setPassword as setPasswordRequest } from '@/lib/api/set-password';
 import { useSettingsUser } from '@/components/settings/user-context';
 import { Button } from '@Hashibutogarasu/ui';
 import { Label } from '@Hashibutogarasu/ui';
 import { PasswordInput } from '@Hashibutogarasu/ui';
 import { LocalizedPasswordStrengthIndicator } from '@/components/auth/localized-password-strength-indicator';
 
+export interface PasswordSectionProps {
+  /** Whether the user already has a `credential` (email/password) account. */
+  hasPasswordProvider: boolean;
+  /** Called after successfully setting a password for the first time. */
+  onPasswordSet: () => void;
+}
+
 /**
  * Allows email users to set or change their password.
  *
- * - No password provider: links email/password via {@link linkWithCredential}.
- * - Has password provider: re-authenticates then calls {@link updatePassword}.
+ * - No `credential` account yet: sets one via `POST /api/auth/set-password`
+ *   (wrapping better-auth's server-only `auth.api.setPassword`).
+ * - Has a `credential` account: calls `authClient.changePassword()`, which
+ *   verifies `currentPassword` itself.
  *
  * Hidden for users with no email address.
  */
-export function PasswordSection() {
+export function PasswordSection({ hasPasswordProvider, onPasswordSet }: PasswordSectionProps) {
   const t = useTranslations();
-  const { user, updateUser } = useSettingsUser();
-  const hasPasswordProvider = user.providerData.some((p) => p.providerId === 'password');
+  const { user } = useSettingsUser();
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [saving, setSaving] = useState(false);
 
   if (!user.email) return null;
 
-  function showError(err: unknown) {
-    const code = err instanceof FirebaseError ? err.code.replace('auth/', '') : 'unknown';
-    const key = `security.error.${code}`;
+  function showError(code: string | undefined) {
+    const key = `security.error.${(code ?? 'unknown').toLowerCase()}`;
     toast.error(t.has(key) ? t(key) : t('security.error.unknown'));
   }
 
@@ -41,22 +47,21 @@ export function PasswordSection() {
     setSaving(true);
     try {
       if (hasPasswordProvider) {
-        const credential = EmailAuthProvider.credential(user.email!, currentPassword);
-        await reauthenticateWithCredential(user, credential);
-        await updatePassword(user, newPassword);
+        const { error } = await authClient.changePassword({ currentPassword, newPassword });
+        if (error) {
+          showError(error.code);
+          return;
+        }
         toast.success(t('security.passwordChanged'));
       } else {
-        const credential = EmailAuthProvider.credential(user.email!, newPassword);
-        await linkWithCredential(user, credential);
-        await user.reload();
-        const fresh = getFirebaseAuth().currentUser;
-        if (fresh) updateUser({ providerData: fresh.providerData });
+        await setPasswordRequest(newPassword);
+        onPasswordSet();
         toast.success(t('security.passwordSet'));
       }
       setCurrentPassword('');
       setNewPassword('');
     } catch (err) {
-      showError(err);
+      toast.error(err instanceof Error ? err.message : String(err));
     } finally {
       setSaving(false);
     }

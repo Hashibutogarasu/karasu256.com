@@ -1,5 +1,6 @@
 import { createAuthClient } from 'better-auth/react';
 import { oauthProviderClient } from '@better-auth/oauth-provider/client';
+import { passkeyClient } from '@better-auth/passkey/client';
 import { multiSessionClient } from 'better-auth/client/plugins';
 
 /**
@@ -33,7 +34,7 @@ export function createAppAuthClient(options: CreateAppAuthClientOptions = {}) {
 
   const authClient = createAuthClient({
     baseURL,
-    plugins: [oauthProviderClient(), multiSessionClient()],
+    plugins: [oauthProviderClient(), multiSessionClient(), passkeyClient()],
   });
 
   /**

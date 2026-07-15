@@ -1,13 +1,12 @@
-import type { DecodedIdToken } from 'firebase-admin/auth';
 import { NextResponse } from 'next/server';
-import { getSessionUser } from '@/lib/session-user';
+import { getSessionUser, type SessionUser } from '@/lib/session-user';
 import { unauthorized } from '@/lib/api/responses';
 
-type SessionResult = { user: DecodedIdToken; error: null } | { user: null; error: NextResponse };
+type SessionResult = { user: SessionUser; error: null } | { user: null; error: NextResponse };
 
 /**
- * Reads and verifies the Firebase session cookie.
- * Returns the decoded token on success, or a 401 NextResponse on failure.
+ * Reads and verifies the better-auth session.
+ * Returns the session's user on success, or a 401 NextResponse on failure.
  * All Route Handlers that require authentication must call this first.
  */
 export async function requireSession(): Promise<SessionResult> {
