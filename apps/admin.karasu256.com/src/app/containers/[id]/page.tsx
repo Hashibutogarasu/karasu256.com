@@ -1,8 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { NavSidebar } from '@/components/nav-sidebar';
-import { Badge } from '@/components/ui/badge';
-import { buttonVariants } from '@/components/ui/button';
+import { Badge, buttonVariants } from '@Hashibutogarasu/ui';
 import { ContainerDetailSidebar } from '@/components/container-detail-sidebar';
 import { ContainerUpdateButton } from '@/components/container-update-button';
 import { apiFetch } from '@/lib/api-fetch';

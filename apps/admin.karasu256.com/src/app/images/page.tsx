@@ -4,12 +4,23 @@ import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { NavSidebar } from '@/components/nav-sidebar';
 import { ImagePullForm } from '@/components/image-pull-form';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Button,
+  Input,
+  Label,
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+  Skeleton,
+} from '@Hashibutogarasu/ui';
 import { Pencil, RefreshCw, Trash2 } from 'lucide-react';
 
 interface ImageInfo {

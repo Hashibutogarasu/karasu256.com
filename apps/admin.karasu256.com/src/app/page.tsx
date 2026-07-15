@@ -1,5 +1,5 @@
 import { getTranslations } from 'next-intl/server';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@Hashibutogarasu/ui';
 import { NavSidebar } from '@/components/nav-sidebar';
 import { apiFetch } from '@/lib/api-fetch';
 

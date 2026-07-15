@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/navigation';
-import { Button } from '@/components/ui/button';
+import { Button } from '@Hashibutogarasu/ui';
 import { RefreshCw } from 'lucide-react';
 
 export function ContainersRefreshButton() {

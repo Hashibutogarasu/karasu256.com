@@ -1,6 +1,6 @@
 'use client';
 
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@Hashibutogarasu/ui';
 import { Archive, Check, CheckCheck, Circle, Clock, Download, Layers, PackageCheck, ShieldCheck } from 'lucide-react';
 import { useContainerUpdate, type LayerState } from '@/hooks/use-container-update';
 
