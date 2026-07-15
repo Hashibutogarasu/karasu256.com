@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
+import { ProgressBar, Badge } from '@Hashibutogarasu/ui';
 
 interface PullEvent {
   status: string;
@@ -65,7 +64,7 @@ export function PullProgress({ imageName, onDone }: PullProgressProps) {
               <span>{ev.id ?? ev.status}</span>
               <span>{ev.progress ?? ev.status}</span>
             </div>
-            {pct > 0 && <Progress value={pct} className="h-1" />}
+            {pct > 0 && <ProgressBar value={pct / 100} className="h-1" />}
           </div>
         );
       })}

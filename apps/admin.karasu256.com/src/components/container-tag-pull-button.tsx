@@ -4,9 +4,7 @@ import { useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Download } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Button, Input, Tooltip, TooltipContent, TooltipTrigger } from '@Hashibutogarasu/ui';
 import { triggerPullUpdate } from '@/lib/update-stream';
 
 interface ContainerTagPullButtonProps {

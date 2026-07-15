@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
-import { getLocale, getTranslations } from 'next-intl/server';
+import { getLocale, getMessages, getTranslations } from 'next-intl/server';
 import { NextIntlClientProvider } from 'next-intl';
 import { Geist, Geist_Mono } from 'next/font/google';
-import { TooltipProvider } from '@/components/ui/tooltip';
+import { PopUpMenuProvider, SessionProvider, TooltipProvider } from '@Hashibutogarasu/ui';
+import { getSessionUser } from '@Hashibutogarasu/utils/server';
+import { Header } from '@/components/header';
 import { GithubCorner } from '@/components/github-corner';
 import './globals.css';
 
@@ -16,14 +18,25 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const locale = await getLocale();
+  const messages = await getMessages();
+  const sessionUser = await getSessionUser();
+  const initialUser = sessionUser
+    ? { uid: sessionUser.uid, iconUrl: sessionUser.image, displayName: sessionUser.name, email: sessionUser.email }
+    : null;
+
   return (
     <html lang={locale} className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
-        <NextIntlClientProvider>
-          <TooltipProvider>
-            {children}
-            <GithubCorner />
-          </TooltipProvider>
+        <NextIntlClientProvider messages={messages}>
+          <SessionProvider baseURL={process.env.NEXT_PUBLIC_ACCOUNTS_URL} initialUser={initialUser}>
+            <PopUpMenuProvider>
+              <TooltipProvider>
+                <Header />
+                <main className="flex flex-1">{children}</main>
+                <GithubCorner />
+              </TooltipProvider>
+            </PopUpMenuProvider>
+          </SessionProvider>
         </NextIntlClientProvider>
       </body>
     </html>

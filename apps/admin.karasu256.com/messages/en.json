@@ -2,6 +2,12 @@
   "Metadata": {
     "title": "Karasu Lab Admin"
   },
+  "header": {
+    "signIn": "Sign in",
+    "accountMenuLabel": "Account menu",
+    "settings": "Settings",
+    "signOut": "Sign out"
+  },
   "Navigation": {
     "dashboard": "Dashboard",
     "containers": "Containers",

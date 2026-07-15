@@ -91,6 +91,10 @@ export {
   DropdownMenuSubContent as MenuSubContent,
 } from './components/ui/dropdown-menu';
 export { Header, type HeaderProps } from './components/header';
+export { DialogTrigger, DialogOverlay, DialogContent, DialogHeader, DialogFooter, DialogDescription } from './components/ui/dialog';
+export { Table, TableHeader, TableBody, TableFooter, TableHead, TableRow, TableCell, TableCaption } from './components/ui/table';
+export { ScrollArea, ScrollBar } from './components/ui/scroll-area';
+export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from './components/ui/tooltip';
 export { useIsMobile } from './hooks/use-mobile';
 export { PopUpMenuProvider, PopUpMenu, type PopUpMenuProps, type PopUpMenuUser } from './components/popup-menu';
 export { UserIcon, type UserIconProps } from './components/user-icon';

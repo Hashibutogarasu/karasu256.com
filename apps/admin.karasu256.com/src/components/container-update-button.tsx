@@ -1,8 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Button, Tooltip, TooltipContent, TooltipTrigger } from '@Hashibutogarasu/ui';
 import { AlertCircle, CheckCircle2, Circle, Download, Loader2, RefreshCw } from 'lucide-react';
 import { useContainerUpdate } from '@/hooks/use-container-update';
 

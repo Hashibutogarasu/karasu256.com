@@ -1,5 +1,5 @@
 import { NavSidebar } from '@/components/nav-sidebar';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from '@Hashibutogarasu/ui';
 
 function SkeletonSectionHeader() {
   return <Skeleton className="h-3 w-20 mt-4 mb-1" />;

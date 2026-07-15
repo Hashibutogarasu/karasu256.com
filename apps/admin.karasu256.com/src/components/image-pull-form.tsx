@@ -3,9 +3,7 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { PullProgress } from '@/components/pull-progress';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Button, Input, Label } from '@Hashibutogarasu/ui';
 
 interface ImagePullFormProps {
   onDone: () => void;
