@@ -1,5 +1,5 @@
-export const locales = ['ja', 'en', 'cn'] as const;
+import { locales, type Locale } from '@Hashibutogarasu/types';
 
-export type Locale = (typeof locales)[number];
+export { locales, type Locale };
 
 export const defaultLocale: Locale = 'ja';
