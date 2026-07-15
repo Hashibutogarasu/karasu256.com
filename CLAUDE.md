@@ -87,3 +87,4 @@ If a command's output needs to be told apart from another's, run them as separat
 - Prefer responding in Japanese.
 - Never start a dev/prod server (`pnpm dev`, `pnpm start`, `next dev`, `next start`, `wrangler dev`, etc.) on your own initiative, including as a way to investigate or verify a bug. Only start one when the user explicitly asks for it.
 - Never open or drive a browser (e.g. Chrome/Chromium automation) to inspect or test the app on your own initiative. Only do so when the user explicitly asks for it. Diagnose and verify changes by reading code, running builds/type checks, and reasoning about behavior instead.
+- Do not make changes beyond what was explicitly requested, even if they look like reasonable cleanup (e.g. deleting or consolidating a file you judge to be redundant, such as a duplicate config). If you notice something out of scope that seems worth fixing, point it out to the user and let them decide, rather than changing it unilaterally.
