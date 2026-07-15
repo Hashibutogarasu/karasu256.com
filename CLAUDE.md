@@ -26,7 +26,7 @@ Each app under `apps/*` may have its own `CLAUDE.md` with app-specific commands 
 
 ## Shell command style
 
-**Never use `echo` as a visual separator between chained shell commands — regardless of which character fills the separator (`---`, `===`, `\***`, or anything else).\*\* It adds no information, only noise, to the output and transcript.
+**Never use `echo` as a visual separator between chained shell commands.** It doesn't matter which character fills the separator — dashes, equals signs, asterisks, or anything else — it adds no information, only noise, to the output and transcript.
 
 ❌ Bad:
 
