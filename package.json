@@ -17,8 +17,15 @@
     "pre-commit": "pnpm exec pretty-quick --staged"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/js": "^9.29.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@typescript-eslint/eslint-plugin": "^8.61.1",
+    "eslint": "^9.29.0",
+    "eslint-config-next": "15.3.9",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "5.2.0",
     "prettier": "3.5.3",
     "pretty-quick": "4.2.2",
     "simple-git-hooks": "^2.13.1",
