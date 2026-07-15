@@ -24,6 +24,32 @@ To target a single app or package, use turbo's filter flag, e.g. `pnpm --filter 
 
 Each app under `apps/*` may have its own `CLAUDE.md` with app-specific commands and architecture notes — check there first before editing that app.
 
+## Shell command style
+
+**Never use `echo` as a visual separator between chained shell commands.** It doesn't matter which character fills the separator — dashes, equals signs, asterisks, or anything else — it adds no information, only noise, to the output and transcript.
+
+❌ Bad:
+
+```bash
+pnpm build && echo --- && pnpm test
+```
+
+```bash
+git add file.ts && echo "=== staged ===" && git status
+```
+
+✅ Good:
+
+```bash
+pnpm build && pnpm test
+```
+
+```bash
+git add file.ts && git status
+```
+
+If a command's output needs to be told apart from another's, run them as separate tool calls instead of concatenating them with an `echo` separator.
+
 ## Architecture
 
 ### Apps (`apps/*`)
@@ -42,7 +68,7 @@ Each app under `apps/*` may have its own `CLAUDE.md` with app-specific commands 
 
 ## Rules
 
-- Never use `echo` as a visual separator between shell commands (e.g. `cmd1 && echo --- && cmd2`).
+- See "Shell command style" above for the `echo`-separator rule.
 - For small, targeted edits, verify with a type check only (e.g. `pnpm --filter <app> exec tsc --noEmit`, or whatever the app's `CLAUDE.md` documents) rather than running a full `build`. Reserve full builds for larger changes or before opening a PR.
 - When a change spans multiple apps or packages, verify it with a single root `pnpm build` (not scoped `--filter` builds) so cross-package effects are caught. When a change is scoped to a single app or package, verify with that app/package alone instead. Run the build once per change — don't re-run it again unless the code changes further.
 - After opening a pull request, do not proactively offer to watch, babysit, or auto-fix CI for it. Only start monitoring a PR if the user explicitly asks.
