@@ -56,6 +56,9 @@ export interface DragAndDropContextValue {
   /** Per-area manually resized heights (px), keyed by the area's own `id` — so a `DragAndDropArea` only needs its `id` to read/write its height. */
   heights: Record<string, number>;
   setAreaHeight: (id: string, height: number) => void;
+  /** Per-area manually resized widths (px), keyed by the area's own `id` — so a `DragAndDropArea` only needs its `id` to read/write its width. */
+  widths: Record<string, number>;
+  setAreaWidth: (id: string, width: number) => void;
 }
 
 const DragAndDropContext = React.createContext<DragAndDropContextValue | null>(null);
@@ -85,6 +88,10 @@ export interface DragAndDropProviderProps {
   initialHeights?: Record<string, number>;
   /** Called with the full updated heights map whenever any area's height changes — e.g. to persist it. */
   onHeightsChange?: (heights: Record<string, number>) => void;
+  /** Initial per-area widths (px), keyed by area id — e.g. hydrated from storage. */
+  initialWidths?: Record<string, number>;
+  /** Called with the full updated widths map whenever any area's width changes — e.g. to persist it. */
+  onWidthsChange?: (widths: Record<string, number>) => void;
 }
 
 /**
@@ -95,11 +102,20 @@ export interface DragAndDropProviderProps {
  * currently hovered, via a CSS transition gated by the `data-morphed`
  * attribute — see `drag-and-drop-context.css`.
  */
-export function DragAndDropProvider({ children, onDropOutside, disabled = false, initialHeights = {}, onHeightsChange }: DragAndDropProviderProps) {
+export function DragAndDropProvider({
+  children,
+  onDropOutside,
+  disabled = false,
+  initialHeights = {},
+  onHeightsChange,
+  initialWidths = {},
+  onWidthsChange,
+}: DragAndDropProviderProps) {
   const [activePayload, setActivePayload] = React.useState<DragPayload | null>(null);
   const [pointer, setPointer] = React.useState<PointerPosition | null>(null);
   const [hoveredShape, setHoveredShape] = React.useState<DragAndDropShape | null>(null);
   const [heights, setHeights] = React.useState<Record<string, number>>(initialHeights);
+  const [widths, setWidths] = React.useState<Record<string, number>>(initialWidths);
 
   const activePayloadRef = React.useRef(activePayload);
   activePayloadRef.current = activePayload;
@@ -109,6 +125,8 @@ export function DragAndDropProvider({ children, onDropOutside, disabled = false,
   onDropOutsideRef.current = onDropOutside;
   const onHeightsChangeRef = React.useRef(onHeightsChange);
   onHeightsChangeRef.current = onHeightsChange;
+  const onWidthsChangeRef = React.useRef(onWidthsChange);
+  onWidthsChangeRef.current = onWidthsChange;
   const dropTargetsRef = React.useRef(new Map<string, { onDrop?: (payload: DragPayload) => void; getShape?: () => DropTargetShape }>());
 
   const isDragging = activePayload !== null;
@@ -129,6 +147,10 @@ export function DragAndDropProvider({ children, onDropOutside, disabled = false,
     setHeights((prev) => ({ ...prev, [id]: height }));
   }, []);
 
+  const setAreaWidth = React.useCallback((id: string, width: number) => {
+    setWidths((prev) => ({ ...prev, [id]: width }));
+  }, []);
+
   const isFirstHeightsRenderRef = React.useRef(true);
   React.useEffect(() => {
     if (isFirstHeightsRenderRef.current) {
@@ -137,6 +159,15 @@ export function DragAndDropProvider({ children, onDropOutside, disabled = false,
     }
     onHeightsChangeRef.current?.(heights);
   }, [heights]);
+
+  const isFirstWidthsRenderRef = React.useRef(true);
+  React.useEffect(() => {
+    if (isFirstWidthsRenderRef.current) {
+      isFirstWidthsRenderRef.current = false;
+      return;
+    }
+    onWidthsChangeRef.current?.(widths);
+  }, [widths]);
 
   /**
    * `initialHeights` is only used as `useState`'s initial value, so it's
@@ -153,6 +184,14 @@ export function DragAndDropProvider({ children, onDropOutside, disabled = false,
     didHydrateHeightsRef.current = true;
     setHeights(initialHeights);
   }, [initialHeights]);
+
+  /** Same async-hydration handling as {@link didHydrateHeightsRef}, for widths. */
+  const didHydrateWidthsRef = React.useRef(false);
+  React.useEffect(() => {
+    if (didHydrateWidthsRef.current || Object.keys(initialWidths).length === 0) return;
+    didHydrateWidthsRef.current = true;
+    setWidths(initialWidths);
+  }, [initialWidths]);
 
   React.useEffect(() => {
     if (!isDragging) return;
@@ -215,8 +254,10 @@ export function DragAndDropProvider({ children, onDropOutside, disabled = false,
       registerDropTarget,
       heights,
       setAreaHeight,
+      widths,
+      setAreaWidth,
     }),
-    [isDragging, disabled, activePayload, hoveredShape, beginDrag, registerDropTarget, heights, setAreaHeight]
+    [isDragging, disabled, activePayload, hoveredShape, beginDrag, registerDropTarget, heights, setAreaHeight, widths, setAreaWidth]
   );
 
   return (
