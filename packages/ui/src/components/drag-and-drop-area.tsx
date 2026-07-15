@@ -111,7 +111,11 @@ function ResizeHandle({ axis, sign, min, disabled, getSize, onResize, className 
  * `DragAndDropProvider` is `disabled`, since resizing isn't possible either.
  * An optional `resizeEdge` adds a matching side handle that persists a
  * freely chosen width the same way, keyed by this area's own `id` in the
- * enclosing `DragAndDropProvider`'s width map.
+ * enclosing `DragAndDropProvider`'s width map. Unlike the bottom-edge height
+ * handle, it stays visible and usable even once `filled`, since it resizes
+ * the area's own grid column rather than the area's own box — dropped
+ * content shouldn't take away the ability to resize the layout column it
+ * lives in.
  */
 export function DragAndDropArea({ id, children, onDrop, className, filled, minHeight = 80, resizeEdge, minWidth = 160 }: DragAndDropAreaProps) {
   const ref = React.useRef<HTMLDivElement>(null);
@@ -155,7 +159,7 @@ export function DragAndDropArea({ id, children, onDrop, className, filled, minHe
           className="bottom-0"
         />
       )}
-      {!filled && resizeEdge && (
+      {resizeEdge && (
         <ResizeHandle
           axis="x"
           sign={resizeEdge === 'right' ? 1 : -1}
