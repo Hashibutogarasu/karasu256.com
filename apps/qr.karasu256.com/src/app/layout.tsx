@@ -1,32 +1,16 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono, Noto_Sans_JP } from 'next/font/google';
 import { config } from '@fortawesome/fontawesome-svg-core';
 import '@fortawesome/fontawesome-svg-core/styles.css';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
 import { PopUpMenuProvider, R2StorageProvider, SessionProvider } from '@Hashibutogarasu/ui';
 import { RedisProvider } from '@Hashibutogarasu/ui/redis';
+import { geistSans, geistMono, notoSansJP } from '@Hashibutogarasu/ui/fonts';
 import { getSessionUser } from '@Hashibutogarasu/utils/server';
 import './globals.css';
 import Header from '@/components/Header';
 
 config.autoAddCss = false;
-
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
-});
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-});
-
-/** CJK fallback so ja/cn glyphs render consistently with the Geist Latin text instead of the OS default font. */
-const notoSansJP = Noto_Sans_JP({
-  variable: '--font-noto-jp',
-  subsets: ['latin'],
-});
 
 export const metadata: Metadata = {
   title: 'Create Next App',
