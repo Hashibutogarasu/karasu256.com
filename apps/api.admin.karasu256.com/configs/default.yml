@@ -1,6 +1,6 @@
 server:
-  port: 3001
-  corsOrigin: 'http://localhost:3000'
+  port: 3004
+  corsOrigin: 'http://localhost:3003'
 
 docker:
   socket:

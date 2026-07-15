@@ -2,8 +2,8 @@ import { z } from 'zod';
 
 export const AppConfigSchema = z.object({
   server: z.object({
-    port: z.coerce.number().int().min(1).max(65535).default(3001),
-    corsOrigin: z.string().default('http://localhost:3000'),
+    port: z.coerce.number().int().min(1).max(65535).default(3004),
+    corsOrigin: z.string().default('http://localhost:3003'),
   }),
   docker: z.object({
     socket: z.object({

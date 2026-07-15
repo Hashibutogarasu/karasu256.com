@@ -1,5 +1,3 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
-
 export interface ProgressData {
   containerId: string;
   status: string;
@@ -37,16 +35,17 @@ function attachListeners(source: EventSource, containerId: string) {
 
 export function triggerUpdate(containerId: string) {
   activeSource?.close();
-  const source = new EventSource(`${API_URL}/api/containers/${containerId}/update`);
+  const source = new EventSource(`/api/containers/${containerId}/update`);
   activeSource = source;
   attachListeners(source, containerId);
 }
 
 export function triggerPullUpdate(containerId: string, tag?: string) {
   activeSource?.close();
-  const url = new URL(`${API_URL}/api/containers/${containerId}/pull`);
-  if (tag) url.searchParams.set('tag', tag);
-  const source = new EventSource(url.toString());
+  const params = new URLSearchParams();
+  if (tag) params.set('tag', tag);
+  const query = params.toString();
+  const source = new EventSource(`/api/containers/${containerId}/pull${query ? `?${query}` : ''}`);
   activeSource = source;
   attachListeners(source, containerId);
 }
