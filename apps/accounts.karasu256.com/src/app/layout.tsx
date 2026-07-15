@@ -1,29 +1,13 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono, Noto_Sans_JP } from 'next/font/google';
 import { config } from '@fortawesome/fontawesome-svg-core';
 import '@fortawesome/fontawesome-svg-core/styles.css';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages, getTranslations } from 'next-intl/server';
 import './globals.css';
 import { R2StorageProvider, Toaster } from '@Hashibutogarasu/ui';
+import { geistSans, geistMono, notoSansJP } from '@Hashibutogarasu/ui/fonts';
 
 config.autoAddCss = false;
-
-const geistSans = Geist({
-  variable: '--font-sans',
-  subsets: ['latin'],
-});
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-});
-
-/** CJK fallback so ja/cn glyphs render consistently with the Geist Latin text instead of the OS default font. */
-const notoSansJP = Noto_Sans_JP({
-  variable: '--font-noto-jp',
-  subsets: ['latin'],
-});
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();
