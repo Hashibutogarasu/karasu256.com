@@ -17,3 +17,5 @@ allowBuilds:
   simple-git-hooks: true
   core-js: true
   '@parcel/watcher': true
+  cpu-features: true
+  ssh2: true
