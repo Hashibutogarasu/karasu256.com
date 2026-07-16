@@ -1,35 +1,36 @@
 import type { ReactNode } from 'react';
-import { createClient } from '@vercel/edge-config';
+import { evaluate } from 'flags/next';
+import type { Flag } from 'flags/next';
 import type { z } from 'zod';
 import { FeatureFlagsClientProvider } from '../client/feature-flags-context';
 
 export interface FeatureFlagsProviderProps<TSchema extends z.ZodType> {
   /**
-   * Vercel Edge Config connection string, resolved server-side via
-   * `getEdgeConfig()` and passed down as a plain string so this
-   * component's props stay serializable across the Server Component
-   * boundary.
+   * Flag declarations (from `flag()`), keyed to match `schema`'s shape.
+   * Declared once at module scope in the consuming app (e.g. `src/lib/flags.ts`).
    */
-  edgeConfig: string;
-  /** Zod schema validating the Edge Config item set for this app's flags. */
+  flags: { [K in keyof z.infer<TSchema>]: Flag<z.infer<TSchema>[K]> };
+  /** Zod schema validating the evaluated flag values. */
   schema: TSchema;
   children: ReactNode;
 }
 
 /**
- * Fetches this app's full Edge Config item set and validates it against
- * `schema` on every render — Edge Config's own client already performs a
- * fresh network call each time, so there is no separate cache to
- * invalidate. When the fetch fails or the result does not match `schema`,
- * the flags could not be resolved — `useFeatureFlags()` returns `null` in
- * that case rather than throwing.
+ * Evaluates the given flag declarations in a single batched `evaluate()`
+ * call and validates the result against `schema` on every render. When
+ * evaluation fails or the result does not match `schema`, the flags could
+ * not be resolved — `useFeatureFlags()` returns `null` in that case rather
+ * than throwing.
  */
-export async function FeatureFlagsProvider<TSchema extends z.ZodType>({ edgeConfig, schema, children }: FeatureFlagsProviderProps<TSchema>) {
-  const client = createClient(edgeConfig);
+export async function FeatureFlagsProvider<TSchema extends z.ZodType>({
+  flags: flagDeclarations,
+  schema,
+  children,
+}: FeatureFlagsProviderProps<TSchema>) {
   let flags: Record<string, unknown> | null;
   try {
-    const items = await client.getAll();
-    flags = schema.parse(items) as Record<string, unknown>;
+    const values = await evaluate(flagDeclarations);
+    flags = schema.parse(values) as Record<string, unknown>;
   } catch {
     flags = null;
   }

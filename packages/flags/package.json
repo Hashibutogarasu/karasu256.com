@@ -7,7 +7,7 @@
     "./client": "./src/client/index.ts"
   },
   "dependencies": {
-    "@vercel/edge-config": "^1.4.3",
+    "flags": "^4.2.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {

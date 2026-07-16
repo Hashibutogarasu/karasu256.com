@@ -6,8 +6,8 @@ import { getLocale, getMessages, getTranslations } from 'next-intl/server';
 import './globals.css';
 import { R2StorageProvider, Toaster } from '@Hashibutogarasu/ui';
 import { geistSans, geistMono, notoSansJP } from '@Hashibutogarasu/ui/fonts';
-import { FeatureFlagsProvider, getEdgeConfig } from '@Hashibutogarasu/flags/server';
-import { appFlagsSchema } from '@/lib/flags';
+import { FeatureFlagsProvider } from '@Hashibutogarasu/flags/server';
+import { appFlags, appFlagsSchema } from '@/lib/flags';
 
 config.autoAddCss = false;
 
@@ -44,13 +44,12 @@ export default async function RootLayout({
 }>) {
   const locale = await getLocale();
   const messages = await getMessages();
-  const edgeConfig = await getEdgeConfig();
 
   return (
     <html lang={locale} className={`${geistSans.variable} ${geistMono.variable} ${notoSansJP.variable} h-full`}>
       <body className="min-h-full flex flex-col bg-background text-foreground antialiased">
         <R2StorageProvider imageApiUrl={process.env.NEXT_PUBLIC_IMAGE_API_URL!}>
-          <FeatureFlagsProvider edgeConfig={edgeConfig} schema={appFlagsSchema}>
+          <FeatureFlagsProvider flags={appFlags} schema={appFlagsSchema}>
             <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>
             <Toaster />
           </FeatureFlagsProvider>
