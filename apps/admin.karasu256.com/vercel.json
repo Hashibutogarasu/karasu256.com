@@ -1,5 +1,5 @@
 {
-  "buildCommand": "cd ../.. && pnpm turbo build --filter=karasu256.com",
+  "buildCommand": "cd ../.. && pnpm turbo build --filter=admin.karasu256.com",
   "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
   "build": {
     "env": {
