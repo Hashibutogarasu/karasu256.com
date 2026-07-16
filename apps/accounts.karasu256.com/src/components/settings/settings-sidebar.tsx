@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { User, Shield, Link as LinkIcon } from 'lucide-react';
+import { User, Shield, Link as LinkIcon, Bug } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { SettingsSidebar as UiSettingsSidebar, type SidebarNavItem, type SettingsSidebarUser } from '@Hashibutogarasu/ui';
 
@@ -10,6 +10,7 @@ const NAV_ITEMS_DEFS = [
   { href: '/settings/profile', icon: User, labelKey: 'settings.sections.profile' },
   { href: '/settings/security', icon: Shield, labelKey: 'settings.sections.security' },
   { href: '/settings/linking', icon: LinkIcon, labelKey: 'settings.sections.connections' },
+  { href: '/settings/debug', icon: Bug, labelKey: 'settings.sections.debug' },
 ] as const;
 
 interface Props {

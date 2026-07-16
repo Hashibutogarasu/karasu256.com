@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@Hashibutogarasu/db": "workspace:*",
+    "@Hashibutogarasu/flags": "workspace:*",
     "@Hashibutogarasu/types": "workspace:*",
     "@Hashibutogarasu/ui": "workspace:*",
     "@Hashibutogarasu/utils": "workspace:*",

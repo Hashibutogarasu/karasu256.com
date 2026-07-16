@@ -68,7 +68,8 @@
     "sections": {
       "profile": "个人资料",
       "security": "安全",
-      "connections": "账户关联"
+      "connections": "账户关联",
+      "debug": "调试"
     },
     "back": "返回",
     "backToApp": "返回karasu256.com",
@@ -130,6 +131,12 @@
       "account_already_linked_to_different_user": "此账户已关联至其他用户。",
       "invalid_origin": "由于请求来源异常，无法开始关联。请重试。"
     }
+  },
+  "debug": {
+    "title": "调试",
+    "flagName": "标志名称",
+    "flagValue": "当前值",
+    "unavailable": "无法获取功能标志"
   },
   "dangerZone": {
     "title": "危险操作",
