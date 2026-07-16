@@ -23,7 +23,7 @@ export async function sendPasswordResetEmail(opts: SendPasswordResetEmailOptions
   const { error } = await resend.emails.send({
     from: opts.from,
     to: opts.to,
-    subject: 'パスワードリセット — Karasu Lab',
+    subject: 'パスワードリセット',
     react: createElement(PasswordResetEmail, { resetUrl: opts.resetUrl }),
   });
   if (error) {

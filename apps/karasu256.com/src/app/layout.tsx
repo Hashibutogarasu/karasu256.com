@@ -18,7 +18,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     metadataBase: new URL('https://karasu256.com'),
-    title: { default: siteTitle, template: '%s — Karasu Lab' },
+    title: { default: siteTitle, template: '%s' },
     description: siteDescription,
     openGraph: {
       title: siteTitle,
