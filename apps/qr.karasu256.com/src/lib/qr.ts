@@ -4,7 +4,7 @@ import { headers } from 'next/headers';
 import { createId } from '@paralleldrive/cuid2';
 import QRCode from 'qrcode';
 import { useRedis } from '@Hashibutogarasu/ui/redis';
-import { deleteUploadedImage, getSessionUser, uploadImage, uploadImageAnonymous } from '@Hashibutogarasu/utils/server';
+import { MissingEnvError, deleteUploadedImage, getSessionUser, uploadImage, uploadImageAnonymous } from '@Hashibutogarasu/utils/server';
 
 const QR_IMAGE_WIDTH = 512;
 const CACHE_TTL_SECONDS = 60 * 60 * 24;
@@ -17,6 +17,13 @@ export interface QrData {
 
 interface CachedQr extends QrData {
   path: string;
+}
+
+/** Returns `NEXT_PUBLIC_IMAGE_API_URL`, throwing {@link MissingEnvError} if it's unset. */
+function getImageApiUrl(): string {
+  const imageApiUrl = process.env.NEXT_PUBLIC_IMAGE_API_URL;
+  if (!imageApiUrl) throw new MissingEnvError('NEXT_PUBLIC_IMAGE_API_URL');
+  return imageApiUrl;
 }
 
 function redisKeyFor(uid: string | null): string {
@@ -45,7 +52,7 @@ async function uploadForUser(buffer: Buffer, uid: string, cookieHeader: string):
   const path = `qr/${uid}/${Date.now()}.png`;
   const file = new File([Uint8Array.from(buffer)], 'qr.png', { type: 'image/png' });
   const result = await uploadImage(file, {
-    imageApiUrl: process.env.NEXT_PUBLIC_IMAGE_API_URL!,
+    imageApiUrl: getImageApiUrl(),
     cookieHeader,
     path,
   });
@@ -56,7 +63,7 @@ async function uploadForUser(buffer: Buffer, uid: string, cookieHeader: string):
 async function uploadAnonymous(buffer: Buffer): Promise<{ path: string; url: string }> {
   const path = `qr/anonymous/${Date.now()}.png`;
   const result = await uploadImageAnonymous(buffer, {
-    apiUrl: process.env.NEXT_PUBLIC_IMAGE_API_URL!,
+    apiUrl: getImageApiUrl(),
     path,
     contentType: 'image/png',
   });
@@ -86,7 +93,7 @@ async function generateAndCacheQr(uid: string | null, cookieHeader: string | nul
     writeCachedQr(uid, qr),
     uid && cookieHeader && previous
       ? deleteUploadedImage(previous.url, {
-          imageApiUrl: process.env.NEXT_PUBLIC_IMAGE_API_URL!,
+          imageApiUrl: getImageApiUrl(),
           cookieHeader,
         })
       : null,
