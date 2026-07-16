@@ -136,7 +136,6 @@
     "title": "Debug",
     "flagName": "Flag name",
     "flagValue": "Current value",
-    "testFlag": "testFlag",
     "unavailable": "Could not load feature flags"
   },
   "dangerZone": {

@@ -136,7 +136,6 @@
     "title": "デバッグ",
     "flagName": "フラグ名",
     "flagValue": "現在値",
-    "testFlag": "testFlag",
     "unavailable": "機能フラグを取得できませんでした"
   },
   "dangerZone": {

@@ -25,12 +25,14 @@ export function DebugSection() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow>
-              <TableCell>{t('settings.debug.testFlag')}</TableCell>
-              <TableCell>
-                <Switch checked={flags.testFlag} disabled />
-              </TableCell>
-            </TableRow>
+            {Object.entries(flags).map(([name, value]) => (
+              <TableRow key={name}>
+                <TableCell>{name}</TableCell>
+                <TableCell>
+                  <Switch checked={Boolean(value)} disabled />
+                </TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
       )}

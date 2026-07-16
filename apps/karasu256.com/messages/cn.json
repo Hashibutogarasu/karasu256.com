@@ -132,7 +132,6 @@
       "title": "调试",
       "flagName": "标志名称",
       "flagValue": "当前值",
-      "testFlag": "testFlag",
       "unavailable": "无法获取功能标志"
     }
   },
