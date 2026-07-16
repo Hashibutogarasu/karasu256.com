@@ -20,7 +20,7 @@
     "@better-auth/drizzle-adapter": "^1.6.23",
     "@better-auth/oauth-provider": "^1.6.23",
     "@better-auth/passkey": "1.6.23",
-    "@flags-sdk/vercel": "^1.4.5",
+    "@flags-sdk/vercel": "^1.4.4",
     "@fortawesome/fontawesome-svg-core": "^7.2.0",
     "@fortawesome/free-brands-svg-icons": "^7.2.0",
     "@fortawesome/free-regular-svg-icons": "^7.2.0",
