@@ -28,6 +28,8 @@ Each app under `apps/*` may have its own `CLAUDE.md` with app-specific commands 
 
 **Never use `echo` as a visual separator between chained shell commands.** It doesn't matter which character fills the separator — dashes, equals signs, asterisks, or anything else — it adds no information, only noise, to the output and transcript.
 
+This applies regardless of which shell operator chains the commands — `&&`, `;`, `|`, or newlines inside one tool call — and regardless of whether the echo'd separator is a bare divider (`---`) or a labeled one (`"---Footer---"`, `"=== staged ==="`). A label makes the noise slightly more readable but does not make it allowed.
+
 ❌ Bad:
 
 ```bash
@@ -38,6 +40,12 @@ pnpm build && echo --- && pnpm test
 git add file.ts && echo "=== staged ===" && git status
 ```
 
+```bash
+cat file1.ts; echo "---Footer---"; cat file2.ts
+```
+
+**This last form is the one to watch for**: reading two or more files "in parallel" by cramming them into one `cat a; echo "---Label---"; cat b` Bash call. It looks harmless because each label names the file that follows, but it is the exact same violation — read each file with its own `Read` tool call (or its own `Bash` call) instead.
+
 ✅ Good:
 
 ```bash
@@ -46,6 +54,10 @@ pnpm build && pnpm test
 
 ```bash
 git add file.ts && git status
+```
+
+```bash
+# two separate Read tool calls, or two separate Bash tool calls — not one call joined by echo
 ```
 
 If a command's output needs to be told apart from another's, run them as separate tool calls instead of concatenating them with an `echo` separator.
