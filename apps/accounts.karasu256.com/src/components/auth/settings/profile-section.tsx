@@ -76,7 +76,7 @@ export function ProfileSection() {
           />
         </div>
         <div className="flex gap-2">
-          <LoadingButton type="submit" variant="default" className="w-[10%]" disabled={disabled || isUnchanged} loading={saving}>
+          <LoadingButton type="submit" variant="default" disabled={disabled || isUnchanged} loading={saving}>
             {saving ? t('profile.saving') : t('profile.save')}
           </LoadingButton>
           <LoadingButton type="button" variant="secondary" onClick={handleDiscard} disabled={disabled || isUnchanged} loading={false}>
