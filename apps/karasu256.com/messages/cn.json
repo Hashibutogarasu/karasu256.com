@@ -30,7 +30,8 @@
     "sections": {
       "profile": "个人资料",
       "other": "其他",
-      "developer": "开发者"
+      "developer": "开发者",
+      "debug": "调试"
     },
     "signOut": "退出登录",
     "accountSwitcher": {
@@ -126,6 +127,13 @@
           "profile_write": "将显示名称写回个人资料"
         }
       }
+    },
+    "debug": {
+      "title": "调试",
+      "flagName": "标志名称",
+      "flagValue": "当前值",
+      "testFlag": "testFlag",
+      "unavailable": "无法获取功能标志"
     }
   },
   "oauth": {

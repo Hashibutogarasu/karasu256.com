@@ -5,8 +5,10 @@ import { getLocale, getMessages, getTranslations } from 'next-intl/server';
 import { PopUpMenuProvider, SessionProvider } from '@Hashibutogarasu/ui';
 import { geistSans, geistMono, notoSansJP } from '@Hashibutogarasu/ui/fonts';
 import { getSessionUser } from '@Hashibutogarasu/utils/server';
+import { FeatureFlagsProvider, getEdgeConfig } from '@Hashibutogarasu/flags/server';
 import './globals.css';
 import Header from '@/components/Header';
+import { appFlagsSchema } from '@/lib/flags';
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();
@@ -42,6 +44,7 @@ export default async function RootLayout({
   const locale = await getLocale();
   const messages = await getMessages();
   const sessionUser = await getSessionUser();
+  const edgeConfig = await getEdgeConfig();
   const initialUser = sessionUser
     ? { uid: sessionUser.uid, iconUrl: sessionUser.image, displayName: sessionUser.name, email: sessionUser.email }
     : null;
@@ -50,12 +53,14 @@ export default async function RootLayout({
     <html lang={locale} className={`${geistSans.variable} ${geistMono.variable} ${notoSansJP.variable} h-full`}>
       <body className="min-h-full flex flex-col bg-background text-foreground antialiased" style={{ '--sidebar-top': '3rem' } as React.CSSProperties}>
         <NextIntlClientProvider messages={messages}>
-          <SessionProvider baseURL={process.env.NEXT_PUBLIC_ACCOUNTS_URL} initialUser={initialUser}>
-            <PopUpMenuProvider>
-              <Header />
-              <main className="flex-1 flex flex-col">{children}</main>
-            </PopUpMenuProvider>
-          </SessionProvider>
+          <FeatureFlagsProvider edgeConfig={edgeConfig} schema={appFlagsSchema}>
+            <SessionProvider baseURL={process.env.NEXT_PUBLIC_ACCOUNTS_URL} initialUser={initialUser}>
+              <PopUpMenuProvider>
+                <Header />
+                <main className="flex-1 flex flex-col">{children}</main>
+              </PopUpMenuProvider>
+            </SessionProvider>
+          </FeatureFlagsProvider>
         </NextIntlClientProvider>
       </body>
     </html>

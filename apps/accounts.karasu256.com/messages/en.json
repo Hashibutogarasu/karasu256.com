@@ -68,7 +68,8 @@
     "sections": {
       "profile": "Profile",
       "security": "Security",
-      "connections": "Connections"
+      "connections": "Connections",
+      "debug": "Debug"
     },
     "back": "Back",
     "backToApp": "Back to karasu256.com",
@@ -130,6 +131,13 @@
       "account_already_linked_to_different_user": "This account is already connected to another user.",
       "invalid_origin": "Could not start linking because the request came from an unexpected origin. Please try again."
     }
+  },
+  "debug": {
+    "title": "Debug",
+    "flagName": "Flag name",
+    "flagValue": "Current value",
+    "testFlag": "testFlag",
+    "unavailable": "Could not load feature flags"
   },
   "dangerZone": {
     "title": "Danger zone",

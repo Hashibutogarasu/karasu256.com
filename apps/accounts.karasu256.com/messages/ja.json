@@ -68,7 +68,8 @@
     "sections": {
       "profile": "プロフィール",
       "security": "セキュリティ",
-      "connections": "アカウント連携"
+      "connections": "アカウント連携",
+      "debug": "デバッグ"
     },
     "back": "戻る",
     "backToApp": "karasu256.comへ戻る",
@@ -130,6 +131,13 @@
       "account_already_linked_to_different_user": "このアカウントは別のユーザーに連携済みです。",
       "invalid_origin": "予期しないアクセス元からのリクエストのため、連携を開始できませんでした。もう一度お試しください。"
     }
+  },
+  "debug": {
+    "title": "デバッグ",
+    "flagName": "フラグ名",
+    "flagValue": "現在値",
+    "testFlag": "testFlag",
+    "unavailable": "機能フラグを取得できませんでした"
   },
   "dangerZone": {
     "title": "危険な操作",

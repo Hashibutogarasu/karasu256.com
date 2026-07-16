@@ -30,7 +30,8 @@
     "sections": {
       "profile": "Profile",
       "other": "Other",
-      "developer": "Developer"
+      "developer": "Developer",
+      "debug": "Debug"
     },
     "signOut": "Sign out",
     "accountSwitcher": {
@@ -126,6 +127,13 @@
           "profile_write": "Write display name back to profile"
         }
       }
+    },
+    "debug": {
+      "title": "Debug",
+      "flagName": "Flag name",
+      "flagValue": "Current value",
+      "testFlag": "testFlag",
+      "unavailable": "Could not load feature flags"
     }
   },
   "oauth": {
