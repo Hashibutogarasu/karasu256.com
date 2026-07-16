@@ -13,7 +13,7 @@ export function PasswordResetEmail({ resetUrl }: PasswordResetEmailProps) {
   return (
     <Html>
       <Head />
-      <Preview>パスワードリセットのリクエスト — Karasu Lab</Preview>
+      <Preview>パスワードリセットのリクエスト</Preview>
       <Body style={body}>
         <Container style={container}>
           <Text style={heading}>パスワードリセット</Text>
