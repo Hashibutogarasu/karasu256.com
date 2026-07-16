@@ -7,19 +7,15 @@
     "./schema": "./src/schema/index.ts",
     "./client": "./src/client.ts"
   },
-  "scripts": {
-    "db:generate": "drizzle-kit generate",
-    "db:migrate:dev": "dotenv -e .env.development.local -- drizzle-kit migrate",
-    "db:migrate:prod": "dotenv -e .env.production -- drizzle-kit migrate"
-  },
   "dependencies": {
     "@neondatabase/auth": "latest",
-    "drizzle-orm": "^0.44.0",
     "postgres": "^3.4.7"
   },
   "devDependencies": {
-    "dotenv-cli": "^11.0.0",
-    "drizzle-kit": "^0.30.0",
+    "drizzle-orm": "^0.44.7",
     "typescript": "^5"
+  },
+  "peerDependencies": {
+    "drizzle-orm": "^0.44.7"
   }
 }
