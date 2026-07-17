@@ -1,5 +1,5 @@
 {
-  "id": "618fe06e-f64d-4b82-b433-135ee87699cf",
+  "id": "3071e445-d8fb-41dc-945a-4a94eea3dc47",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -42,17 +42,7 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {
-        "qr_generations_user_id_users_id_fk": {
-          "name": "qr_generations_user_id_users_id_fk",
-          "tableFrom": "qr_generations",
-          "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        }
-      },
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
