@@ -2,6 +2,7 @@ import { Elysia, t } from 'elysia';
 import { requireUid } from '../lib/auth';
 import { ALLOWED_TYPES, MAX_FILE_BYTES, TYPE_TO_EXT, isValidUploadPath } from '../lib/uploads';
 import { putImage } from '../lib/images';
+import { consumeChallengeToken } from '../lib/challenge';
 
 const uploadBodySchema = t.Object({
   file: t.Optional(t.File()),
@@ -34,15 +35,31 @@ export const uploadRoute = (env: Env) =>
         return { error: 'Unsupported image type. Allowed: jpeg, png, webp.' };
       }
 
-      const buffer = await body.file.arrayBuffer();
-      if (buffer.byteLength > MAX_FILE_BYTES) {
+      // QR uploads additionally require a valid challenge token embedded in
+      // the file (see `challenge-token.ts`); other purposes on this shared
+      // route (avatars, OAuth client icons) are unaffected.
+      const isQrUpload = explicitPath !== null && explicitPath.startsWith('qr/');
+      let payloadBuffer: ArrayBuffer;
+      if (isQrUpload) {
+        const rawBuffer = new Uint8Array(await body.file.arrayBuffer());
+        const payload = await consumeChallengeToken(rawBuffer, env);
+        if (!payload) {
+          set.status = 403;
+          return { error: 'Invalid or missing challenge token' };
+        }
+        payloadBuffer = payload.buffer;
+      } else {
+        payloadBuffer = await body.file.arrayBuffer();
+      }
+
+      if (payloadBuffer.byteLength > MAX_FILE_BYTES) {
         set.status = 413;
         return { error: 'File exceeds 5 MB limit' };
       }
 
       const ext = TYPE_TO_EXT[body.file.type];
       const key = explicitPath ?? `users/${uid}/images/${crypto.randomUUID()}.${ext}`;
-      await putImage(key, buffer, body.file.type, env);
+      await putImage(key, payloadBuffer, body.file.type, env);
 
       return { url: `${env.CDN_BASE_URL}/${key}` };
     },

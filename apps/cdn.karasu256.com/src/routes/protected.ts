@@ -4,6 +4,7 @@ import { isAllowedOrigin } from '../lib/cors';
 import { checkGlobalRateLimit } from '../lib/global-rate-limit';
 import { uploadRoute } from './upload';
 import { anonymousUploadRoute } from './anonymous-upload';
+import { challengeTokenRoute } from './challenge-token';
 import { deleteRoute } from './delete';
 
 export const protectedRoutes = (env: Env) =>
@@ -27,4 +28,5 @@ export const protectedRoutes = (env: Env) =>
     })
     .use(uploadRoute(env))
     .use(anonymousUploadRoute(env))
+    .use(challengeTokenRoute(env))
     .use(deleteRoute(env));

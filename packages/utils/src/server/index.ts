@@ -2,6 +2,7 @@ export { createRouteAuth, type RouteAuthContext, type RouteAuthDeps, type RouteA
 export { deleteUploadedImage, type DeleteUploadedImageOptions } from './delete-uploaded-image';
 export { uploadImage, type UploadImageOptions, type UploadImageResult } from './upload-image';
 export { uploadImageAnonymous, type UploadImageAnonymousOptions, type UploadImageAnonymousResult } from './upload-image-anonymous';
+export { requestChallengeToken } from './request-challenge-token';
 export { getSessionUser, type SessionUser } from './session';
 export { signOutAction } from './sign-out';
 export { setLocaleAction } from './set-locale';

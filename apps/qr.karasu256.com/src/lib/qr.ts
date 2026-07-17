@@ -4,7 +4,15 @@ import { headers } from 'next/headers';
 import { createId } from '@paralleldrive/cuid2';
 import QRCode from 'qrcode';
 import { useRedis } from '@Hashibutogarasu/ui/redis';
-import { MissingEnvError, deleteUploadedImage, getSessionUser, uploadImage, uploadImageAnonymous } from '@Hashibutogarasu/utils/server';
+import { embedChallengeToken } from '@Hashibutogarasu/challengetoken';
+import {
+  MissingEnvError,
+  deleteUploadedImage,
+  getSessionUser,
+  requestChallengeToken,
+  uploadImage,
+  uploadImageAnonymous,
+} from '@Hashibutogarasu/utils/server';
 
 const QR_IMAGE_WIDTH = 512;
 const CACHE_TTL_SECONDS = 60 * 60 * 24;
@@ -48,9 +56,16 @@ async function resolveSession(): Promise<{ uid: string | null; cookieHeader: str
   return { uid: sessionUser.uid, cookieHeader };
 }
 
+/** Fetches a fresh challenge token from the image API and embeds it into `buffer`'s header, so the CDN can verify this upload round-tripped through it. */
+async function embedChallenge(buffer: Buffer): Promise<Buffer> {
+  const token = await requestChallengeToken(getImageApiUrl());
+  return Buffer.from(embedChallengeToken(buffer, token));
+}
+
 async function uploadForUser(buffer: Buffer, uid: string, cookieHeader: string): Promise<{ path: string; url: string }> {
+  const embedded = await embedChallenge(buffer);
   const path = `qr/${uid}/${Date.now()}.png`;
-  const file = new File([Uint8Array.from(buffer)], 'qr.png', { type: 'image/png' });
+  const file = new File([Uint8Array.from(embedded)], 'qr.png', { type: 'image/png' });
   const result = await uploadImage(file, {
     imageApiUrl: getImageApiUrl(),
     cookieHeader,
@@ -61,8 +76,9 @@ async function uploadForUser(buffer: Buffer, uid: string, cookieHeader: string):
 }
 
 async function uploadAnonymous(buffer: Buffer): Promise<{ path: string; url: string }> {
+  const embedded = await embedChallenge(buffer);
   const path = `qr/anonymous/${Date.now()}.png`;
-  const result = await uploadImageAnonymous(buffer, {
+  const result = await uploadImageAnonymous(embedded, {
     apiUrl: getImageApiUrl(),
     path,
     contentType: 'image/png',
