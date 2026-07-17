@@ -19,7 +19,23 @@ function getJwks(accountsUrl: string, protectionBypassSecret: string | undefined
     headers: vercelProtectionBypassHeaders(protectionBypassSecret),
     [customFetch]: async (url, options) => {
       const res = await fetch(url, options);
-      logInfo('fetch_jwks', { url, status: res.status, type: res.type, hadBypassSecret: Boolean(protectionBypassSecret) });
+      const bodyPreview =
+        res.status === 200
+          ? undefined
+          : await res
+              .clone()
+              .text()
+              .then((text) => text.slice(0, 500))
+              .catch(() => undefined);
+      logInfo('fetch_jwks', {
+        url,
+        status: res.status,
+        type: res.type,
+        hadBypassSecret: Boolean(protectionBypassSecret),
+        server: res.headers.get('server'),
+        vercelId: res.headers.get('x-vercel-id'),
+        bodyPreview,
+      });
       return res;
     },
   });
