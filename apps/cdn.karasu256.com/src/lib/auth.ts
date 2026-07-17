@@ -1,5 +1,42 @@
+import { createRemoteJWKSet, jwtVerify } from 'jose';
+import { z } from 'zod';
+
 interface GetSessionResponse {
   user?: { id: string } | null;
+}
+
+const accountsJwtPayloadSchema = z.object({ sub: z.string() });
+
+const jwksCache = new Map<string, ReturnType<typeof createRemoteJWKSet>>();
+
+function getJwks(accountsUrl: string): ReturnType<typeof createRemoteJWKSet> {
+  const existing = jwksCache.get(accountsUrl);
+  if (existing) return existing;
+
+  const jwks = createRemoteJWKSet(new URL('/api/auth/jwks', accountsUrl));
+  jwksCache.set(accountsUrl, jwks);
+  return jwks;
+}
+
+/**
+ * Verifies the caller's `Authorization: Bearer` JWT against
+ * accounts.karasu256.com's JWKS — an alternative to {@link requireUid} for
+ * callers whose own server can't rely on the `Cookie` header reaching it
+ * (see `SessionProvider` in `@Hashibutogarasu/ui`, which mints this JWT as
+ * the single source of truth for "who is logged in"). Returns the token's
+ * subject (the user id), or null when the header is missing, the token is
+ * expired, or signature verification fails.
+ */
+export async function verifyAccountsJwt(request: Request, env: Env): Promise<string | null> {
+  const authHeader = request.headers.get('authorization');
+  if (!authHeader?.startsWith('Bearer ')) return null;
+
+  try {
+    const { payload } = await jwtVerify(authHeader.slice(7), getJwks(env.ACCOUNTS_URL));
+    return accountsJwtPayloadSchema.parse(payload).sub;
+  } catch {
+    return null;
+  }
 }
 
 /**

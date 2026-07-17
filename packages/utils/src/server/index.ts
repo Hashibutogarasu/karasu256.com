@@ -5,6 +5,7 @@ export { uploadImageAnonymous, type UploadImageAnonymousOptions, type UploadImag
 export { requestChallengeToken } from './request-challenge-token';
 export { getSessionUser, type SessionUser } from './session';
 export { verifyAppJwt } from './app-jwt';
+export { apiFetch, type ApiFetchOptions } from './api-fetch';
 export { signOutAction } from './sign-out';
 export { setLocaleAction } from './set-locale';
 export { getRootAppUrl } from './get-root-app-url';
