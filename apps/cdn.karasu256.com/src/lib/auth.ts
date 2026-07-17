@@ -26,7 +26,7 @@ function getJwks(env: Env): ReturnType<typeof createRemoteJWKSet> {
   if (existing) return existing;
 
   const jwks = createRemoteJWKSet(new URL('/api/auth/jwks', env.ACCOUNTS_URL), {
-    headers: vercelProtectionBypassHeaders(env.ACCOUNTS_PROTECTION_BYPASS_SECRET),
+    headers: vercelProtectionBypassHeaders(env.VERCEL_PROTECTION_BYPASS_SECRET),
   });
   jwksCache.set(env.ACCOUNTS_URL, jwks);
   return jwks;
@@ -84,7 +84,7 @@ export async function requireUid(request: Request, env: Env): Promise<string | n
 
   try {
     const res = await fetch(`${env.ACCOUNTS_URL}/api/auth/get-session`, {
-      headers: { cookie: cookieHeader, ...vercelProtectionBypassHeaders(env.ACCOUNTS_PROTECTION_BYPASS_SECRET) },
+      headers: { cookie: cookieHeader, ...vercelProtectionBypassHeaders(env.VERCEL_PROTECTION_BYPASS_SECRET) },
     });
     if (!res.ok) return null;
     const data = (await res.json()) as GetSessionResponse;

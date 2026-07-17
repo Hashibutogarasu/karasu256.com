@@ -50,7 +50,7 @@ export const uploadRoute = (env: Env) =>
           set.status = 403;
           return { error: 'Invalid or missing challenge token' };
         }
-        payloadBuffer = payload.buffer;
+        payloadBuffer = payload.buffer as ArrayBuffer;
       } else {
         payloadBuffer = await body.file.arrayBuffer();
       }
