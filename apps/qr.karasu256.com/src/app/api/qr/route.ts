@@ -29,6 +29,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid content' }, { status: 400 });
   }
 
-  const qr = await regenerateQr(content);
+  const authHeader = request.headers.get('authorization');
+  const bearerToken = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
+
+  const qr = await regenerateQr(content, bearerToken);
   return NextResponse.json(qr);
 }

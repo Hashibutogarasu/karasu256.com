@@ -12,6 +12,7 @@ import {
   requestChallengeToken,
   uploadImage,
   uploadImageAnonymous,
+  verifyAppJwt,
 } from '@Hashibutogarasu/utils/server';
 import { getDb } from '@Hashibutogarasu/db';
 import { qrGenerations } from '@Hashibutogarasu/db/schema';
@@ -49,13 +50,22 @@ async function writeCachedQr(uid: string | null, qr: CachedQr): Promise<void> {
   await useRedis(process.env.REDIS_URL).set(redisKeyFor(uid), JSON.stringify(qr), CACHE_TTL_SECONDS);
 }
 
-/** Reads the caller's uid and raw `Cookie` request header, or nulls when signed out. */
-async function resolveSession(): Promise<{ uid: string | null; cookieHeader: string | null }> {
-  const sessionUser = await getSessionUser();
-  if (!sessionUser) return { uid: null, cookieHeader: null };
-
+/**
+ * Resolves the caller's uid and raw `Cookie` request header. Prefers a
+ * caller-supplied JWT (verified against accounts.karasu256.com's JWKS via
+ * `verifyAppJwt`) over `getSessionUser`'s `Cookie`-forwarding check, since
+ * this app's own server can't rely on that cookie reaching it — see
+ * `SessionProvider` in `@Hashibutogarasu/ui`, which mints that JWT as the
+ * single source of truth for "who is logged in".
+ */
+async function resolveSession(bearerToken?: string | null): Promise<{ uid: string | null; cookieHeader: string | null }> {
   const cookieHeader = (await headers()).get('cookie');
-  return { uid: sessionUser.uid, cookieHeader };
+
+  const uidFromToken = bearerToken ? await verifyAppJwt(bearerToken) : null;
+  if (uidFromToken) return { uid: uidFromToken, cookieHeader };
+
+  const sessionUser = await getSessionUser();
+  return sessionUser ? { uid: sessionUser.uid, cookieHeader } : { uid: null, cookieHeader: null };
 }
 
 /** Fetches a fresh challenge token from the image API and embeds it into `buffer`'s header, so the CDN can verify this upload round-tripped through it. */
@@ -142,8 +152,10 @@ export async function getOrCreateQr(): Promise<QrData> {
  * Always generates a fresh QR for the current caller, replacing the cached
  * one. When the client already rendered a predicted QR locally, it passes
  * that same `content` so the server-side image encodes identical data.
+ * `bearerToken` is the JWT from the caller's `SessionProvider` (see
+ * `resolveSession`), sent when the caller is signed in.
  */
-export async function regenerateQr(content?: string): Promise<QrData> {
-  const { uid, cookieHeader } = await resolveSession();
+export async function regenerateQr(content?: string, bearerToken?: string | null): Promise<QrData> {
+  const { uid, cookieHeader } = await resolveSession(bearerToken);
   return generateAndCacheQr(uid, cookieHeader, content);
 }
