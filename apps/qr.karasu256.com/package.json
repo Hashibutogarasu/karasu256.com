@@ -7,10 +7,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate:dev": "dotenv -e .env.development.local -- drizzle-kit migrate",
+    "db:migrate:prod": "dotenv -e .env.production -- drizzle-kit migrate"
   },
   "dependencies": {
     "@Hashibutogarasu/challengetoken": "workspace:*",
+    "@Hashibutogarasu/db": "workspace:*",
     "@Hashibutogarasu/types": "workspace:*",
     "@Hashibutogarasu/ui": "workspace:*",
     "@Hashibutogarasu/utils": "workspace:*",
@@ -21,6 +25,7 @@
     "@paralleldrive/cuid2": "^3.3.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "drizzle-orm": "^0.44.7",
     "lucide-react": "^1.21.0",
     "next": "16.2.9",
     "next-intl": "^4.13.1",
@@ -39,6 +44,8 @@
     "@types/qrcode": "^1.5.6",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv-cli": "^11.0.0",
+    "drizzle-kit": "^0.30.6",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
