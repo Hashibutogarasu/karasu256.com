@@ -25,12 +25,14 @@ routes = []
 [[env.dev.r2_buckets]]
 binding = "IMAGES"
 bucket_name = "karasu-lab-cdn-dev"
+remote = true
 
 # Created via `wrangler kv namespace create RATE_LIMIT_KV --env dev`; replace
 # the id below with the value that command prints.
 [[env.dev.kv_namespaces]]
 binding = "RATE_LIMIT_KV"
 id = "c3fb9b94d2074304986c58049620d0b4"
+remote = true
 
 [env.dev.vars]
 CDN_BASE_URL = "http://localhost:8788"
