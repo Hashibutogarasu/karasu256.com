@@ -19,44 +19,60 @@ interface GetSessionResponse {
  * headers to accounts.karasu256.com's better-auth instance
  * (`GET /api/auth/get-session`), the monorepo's single source of truth for
  * "who is logged in". Returns `null` when signed out, the accounts app is
- * unreachable, or `NEXT_PUBLIC_ACCOUNTS_URL` isn't configured.
+ * unreachable, or `accountsUrl` isn't given.
  *
  * Calling apps never hold Firebase credentials of their own — this remote
  * check is what lets them verify sessions without one. `getSessionCookie`
  * only checks the cookie's presence (accounting for the `__Secure-` prefix
  * better-auth adds under HTTPS/production) to skip the network round trip
  * when signed out; it never inspects individual cookie names for the
- * forwarded request. `protectionBypassSecret`, when given, is sent as
+ * forwarded request.
+ *
+ * `accountsUrl` and `protectionBypassSecret` are supplied by the caller
+ * (e.g. from its own environment variables) rather than read here, since
+ * this package doesn't read environment variables itself.
+ * `protectionBypassSecret`, when given, is sent as
  * `x-vercel-protection-bypass` so this request reaches
  * accounts.karasu256.com even when its deployment has Vercel Deployment
- * Protection enabled (e.g. a protected Preview) — the caller is
- * responsible for supplying it, since this package doesn't read
- * environment variables itself.
+ * Protection enabled (e.g. a protected Preview).
  */
-export async function getSessionUser(protectionBypassSecret?: string): Promise<SessionUser | null> {
-  const accountsUrl = process.env.NEXT_PUBLIC_ACCOUNTS_URL;
-  if (!accountsUrl) return null;
+export async function getSessionUser(accountsUrl: string | undefined, protectionBypassSecret?: string): Promise<SessionUser | null> {
+  if (!accountsUrl) {
+    console.error(JSON.stringify({ event: 'get_session_user', result: 'failure', reason: 'missing_accounts_url' }));
+    return null;
+  }
 
   const requestHeaders = await headers();
-  if (!getSessionCookie(requestHeaders)) return null;
+  if (!getSessionCookie(requestHeaders)) {
+    console.log(JSON.stringify({ event: 'get_session_user', result: 'skipped', reason: 'no_session_cookie' }));
+    return null;
+  }
 
   try {
     const res = await fetch(`${accountsUrl}/api/auth/get-session`, {
       headers: { cookie: requestHeaders.get('cookie') ?? '', ...vercelProtectionBypassHeaders(protectionBypassSecret) },
       cache: 'no-store',
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      console.error(JSON.stringify({ event: 'get_session_user', result: 'failure', status: res.status }));
+      return null;
+    }
 
     const data = (await res.json()) as GetSessionResponse;
-    if (!data.user) return null;
+    if (!data.user) {
+      console.error(JSON.stringify({ event: 'get_session_user', result: 'no_session' }));
+      return null;
+    }
 
+    console.log(JSON.stringify({ event: 'get_session_user', result: 'success', uid: data.user.id }));
     return {
       uid: data.user.id,
       email: data.user.email ?? null,
       name: data.user.name ?? null,
       image: data.user.image ?? null,
     };
-  } catch {
+  } catch (err) {
+    console.error(JSON.stringify({ event: 'get_session_user', result: 'error', error: err instanceof Error ? err.message : String(err) }));
     return null;
   }
 }
