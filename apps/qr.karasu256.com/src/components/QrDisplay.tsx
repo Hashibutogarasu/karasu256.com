@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { createId } from '@paralleldrive/cuid2';
 import QRCode from 'qrcode';
 import { R2Image, Button, ProgressBar } from '@Hashibutogarasu/ui';
+import { apiFetch } from '@Hashibutogarasu/utils/client';
 import type { QrData } from '@/lib/qr';
 import { AutoRegenerateProvider, useAutoRegenerate } from '@/hooks/use-auto-regenerate';
 import { QrSettingsMenu } from './QrSettingsMenu';
@@ -35,7 +36,7 @@ export default function QrDisplay({ initialQr }: QrDisplayProps) {
     if (latestContentRef.current !== content) return;
     setQr({ content, url: dataUrl, createdAt: new Date().toISOString() });
 
-    const res = await fetch('/api/qr', {
+    const res = await apiFetch('/api/qr', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ content }),

@@ -4,6 +4,7 @@ export { uploadImage, type UploadImageOptions, type UploadImageResult } from './
 export { uploadImageAnonymous, type UploadImageAnonymousOptions, type UploadImageAnonymousResult } from './upload-image-anonymous';
 export { requestChallengeToken } from './request-challenge-token';
 export { getSessionUser, type SessionUser } from './session';
+export { verifyAppJwt } from './app-jwt';
 export { signOutAction } from './sign-out';
 export { setLocaleAction } from './set-locale';
 export { getRootAppUrl } from './get-root-app-url';
