@@ -1,5 +1,6 @@
 import { Elysia } from 'elysia';
-import { requireUid, verifyAccountsJwt, verifyCronJobsKey } from '../lib/auth';
+import { verifyCronJobsKey } from '../lib/auth';
+import { resolveUploadAuth } from '../lib/upload-auth';
 import { deleteImage } from '../lib/images';
 
 /**
@@ -16,7 +17,7 @@ export const deleteRoute = (env: Env) =>
     }
 
     const isTrustedService = verifyCronJobsKey(request, env);
-    const uid = isTrustedService ? null : ((await verifyAccountsJwt(request, env)) ?? (await requireUid(request, env)));
+    const { uid } = isTrustedService ? { uid: null } : await resolveUploadAuth(request, null, env);
     if (!isTrustedService && !uid) {
       set.status = 401;
       return { error: 'Unauthorized' };

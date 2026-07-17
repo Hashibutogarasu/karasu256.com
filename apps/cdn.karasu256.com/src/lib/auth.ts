@@ -47,8 +47,11 @@ export async function verifyAccountsJwt(request: Request, env: Env): Promise<str
 
   try {
     const { payload } = await jwtVerify(authHeader.slice(7), getJwks(env));
-    return accountsJwtPayloadSchema.parse(payload).sub;
-  } catch {
+    const sub = accountsJwtPayloadSchema.parse(payload).sub;
+    console.log(JSON.stringify({ event: 'verify_accounts_jwt', result: 'success', uid: sub }));
+    return sub;
+  } catch (err) {
+    console.error(JSON.stringify({ event: 'verify_accounts_jwt', result: 'failure', error: err instanceof Error ? err.message : String(err) }));
     return null;
   }
 }
@@ -86,10 +89,19 @@ export async function requireUid(request: Request, env: Env): Promise<string | n
     const res = await fetch(`${env.ACCOUNTS_URL}/api/auth/get-session`, {
       headers: { cookie: cookieHeader, ...vercelProtectionBypassHeaders(env.VERCEL_PROTECTION_BYPASS_SECRET) },
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      console.error(JSON.stringify({ event: 'require_uid', result: 'failure', status: res.status }));
+      return null;
+    }
     const data = (await res.json()) as GetSessionResponse;
-    return data.user?.id ?? null;
-  } catch {
+    if (!data.user) {
+      console.error(JSON.stringify({ event: 'require_uid', result: 'no_session' }));
+      return null;
+    }
+    console.log(JSON.stringify({ event: 'require_uid', result: 'success', uid: data.user.id }));
+    return data.user.id;
+  } catch (err) {
+    console.error(JSON.stringify({ event: 'require_uid', result: 'error', error: err instanceof Error ? err.message : String(err) }));
     return null;
   }
 }
