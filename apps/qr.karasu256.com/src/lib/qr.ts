@@ -128,6 +128,12 @@ async function recordGeneration(uid: string | null, fileName: string, url: strin
  * upload, and the cache write in parallel with the best-effort delete of the
  * previous R2 object; anonymous uploads have no delete credentials and are
  * left for R2 lifecycle rules to expire.
+ *
+ * The authenticated upload to cdn.karasu256.com is gated on `auth.token`
+ * alone, not `auth.cookieHeader`: forwarding the cookie a second hop (this
+ * app's own server to cdn.karasu256.com's) is the unreliable mechanism this
+ * app moved away from, so it's ignored here even when it did resolve `uid`
+ * for the DB record.
  */
 async function generateAndCacheQr(
   uid: string | null,
@@ -138,7 +144,7 @@ async function generateAndCacheQr(
 
   const [previous, { path, url }] = await Promise.all([
     uid ? readCachedQr(uid) : null,
-    uid && (auth.cookieHeader || auth.token) ? uploadForUser(buffer, uid, auth) : uploadAnonymous(buffer),
+    uid && auth.token ? uploadForUser(buffer, uid, auth) : uploadAnonymous(buffer),
   ]);
 
   const qr: CachedQr = { content, path, url, createdAt: new Date().toISOString() };
@@ -146,10 +152,9 @@ async function generateAndCacheQr(
   await Promise.all([
     writeCachedQr(uid, qr),
     recordGeneration(uid, path, url),
-    uid && (auth.cookieHeader || auth.token) && previous
+    uid && auth.token && previous
       ? deleteUploadedImage(previous.url, {
           imageApiUrl: getImageApiUrl(),
-          cookieHeader: auth.cookieHeader,
           token: auth.token,
         })
       : null,
