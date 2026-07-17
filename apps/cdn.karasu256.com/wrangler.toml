@@ -37,3 +37,7 @@ remote = true
 [env.dev.vars]
 CDN_BASE_URL = "http://localhost:8788"
 ACCOUNTS_URL = "http://localhost:3001"
+
+[observability.logs]
+enabled = true
+invocation_logs = true

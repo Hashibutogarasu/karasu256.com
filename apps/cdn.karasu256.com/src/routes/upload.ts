@@ -1,9 +1,8 @@
 import { Elysia, t } from 'elysia';
-import { requireUid, verifyAccountsJwt } from '../lib/auth';
+import { resolveUploadAuth } from '../lib/upload-auth';
 import { ALLOWED_TYPES, MAX_FILE_BYTES, TYPE_TO_EXT, isValidUploadPath } from '../lib/uploads';
 import { putImage } from '../lib/images';
 import { consumeChallengeToken } from '../lib/challenge';
-import { verifyUploadTicket } from '../lib/upload-ticket';
 
 const uploadBodySchema = t.Object({
   file: t.Optional(t.File()),
@@ -16,8 +15,7 @@ export const uploadRoute = (env: Env) =>
     async ({ request, body, set }) => {
       const explicitPath = body.path ?? null;
 
-      const ticketUid = explicitPath ? await verifyUploadTicket(request, explicitPath, env) : null;
-      const uid = ticketUid ?? (await verifyAccountsJwt(request, env)) ?? (await requireUid(request, env));
+      const { uid, method } = await resolveUploadAuth(request, explicitPath, env);
       if (!uid) {
         set.status = 401;
         return { error: 'Unauthorized' };
@@ -28,7 +26,7 @@ export const uploadRoute = (env: Env) =>
         return { error: 'Missing file field' };
       }
 
-      if (explicitPath && !ticketUid && !isValidUploadPath(explicitPath, uid)) {
+      if (explicitPath && method !== 'ticket' && !isValidUploadPath(explicitPath, uid)) {
         set.status = 400;
         return { error: 'Invalid upload path' };
       }
