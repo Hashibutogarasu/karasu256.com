@@ -20,5 +20,12 @@ declare global {
      * `--env dev`).
      */
     CRON_JOBS_API_KEY: string;
+    /**
+     * `x-vercel-protection-bypass` value for reaching a Vercel deployment
+     * that has Deployment Protection enabled (e.g. a protected Preview) —
+     * unset in environments where the target isn't protected (e.g.
+     * production). See `lib/auth.ts`'s `vercelProtectionBypassHeaders`.
+     */
+    VERCEL_PROTECTION_BYPASS_SECRET?: string;
   }
 }

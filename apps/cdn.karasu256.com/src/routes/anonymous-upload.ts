@@ -61,7 +61,7 @@ export const anonymousUploadRoute = (env: Env) =>
         return { error: 'File exceeds 5 MB limit' };
       }
 
-      await putImage(path, payload.buffer, body.file.type, env);
+      await putImage(path, payload.buffer as ArrayBuffer, body.file.type, env);
 
       return { url: `${env.CDN_BASE_URL}/${path}` };
     },

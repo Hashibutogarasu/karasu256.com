@@ -68,11 +68,12 @@ interface ResolvedSession {
  */
 async function resolveSession(bearerToken?: string | null): Promise<ResolvedSession> {
   const cookieHeader = (await headers()).get('cookie');
+  const protectionBypassSecret = process.env.VERCEL_PROTECTION_BYPASS_SECRET;
 
-  const uidFromToken = bearerToken ? await verifyAppJwt(bearerToken) : null;
+  const uidFromToken = bearerToken ? await verifyAppJwt(bearerToken, protectionBypassSecret) : null;
   if (uidFromToken) return { uid: uidFromToken, cookieHeader, token: bearerToken ?? null };
 
-  const sessionUser = await getSessionUser();
+  const sessionUser = await getSessionUser(protectionBypassSecret);
   return sessionUser ? { uid: sessionUser.uid, cookieHeader, token: null } : { uid: null, cookieHeader: null, token: null };
 }
 
