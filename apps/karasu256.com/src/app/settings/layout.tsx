@@ -16,7 +16,7 @@ export async function generateMetadata(): Promise<Metadata> {
  * then renders the shared sidebar shell around the page content.
  */
 export default async function SettingsLayout({ children }: { children: React.ReactNode }) {
-  const sessionUser = await getSessionUser();
+  const sessionUser = await getSessionUser(process.env.NEXT_PUBLIC_ACCOUNTS_URL);
   if (!sessionUser) {
     const accountsUrl = process.env.NEXT_PUBLIC_ACCOUNTS_URL;
     if (!accountsUrl) {

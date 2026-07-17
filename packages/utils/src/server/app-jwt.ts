@@ -27,21 +27,31 @@ function getJwks(accountsUrl: string, protectionBypassSecret: string | undefined
  * accounts.karasu256.com, which always see that cookie regardless of the
  * calling app's own origin).
  *
+ * `accountsUrl` and `protectionBypassSecret` are supplied by the caller
+ * (e.g. from its own environment variables) rather than read here, since
+ * this package doesn't read environment variables itself.
  * `protectionBypassSecret`, when given, is sent as
  * `x-vercel-protection-bypass` so this JWKS fetch reaches
  * accounts.karasu256.com even when its deployment has Vercel Deployment
- * Protection enabled (e.g. a protected Preview) — the caller is
- * responsible for supplying it, since this package doesn't read
- * environment variables itself.
+ * Protection enabled (e.g. a protected Preview).
  */
-export async function verifyAppJwt(token: string, protectionBypassSecret?: string): Promise<string | null> {
-  const accountsUrl = process.env.NEXT_PUBLIC_ACCOUNTS_URL;
-  if (!accountsUrl) return null;
+export async function verifyAppJwt(token: string, accountsUrl: string | undefined, protectionBypassSecret?: string): Promise<string | null> {
+  if (!accountsUrl) {
+    console.error(JSON.stringify({ event: 'verify_app_jwt', result: 'failure', reason: 'missing_accounts_url' }));
+    return null;
+  }
 
   try {
     const { payload }: { payload: JWTPayload } = await jwtVerify(token, getJwks(accountsUrl, protectionBypassSecret));
-    return typeof payload.sub === 'string' ? payload.sub : null;
-  } catch {
+    const sub = typeof payload.sub === 'string' ? payload.sub : null;
+    if (!sub) {
+      console.error(JSON.stringify({ event: 'verify_app_jwt', result: 'failure', reason: 'missing_sub_claim' }));
+      return null;
+    }
+    console.log(JSON.stringify({ event: 'verify_app_jwt', result: 'success', uid: sub }));
+    return sub;
+  } catch (err) {
+    console.error(JSON.stringify({ event: 'verify_app_jwt', result: 'failure', error: err instanceof Error ? err.message : String(err) }));
     return null;
   }
 }
