@@ -1,11 +1,11 @@
 import { Elysia } from 'elysia';
-import { requireUid, verifyAccountsJwt } from '../lib/auth';
+import { requireUid, verifyAccountsJwt, verifyCronJobsKey } from '../lib/auth';
 import { deleteImage } from '../lib/images';
 
 /**
  * Deletes a previously uploaded image from R2 by its object key. Used to
  * clean up a user's or OAuth client's old icon once a new one has replaced
- * it.
+ * it, or by `cron-jobs`'s scheduled cleanup of anonymous QR uploads.
  */
 export const deleteRoute = (env: Env) =>
   new Elysia().delete('/*', async ({ request, path, set }) => {
@@ -15,8 +15,9 @@ export const deleteRoute = (env: Env) =>
       return { error: 'Not Found' };
     }
 
-    const uid = (await verifyAccountsJwt(request, env)) ?? (await requireUid(request, env));
-    if (!uid) {
+    const isTrustedService = verifyCronJobsKey(request, env);
+    const uid = isTrustedService ? null : ((await verifyAccountsJwt(request, env)) ?? (await requireUid(request, env)));
+    if (!isTrustedService && !uid) {
       set.status = 401;
       return { error: 'Unauthorized' };
     }
