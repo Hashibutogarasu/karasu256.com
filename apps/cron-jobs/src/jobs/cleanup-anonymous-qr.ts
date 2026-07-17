@@ -1,5 +1,3 @@
-import type { Env } from '../index';
-
 /**
  * Triggers qr.karasu256.com's own cleanup of stale anonymous QR uploads.
  * This worker has no database connection scoped to qr.karasu256.com's own

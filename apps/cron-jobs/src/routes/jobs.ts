@@ -1,5 +1,4 @@
 import { Elysia } from 'elysia';
-import type { Env } from '../index';
 import { triggerCleanupAnonymousQr } from '../jobs/cleanup-anonymous-qr';
 
 /** Manual-trigger routes mirroring the scheduled jobs, for testing/ops use outside the cron schedule. */
