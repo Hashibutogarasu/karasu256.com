@@ -15,7 +15,7 @@ export const protectedRoutes = (env: Env) =>
         origin: isAllowedOrigin,
         credentials: true,
         methods: ['POST', 'DELETE', 'OPTIONS'],
-        allowedHeaders: ['Content-Type'],
+        allowedHeaders: ['Content-Type', 'Authorization'],
       })
     )
     .onRequest(({ request, set }) => {
