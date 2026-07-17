@@ -10,6 +10,7 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@Hashibutogarasu/challengetoken": "workspace:*",
     "@Hashibutogarasu/types": "workspace:*",
     "@Hashibutogarasu/ui": "workspace:*",
     "@Hashibutogarasu/utils": "workspace:*",
