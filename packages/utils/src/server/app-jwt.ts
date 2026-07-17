@@ -1,5 +1,6 @@
 import { createRemoteJWKSet, customFetch, jwtVerify, type JWTPayload } from 'jose';
 import { vercelProtectionBypassHeaders } from './vercel-bypass';
+import { logError, logInfo } from './log';
 
 const jwksCache = new Map<string, ReturnType<typeof createRemoteJWKSet>>();
 
@@ -18,14 +19,7 @@ function getJwks(accountsUrl: string, protectionBypassSecret: string | undefined
     headers: vercelProtectionBypassHeaders(protectionBypassSecret),
     [customFetch]: async (url, options) => {
       const res = await fetch(url, options);
-      console.log(
-        JSON.stringify({
-          event: 'fetch_jwks',
-          status: res.status,
-          type: res.type,
-          hadBypassSecret: Boolean(protectionBypassSecret),
-        })
-      );
+      logInfo('fetch_jwks', { url, status: res.status, type: res.type, hadBypassSecret: Boolean(protectionBypassSecret) });
       return res;
     },
   });
@@ -56,7 +50,7 @@ function getJwks(accountsUrl: string, protectionBypassSecret: string | undefined
  */
 export async function verifyAppJwt(token: string, accountsUrl: string | undefined, protectionBypassSecret?: string): Promise<string | null> {
   if (!accountsUrl) {
-    console.error(JSON.stringify({ event: 'verify_app_jwt', result: 'failure', reason: 'missing_accounts_url' }));
+    logError('verify_app_jwt', { result: 'failure', reason: 'missing_accounts_url' });
     return null;
   }
 
@@ -64,13 +58,13 @@ export async function verifyAppJwt(token: string, accountsUrl: string | undefine
     const { payload }: { payload: JWTPayload } = await jwtVerify(token, getJwks(accountsUrl, protectionBypassSecret));
     const sub = typeof payload.sub === 'string' ? payload.sub : null;
     if (!sub) {
-      console.error(JSON.stringify({ event: 'verify_app_jwt', result: 'failure', reason: 'missing_sub_claim' }));
+      logError('verify_app_jwt', { result: 'failure', reason: 'missing_sub_claim' });
       return null;
     }
-    console.log(JSON.stringify({ event: 'verify_app_jwt', result: 'success', uid: sub }));
+    logInfo('verify_app_jwt', { result: 'success', uid: sub });
     return sub;
   } catch (err) {
-    console.error(JSON.stringify({ event: 'verify_app_jwt', result: 'failure', error: err instanceof Error ? err.message : String(err) }));
+    logError('verify_app_jwt', { result: 'failure', error: err instanceof Error ? err.message : String(err) });
     return null;
   }
 }

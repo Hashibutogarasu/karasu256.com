@@ -1,5 +1,7 @@
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 import { z } from 'zod';
+import { logError, logInfo } from '@Hashibutogarasu/utils/server/log';
+import { vercelProtectionBypassHeaders } from '@Hashibutogarasu/utils/server/vercel-bypass';
 
 interface GetSessionResponse {
   user?: { id: string } | null;
@@ -8,18 +10,6 @@ interface GetSessionResponse {
 const accountsJwtPayloadSchema = z.object({ sub: z.string() });
 
 const jwksCache = new Map<string, ReturnType<typeof createRemoteJWKSet>>();
-
-/**
- * Builds the `x-vercel-protection-bypass` header, needed on server-to-server
- * requests to any deployment that has Vercel Deployment Protection (e.g.
- * Vercel Authentication on a Preview deployment) enabled — otherwise the
- * request gets redirected to a Vercel SSO challenge instead of reaching the
- * app. Returns an empty object when `secret` is undefined (e.g. the target
- * deployment isn't protected, such as production).
- */
-function vercelProtectionBypassHeaders(secret: string | undefined): Record<string, string> {
-  return secret ? { 'x-vercel-protection-bypass': secret } : {};
-}
 
 function getJwks(env: Env): ReturnType<typeof createRemoteJWKSet> {
   const existing = jwksCache.get(env.ACCOUNTS_URL);
@@ -48,10 +38,10 @@ export async function verifyAccountsJwt(request: Request, env: Env): Promise<str
   try {
     const { payload } = await jwtVerify(authHeader.slice(7), getJwks(env));
     const sub = accountsJwtPayloadSchema.parse(payload).sub;
-    console.log(JSON.stringify({ event: 'verify_accounts_jwt', result: 'success', uid: sub }));
+    logInfo('verify_accounts_jwt', { result: 'success', uid: sub });
     return sub;
   } catch (err) {
-    console.error(JSON.stringify({ event: 'verify_accounts_jwt', result: 'failure', error: err instanceof Error ? err.message : String(err) }));
+    logError('verify_accounts_jwt', { result: 'failure', error: err instanceof Error ? err.message : String(err) });
     return null;
   }
 }
@@ -85,23 +75,24 @@ export async function requireUid(request: Request, env: Env): Promise<string | n
   const cookieHeader = request.headers.get('cookie');
   if (!cookieHeader) return null;
 
+  const url = `${env.ACCOUNTS_URL}/api/auth/get-session`;
   try {
-    const res = await fetch(`${env.ACCOUNTS_URL}/api/auth/get-session`, {
+    const res = await fetch(url, {
       headers: { cookie: cookieHeader, ...vercelProtectionBypassHeaders(env.VERCEL_PROTECTION_BYPASS_SECRET) },
     });
     if (!res.ok) {
-      console.error(JSON.stringify({ event: 'require_uid', result: 'failure', status: res.status }));
+      logError('require_uid', { result: 'failure', url, status: res.status });
       return null;
     }
     const data = (await res.json()) as GetSessionResponse;
     if (!data.user) {
-      console.error(JSON.stringify({ event: 'require_uid', result: 'no_session' }));
+      logError('require_uid', { result: 'no_session' });
       return null;
     }
-    console.log(JSON.stringify({ event: 'require_uid', result: 'success', uid: data.user.id }));
+    logInfo('require_uid', { result: 'success', uid: data.user.id });
     return data.user.id;
   } catch (err) {
-    console.error(JSON.stringify({ event: 'require_uid', result: 'error', error: err instanceof Error ? err.message : String(err) }));
+    logError('require_uid', { result: 'error', url, error: err instanceof Error ? err.message : String(err) });
     return null;
   }
 }
