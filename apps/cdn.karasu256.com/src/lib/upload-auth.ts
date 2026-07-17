@@ -1,3 +1,4 @@
+import { logInfo } from '@Hashibutogarasu/utils/server/log';
 import { requireUid, verifyAccountsJwt } from './auth';
 import { verifyUploadTicket } from './upload-ticket';
 
@@ -27,7 +28,7 @@ export async function resolveUploadAuth(request: Request, path: string | null, e
   if (path) {
     const ticketUid = await verifyUploadTicket(request, path, env);
     if (ticketUid) {
-      console.log(JSON.stringify({ event: 'resolve_upload_auth', method: 'ticket', result: 'success', uid: ticketUid, path }));
+      logInfo('resolve_upload_auth', { method: 'ticket', result: 'success', uid: ticketUid, path });
       return { uid: ticketUid, method: 'ticket' };
     }
   }
@@ -35,7 +36,7 @@ export async function resolveUploadAuth(request: Request, path: string | null, e
   if (authHeader) {
     const jwtUid = await verifyAccountsJwt(request, env);
     if (jwtUid) {
-      console.log(JSON.stringify({ event: 'resolve_upload_auth', method: 'jwt', result: 'success', uid: jwtUid }));
+      logInfo('resolve_upload_auth', { method: 'jwt', result: 'success', uid: jwtUid });
       return { uid: jwtUid, method: 'jwt' };
     }
   }
@@ -43,20 +44,17 @@ export async function resolveUploadAuth(request: Request, path: string | null, e
   if (hasCookie) {
     const cookieUid = await requireUid(request, env);
     if (cookieUid) {
-      console.log(JSON.stringify({ event: 'resolve_upload_auth', method: 'cookie', result: 'success', uid: cookieUid }));
+      logInfo('resolve_upload_auth', { method: 'cookie', result: 'success', uid: cookieUid });
       return { uid: cookieUid, method: 'cookie' };
     }
   }
 
-  console.log(
-    JSON.stringify({
-      event: 'resolve_upload_auth',
-      method: 'none',
-      result: 'anonymous',
-      path,
-      hadAuthHeader: Boolean(authHeader),
-      hadCookieHeader: hasCookie,
-    })
-  );
+  logInfo('resolve_upload_auth', {
+    method: 'none',
+    result: 'anonymous',
+    path,
+    hadAuthHeader: Boolean(authHeader),
+    hadCookieHeader: hasCookie,
+  });
   return { uid: null, method: 'none' };
 }

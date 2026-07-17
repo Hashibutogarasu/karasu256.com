@@ -5,6 +5,8 @@
   "exports": {
     "./server": "./src/server/index.ts",
     "./server/sign-out": "./src/server/sign-out.ts",
+    "./server/log": "./src/server/log.ts",
+    "./server/vercel-bypass": "./src/server/vercel-bypass.ts",
     "./email": "./src/email/index.ts",
     "./client": "./src/client/index.ts",
     "./validation": "./src/validation/index.ts",

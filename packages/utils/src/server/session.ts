@@ -1,6 +1,7 @@
 import { headers } from 'next/headers';
 import { getSessionCookie } from 'better-auth/cookies';
 import { vercelProtectionBypassHeaders } from './vercel-bypass';
+import { logError, logInfo } from './log';
 
 /** The subset of better-auth's `user` model that callers across apps rely on. */
 export interface SessionUser {
@@ -38,33 +39,34 @@ interface GetSessionResponse {
  */
 export async function getSessionUser(accountsUrl: string | undefined, protectionBypassSecret?: string): Promise<SessionUser | null> {
   if (!accountsUrl) {
-    console.error(JSON.stringify({ event: 'get_session_user', result: 'failure', reason: 'missing_accounts_url' }));
+    logError('get_session_user', { result: 'failure', reason: 'missing_accounts_url' });
     return null;
   }
 
   const requestHeaders = await headers();
   if (!getSessionCookie(requestHeaders)) {
-    console.log(JSON.stringify({ event: 'get_session_user', result: 'skipped', reason: 'no_session_cookie' }));
+    logInfo('get_session_user', { result: 'skipped', reason: 'no_session_cookie' });
     return null;
   }
 
+  const url = `${accountsUrl}/api/auth/get-session`;
   try {
-    const res = await fetch(`${accountsUrl}/api/auth/get-session`, {
+    const res = await fetch(url, {
       headers: { cookie: requestHeaders.get('cookie') ?? '', ...vercelProtectionBypassHeaders(protectionBypassSecret) },
       cache: 'no-store',
     });
     if (!res.ok) {
-      console.error(JSON.stringify({ event: 'get_session_user', result: 'failure', status: res.status }));
+      logError('get_session_user', { result: 'failure', url, status: res.status });
       return null;
     }
 
     const data = (await res.json()) as GetSessionResponse;
     if (!data.user) {
-      console.error(JSON.stringify({ event: 'get_session_user', result: 'no_session' }));
+      logError('get_session_user', { result: 'no_session' });
       return null;
     }
 
-    console.log(JSON.stringify({ event: 'get_session_user', result: 'success', uid: data.user.id }));
+    logInfo('get_session_user', { result: 'success', uid: data.user.id });
     return {
       uid: data.user.id,
       email: data.user.email ?? null,
@@ -72,7 +74,7 @@ export async function getSessionUser(accountsUrl: string | undefined, protection
       image: data.user.image ?? null,
     };
   } catch (err) {
-    console.error(JSON.stringify({ event: 'get_session_user', result: 'error', error: err instanceof Error ? err.message : String(err) }));
+    logError('get_session_user', { result: 'error', url, error: err instanceof Error ? err.message : String(err) });
     return null;
   }
 }

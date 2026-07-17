@@ -5,6 +5,7 @@ export { uploadImageAnonymous, type UploadImageAnonymousOptions, type UploadImag
 export { requestChallengeToken } from './request-challenge-token';
 export { getSessionUser, type SessionUser } from './session';
 export { verifyAppJwt } from './app-jwt';
+export { logInfo, logError } from './log';
 export { vercelProtectionBypassHeaders } from './vercel-bypass';
 export { apiFetch, type ApiFetchOptions } from './api-fetch';
 export { signOutAction } from './sign-out';

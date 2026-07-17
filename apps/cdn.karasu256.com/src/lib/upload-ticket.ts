@@ -1,5 +1,6 @@
 import { SignJWT, jwtVerify } from 'jose';
 import { z } from 'zod';
+import { logError, logInfo } from '@Hashibutogarasu/utils/server/log';
 
 const ticketPayloadSchema = z.object({ uid: z.string(), path: z.string() });
 
@@ -31,13 +32,13 @@ export async function verifyUploadTicket(request: Request, expectedPath: string,
     const { payload } = await jwtVerify(authHeader.slice(7), ticketSecret(env));
     const ticket = ticketPayloadSchema.parse(payload);
     if (ticket.path !== expectedPath) {
-      console.error(JSON.stringify({ event: 'verify_upload_ticket', result: 'path_mismatch', expectedPath, ticketPath: ticket.path }));
+      logError('verify_upload_ticket', { result: 'path_mismatch', expectedPath, ticketPath: ticket.path });
       return null;
     }
-    console.log(JSON.stringify({ event: 'verify_upload_ticket', result: 'success', uid: ticket.uid, path: ticket.path }));
+    logInfo('verify_upload_ticket', { result: 'success', uid: ticket.uid, path: ticket.path });
     return ticket.uid;
   } catch (err) {
-    console.error(JSON.stringify({ event: 'verify_upload_ticket', result: 'failure', error: err instanceof Error ? err.message : String(err) }));
+    logError('verify_upload_ticket', { result: 'failure', error: err instanceof Error ? err.message : String(err) });
     return null;
   }
 }
