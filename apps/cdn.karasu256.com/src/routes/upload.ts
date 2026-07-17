@@ -1,5 +1,5 @@
 import { Elysia, t } from 'elysia';
-import { requireUid } from '../lib/auth';
+import { requireUid, verifyAccountsJwt } from '../lib/auth';
 import { ALLOWED_TYPES, MAX_FILE_BYTES, TYPE_TO_EXT, isValidUploadPath } from '../lib/uploads';
 import { putImage } from '../lib/images';
 import { consumeChallengeToken } from '../lib/challenge';
@@ -17,7 +17,7 @@ export const uploadRoute = (env: Env) =>
       const explicitPath = body.path ?? null;
 
       const ticketUid = explicitPath ? await verifyUploadTicket(request, explicitPath, env) : null;
-      const uid = ticketUid ?? (await requireUid(request, env));
+      const uid = ticketUid ?? (await verifyAccountsJwt(request, env)) ?? (await requireUid(request, env));
       if (!uid) {
         set.status = 401;
         return { error: 'Unauthorized' };
