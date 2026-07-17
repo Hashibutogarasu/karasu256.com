@@ -1,12 +1,15 @@
 import { createRemoteJWKSet, jwtVerify, type JWTPayload } from 'jose';
+import { vercelProtectionBypassHeaders } from './vercel-bypass';
 
 const jwksCache = new Map<string, ReturnType<typeof createRemoteJWKSet>>();
 
-function getJwks(accountsUrl: string): ReturnType<typeof createRemoteJWKSet> {
+function getJwks(accountsUrl: string, protectionBypassSecret: string | undefined): ReturnType<typeof createRemoteJWKSet> {
   const existing = jwksCache.get(accountsUrl);
   if (existing) return existing;
 
-  const jwks = createRemoteJWKSet(new URL('/api/auth/jwks', accountsUrl));
+  const jwks = createRemoteJWKSet(new URL('/api/auth/jwks', accountsUrl), {
+    headers: vercelProtectionBypassHeaders(protectionBypassSecret),
+  });
   jwksCache.set(accountsUrl, jwks);
   return jwks;
 }
@@ -23,13 +26,20 @@ function getJwks(accountsUrl: string): ReturnType<typeof createRemoteJWKSet> {
  * (independent of a browser tab's own direct, credentialed calls to
  * accounts.karasu256.com, which always see that cookie regardless of the
  * calling app's own origin).
+ *
+ * `protectionBypassSecret`, when given, is sent as
+ * `x-vercel-protection-bypass` so this JWKS fetch reaches
+ * accounts.karasu256.com even when its deployment has Vercel Deployment
+ * Protection enabled (e.g. a protected Preview) — the caller is
+ * responsible for supplying it, since this package doesn't read
+ * environment variables itself.
  */
-export async function verifyAppJwt(token: string): Promise<string | null> {
+export async function verifyAppJwt(token: string, protectionBypassSecret?: string): Promise<string | null> {
   const accountsUrl = process.env.NEXT_PUBLIC_ACCOUNTS_URL;
   if (!accountsUrl) return null;
 
   try {
-    const { payload }: { payload: JWTPayload } = await jwtVerify(token, getJwks(accountsUrl));
+    const { payload }: { payload: JWTPayload } = await jwtVerify(token, getJwks(accountsUrl, protectionBypassSecret));
     return typeof payload.sub === 'string' ? payload.sub : null;
   } catch {
     return null;

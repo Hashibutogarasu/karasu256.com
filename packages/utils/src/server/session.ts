@@ -1,5 +1,6 @@
 import { headers } from 'next/headers';
 import { getSessionCookie } from 'better-auth/cookies';
+import { vercelProtectionBypassHeaders } from './vercel-bypass';
 
 /** The subset of better-auth's `user` model that callers across apps rely on. */
 export interface SessionUser {
@@ -25,9 +26,14 @@ interface GetSessionResponse {
  * only checks the cookie's presence (accounting for the `__Secure-` prefix
  * better-auth adds under HTTPS/production) to skip the network round trip
  * when signed out; it never inspects individual cookie names for the
- * forwarded request.
+ * forwarded request. `protectionBypassSecret`, when given, is sent as
+ * `x-vercel-protection-bypass` so this request reaches
+ * accounts.karasu256.com even when its deployment has Vercel Deployment
+ * Protection enabled (e.g. a protected Preview) — the caller is
+ * responsible for supplying it, since this package doesn't read
+ * environment variables itself.
  */
-export async function getSessionUser(): Promise<SessionUser | null> {
+export async function getSessionUser(protectionBypassSecret?: string): Promise<SessionUser | null> {
   const accountsUrl = process.env.NEXT_PUBLIC_ACCOUNTS_URL;
   if (!accountsUrl) return null;
 
@@ -36,7 +42,7 @@ export async function getSessionUser(): Promise<SessionUser | null> {
 
   try {
     const res = await fetch(`${accountsUrl}/api/auth/get-session`, {
-      headers: { cookie: requestHeaders.get('cookie') ?? '' },
+      headers: { cookie: requestHeaders.get('cookie') ?? '', ...vercelProtectionBypassHeaders(protectionBypassSecret) },
       cache: 'no-store',
     });
     if (!res.ok) return null;

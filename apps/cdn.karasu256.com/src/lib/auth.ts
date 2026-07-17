@@ -9,12 +9,26 @@ const accountsJwtPayloadSchema = z.object({ sub: z.string() });
 
 const jwksCache = new Map<string, ReturnType<typeof createRemoteJWKSet>>();
 
-function getJwks(accountsUrl: string): ReturnType<typeof createRemoteJWKSet> {
-  const existing = jwksCache.get(accountsUrl);
+/**
+ * Builds the `x-vercel-protection-bypass` header, needed on server-to-server
+ * requests to any deployment that has Vercel Deployment Protection (e.g.
+ * Vercel Authentication on a Preview deployment) enabled — otherwise the
+ * request gets redirected to a Vercel SSO challenge instead of reaching the
+ * app. Returns an empty object when `secret` is undefined (e.g. the target
+ * deployment isn't protected, such as production).
+ */
+function vercelProtectionBypassHeaders(secret: string | undefined): Record<string, string> {
+  return secret ? { 'x-vercel-protection-bypass': secret } : {};
+}
+
+function getJwks(env: Env): ReturnType<typeof createRemoteJWKSet> {
+  const existing = jwksCache.get(env.ACCOUNTS_URL);
   if (existing) return existing;
 
-  const jwks = createRemoteJWKSet(new URL('/api/auth/jwks', accountsUrl));
-  jwksCache.set(accountsUrl, jwks);
+  const jwks = createRemoteJWKSet(new URL('/api/auth/jwks', env.ACCOUNTS_URL), {
+    headers: vercelProtectionBypassHeaders(env.ACCOUNTS_PROTECTION_BYPASS_SECRET),
+  });
+  jwksCache.set(env.ACCOUNTS_URL, jwks);
   return jwks;
 }
 
@@ -32,7 +46,7 @@ export async function verifyAccountsJwt(request: Request, env: Env): Promise<str
   if (!authHeader?.startsWith('Bearer ')) return null;
 
   try {
-    const { payload } = await jwtVerify(authHeader.slice(7), getJwks(env.ACCOUNTS_URL));
+    const { payload } = await jwtVerify(authHeader.slice(7), getJwks(env));
     return accountsJwtPayloadSchema.parse(payload).sub;
   } catch {
     return null;
@@ -70,7 +84,7 @@ export async function requireUid(request: Request, env: Env): Promise<string | n
 
   try {
     const res = await fetch(`${env.ACCOUNTS_URL}/api/auth/get-session`, {
-      headers: { cookie: cookieHeader },
+      headers: { cookie: cookieHeader, ...vercelProtectionBypassHeaders(env.ACCOUNTS_PROTECTION_BYPASS_SECRET) },
     });
     if (!res.ok) return null;
     const data = (await res.json()) as GetSessionResponse;
