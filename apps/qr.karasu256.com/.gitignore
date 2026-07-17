@@ -28,6 +28,10 @@ Thumbs.db
 next-env.d.ts
 .vercel
 
+# Drizzle
+drizzle/*
+!drizzle/migrations
+
 # Playwright
 /test-results/
 /playwright-report/
