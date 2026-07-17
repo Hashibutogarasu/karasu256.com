@@ -4,7 +4,10 @@ compatibility_date = "2025-06-24"
 compatibility_flags = ["nodejs_compat"]
 
 [triggers]
-crons = ["*/30 * * * *"]
+crons = ["0 0 * * *"]
+
+[vars]
+CDN_BASE_URL = "https://cdn.karasu256.com"
 
 [observability]
 enabled = false

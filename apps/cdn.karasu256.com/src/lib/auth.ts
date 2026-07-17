@@ -40,6 +40,20 @@ export async function verifyAccountsJwt(request: Request, env: Env): Promise<str
 }
 
 /**
+ * Verifies the caller's `Authorization: Bearer` header against
+ * `env.CRON_JOBS_API_KEY`, identifying the `cron-jobs` worker as a trusted
+ * service caller (its scheduled cleanup has no user session to prove, so
+ * `verifyAccountsJwt`/`requireUid` don't apply). Returns whether the
+ * caller is trusted.
+ */
+export function verifyCronJobsKey(request: Request, env: Env): boolean {
+  const authHeader = request.headers.get('authorization');
+  if (!authHeader?.startsWith('Bearer ')) return false;
+
+  return authHeader.slice(7) === env.CRON_JOBS_API_KEY;
+}
+
+/**
  * Verifies the caller's session by forwarding their `Cookie` header
  * verbatim to accounts.karasu256.com's `GET /api/auth/get-session` — this
  * Worker holds no Firebase or better-auth credentials of its own, so a
