@@ -1,5 +1,5 @@
 import { Elysia } from 'elysia';
-import { requireUid } from '../lib/auth';
+import { requireUid, verifyAccountsJwt } from '../lib/auth';
 import { deleteImage } from '../lib/images';
 
 /**
@@ -15,7 +15,7 @@ export const deleteRoute = (env: Env) =>
       return { error: 'Not Found' };
     }
 
-    const uid = await requireUid(request, env);
+    const uid = (await verifyAccountsJwt(request, env)) ?? (await requireUid(request, env));
     if (!uid) {
       set.status = 401;
       return { error: 'Unauthorized' };

@@ -11,7 +11,9 @@
     "@Hashibutogarasu/challengetoken": "workspace:*",
     "@Hashibutogarasu/utils": "workspace:*",
     "@elysiajs/cors": "^1.4.2",
-    "elysia": "^1.4.29"
+    "elysia": "^1.4.29",
+    "jose": "^6.2.3",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@sinclair/typebox": "^0.34.49",

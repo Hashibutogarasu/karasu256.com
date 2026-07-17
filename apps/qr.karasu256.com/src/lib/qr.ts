@@ -50,22 +50,30 @@ async function writeCachedQr(uid: string | null, qr: CachedQr): Promise<void> {
   await useRedis(process.env.REDIS_URL).set(redisKeyFor(uid), JSON.stringify(qr), CACHE_TTL_SECONDS);
 }
 
+interface ResolvedSession {
+  uid: string | null;
+  cookieHeader: string | null;
+  /** The verified bearer token, forwarded as-is to authenticate the R2 upload (see `uploadForUser`), or null when the caller authenticated via cookie instead. */
+  token: string | null;
+}
+
 /**
- * Resolves the caller's uid and raw `Cookie` request header. Prefers a
- * caller-supplied JWT (verified against accounts.karasu256.com's JWKS via
- * `verifyAppJwt`) over `getSessionUser`'s `Cookie`-forwarding check, since
- * this app's own server can't rely on that cookie reaching it — see
- * `SessionProvider` in `@Hashibutogarasu/ui`, which mints that JWT as the
- * single source of truth for "who is logged in".
+ * Resolves the caller's uid, raw `Cookie` request header, and verified
+ * bearer token. Prefers a caller-supplied JWT (verified against
+ * accounts.karasu256.com's JWKS via `verifyAppJwt`) over `getSessionUser`'s
+ * `Cookie`-forwarding check, since this app's own server can't rely on
+ * that cookie reaching it — see `SessionProvider` in `@Hashibutogarasu/ui`,
+ * which mints that JWT as the single source of truth for "who is logged
+ * in".
  */
-async function resolveSession(bearerToken?: string | null): Promise<{ uid: string | null; cookieHeader: string | null }> {
+async function resolveSession(bearerToken?: string | null): Promise<ResolvedSession> {
   const cookieHeader = (await headers()).get('cookie');
 
   const uidFromToken = bearerToken ? await verifyAppJwt(bearerToken) : null;
-  if (uidFromToken) return { uid: uidFromToken, cookieHeader };
+  if (uidFromToken) return { uid: uidFromToken, cookieHeader, token: bearerToken ?? null };
 
   const sessionUser = await getSessionUser();
-  return sessionUser ? { uid: sessionUser.uid, cookieHeader } : { uid: null, cookieHeader: null };
+  return sessionUser ? { uid: sessionUser.uid, cookieHeader, token: null } : { uid: null, cookieHeader: null, token: null };
 }
 
 /** Fetches a fresh challenge token from the image API and embeds it into `buffer`'s header, so the CDN can verify this upload round-tripped through it. */
@@ -74,13 +82,18 @@ async function embedChallenge(buffer: Buffer): Promise<Buffer> {
   return Buffer.from(embedChallengeToken(buffer, token));
 }
 
-async function uploadForUser(buffer: Buffer, uid: string, cookieHeader: string): Promise<{ path: string; url: string }> {
+async function uploadForUser(
+  buffer: Buffer,
+  uid: string,
+  auth: { cookieHeader: string | null; token: string | null }
+): Promise<{ path: string; url: string }> {
   const embedded = await embedChallenge(buffer);
   const path = `qr/${uid}/${Date.now()}.png`;
   const file = new File([Uint8Array.from(embedded)], 'qr.png', { type: 'image/png' });
   const result = await uploadImage(file, {
     imageApiUrl: getImageApiUrl(),
-    cookieHeader,
+    cookieHeader: auth.cookieHeader,
+    token: auth.token,
     path,
   });
   if (!result.ok) throw new Error(`Failed to upload QR image: ${result.error ?? result.status}`);
@@ -116,12 +129,16 @@ async function recordGeneration(uid: string | null, fileName: string, url: strin
  * previous R2 object; anonymous uploads have no delete credentials and are
  * left for R2 lifecycle rules to expire.
  */
-async function generateAndCacheQr(uid: string | null, cookieHeader: string | null, content: string = createId()): Promise<QrData> {
+async function generateAndCacheQr(
+  uid: string | null,
+  auth: { cookieHeader: string | null; token: string | null },
+  content: string = createId()
+): Promise<QrData> {
   const buffer = await QRCode.toBuffer(content, { type: 'png', width: QR_IMAGE_WIDTH });
 
   const [previous, { path, url }] = await Promise.all([
     uid ? readCachedQr(uid) : null,
-    uid && cookieHeader ? uploadForUser(buffer, uid, cookieHeader) : uploadAnonymous(buffer),
+    uid && (auth.cookieHeader || auth.token) ? uploadForUser(buffer, uid, auth) : uploadAnonymous(buffer),
   ]);
 
   const qr: CachedQr = { content, path, url, createdAt: new Date().toISOString() };
@@ -129,10 +146,11 @@ async function generateAndCacheQr(uid: string | null, cookieHeader: string | nul
   await Promise.all([
     writeCachedQr(uid, qr),
     recordGeneration(uid, path, url),
-    uid && cookieHeader && previous
+    uid && (auth.cookieHeader || auth.token) && previous
       ? deleteUploadedImage(previous.url, {
           imageApiUrl: getImageApiUrl(),
-          cookieHeader,
+          cookieHeader: auth.cookieHeader,
+          token: auth.token,
         })
       : null,
   ]);
@@ -142,10 +160,10 @@ async function generateAndCacheQr(uid: string | null, cookieHeader: string | nul
 
 /** Returns the cached QR for the current caller if present, generating and caching a new one otherwise. */
 export async function getOrCreateQr(): Promise<QrData> {
-  const { uid, cookieHeader } = await resolveSession();
+  const { uid, cookieHeader, token } = await resolveSession();
   const cached = await readCachedQr(uid);
   if (cached) return { content: cached.content, url: cached.url, createdAt: cached.createdAt };
-  return generateAndCacheQr(uid, cookieHeader);
+  return generateAndCacheQr(uid, { cookieHeader, token });
 }
 
 /**
@@ -156,6 +174,6 @@ export async function getOrCreateQr(): Promise<QrData> {
  * `resolveSession`), sent when the caller is signed in.
  */
 export async function regenerateQr(content?: string, bearerToken?: string | null): Promise<QrData> {
-  const { uid, cookieHeader } = await resolveSession(bearerToken);
-  return generateAndCacheQr(uid, cookieHeader, content);
+  const { uid, cookieHeader, token } = await resolveSession(bearerToken);
+  return generateAndCacheQr(uid, { cookieHeader, token }, content);
 }
