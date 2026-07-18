@@ -2,20 +2,20 @@ name = "cdn-karasu256-com"
 main = "src/index.ts"
 compatibility_date = "2025-06-24"
 
-[[routes]]
+[[env.production.routes]]
 pattern = "cdn.karasu256.com"
 custom_domain = true
 
-[[r2_buckets]]
+[[env.production.r2_buckets]]
 binding = "IMAGES"
 bucket_name = "karasu-lab-cdn"
 
 # Created via `wrangler kv namespace create RATE_LIMIT_KV`.
-[[kv_namespaces]]
+[[env.production.kv_namespaces]]
 binding = "RATE_LIMIT_KV"
 id = "dda7387a349f4de3b1698f20e713294d"
 
-[vars]
+[env.production.vars]
 CDN_BASE_URL = "https://cdn.karasu256.com"
 ACCOUNTS_URL = "https://accounts.karasu256.com"
 
@@ -37,6 +37,26 @@ remote = true
 [env.dev.vars]
 CDN_BASE_URL = "http://localhost:8788"
 ACCOUNTS_URL = "http://localhost:3001"
+
+[[env.preview.routes]]
+pattern = "dev.cdn.karasu256.com"
+custom_domain = true
+
+[[env.preview.r2_buckets]]
+binding = "IMAGES"
+bucket_name = "karasu-lab-cdn-dev"
+remote = true
+
+# Created via `wrangler kv namespace create RATE_LIMIT_KV --env dev`; replace
+# the id below with the value that command prints.
+[[env.preview.kv_namespaces]]
+binding = "RATE_LIMIT_KV"
+id = "c3fb9b94d2074304986c58049620d0b4"
+remote = true
+
+[env.preview.vars]
+CDN_BASE_URL = "https://dev.cdn.karasu256.com"
+ACCOUNTS_URL = "https://dev.accounts.karasu256.com"
 
 [observability.logs]
 enabled = true
