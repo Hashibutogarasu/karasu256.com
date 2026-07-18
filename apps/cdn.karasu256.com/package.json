@@ -6,6 +6,7 @@
     "dev": "wrangler dev --port 8788 --inspector-port 9230 --env dev",
     "dev:preview": "wrangler dev --port 8788 --inspector-port 9230 --env preview",
     "deploy": "wrangler deploy --env production",
+    "deploy:preview": "wrangler deploy --env preview",
     "build": "wrangler deploy --dry-run --outdir dist --env production"
   },
   "dependencies": {
