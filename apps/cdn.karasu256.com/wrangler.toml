@@ -38,8 +38,9 @@ remote = true
 CDN_BASE_URL = "http://localhost:8788"
 ACCOUNTS_URL = "http://localhost:3001"
 
-[env.preview]
-routes = []
+[[env.preview.routes]]
+pattern = "dev.cdn.karasu256.com"
+custom_domain = true
 
 [[env.preview.r2_buckets]]
 binding = "IMAGES"
@@ -54,7 +55,7 @@ id = "c3fb9b94d2074304986c58049620d0b4"
 remote = true
 
 [env.preview.vars]
-CDN_BASE_URL = "http://localhost:8788"
+CDN_BASE_URL = "https://dev.cdn.karasu256.com"
 ACCOUNTS_URL = "https://dev.accounts.karasu256.com"
 
 [observability.logs]
