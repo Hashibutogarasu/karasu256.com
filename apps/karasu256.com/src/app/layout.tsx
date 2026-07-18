@@ -2,7 +2,7 @@ import React from 'react';
 import type { Metadata } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages, getTranslations } from 'next-intl/server';
-import { PopUpMenuProvider, SessionProvider } from '@Hashibutogarasu/ui';
+import { PopUpMenuProvider, R2StorageProvider, SessionProvider } from '@Hashibutogarasu/ui';
 import { geistSans, geistMono, notoSansJP } from '@Hashibutogarasu/ui/fonts';
 import { getSessionUser } from '@Hashibutogarasu/utils/server';
 import { FeatureFlagsProvider } from '@Hashibutogarasu/flags/server';
@@ -54,10 +54,12 @@ export default async function RootLayout({
         <NextIntlClientProvider messages={messages}>
           <FeatureFlagsProvider flags={appFlags} schema={appFlagsSchema}>
             <SessionProvider baseURL={process.env.NEXT_PUBLIC_ACCOUNTS_URL} initialUser={initialUser}>
-              <PopUpMenuProvider>
-                <Header />
-                <main className="flex-1 flex flex-col">{children}</main>
-              </PopUpMenuProvider>
+              <R2StorageProvider imageApiUrl={process.env.CDN_URL!}>
+                <PopUpMenuProvider>
+                  <Header />
+                  <main className="flex-1 flex flex-col">{children}</main>
+                </PopUpMenuProvider>
+              </R2StorageProvider>
             </SessionProvider>
           </FeatureFlagsProvider>
         </NextIntlClientProvider>

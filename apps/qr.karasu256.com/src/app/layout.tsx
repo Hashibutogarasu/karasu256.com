@@ -34,7 +34,7 @@ export default async function RootLayout({
       <body className="min-h-full flex flex-col">
         <NextIntlClientProvider messages={messages}>
           <SessionProvider baseURL={process.env.NEXT_PUBLIC_ACCOUNTS_URL} initialUser={initialUser}>
-            <R2StorageProvider imageApiUrl={process.env.NEXT_PUBLIC_IMAGE_API_URL!}>
+            <R2StorageProvider imageApiUrl={process.env.CDN_URL!}>
               <RedisProvider redisURL={process.env.REDIS_URL!}>
                 <PopUpMenuProvider>
                   <Header />
