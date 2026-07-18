@@ -1,4 +1,4 @@
-import { createRemoteJWKSet, jwtVerify } from 'jose';
+import { createRemoteJWKSet, customFetch, jwtVerify } from 'jose';
 import { z } from 'zod';
 import { logError, logInfo } from '@Hashibutogarasu/utils/server/log';
 import { vercelProtectionBypassHeaders } from '@Hashibutogarasu/utils/server/vercel-bypass';
@@ -11,12 +11,41 @@ const accountsJwtPayloadSchema = z.object({ sub: z.string() });
 
 const jwksCache = new Map<string, ReturnType<typeof createRemoteJWKSet>>();
 
+/**
+ * jose fetches the JWKS with `redirect: 'manual'`, so a Vercel Deployment
+ * Protection redirect surfaces only as a generic "Expected 200 OK" error
+ * with no further detail. This `customFetch` logs the raw response
+ * (status/type/body preview) and whether a bypass header was actually
+ * attached, so a redirect- or protection-caused failure is distinguishable
+ * from every other one.
+ */
 function getJwks(env: Env): ReturnType<typeof createRemoteJWKSet> {
   const existing = jwksCache.get(env.ACCOUNTS_URL);
   if (existing) return existing;
 
   const jwks = createRemoteJWKSet(new URL('/api/auth/jwks', env.ACCOUNTS_URL), {
     headers: vercelProtectionBypassHeaders(env.VERCEL_PROTECTION_BYPASS_SECRET),
+    [customFetch]: async (url, options) => {
+      const res = await fetch(url, options);
+      const bodyPreview =
+        res.status === 200
+          ? undefined
+          : await res
+              .clone()
+              .text()
+              .then((text) => text.slice(0, 500))
+              .catch(() => undefined);
+      logInfo('fetch_jwks', {
+        url,
+        status: res.status,
+        type: res.type,
+        hadBypassSecret: Boolean(env.VERCEL_PROTECTION_BYPASS_SECRET),
+        server: res.headers.get('server'),
+        vercelId: res.headers.get('x-vercel-id'),
+        bodyPreview,
+      });
+      return res;
+    },
   });
   jwksCache.set(env.ACCOUNTS_URL, jwks);
   return jwks;
