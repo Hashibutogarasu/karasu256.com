@@ -24,7 +24,6 @@
     "empty": "No QR codes yet.",
     "signInRequired": "Sign in to view your generation history.",
     "columns": {
-      "preview": "Preview",
       "createdAt": "Created"
     },
     "selectAll": "Select all rows",

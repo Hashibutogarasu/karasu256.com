@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Trash2 } from 'lucide-react';
+import { type ColumnDef, type RowSelectionState, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import {
   Button,
   Checkbox,
@@ -56,30 +57,59 @@ function pageNumbers(page: number, totalPages: number): (number | 'ellipsis')[] 
 
 /**
  * Lists the signed-in caller's own QR generation history: a paginated,
- * multi-selectable table backed by `/history`'s `p` search param, with a
- * bulk-delete action and a per-row dialog showing the full-size QR code.
+ * multi-selectable table (built on TanStack Table, following
+ * https://ui.shadcn.com/docs/components/data-table) backed by `/history`'s
+ * `p` search param, with a bulk-delete action and a per-row dialog showing
+ * the full-size QR code.
  */
 export function HistoryTable({ items, page, totalPages }: HistoryTableProps) {
   const t = useTranslations('history');
   const router = useRouter();
-  const [selected, setSelected] = React.useState<Set<string>>(new Set());
+  const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
   const [viewingItem, setViewingItem] = React.useState<HistoryTableItem | null>(null);
   const [confirmingDelete, setConfirmingDelete] = React.useState(false);
 
-  const allSelected = items.length > 0 && items.every((item) => selected.has(item.id));
+  const columns = React.useMemo<ColumnDef<HistoryTableItem>[]>(
+    () => [
+      {
+        id: 'select',
+        header: ({ table }) => (
+          <div className="flex items-center justify-center">
+            <Checkbox
+              checked={table.getIsAllPageRowsSelected()}
+              indeterminate={table.getIsSomePageRowsSelected() && !table.getIsAllPageRowsSelected()}
+              onCheckedChange={(checked) => table.toggleAllPageRowsSelected(!!checked)}
+              aria-label={t('selectAll')}
+            />
+          </div>
+        ),
+        cell: ({ row }) => (
+          <div className="flex items-center justify-center">
+            <Checkbox checked={row.getIsSelected()} onCheckedChange={(checked) => row.toggleSelected(!!checked)} aria-label={t('selectRow')} />
+          </div>
+        ),
+        enableSorting: false,
+        enableHiding: false,
+      },
+      {
+        accessorKey: 'createdAt',
+        header: t('columns.createdAt'),
+        cell: ({ row }) => new Date(row.original.createdAt).toLocaleString(),
+      },
+    ],
+    [t]
+  );
 
-  function toggleSelectAll() {
-    setSelected(allSelected ? new Set() : new Set(items.map((item) => item.id)));
-  }
+  const table = useReactTable({
+    data: items,
+    columns,
+    state: { rowSelection },
+    onRowSelectionChange: setRowSelection,
+    getRowId: (row) => row.id,
+    getCoreRowModel: getCoreRowModel(),
+  });
 
-  function toggleSelect(id: string) {
-    setSelected((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  }
+  const selectedIds = Object.keys(rowSelection);
 
   function goToPage(n: number) {
     router.push(`/history?p=${n}`);
@@ -89,10 +119,10 @@ export function HistoryTable({ items, page, totalPages }: HistoryTableProps) {
     const res = await apiFetch('/api/history', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ids: Array.from(selected) }),
+      body: JSON.stringify({ ids: selectedIds }),
     });
     if (res.ok) {
-      setSelected(new Set());
+      setRowSelection({});
       router.refresh();
     }
   }
@@ -100,7 +130,7 @@ export function HistoryTable({ items, page, totalPages }: HistoryTableProps) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-end">
-        <Button variant="destructive" size="sm" disabled={selected.size === 0} onClick={() => setConfirmingDelete(true)}>
+        <Button variant="destructive" size="sm" disabled={selectedIds.length === 0} onClick={() => setConfirmingDelete(true)}>
           <Trash2 className="size-4" />
           {t('delete')}
         </Button>
@@ -108,32 +138,41 @@ export function HistoryTable({ items, page, totalPages }: HistoryTableProps) {
 
       <Table>
         <TableHeader>
-          <TableRow>
-            <TableHead className="w-10">
-              <Checkbox checked={allSelected} onCheckedChange={toggleSelectAll} aria-label={t('selectAll')} />
-            </TableHead>
-            <TableHead>{t('columns.preview')}</TableHead>
-            <TableHead>{t('columns.createdAt')}</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {items.map((item) => (
-            <TableRow key={item.id} data-state={selected.has(item.id) ? 'selected' : undefined}>
-              <TableCell>
-                <Checkbox checked={selected.has(item.id)} onCheckedChange={() => toggleSelect(item.id)} aria-label={t('selectRow')} />
-              </TableCell>
-              <TableCell className="cursor-pointer" onClick={() => setViewingItem(item)}>
-                <R2Image src={item.url} alt={t('columns.preview')} className="size-10" />
-              </TableCell>
-              <TableCell className="cursor-pointer" onClick={() => setViewingItem(item)}>
-                {new Date(item.createdAt).toLocaleString()}
-              </TableCell>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow key={headerGroup.id}>
+              {headerGroup.headers.map((header) => (
+                <TableHead key={header.id} className={header.column.id === 'select' ? 'w-10' : undefined}>
+                  {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                </TableHead>
+              ))}
             </TableRow>
           ))}
+        </TableHeader>
+        <TableBody>
+          {table.getRowModel().rows.length ? (
+            table.getRowModel().rows.map((row) => (
+              <TableRow
+                key={row.id}
+                data-state={row.getIsSelected() ? 'selected' : undefined}
+                className="cursor-pointer"
+                onClick={() => setViewingItem(row.original)}
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id} onClick={cell.column.id === 'select' ? (e) => e.stopPropagation() : undefined}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={columns.length} className="h-24 text-center text-muted-foreground">
+                {t('empty')}
+              </TableCell>
+            </TableRow>
+          )}
         </TableBody>
       </Table>
-
-      {items.length === 0 && <p className="text-center text-sm text-muted-foreground">{t('empty')}</p>}
 
       {totalPages > 1 && (
         <Pagination>
@@ -194,7 +233,7 @@ export function HistoryTable({ items, page, totalPages }: HistoryTableProps) {
           <DialogHeader>
             <DialogTitle>{t('viewDialog.title')}</DialogTitle>
           </DialogHeader>
-          {viewingItem && <R2Image src={viewingItem.url} alt={t('columns.preview')} className="mx-auto size-64" />}
+          {viewingItem && <R2Image src={viewingItem.url} alt={t('viewDialog.title')} className="mx-auto size-64" />}
         </DialogContent>
       </Dialog>
 
@@ -202,7 +241,7 @@ export function HistoryTable({ items, page, totalPages }: HistoryTableProps) {
         open={confirmingDelete}
         onOpenChange={setConfirmingDelete}
         title={t('deleteConfirm.title')}
-        description={t('deleteConfirm.description', { count: selected.size })}
+        description={t('deleteConfirm.description', { count: selectedIds.length })}
         confirmLabel={t('deleteConfirm.confirm')}
         cancelLabel={t('deleteConfirm.cancel')}
         onConfirm={handleDelete}

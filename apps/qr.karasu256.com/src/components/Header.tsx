@@ -1,13 +1,6 @@
 import Link from 'next/link';
 import { getLocale, getTranslations } from 'next-intl/server';
-import {
-  Header as UiHeader,
-  AccountMenu,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  navigationMenuTriggerStyle,
-  type CountryCode,
-} from '@Hashibutogarasu/ui';
+import { Header as UiHeader, AccountMenu, NavigationMenuLink, navigationMenuTriggerStyle, type CountryCode } from '@Hashibutogarasu/ui';
 import { getRootAppUrl, signOutAction, setLocaleAction } from '@Hashibutogarasu/utils/server';
 import { locales } from '@/i18n/locales';
 
@@ -36,11 +29,9 @@ const Header = async () => {
         </Link>
       }
       navItems={
-        <NavigationMenuItem>
-          <NavigationMenuLink render={<Link href="/history" />} className={navigationMenuTriggerStyle()}>
-            {t('history')}
-          </NavigationMenuLink>
-        </NavigationMenuItem>
+        <NavigationMenuLink render={<Link href="/history" />} className={navigationMenuTriggerStyle()}>
+          {t('history')}
+        </NavigationMenuLink>
       }
       locales={localeLabels}
       currentLocale={currentLocale}

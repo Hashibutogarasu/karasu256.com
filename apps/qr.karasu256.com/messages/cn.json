@@ -24,7 +24,6 @@
     "empty": "暂无二维码。",
     "signInRequired": "请登录以查看生成历史。",
     "columns": {
-      "preview": "预览",
       "createdAt": "创建时间"
     },
     "selectAll": "全选",

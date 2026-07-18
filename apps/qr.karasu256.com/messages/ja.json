@@ -24,7 +24,6 @@
     "empty": "QRコードはまだありません。",
     "signInRequired": "生成履歴を表示するにはサインインしてください。",
     "columns": {
-      "preview": "プレビュー",
       "createdAt": "作成日時"
     },
     "selectAll": "すべての行を選択",
