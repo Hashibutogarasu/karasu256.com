@@ -1,6 +1,13 @@
 import Link from 'next/link';
 import { getLocale, getTranslations } from 'next-intl/server';
-import { Header as UiHeader, AccountMenu, type CountryCode } from '@Hashibutogarasu/ui';
+import {
+  Header as UiHeader,
+  AccountMenu,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  navigationMenuTriggerStyle,
+  type CountryCode,
+} from '@Hashibutogarasu/ui';
 import { getRootAppUrl, signOutAction, setLocaleAction } from '@Hashibutogarasu/utils/server';
 import { locales } from '@/i18n/locales';
 
@@ -27,6 +34,13 @@ const Header = async () => {
         <Link href="/" className="hover:text-gray-600 transition-colors">
           QR Tools
         </Link>
+      }
+      navItems={
+        <NavigationMenuItem>
+          <NavigationMenuLink render={<Link href="/history" />} className={navigationMenuTriggerStyle()}>
+            {t('history')}
+          </NavigationMenuLink>
+        </NavigationMenuItem>
       }
       locales={localeLabels}
       currentLocale={currentLocale}

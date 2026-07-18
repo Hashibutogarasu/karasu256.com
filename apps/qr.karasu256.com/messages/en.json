@@ -3,7 +3,8 @@
     "signIn": "Sign in",
     "accountMenuLabel": "Account menu",
     "settings": "Settings",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "history": "Generation history"
   },
   "qr": {
     "imageAlt": "QR code",
@@ -16,6 +17,32 @@
       "label": "Refresh interval ({seconds}s)",
       "seconds": "{seconds}s",
       "customPlaceholder": "Enter seconds"
+    }
+  },
+  "history": {
+    "title": "Generation history",
+    "empty": "No QR codes yet.",
+    "signInRequired": "Sign in to view your generation history.",
+    "columns": {
+      "preview": "Preview",
+      "createdAt": "Created"
+    },
+    "selectAll": "Select all rows",
+    "selectRow": "Select row",
+    "viewDialog": {
+      "title": "QR code"
+    },
+    "delete": "Delete",
+    "deleteConfirm": {
+      "title": "Delete QR codes?",
+      "description": "This will permanently delete {count} QR code(s). This action cannot be undone.",
+      "confirm": "Delete",
+      "cancel": "Cancel"
+    },
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "pageLabel": "Page {page} of {totalPages}"
     }
   }
 }
