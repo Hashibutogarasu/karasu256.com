@@ -4,10 +4,10 @@ import { getDb } from '@Hashibutogarasu/db';
 import { qrGenerations } from '@Hashibutogarasu/db/schema';
 import { MissingEnvError, deleteUploadedImage } from '@Hashibutogarasu/utils/server';
 
-/** Returns `NEXT_PUBLIC_IMAGE_API_URL`, throwing {@link MissingEnvError} if it's unset. */
+/** Returns `CDN_URL`, throwing {@link MissingEnvError} if it's unset. */
 function getImageApiUrl(): string {
-  const imageApiUrl = process.env.NEXT_PUBLIC_IMAGE_API_URL;
-  if (!imageApiUrl) throw new MissingEnvError('NEXT_PUBLIC_IMAGE_API_URL');
+  const imageApiUrl = process.env.CDN_URL;
+  if (!imageApiUrl) throw new MissingEnvError('CDN_URL');
   return imageApiUrl;
 }
 

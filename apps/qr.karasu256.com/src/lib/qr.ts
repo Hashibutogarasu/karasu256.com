@@ -30,10 +30,10 @@ interface CachedQr extends QrData {
   path: string;
 }
 
-/** Returns `NEXT_PUBLIC_IMAGE_API_URL`, throwing {@link MissingEnvError} if it's unset. */
+/** Returns `CDN_URL`, throwing {@link MissingEnvError} if it's unset. */
 function getImageApiUrl(): string {
-  const imageApiUrl = process.env.NEXT_PUBLIC_IMAGE_API_URL;
-  if (!imageApiUrl) throw new MissingEnvError('NEXT_PUBLIC_IMAGE_API_URL');
+  const imageApiUrl = process.env.CDN_URL;
+  if (!imageApiUrl) throw new MissingEnvError('CDN_URL');
   return imageApiUrl;
 }
 
@@ -92,25 +92,27 @@ async function uploadForUser(
   const embedded = await embedChallenge(buffer);
   const path = `qr/${uid}/${Date.now()}.png`;
   const file = new File([Uint8Array.from(embedded)], 'qr.png', { type: 'image/png' });
+  const imageApiUrl = getImageApiUrl();
   const result = await uploadImage(file, {
-    imageApiUrl: getImageApiUrl(),
+    imageApiUrl,
     cookieHeader: auth.cookieHeader,
     token: auth.token,
     path,
   });
-  if (!result.ok) throw new Error(`Failed to upload QR image: ${result.error ?? result.status}`);
+  if (!result.ok) throw new Error(`Failed to upload QR image to ${imageApiUrl}: ${result.error ?? result.status}`);
   return { path, url: result.url };
 }
 
 async function uploadAnonymous(buffer: Buffer): Promise<{ path: string; url: string }> {
   const embedded = await embedChallenge(buffer);
   const path = `qr/anonymous/${Date.now()}.png`;
+  const imageApiUrl = getImageApiUrl();
   const result = await uploadImageAnonymous(embedded, {
-    apiUrl: getImageApiUrl(),
+    apiUrl: imageApiUrl,
     path,
     contentType: 'image/png',
   });
-  if (!result.ok) throw new Error(`Failed to upload QR image: ${result.error ?? result.status}`);
+  if (!result.ok) throw new Error(`Failed to upload QR image to ${imageApiUrl}: ${result.error ?? result.status}`);
   return { path, url: result.url };
 }
 
