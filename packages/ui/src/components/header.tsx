@@ -1,10 +1,18 @@
 import * as React from 'react';
 import { cn } from '../lib/utils';
 import { LocaleSwitcher, type LocaleOption } from './locale-switcher';
+import { NavigationMenu, NavigationMenuItem, NavigationMenuList } from './ui/navigation-menu';
 
 export interface HeaderProps {
   /** Leading site title/logo slot. */
   logo: React.ReactNode;
+  /**
+   * Custom navigation items rendered next to `logo`, e.g. app-specific
+   * links. Each child is wrapped in its own `NavigationMenuItem`
+   * automatically, so callers can pass any component (typically a
+   * `NavigationMenuLink`) without composing the navigation menu themselves.
+   */
+  navItems?: React.ReactNode;
   /** Trailing nav content, e.g. an account menu or sign-in button. */
   children?: React.ReactNode;
   className?: string;
@@ -29,14 +37,25 @@ export interface HeaderProps {
  * Renders an optional language switcher to the left of `children` when
  * `locales`, `currentLocale`, and `onLocaleChange` are all provided.
  */
-export function Header({ logo, children, className, locales, currentLocale, onLocaleChange, localeMenuAriaLabel }: HeaderProps) {
+export function Header({ logo, navItems, children, className, locales, currentLocale, onLocaleChange, localeMenuAriaLabel }: HeaderProps) {
   const localeOptions = locales ? Object.entries(locales).map(([code, option]) => ({ code, ...option })) : null;
 
   return (
     <header
       className={cn('sticky top-0 z-20 bg-background w-full h-12 px-6 flex justify-between items-center border-b border-border shrink-0', className)}
     >
-      <div className="font-bold text-xl">{logo}</div>
+      <div className="flex items-center gap-6">
+        <div className="font-bold text-xl">{logo}</div>
+        {navItems && (
+          <NavigationMenu>
+            <NavigationMenuList>
+              {React.Children.map(navItems, (item, index) => (
+                <NavigationMenuItem key={index}>{item}</NavigationMenuItem>
+              ))}
+            </NavigationMenuList>
+          </NavigationMenu>
+        )}
+      </div>
       <nav>
         <ul className="flex items-center gap-4">
           {localeOptions && currentLocale && onLocaleChange && (
