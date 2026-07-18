@@ -42,6 +42,7 @@ function getJwks(env: Env): ReturnType<typeof createRemoteJWKSet> {
         hadBypassSecret: Boolean(env.VERCEL_PROTECTION_BYPASS_SECRET),
         server: res.headers.get('server'),
         vercelId: res.headers.get('x-vercel-id'),
+        location: res.headers.get('location'),
         bodyPreview,
       });
       return res;
