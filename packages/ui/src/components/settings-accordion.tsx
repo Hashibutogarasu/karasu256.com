@@ -30,7 +30,7 @@ interface SettingsAccordionProps {
  *
  * Matches the passkey accordion style in the accounts portal:
  * - `Container` + `CardContent` background
- * - Uppercase muted title
+ * - Muted section title
  * - Optional action slot (click does not toggle collapse)
  * - Animated height transition via `AnimatedPanel`
  */
@@ -61,7 +61,7 @@ function SettingsAccordion({ title, action, defaultOpen = true, open: controlled
       <CardContent className="py-4">
         <Collapsible open={open} onOpenChange={handleOpenChange}>
           <div className="flex cursor-pointer items-center gap-1 py-1" onClick={toggle}>
-            <span className="flex-1 text-xs font-medium text-muted-foreground uppercase tracking-wide">{title}</span>
+            <span className="flex-1 text-sm font-medium text-muted-foreground">{title}</span>
             {action && <div onClick={(e) => e.stopPropagation()}>{action}</div>}
             <CollapsibleChevron />
           </div>

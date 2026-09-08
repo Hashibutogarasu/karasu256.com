@@ -23,7 +23,9 @@ export function ApiKeyRow({ apiKey, onDelete }: ApiKeyRowProps) {
         <p className="text-xs text-muted-foreground font-mono">{apiKey.keyPrefix}…</p>
         <p className="text-xs text-muted-foreground">
           {t('settings.developer.created')}: {new Date(apiKey.createdAt).toLocaleDateString()}
-          {' · '}
+        </p>
+        <p className="text-xs text-muted-foreground">
+          {t('settings.developer.lastUsed')}:{' '}
           {apiKey.lastUsedAt ? new Date(apiKey.lastUsedAt).toLocaleDateString() : t('settings.developer.neverUsed')}
         </p>
       </div>
