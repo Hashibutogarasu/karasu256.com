@@ -60,4 +60,4 @@ ACCOUNTS_URL = "https://dev.accounts.karasu256.com"
 
 [observability.logs]
 enabled = true
-invocation_logs = true
+invocation_logs = false
