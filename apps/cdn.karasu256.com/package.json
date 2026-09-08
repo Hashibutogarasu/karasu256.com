@@ -3,14 +3,19 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "wrangler dev --port 8788 --inspector-port 9230 --env dev --remote",
-    "deploy": "wrangler deploy --env=\"\"",
-    "build": "wrangler deploy --dry-run --outdir dist --env=\"\""
+    "dev": "wrangler dev --port 8788 --inspector-port 9230 --env dev",
+    "dev:preview": "wrangler dev --port 8788 --inspector-port 9230 --env preview",
+    "deploy": "wrangler deploy --env production",
+    "deploy:preview": "wrangler deploy --env preview",
+    "build": "wrangler deploy --dry-run --outdir dist --env production"
   },
   "dependencies": {
+    "@Hashibutogarasu/challengetoken": "workspace:*",
     "@Hashibutogarasu/utils": "workspace:*",
     "@elysiajs/cors": "^1.4.2",
-    "elysia": "^1.4.29"
+    "elysia": "^1.4.29",
+    "jose": "^6.2.3",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@sinclair/typebox": "^0.34.49",

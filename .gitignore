@@ -32,6 +32,9 @@ yarn-error.log*
 !.env.example
 !**/.env.example
 
+# wrangler local secrets (Workers apps' equivalent of .env.local)
+.dev.vars*
+
 # vercel
 .vercel
 

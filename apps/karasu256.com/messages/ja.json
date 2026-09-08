@@ -15,22 +15,13 @@
     "settings": "設定",
     "signOut": "サインアウト"
   },
-  "home": {
-    "sidebar": {
-      "title": "メニュー"
-    },
-    "panes": {
-      "left": "ここにドラッグ",
-      "center": "ここにドラッグ",
-      "right": "ここにドラッグ"
-    }
-  },
   "settings": {
     "title": "設定",
     "sections": {
       "profile": "プロフィール",
       "other": "その他",
-      "developer": "デベロッパー"
+      "developer": "デベロッパー",
+      "debug": "デバッグ"
     },
     "signOut": "サインアウト",
     "accountSwitcher": {
@@ -126,6 +117,12 @@
           "profile_write": "表示名をプロフィールに書き戻す"
         }
       }
+    },
+    "debug": {
+      "title": "デバッグ",
+      "flagName": "フラグ名",
+      "flagValue": "現在値",
+      "unavailable": "機能フラグを取得できませんでした"
     }
   },
   "oauth": {

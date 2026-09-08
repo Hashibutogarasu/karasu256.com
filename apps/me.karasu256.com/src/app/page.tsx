@@ -39,14 +39,11 @@ export default function Home() {
         </div>
       </section>
 
-      <section className={`py-16 px-8 transition-opacity duration-1000 delay-500 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
+      <section className="py-16 px-8">
         <h2 className="text-3xl font-bold text-center mb-12 shadow-neu-text">Portfolio</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
           {portfolioItems.map((item, i) => (
-            <NeumorphicCard
-              key={i}
-              className={`p-6 transition-all duration-1000 delay-${i * 200} ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
-            >
+            <NeumorphicCard key={i} className="p-6">
               <div className="relative aspect-video mb-4">
                 <Image src={item.image} alt={item.title} fill className="object-cover rounded-lg" />
               </div>

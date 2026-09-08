@@ -1,24 +1,18 @@
 'use client';
 
 import * as React from 'react';
-import { createAppAuthClient } from '@Hashibutogarasu/utils/client';
+import { setSessionToken } from '@Hashibutogarasu/utils/client';
 import type { PopUpMenuUser } from './popup-menu';
 
-interface SessionContextValue {
-  user: PopUpMenuUser | null;
-}
-
-const SessionContext = React.createContext<SessionContextValue | null>(null);
+const SessionContext = React.createContext<PopUpMenuUser | null | undefined>(undefined);
 
 export interface SessionProviderProps {
   /**
-   * Base URL of the better-auth instance, forwarded to `createAppAuthClient`
-   * (see that function for when this is required). Passed as a plain string
-   * rather than an already-constructed client so this component's props stay
-   * serializable across the Server Component boundary — a constructed
-   * `better-auth/react` client is mostly functions, which React Server
-   * Components silently strip from props, leaving `useSession` undefined at
-   * runtime.
+   * Base URL of the better-auth instance, forwarded to the direct
+   * `get-session` fetch (see that function for when this is required).
+   * Passed as a plain string rather than an already-constructed client so
+   * this component's props stay serializable across the Server Component
+   * boundary.
    */
   baseURL?: string;
   /**
@@ -29,25 +23,68 @@ export interface SessionProviderProps {
   children: React.ReactNode;
 }
 
+interface GetSessionResponse {
+  user?: { id: string; email?: string | null; name?: string | null; image?: string | null } | null;
+}
+
 /**
- * Supplies the signed-in user to `useSessionUser` for every descendant, kept
- * live via a better-auth client's `useSession()` — a cross-origin call to
- * whichever app hosts better-auth — so signing in or out there, or in
+ * Supplies the signed-in user to every descendant, and keeps `apiFetch`
+ * (`@Hashibutogarasu/utils/client`) authenticated via `setSessionToken`.
+ * Kept live via a single direct `GET /api/auth/get-session` call to
+ * whichever app hosts better-auth — a cross-origin call to that app's own
+ * domain, so it always sees that app's session cookie regardless of which
+ * app's page it was called from — so signing in or out there, or in
  * another tab, is reflected across the app without a full page reload.
+ *
+ * This is the single source of truth for "who is logged in": components
+ * calling another app's API should use `apiFetch` rather than `fetch`, and
+ * that other app's server should verify the token it attaches with
+ * `verifyAppJwt` from `@Hashibutogarasu/utils/server` rather than
+ * re-deriving session state from a forwarded `Cookie` header, which isn't
+ * guaranteed to reach it.
  */
 export function SessionProvider({ baseURL, initialUser, children }: SessionProviderProps) {
-  const { authClient } = React.useMemo(() => createAppAuthClient({ baseURL }), [baseURL]);
-  const { data: session, isPending } = authClient.useSession();
+  const [user, setUser] = React.useState<PopUpMenuUser | null>(initialUser);
 
-  const user: PopUpMenuUser | null = isPending
-    ? initialUser
-    : session
-      ? { uid: session.user.id, iconUrl: session.user.image, displayName: session.user.name, email: session.user.email }
-      : null;
+  React.useEffect(() => {
+    let cancelled = false;
 
-  const value = React.useMemo(() => ({ user }), [user]);
+    async function loadSession() {
+      try {
+        const url = baseURL ? `${baseURL}/api/auth/get-session` : '/api/auth/get-session';
+        const res = await fetch(url, { credentials: 'include' });
+        if (cancelled) return;
 
-  return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
+        if (!res.ok) {
+          setSessionToken(null);
+          setUser(null);
+          return;
+        }
+
+        const data = (await res.json()) as GetSessionResponse;
+        if (!data.user) {
+          setSessionToken(null);
+          setUser(null);
+          return;
+        }
+
+        setSessionToken(res.headers.get('set-auth-jwt'));
+        setUser({ uid: data.user.id, iconUrl: data.user.image ?? null, displayName: data.user.name ?? null, email: data.user.email ?? null });
+      } catch {
+        if (!cancelled) {
+          setSessionToken(null);
+          setUser(null);
+        }
+      }
+    }
+
+    loadSession();
+    return () => {
+      cancelled = true;
+    };
+  }, [baseURL]);
+
+  return <SessionContext.Provider value={user}>{children}</SessionContext.Provider>;
 }
 
 /**
@@ -56,6 +93,6 @@ export function SessionProvider({ baseURL, initialUser, children }: SessionProvi
  */
 export function useSessionUser(): PopUpMenuUser | null {
   const ctx = React.useContext(SessionContext);
-  if (!ctx) throw new Error('useSessionUser must be used within a SessionProvider');
-  return ctx.user;
+  if (ctx === undefined) throw new Error('useSessionUser must be used within a SessionProvider');
+  return ctx;
 }

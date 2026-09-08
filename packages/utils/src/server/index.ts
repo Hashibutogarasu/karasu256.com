@@ -2,7 +2,12 @@ export { createRouteAuth, type RouteAuthContext, type RouteAuthDeps, type RouteA
 export { deleteUploadedImage, type DeleteUploadedImageOptions } from './delete-uploaded-image';
 export { uploadImage, type UploadImageOptions, type UploadImageResult } from './upload-image';
 export { uploadImageAnonymous, type UploadImageAnonymousOptions, type UploadImageAnonymousResult } from './upload-image-anonymous';
+export { requestChallengeToken } from './request-challenge-token';
 export { getSessionUser, type SessionUser } from './session';
+export { verifyAppJwt } from './app-jwt';
+export { logInfo, logError } from './log';
+export { vercelProtectionBypassHeaders } from './vercel-bypass';
+export { apiFetch, type ApiFetchOptions } from './api-fetch';
 export { signOutAction } from './sign-out';
 export { setLocaleAction } from './set-locale';
 export { getRootAppUrl } from './get-root-app-url';

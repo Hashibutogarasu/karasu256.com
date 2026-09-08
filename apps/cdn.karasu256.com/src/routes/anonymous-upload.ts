@@ -2,6 +2,7 @@ import { Elysia, t } from 'elysia';
 import { checkAndIncrementRateLimit } from '../lib/rate-limit';
 import { ALLOWED_TYPES, MAX_FILE_BYTES, isValidAnonymousUploadPath } from '../lib/uploads';
 import { putImage } from '../lib/images';
+import { consumeChallengeToken } from '../lib/challenge';
 
 const anonymousUploadBodySchema = t.Object({
   file: t.Optional(t.File()),
@@ -11,6 +12,9 @@ const anonymousUploadBodySchema = t.Object({
 /**
  * Handles unauthenticated uploads restricted to the `qr/anonymous/{datetime}.png`
  * path scheme, rate-limited per IP since there is no uid to scope abuse to.
+ * Also requires a valid challenge token (see `challenge-token.ts`) embedded
+ * in the uploaded bytes, so a caller must round-trip through this Worker
+ * first rather than POSTing an arbitrary file directly.
  */
 export const anonymousUploadRoute = (env: Env) =>
   new Elysia().post(
@@ -45,13 +49,19 @@ export const anonymousUploadRoute = (env: Env) =>
         return { error: 'Unsupported image type. Allowed: jpeg, png, webp.' };
       }
 
-      const buffer = await body.file.arrayBuffer();
-      if (buffer.byteLength > MAX_FILE_BYTES) {
+      const rawBuffer = new Uint8Array(await body.file.arrayBuffer());
+      const payload = await consumeChallengeToken(rawBuffer, env);
+      if (!payload) {
+        set.status = 403;
+        return { error: 'Invalid or missing challenge token' };
+      }
+
+      if (payload.byteLength > MAX_FILE_BYTES) {
         set.status = 413;
         return { error: 'File exceeds 5 MB limit' };
       }
 
-      await putImage(path, buffer, body.file.type, env);
+      await putImage(path, payload.buffer as ArrayBuffer, body.file.type, env);
 
       return { url: `${env.CDN_BASE_URL}/${path}` };
     },

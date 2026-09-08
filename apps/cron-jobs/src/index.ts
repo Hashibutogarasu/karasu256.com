@@ -1,13 +1,11 @@
-export interface Env {
-  DATABASE_URL: string;
-}
+import { Elysia } from 'elysia';
+import { CloudflareAdapter } from 'elysia/adapter/cloudflare-worker';
+import { env as cfEnv } from 'cloudflare:workers';
+import { jobRoutes } from './routes/jobs';
+import { scheduled } from './scheduled';
 
-export default {
-  async fetch(): Promise<Response> {
-    return new Response('Not Found', { status: 404 });
-  },
+const env = cfEnv as Env;
 
-  async scheduled(controller: ScheduledController, _env: Env, _ctx: ExecutionContext): Promise<void> {
-    console.log(`Cron triggered: ${controller.cron} at ${new Date(controller.scheduledTime).toISOString()}`);
-  },
-} satisfies ExportedHandler<Env>;
+const app = new Elysia({ adapter: CloudflareAdapter }).use(jobRoutes(env)).compile();
+
+export default Object.assign(app, { scheduled });

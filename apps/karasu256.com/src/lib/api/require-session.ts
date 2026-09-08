@@ -11,7 +11,7 @@ type SessionResult = { user: SessionUser; error: null } | { user: null; error: N
  * All Route Handlers that require authentication must call this first.
  */
 export async function requireSession(): Promise<SessionResult> {
-  const user = await getSessionUser();
+  const user = await getSessionUser(process.env.NEXT_PUBLIC_ACCOUNTS_URL);
   if (!user) {
     return {
       user: null,

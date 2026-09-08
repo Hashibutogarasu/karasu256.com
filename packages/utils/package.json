@@ -5,6 +5,8 @@
   "exports": {
     "./server": "./src/server/index.ts",
     "./server/sign-out": "./src/server/sign-out.ts",
+    "./server/log": "./src/server/log.ts",
+    "./server/vercel-bypass": "./src/server/vercel-bypass.ts",
     "./email": "./src/email/index.ts",
     "./client": "./src/client/index.ts",
     "./validation": "./src/validation/index.ts",
@@ -15,6 +17,7 @@
     "@better-auth/passkey": "1.6.23",
     "@react-email/components": "^1.0.12",
     "better-auth": "^1.6.23",
+    "jose": "^6.2.3",
     "resend": "^4.0.0",
     "zod": "^4.4.3"
   },

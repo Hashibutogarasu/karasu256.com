@@ -3,7 +3,9 @@ import { cors } from '@elysiajs/cors';
 import { isAllowedOrigin } from '../lib/cors';
 import { checkGlobalRateLimit } from '../lib/global-rate-limit';
 import { uploadRoute } from './upload';
+import { uploadTicketRoute } from './upload-ticket';
 import { anonymousUploadRoute } from './anonymous-upload';
+import { challengeTokenRoute } from './challenge-token';
 import { deleteRoute } from './delete';
 
 export const protectedRoutes = (env: Env) =>
@@ -13,7 +15,7 @@ export const protectedRoutes = (env: Env) =>
         origin: isAllowedOrigin,
         credentials: true,
         methods: ['POST', 'DELETE', 'OPTIONS'],
-        allowedHeaders: ['Content-Type'],
+        allowedHeaders: ['Content-Type', 'Authorization'],
       })
     )
     .onRequest(({ request, set }) => {
@@ -26,5 +28,7 @@ export const protectedRoutes = (env: Env) =>
       }
     })
     .use(uploadRoute(env))
+    .use(uploadTicketRoute(env))
     .use(anonymousUploadRoute(env))
+    .use(challengeTokenRoute(env))
     .use(deleteRoute(env));

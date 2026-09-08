@@ -15,22 +15,13 @@
     "settings": "Settings",
     "signOut": "Sign out"
   },
-  "home": {
-    "sidebar": {
-      "title": "Menu"
-    },
-    "panes": {
-      "left": "Drag something here",
-      "center": "Drag something here",
-      "right": "Drag something here"
-    }
-  },
   "settings": {
     "title": "Settings",
     "sections": {
       "profile": "Profile",
       "other": "Other",
-      "developer": "Developer"
+      "developer": "Developer",
+      "debug": "Debug"
     },
     "signOut": "Sign out",
     "accountSwitcher": {
@@ -126,6 +117,12 @@
           "profile_write": "Write display name back to profile"
         }
       }
+    },
+    "debug": {
+      "title": "Debug",
+      "flagName": "Flag name",
+      "flagValue": "Current value",
+      "unavailable": "Could not load feature flags"
     }
   },
   "oauth": {

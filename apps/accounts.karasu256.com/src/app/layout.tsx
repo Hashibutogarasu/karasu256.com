@@ -6,6 +6,8 @@ import { getLocale, getMessages, getTranslations } from 'next-intl/server';
 import './globals.css';
 import { R2StorageProvider, Toaster } from '@Hashibutogarasu/ui';
 import { geistSans, geistMono, notoSansJP } from '@Hashibutogarasu/ui/fonts';
+import { FeatureFlagsProvider } from '@Hashibutogarasu/flags/server';
+import { appFlags, appFlagsSchema } from '@/lib/flags';
 
 config.autoAddCss = false;
 
@@ -17,7 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     metadataBase: new URL('https://accounts.karasu256.com'),
-    title: { default: siteTitle, template: '%s — Karasu Lab' },
+    title: { default: siteTitle, template: '%s' },
     description: siteDescription,
     openGraph: {
       title: siteTitle,
@@ -46,9 +48,11 @@ export default async function RootLayout({
   return (
     <html lang={locale} className={`${geistSans.variable} ${geistMono.variable} ${notoSansJP.variable} h-full`}>
       <body className="min-h-full flex flex-col bg-background text-foreground antialiased">
-        <R2StorageProvider imageApiUrl={process.env.NEXT_PUBLIC_IMAGE_API_URL!}>
-          <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>
-          <Toaster />
+        <R2StorageProvider imageApiUrl={process.env.CDN_URL!}>
+          <FeatureFlagsProvider flags={appFlags} schema={appFlagsSchema}>
+            <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>
+            <Toaster />
+          </FeatureFlagsProvider>
         </R2StorageProvider>
       </body>
     </html>

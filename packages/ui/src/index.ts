@@ -117,3 +117,12 @@ export {
   navigationMenuTriggerStyle,
 } from './components/ui/navigation-menu';
 export { LocaleSwitcher, type LocaleOption, type LocaleSwitcherProps, type CountryCode } from './components/locale-switcher';
+export {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from './components/ui/pagination';

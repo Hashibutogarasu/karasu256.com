@@ -59,7 +59,7 @@ export function ProfileSection() {
 
   return (
     <div className="space-y-4">
-      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t('profile.title')}</p>
+      <p className="text-sm font-medium text-muted-foreground">{t('profile.title')}</p>
       <div className="flex items-center gap-3">
         <ProfileIcon />
         <p className="text-sm text-muted-foreground break-all">{user.name ?? user.email ?? user.id}</p>
@@ -76,7 +76,7 @@ export function ProfileSection() {
           />
         </div>
         <div className="flex gap-2">
-          <LoadingButton type="submit" variant="default" className="w-[10%]" disabled={disabled || isUnchanged} loading={saving}>
+          <LoadingButton type="submit" variant="default" disabled={disabled || isUnchanged} loading={saving}>
             {saving ? t('profile.saving') : t('profile.save')}
           </LoadingButton>
           <LoadingButton type="button" variant="secondary" onClick={handleDiscard} disabled={disabled || isUnchanged} loading={false}>

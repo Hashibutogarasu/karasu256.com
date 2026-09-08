@@ -7,10 +7,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate:dev": "dotenv -e .env.development.local -- drizzle-kit migrate",
+    "db:migrate:prod": "dotenv -e .env.production -- drizzle-kit migrate"
   },
   "dependencies": {
     "@Hashibutogarasu/db": "workspace:*",
+    "@Hashibutogarasu/flags": "workspace:*",
     "@Hashibutogarasu/types": "workspace:*",
     "@Hashibutogarasu/ui": "workspace:*",
     "@Hashibutogarasu/utils": "workspace:*",
@@ -19,6 +23,7 @@
     "@better-auth/drizzle-adapter": "^1.6.23",
     "@better-auth/oauth-provider": "^1.6.23",
     "@better-auth/passkey": "1.6.23",
+    "@flags-sdk/vercel": "^1.4.4",
     "@fortawesome/fontawesome-svg-core": "^7.2.0",
     "@fortawesome/free-brands-svg-icons": "^7.2.0",
     "@fortawesome/free-regular-svg-icons": "^7.2.0",
@@ -31,6 +36,7 @@
     "drizzle-orm": "^0.44.0",
     "firebase": "^12.15.0",
     "firebase-admin": "^14.0.0",
+    "flags": "^4.2.0",
     "i": "^0.3.7",
     "jdenticon": "^3.3.0",
     "lucide-react": "^1.21.0",
@@ -52,6 +58,8 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv-cli": "^11.0.0",
+    "drizzle-kit": "^0.30.6",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
