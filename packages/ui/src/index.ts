@@ -102,6 +102,7 @@ export { R2StorageProvider, useR2Storage, type R2StorageProviderProps, type UseR
 export { SessionProvider, useSessionUser, type SessionProviderProps } from './components/session-provider';
 export { AccountMenu, type AccountMenuProps, type AccountMenuLabels } from './components/account-menu';
 export { ProgressBar, type ProgressBarProps } from './components/progress-bar';
+export { Marker, type MarkerStep, type MarkerProps } from './components/marker';
 export { SwitchMenuItem, type SwitchMenuItemProps } from './components/switch-menu-item';
 export { TextInputMenuItem, type TextInputMenuItemProps } from './components/text-input-menu-item';
 export { ScrollableSubMenu, type ScrollableSubMenuProps } from './components/scrollable-sub-menu';
