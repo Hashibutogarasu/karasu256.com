@@ -15,16 +15,6 @@
     "settings": "Settings",
     "signOut": "Sign out"
   },
-  "home": {
-    "sidebar": {
-      "title": "Menu"
-    },
-    "panes": {
-      "left": "Drag something here",
-      "center": "Drag something here",
-      "right": "Drag something here"
-    }
-  },
   "settings": {
     "title": "Settings",
     "sections": {

@@ -72,7 +72,7 @@ If a command's output needs to be told apart from another's, run them as separat
 
 ### Apps (`apps/*`)
 
-- **karasu256.com** — the main marketing/landing Next.js site. Home page is a drag-and-drop playground with a persisted-placement sidebar showing the signed-in user's profile (via cross-origin session lookup), plus `/settings/profile`, `/settings/developer`, `/settings/other`, an OAuth test-callback route, and API routes for permissions, user, profile, and API keys.
+- **karasu256.com** — the main marketing/landing Next.js site. The home page is intentionally empty, plus `/settings/profile`, `/settings/developer`, `/settings/other`, an OAuth test-callback route, and API routes for permissions, user, profile, and API keys.
 - **accounts.karasu256.com** — the account portal: sign-in/out, passkey management, and the monorepo's single better-auth instance, which also acts as the OAuth 2.1/OIDC authorization server for the other apps. Owns the Drizzle migration files and `drizzle-kit` config/scripts (`db:generate`, `db:migrate:dev`, `db:migrate:prod`) for the schema defined in `packages/db`.
 - **cdn.karasu256.com** — an Elysia app on Cloudflare Workers that serves as the image/file CDN: public routes serve images by path, protected/anonymous routes handle upload and delete, backed by CORS, rate-limiting, and auth middleware.
 - **qr.karasu256.com** — a Next.js app that generates and displays a per-user (or anonymous) QR code linking to their profile/content, uploading the generated image through the CDN and caching the result in Redis.

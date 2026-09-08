@@ -15,16 +15,6 @@
     "settings": "设置",
     "signOut": "退出登录"
   },
-  "home": {
-    "sidebar": {
-      "title": "菜单"
-    },
-    "panes": {
-      "left": "拖放到此处",
-      "center": "拖放到此处",
-      "right": "拖放到此处"
-    }
-  },
   "settings": {
     "title": "设置",
     "sections": {
