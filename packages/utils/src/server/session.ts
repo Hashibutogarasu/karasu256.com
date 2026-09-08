@@ -39,7 +39,7 @@ interface GetSessionResponse {
  */
 export async function getSessionUser(accountsUrl: string | undefined, protectionBypassSecret?: string): Promise<SessionUser | null> {
   if (!accountsUrl) {
-    logError('get_session_user', { result: 'failure', reason: 'missing_accounts_url' });
+    logInfo('get_session_user', { result: 'skipped', reason: 'missing_accounts_url' });
     return null;
   }
 
