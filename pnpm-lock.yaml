@@ -756,6 +756,8 @@ importers:
         specifier: ^5
         version: 5.8.3
 
+  packages/docker: {}
+
   packages/flags:
     dependencies:
       flags:

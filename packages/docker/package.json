@@ -1,0 +1,9 @@
+{
+  "name": "@Hashibutogarasu/docker",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "docker:up": "docker compose up -d --wait",
+    "docker:down": "docker compose down"
+  }
+}
