@@ -13,12 +13,22 @@ export interface OAuthClientCreated extends OAuthClientSummary {
   client_secret: string;
 }
 
+const ACCOUNTS_URL = process.env.NEXT_PUBLIC_ACCOUNTS_URL;
+
+export interface ApiKeyPermission {
+  publicId: string;
+  numericId: number;
+  resource: string;
+  action: string;
+}
+
 export interface ApiKeySummary {
   id: string;
-  name: string;
-  keyPrefix: string;
+  name: string | null;
+  start: string | null;
   createdAt: string;
-  lastUsedAt: string | null;
+  lastRequest: string | null;
+  permissions: ApiKeyPermission[];
 }
 
 export interface ApiKeyCreated extends ApiKeySummary {
@@ -77,32 +87,54 @@ export async function rotateOAuthClientSecret(clientId: string): Promise<{ clien
 }
 
 /**
+ * Lists the permissions that can be granted to an API key, via accounts.karasu256.com.
+ *
+ * @throws {ApiError} When the request fails with a non-ok HTTP status.
+ */
+export async function listGrantablePermissions(): Promise<ApiKeyPermission[]> {
+  await bridgeFirebaseSession();
+  const res = await fetch(`${ACCOUNTS_URL}/api/permissions`, { credentials: 'include' });
+  if (!res.ok) throw ApiError.fromResponse(res);
+  return res.json() as Promise<ApiKeyPermission[]>;
+}
+
+/**
+ * Lists the current user's API keys, via accounts.karasu256.com.
+ *
  * @throws {ApiError} When the request fails with a non-ok HTTP status.
  */
 export async function listApiKeys(): Promise<ApiKeySummary[]> {
-  const res = await fetch('/api/api-keys');
+  await bridgeFirebaseSession();
+  const res = await fetch(`${ACCOUNTS_URL}/api/api-keys`, { credentials: 'include' });
   if (!res.ok) throw ApiError.fromResponse(res);
   return res.json() as Promise<ApiKeySummary[]>;
 }
 
 /**
+ * Issues an API key granted the permissions identified by `permissionPublicIds`, via accounts.karasu256.com.
+ *
  * @throws {ApiError} When the request fails with a non-ok HTTP status.
  */
-export async function createApiKey(name: string): Promise<ApiKeyCreated> {
-  const res = await fetch('/api/api-keys', {
+export async function createApiKey(name: string, permissionPublicIds: string[]): Promise<ApiKeyCreated> {
+  await bridgeFirebaseSession();
+  const res = await fetch(`${ACCOUNTS_URL}/api/api-keys`, {
     method: 'POST',
+    credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name }),
+    body: JSON.stringify({ name, permissions: permissionPublicIds }),
   });
   if (!res.ok) throw ApiError.fromResponse(res);
   return res.json() as Promise<ApiKeyCreated>;
 }
 
 /**
+ * Deletes one of the current user's API keys, via accounts.karasu256.com.
+ *
  * @throws {ApiError} When the request fails with a non-ok HTTP status.
  */
 export async function deleteApiKey(id: string): Promise<void> {
-  const res = await fetch(`/api/api-keys/${id}`, { method: 'DELETE' });
+  await bridgeFirebaseSession();
+  const res = await fetch(`${ACCOUNTS_URL}/api/api-keys/${encodeURIComponent(id)}`, { method: 'DELETE', credentials: 'include' });
   if (!res.ok && res.status !== 204) throw ApiError.fromResponse(res);
 }
 
