@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "run": "docker compose up -d --wait",
-    "reset": "docker compose down -v && docker compose up -d --wait"
+    "reset": "docker compose down -v && docker compose up -d --wait",
+    "stop": "docker compose stop",
+    "cleanup": "docker compose down -v --rmi local"
   }
 }
