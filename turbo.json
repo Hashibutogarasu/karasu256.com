@@ -7,11 +7,11 @@
       "outputs": ["dist/**", ".next/**", "!.next/cache/**", "!.next/dev/**"]
     },
     "dev": {
-      "dependsOn": ["@Hashibutogarasu/docker#docker:up"],
+      "dependsOn": ["@Hashibutogarasu/docker#run"],
       "cache": false,
       "persistent": true
     },
-    "@Hashibutogarasu/docker#docker:up": {
+    "@Hashibutogarasu/docker#run": {
       "cache": false
     },
     "start": {
