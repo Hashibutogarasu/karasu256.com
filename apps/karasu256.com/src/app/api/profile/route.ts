@@ -3,17 +3,18 @@ import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { getDb } from '@Hashibutogarasu/db';
 import { users } from '@Hashibutogarasu/db/schema';
-import { APIKeyRoute, OauthAppRoute, Read, Write } from '@/lib/api/route-auth';
+import { Permissions } from '@Hashibutogarasu/permissions';
+import { APIKeyRoute, OauthAppRoute, RequirePermission } from '@/lib/api/route-auth';
 
 const patchBodySchema = z.object({ name: z.string().nullable() });
 
 /**
  * Reads the authenticated user's profile.
- * Requires a Bearer token with the `profile` read permission.
+ * Requires a Bearer token with the `profile:read` permission.
  */
 export const GET = APIKeyRoute()(
   OauthAppRoute()(
-    Read()(async (_request, _ctx, auth) => {
+    RequirePermission(Permissions.profile.read)(async (_request, _ctx, auth) => {
       const db = getDb();
       const [user] = await db.select({ id: users.id, name: users.name }).from(users).where(eq(users.id, auth.userId));
 
@@ -26,11 +27,11 @@ export const GET = APIKeyRoute()(
 
 /**
  * Updates the authenticated user's display name.
- * Requires a Bearer token with the `profile` write permission.
+ * Requires a Bearer token with the `profile:write` permission.
  */
 export const PATCH = APIKeyRoute()(
   OauthAppRoute()(
-    Write()(async (request, _ctx, auth) => {
+    RequirePermission(Permissions.profile.write)(async (request, _ctx, auth) => {
       const parsed = patchBodySchema.safeParse(await request.json());
       if (!parsed.success) {
         return NextResponse.json({ error: 'invalid_request' }, { status: 400 });

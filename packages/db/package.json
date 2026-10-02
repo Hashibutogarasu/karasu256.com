@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@neondatabase/auth": "latest",
+    "@paralleldrive/cuid2": "^3.3.0",
     "postgres": "^3.4.7"
   },
   "devDependencies": {
