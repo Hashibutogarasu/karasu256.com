@@ -38,6 +38,23 @@ remote = true
 CDN_BASE_URL = "http://localhost:8788"
 ACCOUNTS_URL = "http://localhost:3001"
 
+[env.local]
+routes = []
+
+[[env.local.r2_buckets]]
+binding = "IMAGES"
+bucket_name = "karasu-lab-cdn-local"
+
+[[env.local.kv_namespaces]]
+binding = "RATE_LIMIT_KV"
+id = "local-rate-limit-kv"
+
+[env.local.vars]
+CDN_BASE_URL = "http://localhost:8788"
+ACCOUNTS_URL = "http://localhost:3001"
+UPLOAD_TICKET_SECRET = "local-development-upload-ticket-secret"
+CRON_JOBS_API_KEY = "local-development-cron-jobs-api-key"
+
 [[env.preview.routes]]
 pattern = "dev.cdn.karasu256.com"
 custom_domain = true
