@@ -7,23 +7,11 @@ if (!branch || !apiUrl) {
 }
 const { VERCEL_PROJECT_IDS } = requireEnv('VERCEL_PROJECT_IDS');
 
-/** Env changes only apply to new deployments, so the branch preview is redeployed to pick the value up. */
-async function redeployLatest(projectId) {
-  const deployment = await findLatestBranchDeployment(projectId, branch);
-  if (!deployment) return;
-  await vercel('POST', '/v13/deployments', { name: deployment.name, deploymentId: deployment.uid, target: 'preview' });
-  console.log(`Redeployed ${deployment.name} for ${branch}`);
-}
-
-/** Skipping unchanged values keeps the accounts redeploy from re-triggering the preview workflow in a loop. */
-async function sync(projectId) {
+async function upsertApiUrl(projectId) {
   const existing = await findBranchApiUrlEnv(projectId, branch);
   if (existing) {
     const { value } = await vercel('GET', `/v1/projects/${projectId}/env/${existing.id}`);
-    if (value === apiUrl) {
-      console.log(`${projectId}: ${API_URL_ENV_KEY} for ${branch} is already up to date`);
-      return;
-    }
+    if (value === apiUrl) return existing.updatedAt;
   }
   await vercel('POST', `/v10/projects/${projectId}/env?upsert=true`, {
     key: API_URL_ENV_KEY,
@@ -33,7 +21,19 @@ async function sync(projectId) {
     gitBranch: branch,
   });
   console.log(`${projectId}: set ${API_URL_ENV_KEY} for ${branch}`);
-  await redeployLatest(projectId);
+  return Date.now();
+}
+
+/** Comparing against the deployment's age, not just the value, recovers a run that failed to redeploy without letting the redeploy re-trigger itself. */
+async function sync(projectId) {
+  const apiUrlUpdatedAt = await upsertApiUrl(projectId);
+  const deployment = await findLatestBranchDeployment(projectId, branch);
+  if (!deployment || deployment.created >= apiUrlUpdatedAt) {
+    console.log(`${projectId}: preview for ${branch} already uses the current ${API_URL_ENV_KEY}`);
+    return;
+  }
+  await vercel('POST', '/v13/deployments', { name: deployment.name, deploymentId: deployment.uid });
+  console.log(`${projectId}: redeployed ${deployment.name} for ${branch}`);
 }
 
 for (const projectId of VERCEL_PROJECT_IDS.split(',')) {

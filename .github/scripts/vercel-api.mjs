@@ -19,7 +19,7 @@ export async function vercel(method, path, body) {
     headers: { Authorization: `Bearer ${VERCEL_TOKEN}`, 'Content-Type': 'application/json' },
     body: body === undefined ? undefined : JSON.stringify(body),
   });
-  if (!res.ok) throw new Error(`Vercel API ${method} ${url.pathname} responded ${res.status}`);
+  if (!res.ok) throw new Error(`Vercel API ${method} ${url.pathname} responded ${res.status}: ${await res.text()}`);
   return res.status === 204 ? null : res.json();
 }
 
