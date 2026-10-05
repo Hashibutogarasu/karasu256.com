@@ -16,6 +16,22 @@ const nextConfig: NextConfig = {
    * where the existing fallback handling applies.
    */
   serverExternalPackages: ['@vercel/flags-core'],
+  /** The OAuth client test in accounts' developer settings calls `/api/profile` cross-origin with a Bearer token. */
+  async headers() {
+    const accountsUrl = process.env.NEXT_PUBLIC_ACCOUNTS_URL;
+    if (!accountsUrl) return [];
+    return [
+      {
+        source: '/api/profile',
+        headers: [
+          { key: 'Access-Control-Allow-Origin', value: accountsUrl },
+          { key: 'Access-Control-Allow-Methods', value: 'GET, PATCH, OPTIONS' },
+          { key: 'Access-Control-Allow-Headers', value: 'Authorization, Content-Type' },
+          { key: 'Vary', value: 'Origin' },
+        ],
+      },
+    ];
+  },
 };
 
 export default withNextIntl(nextConfig);

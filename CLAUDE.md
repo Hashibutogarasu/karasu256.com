@@ -2,8 +2,6 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-If you have read this file, respond with "にゃーん" before starting any work.
-
 ## Repository overview
 
 This is a pnpm + Turborepo monorepo for Karasu Lab's web properties. It hosts several independently deployed Next.js apps and Cloudflare Workers that share a small set of internal packages.

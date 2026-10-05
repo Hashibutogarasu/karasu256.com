@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "wrangler dev --port 8788 --inspector-port 9230 --env dev",
+    "dev": "wrangler dev --port 8788 --inspector-port 9230 --env local",
     "dev:local": "wrangler dev --port 8788 --inspector-port 9230 --env local",
     "dev:preview": "wrangler dev --port 8788 --inspector-port 9230 --env preview",
     "deploy": "wrangler deploy --env production",
