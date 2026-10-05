@@ -8,10 +8,6 @@ import { useOAuthErrorMessage } from '@/lib/i18n/use-oauth-error-message';
 import { Button, Dialog, DialogBackdrop, DialogClose, DialogPopup, DialogPortal, DialogTitle, Input, Label } from '@Hashibutogarasu/ui';
 import type { OAuthClientSummary } from '@/lib/api/developer';
 
-const ACCOUNTS_URL = process.env.NEXT_PUBLIC_ACCOUNTS_URL as string;
-/** better-auth's internal `baseURL` (and therefore the only valid `resource`/audience) includes the `/api/auth` mount path. */
-const OAUTH_ISSUER = `${ACCOUNTS_URL}/api/auth`;
-
 const STEP_LABELS = ['authorize', 'access_token', 'profile_read', 'profile_write'] as const;
 type StepLabel = (typeof STEP_LABELS)[number];
 type StepStatus = 'waiting' | 'running' | 'success' | 'error';
@@ -27,6 +23,7 @@ interface OAuthClientTestDialogProps {
   open: boolean;
   onOpenChange: (_open: boolean) => void;
   client: OAuthClientSummary;
+  resourceServerUrl: string;
   /** Overrides the default spinner shown while a step is in progress. */
   spinner?: React.ComponentType<{ className?: string }>;
 }
@@ -53,13 +50,20 @@ async function createPkcePair(): Promise<{ verifier: string; challenge: string }
 }
 
 /**
- * Dialog that tests the full OAuth flow for the given client by opening
- * accounts.karasu256.com's real authorization page in a popup window,
- * exchanging the resulting code at its `/oauth2/token` endpoint (PKCE
- * required), then calling `/api/profile` for read and write.
+ * Dialog that tests the full OAuth flow for the given client by opening this
+ * app's real authorization page in a popup window, exchanging the resulting
+ * code at its `/oauth2/token` endpoint (PKCE required), then calling the
+ * resource server's `/api/profile` for read and write.
  */
-export function OAuthClientTestDialog({ open, onOpenChange, client, spinner: SpinnerComponent = DefaultSpinner }: OAuthClientTestDialogProps) {
+export function OAuthClientTestDialog({
+  open,
+  onOpenChange,
+  client,
+  resourceServerUrl,
+  spinner: SpinnerComponent = DefaultSpinner,
+}: OAuthClientTestDialogProps) {
   const t = useTranslations();
+  const resourceServerUrlRef = useRef(resourceServerUrl);
   const [steps, setSteps] = useState<StepState[]>(makeInitialSteps);
   const [secret, setSecret] = useState('');
   const popupRef = useRef<Window | null>(null);
@@ -73,6 +77,9 @@ export function OAuthClientTestDialog({ open, onOpenChange, client, spinner: Spi
   useEffect(() => {
     secretRef.current = secret;
   }, [secret]);
+  useEffect(() => {
+    resourceServerUrlRef.current = resourceServerUrl;
+  }, [resourceServerUrl]);
 
   const isRunning = steps.some((s) => s.status === 'running');
   const isWaitingForCode = steps[0].status === 'running';
@@ -103,7 +110,7 @@ export function OAuthClientTestDialog({ open, onOpenChange, client, spinner: Spi
           const currentClient = clientRef.current;
           const redirectUri = currentClient.redirect_uris[0] ?? '';
 
-          const tokenRes = await fetch(`${ACCOUNTS_URL}/api/auth/oauth2/token`, {
+          const tokenRes = await fetch('/api/auth/oauth2/token', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: new URLSearchParams({
@@ -113,7 +120,7 @@ export function OAuthClientTestDialog({ open, onOpenChange, client, spinner: Spi
               client_secret: secretRef.current,
               redirect_uri: redirectUri,
               code_verifier: verifierRef.current,
-              resource: OAUTH_ISSUER,
+              resource: `${window.location.origin}/api/auth`,
             }).toString(),
           });
 
@@ -143,7 +150,8 @@ export function OAuthClientTestDialog({ open, onOpenChange, client, spinner: Spi
 
           const bearerHeader = { Authorization: `Bearer ${accessToken}` };
 
-          const profileRes = await fetch('/api/profile', { headers: bearerHeader });
+          const profileUrl = `${resourceServerUrlRef.current}/api/profile`;
+          const profileRes = await fetch(profileUrl, { headers: bearerHeader });
           if (!profileRes.ok) {
             const body = (await profileRes.json().catch(() => ({}))) as { error?: string };
             setSteps(failStep('profile_read', body.error ?? 'token_verification_failed'));
@@ -159,7 +167,7 @@ export function OAuthClientTestDialog({ open, onOpenChange, client, spinner: Spi
             })
           );
 
-          const writeRes = await fetch('/api/profile', {
+          const writeRes = await fetch(profileUrl, {
             method: 'PATCH',
             headers: { ...bearerHeader, 'Content-Type': 'application/json' },
             body: JSON.stringify({ name: profile.name }),
@@ -213,7 +221,7 @@ export function OAuthClientTestDialog({ open, onOpenChange, client, spinner: Spi
     verifierRef.current = verifier;
 
     const url =
-      `${ACCOUNTS_URL}/api/auth/oauth2/authorize?` +
+      '/api/auth/oauth2/authorize?' +
       new URLSearchParams({
         client_id: client.client_id,
         redirect_uri: redirectUri,
