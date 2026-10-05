@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Bug, Code2, Layers, User } from 'lucide-react';
+import { Bug, Layers, User } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { SettingsSidebar, SettingsSidebarLayout, toast, type SidebarNavItem, type SettingsSidebarUser } from '@Hashibutogarasu/ui';
 import { signOutAction } from '@Hashibutogarasu/utils/server/sign-out';
@@ -12,7 +12,6 @@ import { listAccounts, switchAccount, removeAccount, type AccountSummary } from 
 const NAV_ITEMS_DEFS = [
   { href: '/settings/profile', icon: User, labelKey: 'settings.sections.profile' },
   { href: '/settings/other', icon: Layers, labelKey: 'settings.sections.other' },
-  { href: '/settings/developer', icon: Code2, labelKey: 'settings.sections.developer' },
   { href: '/settings/debug', icon: Bug, labelKey: 'settings.sections.debug' },
 ] as const;
 
