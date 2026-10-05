@@ -1,4 +1,4 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
   testDir: './e2e',
@@ -7,28 +7,20 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   reporter: 'list',
   use: {
-    baseURL: 'http://localhost:3000',
-    trace: 'on-first-retry',
+    baseURL: 'http://localhost:8789',
   },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: [
     {
       command: 'pnpm --filter accounts.karasu256.com dev',
       url: 'http://localhost:3001',
       reuseExistingServer: !process.env.CI,
-      timeout: 60_000,
-    },
-    {
-      command: 'pnpm --filter api.karasu256.com dev',
-      url: 'http://localhost:8789/permissions/scopes',
-      reuseExistingServer: !process.env.CI,
       timeout: 120_000,
     },
     {
       command: 'pnpm dev',
-      url: 'http://localhost:3000',
+      url: 'http://localhost:8789/permissions/scopes',
       reuseExistingServer: !process.env.CI,
-      timeout: 60_000,
+      timeout: 120_000,
     },
   ],
 });

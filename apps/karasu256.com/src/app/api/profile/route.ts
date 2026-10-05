@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { getDb } from '@Hashibutogarasu/db';
 import { users } from '@Hashibutogarasu/db/schema';
-import { Permissions } from '@Hashibutogarasu/permissions';
+import { Permissions } from '@Hashibutogarasu/api-permissions';
 import { APIKeyRoute, OauthAppRoute, RequirePermission } from '@/lib/api/route-auth';
 
 const patchBodySchema = z.object({ name: z.string().nullable() });

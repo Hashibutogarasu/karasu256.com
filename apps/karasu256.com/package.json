@@ -10,9 +10,9 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@Hashibutogarasu/api-permissions": "workspace:*",
     "@Hashibutogarasu/db": "workspace:*",
     "@Hashibutogarasu/flags": "workspace:*",
-    "@Hashibutogarasu/permissions": "workspace:*",
     "@Hashibutogarasu/types": "workspace:*",
     "@Hashibutogarasu/ui": "workspace:*",
     "@Hashibutogarasu/utils": "workspace:*",

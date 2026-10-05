@@ -1,30 +1,6 @@
-import type { AbstractPermission } from '@Hashibutogarasu/permissions';
+import { isPermitted, type AbstractPermission, type RouteAuthContext, type TokenValidator } from '@Hashibutogarasu/api-permissions';
 
-/**
- * Identifies which credential type authenticated a request.
- */
-export type RouteAuthMethod = 'apiKey' | 'oauthApp';
-
-/**
- * Authentication result attached to a request once a guard has verified it.
- */
-export interface RouteAuthContext {
-  userId: string;
-  authMethod: RouteAuthMethod;
-  /** Permissions granted to the API key. `null` for OAuth tokens, which carry `scopes` instead. */
-  permissions: AbstractPermission[] | null;
-  /** Granted OAuth scopes (e.g. `"read:profile"`). `null` for API keys, which carry `permissions` instead. */
-  scopes: string[] | null;
-}
-
-/**
- * Verifies raw bearer tokens against their backing store.
- * Implemented by the consuming app so `packages/utils` stays database-agnostic.
- */
-export interface TokenValidator {
-  validateApiKey(token: string): Promise<{ userId: string; permissions: AbstractPermission[] } | null>;
-  validateOauthToken(token: string): Promise<{ userId: string; scopes: string[] } | null>;
-}
+export { toOauthScope, type RouteAuthContext, type RouteAuthMethod, type TokenValidator } from '@Hashibutogarasu/api-permissions';
 
 /**
  * Dependencies injected by the consuming app to bind the route guards
@@ -63,16 +39,6 @@ function unauthorized(): Response {
 
 function insufficientScope(): Response {
   return Response.json({ error: 'insufficient_scope' }, { status: 403 });
-}
-
-/** Returns the OAuth scope string (`action:resource`, e.g. `read:profile`) that grants `permission` to an OAuth client. */
-export function toOauthScope(permission: AbstractPermission): string {
-  return `${permission.action()}:${permission.resource()}`;
-}
-
-function isPermitted(auth: RouteAuthContext, permission: AbstractPermission): boolean {
-  if (auth.authMethod === 'apiKey') return permission.verify(auth.permissions ?? []);
-  return auth.scopes?.includes(toOauthScope(permission)) ?? false;
 }
 
 /**

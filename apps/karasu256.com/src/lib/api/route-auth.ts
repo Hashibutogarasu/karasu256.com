@@ -1,5 +1,5 @@
 import { oauthProviderResourceClient } from '@better-auth/oauth-provider/resource-client';
-import { permissionBitmask, type AbstractPermission } from '@Hashibutogarasu/permissions';
+import { permissionBitmask, type AbstractPermission } from '@Hashibutogarasu/api-permissions';
 import { createRouteAuth, vercelProtectionBypassHeaders } from '@Hashibutogarasu/utils/server';
 
 /**
@@ -12,10 +12,10 @@ const OAUTH_ISSUER = `${process.env.OAUTH_ISSUER_URL}/api/auth`;
 
 const resourceClient = oauthProviderResourceClient();
 
-/** Verifies a raw API key against accounts.karasu256.com, returning its owner and the permissions parsed from its bitmask, or `null` if the key is invalid. */
+/** api.karasu256.com owns permission resolution, so keys are verified there rather than against accounts directly. */
 async function validateApiKey(token: string): Promise<{ userId: string; permissions: AbstractPermission[] } | null> {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_ACCOUNTS_URL}/api/api-keys/verify`, {
+    const res = await fetch(`${process.env.API_URL}/api-keys/verify`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', ...vercelProtectionBypassHeaders(process.env.VERCEL_PROTECTION_BYPASS_SECRET) },
       body: JSON.stringify({ key: token }),
