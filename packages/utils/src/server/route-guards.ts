@@ -1,3 +1,5 @@
+import type { AbstractPermission } from '@Hashibutogarasu/permissions';
+
 /**
  * Identifies which credential type authenticated a request.
  */
@@ -9,7 +11,9 @@ export type RouteAuthMethod = 'apiKey' | 'oauthApp';
 export interface RouteAuthContext {
   userId: string;
   authMethod: RouteAuthMethod;
-  /** Granted OAuth scopes (e.g. `"read:profile"`). `null` for API keys, which are unscoped. */
+  /** Permissions granted to the API key. `null` for OAuth tokens, which carry `scopes` instead. */
+  permissions: AbstractPermission[] | null;
+  /** Granted OAuth scopes (e.g. `"read:profile"`). `null` for API keys, which carry `permissions` instead. */
   scopes: string[] | null;
 }
 
@@ -18,18 +22,16 @@ export interface RouteAuthContext {
  * Implemented by the consuming app so `packages/utils` stays database-agnostic.
  */
 export interface TokenValidator {
-  validateApiKey(token: string): Promise<{ userId: string } | null>;
+  validateApiKey(token: string): Promise<{ userId: string; permissions: AbstractPermission[] } | null>;
   validateOauthToken(token: string): Promise<{ userId: string; scopes: string[] } | null>;
 }
 
 /**
  * Dependencies injected by the consuming app to bind the route guards
- * to its own token storage and routing conventions.
+ * to its own token storage.
  */
 export interface RouteAuthDeps {
   validator: TokenValidator;
-  /** Derives the permission section key for a request, e.g. from its pathname. */
-  deriveSectionKey: (request: Request) => string;
 }
 
 type RouteHandlerArgs = [request: Request, ctx: unknown];
@@ -43,7 +45,7 @@ export type RouteHandler<TArgs extends RouteHandlerArgs = RouteHandlerArgs> = (.
 interface RouteGuardMeta {
   allowApiKey: boolean;
   allowOauthApp: boolean;
-  permission: { mode: 'read' | 'write'; sectionKey?: string } | null;
+  permission: AbstractPermission | null;
 }
 
 interface WrappedRouteHandler<TArgs extends RouteHandlerArgs> extends RouteHandler<TArgs> {
@@ -63,19 +65,28 @@ function insufficientScope(): Response {
   return Response.json({ error: 'insufficient_scope' }, { status: 403 });
 }
 
+/** Returns the OAuth scope string (`action:resource`, e.g. `read:profile`) that grants `permission` to an OAuth client. */
+export function toOauthScope(permission: AbstractPermission): string {
+  return `${permission.action()}:${permission.resource()}`;
+}
+
+function isPermitted(auth: RouteAuthContext, permission: AbstractPermission): boolean {
+  if (auth.authMethod === 'apiKey') return permission.verify(auth.permissions ?? []);
+  return auth.scopes?.includes(toOauthScope(permission)) ?? false;
+}
+
 /**
- * Returns route guard decorators bound to the given token validator and
- * section-key derivation strategy.
+ * Returns route guard decorators bound to the given token validator.
  *
  * Mirrors the dependency-injection shape used elsewhere in this package —
  * the consuming app supplies the storage-backed implementations so this
  * package never depends on a database client directly.
  *
- * `APIKeyRoute`, `OauthAppRoute`, `Read`, and `Write` may be composed in any
- * order (e.g. `APIKeyRoute()(OauthAppRoute()(Read()(handler)))`). Each call
- * only records intent on a metadata object shared by the wrapped handler;
- * the underlying wrapper performs authentication and permission checks
- * exactly once, after every decorator has been applied.
+ * `APIKeyRoute`, `OauthAppRoute`, and `RequirePermission` may be composed in
+ * any order (e.g. `APIKeyRoute()(OauthAppRoute()(RequirePermission(p)(handler)))`).
+ * Each call only records intent on a metadata object shared by the wrapped
+ * handler; the underlying wrapper performs authentication and permission
+ * checks exactly once, after every decorator has been applied.
  */
 export function createRouteAuth(deps: RouteAuthDeps) {
   function ensureWrapped<TArgs extends RouteHandlerArgs>(handler: RouteHandler<TArgs> | GuardedRouteHandler<TArgs>): WrappedRouteHandler<TArgs> {
@@ -97,28 +108,20 @@ export function createRouteAuth(deps: RouteAuthDeps) {
       if (meta.allowApiKey) {
         const apiKeyResult = await deps.validator.validateApiKey(token);
         if (apiKeyResult) {
-          auth = { userId: apiKeyResult.userId, authMethod: 'apiKey', scopes: null };
+          auth = { userId: apiKeyResult.userId, authMethod: 'apiKey', permissions: apiKeyResult.permissions, scopes: null };
         }
       }
 
       if (!auth && meta.allowOauthApp) {
         const oauthResult = await deps.validator.validateOauthToken(token);
         if (oauthResult) {
-          auth = {
-            userId: oauthResult.userId,
-            authMethod: 'oauthApp',
-            scopes: oauthResult.scopes,
-          };
+          auth = { userId: oauthResult.userId, authMethod: 'oauthApp', permissions: null, scopes: oauthResult.scopes };
         }
       }
 
       if (!auth) return unauthorized();
 
-      if (meta.permission && auth.authMethod === 'oauthApp') {
-        const sectionKey = meta.permission.sectionKey ?? deps.deriveSectionKey(request);
-        const requiredScope = `${meta.permission.mode}:${sectionKey}`;
-        if (!auth.scopes?.includes(requiredScope)) return insufficientScope();
-      }
+      if (meta.permission && !isPermitted(auth, meta.permission)) return insufficientScope();
 
       return inner(...args, auth);
     }) as WrappedRouteHandler<TArgs>;
@@ -144,21 +147,13 @@ export function createRouteAuth(deps: RouteAuthDeps) {
     };
   }
 
-  function Read<TArgs extends RouteHandlerArgs = RouteHandlerArgs>(sectionKey?: string) {
+  function RequirePermission<TArgs extends RouteHandlerArgs = RouteHandlerArgs>(permission: AbstractPermission) {
     return (handler: RouteHandler<TArgs> | GuardedRouteHandler<TArgs>) => {
       const wrapped = ensureWrapped(handler);
-      wrapped.__routeGuardMeta.permission = { mode: 'read', sectionKey };
+      wrapped.__routeGuardMeta.permission = permission;
       return wrapped;
     };
   }
 
-  function Write<TArgs extends RouteHandlerArgs = RouteHandlerArgs>(sectionKey?: string) {
-    return (handler: RouteHandler<TArgs> | GuardedRouteHandler<TArgs>) => {
-      const wrapped = ensureWrapped(handler);
-      wrapped.__routeGuardMeta.permission = { mode: 'write', sectionKey };
-      return wrapped;
-    };
-  }
-
-  return { APIKeyRoute, OauthAppRoute, Read, Write };
+  return { APIKeyRoute, OauthAppRoute, RequirePermission };
 }

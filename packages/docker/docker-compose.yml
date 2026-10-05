@@ -19,7 +19,9 @@ services:
       retries: 30
 
   db-migrate:
-    build: ./db-migrate
+    build:
+      context: ./db-migrate
+      network: host
     environment:
       DATABASE_URL: postgres://postgres:postgres@db:5432/karasu256
     volumes:
@@ -30,7 +32,9 @@ services:
         condition: service_healthy
 
   auth:
-    build: ./neon-auth
+    build:
+      context: ./neon-auth
+      network: host
     environment:
       DATABASE_URL: postgres://postgres:postgres@db:5432/neon_auth
       BETTER_AUTH_URL: http://localhost:3010
@@ -48,7 +52,9 @@ services:
       retries: 30
 
   firebase:
-    build: ./firebase
+    build:
+      context: ./firebase
+      network: host
     ports:
       - '9099:9099'
     healthcheck:

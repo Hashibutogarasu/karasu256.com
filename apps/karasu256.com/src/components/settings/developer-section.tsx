@@ -155,7 +155,7 @@ export function DeveloperSection() {
           ) : keys.length === 0 ? (
             <p className="text-sm text-muted-foreground py-2">{t('settings.developer.noKeys')}</p>
           ) : (
-            keys.map((k) => <ApiKeyRow key={k.id} apiKey={k} onDelete={(id) => setPendingDelete({ type: 'key', id, name: k.name })} />)
+            keys.map((k) => <ApiKeyRow key={k.id} apiKey={k} onDelete={(id) => setPendingDelete({ type: 'key', id, name: k.name ?? '' })} />)
           )}
         </div>
       </SettingsAccordion>

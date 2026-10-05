@@ -25,10 +25,11 @@ export const authOptions = {
       oauthAccessToken: schema.oauthAccessTokens,
       oauthConsent: schema.oauthConsents,
       passkey: schema.passkeys,
+      apikey: schema.apiKeys,
     },
   }),
   secret: process.env.BETTER_AUTH_SECRET,
-  baseURL: process.env.BETTER_AUTH_URL,
+  baseURL: getServerConfig().authBaseURL,
   trustedOrigins: getServerConfig().trustedOrigins,
   account: {
     encryptOAuthTokens: true,
@@ -48,8 +49,8 @@ export const authOptions = {
   },
   advanced: {
     crossSubDomainCookies: {
-      enabled: true,
-      domain: process.env.BASE_DOMAIN,
+      enabled: getServerConfig().crossSubDomainCookies,
+      domain: getServerConfig().baseDomain,
     },
   },
   databaseHooks: {

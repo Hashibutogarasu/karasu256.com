@@ -10,15 +10,18 @@
     "test:e2e": "playwright test",
     "db:generate": "drizzle-kit generate",
     "db:migrate:dev": "dotenv -e .env.development.local -- drizzle-kit migrate",
-    "db:migrate:prod": "dotenv -e .env.production -- drizzle-kit migrate"
+    "db:migrate:prod": "dotenv -e .env.production -- drizzle-kit migrate",
+    "db:migrate:deploy": "drizzle-kit migrate"
   },
   "dependencies": {
     "@Hashibutogarasu/db": "workspace:*",
     "@Hashibutogarasu/flags": "workspace:*",
+    "@Hashibutogarasu/permissions": "workspace:*",
     "@Hashibutogarasu/types": "workspace:*",
     "@Hashibutogarasu/ui": "workspace:*",
     "@Hashibutogarasu/utils": "workspace:*",
     "@base-ui/react": "^1.6.0",
+    "@better-auth/api-key": "1.6.23",
     "@better-auth/core": "^1.6.23",
     "@better-auth/drizzle-adapter": "^1.6.23",
     "@better-auth/oauth-provider": "^1.6.23",

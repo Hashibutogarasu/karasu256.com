@@ -6,11 +6,13 @@
     "dev": "next dev --port 3000",
     "build": "next build",
     "start": "next start --port 3000",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@Hashibutogarasu/db": "workspace:*",
     "@Hashibutogarasu/flags": "workspace:*",
+    "@Hashibutogarasu/permissions": "workspace:*",
     "@Hashibutogarasu/types": "workspace:*",
     "@Hashibutogarasu/ui": "workspace:*",
     "@Hashibutogarasu/utils": "workspace:*",
@@ -39,6 +41,7 @@
   },
   "devDependencies": {
     "@next/eslint-plugin-next": "^15.3.9",
+    "@playwright/test": "^1.61.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
