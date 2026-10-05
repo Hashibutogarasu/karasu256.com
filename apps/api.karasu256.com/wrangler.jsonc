@@ -1,0 +1,54 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "api-karasu256-com",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "logs": {
+      "enabled": true,
+      "invocation_logs": false,
+    },
+  },
+  "env": {
+    "local": {
+      "routes": [],
+      "r2_buckets": [{ "binding": "IMAGES", "bucket_name": "karasu-lab-api-local" }],
+      "vars": {
+        "ACCOUNTS_URL": "http://localhost:3001",
+        "CDN_BASE_URL": "http://localhost:8788",
+        "GIT_BRANCH": "local",
+        "DATABASE_URL": "postgres://postgres:postgres@localhost:5433/karasu256",
+        "INTERNAL_API_SECRET": "local-development-internal-api-secret",
+      },
+    },
+    "branch": {
+      "routes": [],
+      "workers_dev": true,
+      "r2_buckets": [{ "binding": "IMAGES", "bucket_name": "karasu-lab-cdn-dev" }],
+      "vars": {
+        "ACCOUNTS_URL": "https://dev.accounts.karasu256.com",
+        "CDN_BASE_URL": "https://dev.cdn.karasu256.com",
+        "GIT_BRANCH": "unknown",
+      },
+    },
+    "preview": {
+      "routes": [{ "pattern": "dev.api.karasu256.com", "custom_domain": true }],
+      "r2_buckets": [{ "binding": "IMAGES", "bucket_name": "karasu-lab-cdn-dev" }],
+      "vars": {
+        "ACCOUNTS_URL": "https://dev.accounts.karasu256.com",
+        "CDN_BASE_URL": "https://dev.cdn.karasu256.com",
+        "GIT_BRANCH": "dev",
+      },
+    },
+    "production": {
+      "routes": [{ "pattern": "api.karasu256.com", "custom_domain": true }],
+      "r2_buckets": [{ "binding": "IMAGES", "bucket_name": "karasu-lab-cdn" }],
+      "vars": {
+        "ACCOUNTS_URL": "https://accounts.karasu256.com",
+        "CDN_BASE_URL": "https://cdn.karasu256.com",
+        "GIT_BRANCH": "main",
+      },
+    },
+  },
+}

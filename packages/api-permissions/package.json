@@ -1,5 +1,5 @@
 {
-  "name": "@Hashibutogarasu/permissions",
+  "name": "@Hashibutogarasu/api-permissions",
   "version": "0.1.0",
   "private": true,
   "exports": {

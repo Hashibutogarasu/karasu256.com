@@ -2,11 +2,6 @@ import { Actions } from './actions';
 import { BitmaskBuilder } from './bitmask-builder';
 import { ProfilePermission } from './profile-permission';
 
-export { Actions } from './actions';
-export { AbstractPermission } from './abstract-permission';
-export { BitmaskBuilder } from './bitmask-builder';
-export { ProfilePermission } from './profile-permission';
-
 /** Every permission the platform can grant, grouped by resource. */
 export const Permissions = {
   profile: {

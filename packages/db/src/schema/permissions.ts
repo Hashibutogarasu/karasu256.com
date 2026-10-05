@@ -1,7 +1,7 @@
 import { createId } from '@paralleldrive/cuid2';
 import { integer, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 
-/** Catalog of grantable permissions. `numericId` matches `AbstractPermission.id()` in `@Hashibutogarasu/permissions`; `publicId` is what clients use to refer to a permission. */
+/** Catalog of grantable permissions. `numericId` matches `AbstractPermission.id()` in `@Hashibutogarasu/api-permissions`; `publicId` is what clients use to refer to a permission. */
 export const permissions = pgTable('permissions', {
   id: text('id')
     .primaryKey()
