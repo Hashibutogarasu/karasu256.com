@@ -1,0 +1,49 @@
+name: accounts.karasu256.com PR Migrations
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - apps/accounts.karasu256.com/drizzle/migrations/**
+      - .github/workflows/accounts-neon-pr-migrate.yml
+
+concurrency:
+  group: accounts-neon-pr-${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  migrate:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get Neon branch
+        id: neon
+        uses: neondatabase/create-branch-action@v6
+        with:
+          project_id: ${{ vars.NEON_PROJECT_ID }}
+          api_key: ${{ secrets.NEON_API_KEY }}
+          branch_name: preview/${{ github.head_ref }}
+          parent_branch: main
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Apply migrations
+        env:
+          DATABASE_URL: ${{ steps.neon.outputs.db_url }}
+        run: pnpm --filter accounts.karasu256.com db:migrate:deploy
