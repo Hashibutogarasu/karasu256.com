@@ -65,17 +65,5 @@
     "testCallback": {
       "title": "Test callback"
     }
-  },
-  "permissions": {
-    "sections": {
-      "profile": {
-        "label": "Profile",
-        "description": "Read and update profile information"
-      },
-      "images": {
-        "label": "Images",
-        "description": "Upload and manage images"
-      }
-    }
   }
 }

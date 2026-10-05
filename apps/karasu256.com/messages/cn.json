@@ -65,17 +65,5 @@
     "testCallback": {
       "title": "测试回调"
     }
-  },
-  "permissions": {
-    "sections": {
-      "profile": {
-        "label": "个人资料",
-        "description": "读取和更新个人资料信息"
-      },
-      "images": {
-        "label": "图片",
-        "description": "上传和管理图片"
-      }
-    }
   }
 }
