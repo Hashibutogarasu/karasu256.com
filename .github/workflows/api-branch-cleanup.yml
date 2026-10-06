@@ -19,16 +19,6 @@ jobs:
         with:
           node-version: 24
 
-      - name: Resolve worker name
-        id: worker
-        run: node .github/scripts/api-worker-name.mjs "${{ github.event.ref }}"
-
-      - name: Delete worker
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
-        run: npx --yes wrangler@4 delete --name "${{ steps.worker.outputs.name }}" --force
-
       - name: Remove the branch API_URL from Vercel
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
