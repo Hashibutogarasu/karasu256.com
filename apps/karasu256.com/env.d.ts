@@ -5,6 +5,7 @@ declare global {
     interface ProcessEnv {
       NODE_ENV: NodeEnv;
       NEXT_PUBLIC_ACCOUNTS_URL: string;
+      NEXT_PUBLIC_AUTH_URL: string;
       /**
        * Server-only base URL of the image API Worker (see `R2StorageProvider`
        * in the root layout). Deliberately not `NEXT_PUBLIC_*`: that prefix

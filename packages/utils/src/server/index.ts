@@ -11,4 +11,5 @@ export { apiFetch, type ApiFetchOptions } from './api-fetch';
 export { signOutAction } from './sign-out';
 export { setLocaleAction } from './set-locale';
 export { getRootAppUrl } from './get-root-app-url';
+export { getSignInUrl } from './sign-in-url';
 export { MissingEnvError } from './missing-env-error';

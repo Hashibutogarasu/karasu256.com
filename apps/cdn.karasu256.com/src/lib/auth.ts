@@ -20,10 +20,10 @@ const jwksCache = new Map<string, ReturnType<typeof createRemoteJWKSet>>();
  * from every other one.
  */
 function getJwks(env: Env): ReturnType<typeof createRemoteJWKSet> {
-  const existing = jwksCache.get(env.ACCOUNTS_URL);
+  const existing = jwksCache.get(env.AUTH_URL);
   if (existing) return existing;
 
-  const jwks = createRemoteJWKSet(new URL('/api/auth/jwks', env.ACCOUNTS_URL), {
+  const jwks = createRemoteJWKSet(new URL('/api/auth/jwks', env.AUTH_URL), {
     headers: vercelProtectionBypassHeaders(env.VERCEL_PROTECTION_BYPASS_SECRET),
     [customFetch]: async (url, options) => {
       const res = await fetch(url, options);
@@ -48,13 +48,13 @@ function getJwks(env: Env): ReturnType<typeof createRemoteJWKSet> {
       return res;
     },
   });
-  jwksCache.set(env.ACCOUNTS_URL, jwks);
+  jwksCache.set(env.AUTH_URL, jwks);
   return jwks;
 }
 
 /**
  * Verifies the caller's `Authorization: Bearer` JWT against
- * accounts.karasu256.com's JWKS — an alternative to {@link requireUid} for
+ * auth.karasu256.com's JWKS — an alternative to {@link requireUid} for
  * callers whose own server can't rely on the `Cookie` header reaching it
  * (see `SessionProvider` in `@Hashibutogarasu/ui`, which mints this JWT as
  * the single source of truth for "who is logged in"). Returns the token's
@@ -92,7 +92,7 @@ export function verifyCronJobsKey(request: Request, env: Env): boolean {
 
 /**
  * Verifies the caller's session by forwarding their `Cookie` header
- * verbatim to accounts.karasu256.com's `GET /api/auth/get-session` — this
+ * verbatim to auth.karasu256.com's `GET /api/auth/get-session` — this
  * Worker holds no Firebase or better-auth credentials of its own, so a
  * remote check against the monorepo's single auth instance is how it learns
  * "who is logged in". No cookie name is inspected or reconstructed here, so
@@ -105,7 +105,7 @@ export async function requireUid(request: Request, env: Env): Promise<string | n
   const cookieHeader = request.headers.get('cookie');
   if (!cookieHeader) return null;
 
-  const url = `${env.ACCOUNTS_URL}/api/auth/get-session`;
+  const url = `${env.AUTH_URL}/api/auth/get-session`;
   try {
     const res = await fetch(url, {
       headers: { cookie: cookieHeader, ...vercelProtectionBypassHeaders(env.VERCEL_PROTECTION_BYPASS_SECRET) },

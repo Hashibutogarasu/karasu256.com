@@ -7,18 +7,18 @@ import { parseSetCookieHeader, toCookieOptions } from 'better-auth/cookies';
 /**
  * Ends the better-auth session — the session every app trusts for "who is
  * logged in" — by forwarding this request's cookies to
- * accounts.karasu256.com's `/api/auth/sign-out` and replaying the resulting
+ * auth.karasu256.com's `/api/auth/sign-out` and replaying the resulting
  * `Set-Cookie`s onto the local cookie store. Errors are swallowed: the
- * redirect to the accounts portal's sign-out page below must still proceed
- * even if the accounts app is unreachable.
+ * redirect to the auth app's sign-out page below must still proceed
+ * even if the auth app is unreachable.
  */
-async function endBetterAuthSession(accountsUrl: string, store: Awaited<ReturnType<typeof cookies>>): Promise<void> {
+async function endBetterAuthSession(authUrl: string, store: Awaited<ReturnType<typeof cookies>>): Promise<void> {
   try {
     const cookieHeader = store
       .getAll()
       .map((c) => `${c.name}=${c.value}`)
       .join('; ');
-    const res = await fetch(`${accountsUrl}/api/auth/sign-out`, {
+    const res = await fetch(`${authUrl}/api/auth/sign-out`, {
       method: 'POST',
       headers: { cookie: cookieHeader },
     });
@@ -31,18 +31,18 @@ async function endBetterAuthSession(accountsUrl: string, store: Awaited<ReturnTy
 }
 
 /**
- * Ends the better-auth session, then redirects to the accounts portal's
+ * Ends the better-auth session, then redirects to the auth app's
  * sign-out page. Shared across apps so every subdomain signs out the same way.
  */
 export async function signOutAction(): Promise<void> {
   const store = await cookies();
-  const accountsUrl = process.env.NEXT_PUBLIC_ACCOUNTS_URL ?? '';
+  const authUrl = process.env.NEXT_PUBLIC_AUTH_URL ?? '';
 
-  if (accountsUrl) {
-    await endBetterAuthSession(accountsUrl, store);
+  if (authUrl) {
+    await endBetterAuthSession(authUrl, store);
   }
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
   const next = appUrl ? `?next=${encodeURIComponent(appUrl)}` : '';
-  redirect(`${accountsUrl}/signout${next}`);
+  redirect(`${authUrl}/signout${next}`);
 }

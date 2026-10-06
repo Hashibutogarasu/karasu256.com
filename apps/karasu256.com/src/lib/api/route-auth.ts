@@ -30,7 +30,7 @@ async function validateApiKey(token: string): Promise<{ userId: string; permissi
 }
 
 /**
- * Verifies a bearer token issued by accounts.karasu256.com's OAuth/OIDC
+ * Verifies a bearer token issued by auth.karasu256.com's OAuth/OIDC
  * authorization server. Access tokens are JWTs, so this is a local,
  * DB-independent verification against the authorization server's published
  * JWKS — see `@better-auth/oauth-provider`'s recommendations for why this is
