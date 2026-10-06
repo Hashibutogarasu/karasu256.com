@@ -1,13 +1,11 @@
 import type { AbstractPermission } from './abstract-permission';
 
-export type RouteAuthMethod = 'apiKey' | 'oauthApp';
+export type RouteAuthMethod = 'apiKey' | 'oauthApp' | 'session';
 
 export interface RouteAuthContext {
   userId: string;
   authMethod: RouteAuthMethod;
-  /** `null` for OAuth tokens, which carry `scopes` instead. */
   permissions: AbstractPermission[] | null;
-  /** `null` for API keys, which carry `permissions` instead. */
   scopes: string[] | null;
 }
 

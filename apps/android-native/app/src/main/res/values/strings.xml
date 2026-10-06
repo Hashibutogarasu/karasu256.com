@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">KarasuLab</string>
+    <string name="brand_title">Karasu LAB</string>
+    <string name="email_label">メールアドレス</string>
+    <string name="password_label">パスワード</string>
+    <string name="sign_in">ログイン</string>
+    <string name="or_divider">または</string>
+    <string name="continue_with_google">Googleで続行</string>
+    <string name="sign_in_with_passkey">パスキーでサインイン</string>
+    <string name="sign_out">ログアウト</string>
+    <string name="profile_name_placeholder">名前未設定</string>
+    <string name="error_invalid_credentials">メールアドレスまたはパスワードが正しくありません</string>
+    <string name="error_google_failed">Googleでのサインインに失敗しました</string>
+    <string name="error_passkey_failed">パスキーでのサインインに失敗しました</string>
+    <string name="error_network">ネットワークに接続できませんでした</string>
+    <string name="error_generic">サインインに失敗しました</string>
+</resources>
