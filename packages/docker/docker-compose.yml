@@ -39,7 +39,7 @@ services:
       DATABASE_URL: postgres://postgres:postgres@db:5432/neon_auth
       BETTER_AUTH_URL: http://localhost:3010
       BETTER_AUTH_SECRET: local-neon-auth-secret-not-for-production
-      TRUSTED_ORIGINS: http://localhost:3000,http://localhost:3001,http://localhost:3002
+      TRUSTED_ORIGINS: http://localhost:3000,http://localhost:3001,http://localhost:3002,http://localhost:3004
     ports:
       - '3010:3010'
     depends_on:

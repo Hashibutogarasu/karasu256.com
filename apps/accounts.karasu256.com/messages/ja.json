@@ -81,10 +81,12 @@
       "switchAccount": "このアカウントに切り替える",
       "removeAccount": "このデバイスからこのアカウントを削除",
       "switchingAccount": "アカウントを切り替えています。",
-      "switchAfterAdd": "追加後にアカウントを切り替える"
+      "switchAfterAdd": "追加後にアカウントを切り替える",
+      "continueToSignIn": "サインインへ進む"
     },
     "developer": {
       "title": "デベロッパー設定",
+      "authBranch": "auth の接続先ブランチ",
       "oauthClients": "OAuth クライアント",
       "apiKeys": "API キー",
       "createClient": "OAuth クライアントを作成",

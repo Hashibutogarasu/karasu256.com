@@ -81,10 +81,12 @@
       "switchAccount": "切换到此账户",
       "removeAccount": "从此设备移除此账户",
       "switchingAccount": "正在切换账户。",
-      "switchAfterAdd": "添加后切换到此账户"
+      "switchAfterAdd": "添加后切换到此账户",
+      "continueToSignIn": "继续登录"
     },
     "developer": {
       "title": "开发者设置",
+      "authBranch": "auth 连接的数据库分支",
       "oauthClients": "OAuth 客户端",
       "apiKeys": "API 密钥",
       "createClient": "创建 OAuth 客户端",

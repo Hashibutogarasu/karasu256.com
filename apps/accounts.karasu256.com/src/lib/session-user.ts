@@ -1,16 +1,24 @@
 import { headers } from 'next/headers';
-import { auth } from '@/lib/auth/server';
+import { getSessionCookie } from 'better-auth/cookies';
+import { buildSignedAuthRequest, sendSignedAuthRequest } from '@/lib/auth/remote';
 
-/** The authenticated user, as returned by `auth.api.getSession`. */
-export type SessionUser = NonNullable<Awaited<ReturnType<typeof auth.api.getSession>>>['user'];
+export interface SessionUser {
+  id: string;
+  email: string | null;
+  name: string | null;
+  image: string | null;
+}
 
-/**
- * Reads and verifies the better-auth session.
- * Returns the session's user when valid, or `null` when absent or invalid.
- *
- * Must only be called from Server Components or Route Handlers.
- */
 export async function getSessionUser(): Promise<SessionUser | null> {
-  const session = await auth.api.getSession({ headers: await headers() });
-  return session?.user ?? null;
+  const requestHeaders = await headers();
+  if (!getSessionCookie(requestHeaders)) return null;
+
+  const res = await sendSignedAuthRequest(buildSignedAuthRequest('/api/auth/get-session', { cookie: requestHeaders.get('cookie') })).catch(
+    () => null
+  );
+  if (!res?.ok) return null;
+
+  const data = (await res.json()) as { user?: { id: string; email?: string | null; name?: string | null; image?: string | null } } | null;
+  if (!data?.user) return null;
+  return { id: data.user.id, email: data.user.email ?? null, name: data.user.name ?? null, image: data.user.image ?? null };
 }

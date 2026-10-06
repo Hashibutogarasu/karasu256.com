@@ -81,10 +81,12 @@
       "switchAccount": "Switch to this account",
       "removeAccount": "Remove this account from this device",
       "switchingAccount": "Switching accounts.",
-      "switchAfterAdd": "Switch to this account after adding"
+      "switchAfterAdd": "Switch to this account after adding",
+      "continueToSignIn": "Continue to sign in"
     },
     "developer": {
       "title": "Developer settings",
+      "authBranch": "auth database branch",
       "oauthClients": "OAuth clients",
       "apiKeys": "API keys",
       "createClient": "Create OAuth client",
