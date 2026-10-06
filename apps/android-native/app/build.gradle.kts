@@ -50,15 +50,15 @@ android {
         if (signingStoreFile != null) {
             getByName("debug") {
                 storeFile = signingStoreFile
-                storePassword = signingProperty("signing.storePassword")
+                storePassword = localProperties.getProperty("signing.storePassword")
                 keyAlias = "debug"
-                keyPassword = signingProperty("signing.debugKeyPassword")
+                keyPassword = localProperties.getProperty("signing.debugKeyPassword")
             }
             create("release") {
                 storeFile = signingStoreFile
-                storePassword = signingProperty("signing.storePassword")
+                storePassword = localProperties.getProperty("signing.storePassword")
                 keyAlias = "release"
-                keyPassword = signingProperty("signing.releaseKeyPassword")
+                keyPassword = localProperties.getProperty("signing.releaseKeyPassword")
             }
         }
     }
