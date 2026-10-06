@@ -114,15 +114,14 @@ private fun SignInContent(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = { onSignIn() }),
         )
-        state.errorMessage?.let { message ->
-            Spacer(Modifier.height(12.dp))
-            Text(
-                text = stringResource(message),
-                modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall,
-            )
-        }
+        Spacer(Modifier.height(12.dp))
+        Text(
+            text = state.errorMessage?.let { stringResource(it) }.orEmpty(),
+            modifier = Modifier.fillMaxWidth(),
+            color = MaterialTheme.colorScheme.error,
+            style = MaterialTheme.typography.bodySmall,
+            minLines = 1,
+        )
         Spacer(Modifier.height(24.dp))
         BaseButton(
             text = stringResource(R.string.sign_in),

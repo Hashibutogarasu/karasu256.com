@@ -11,6 +11,7 @@ import com.karasu256.karasulab.data.local.SessionStore
 import com.karasu256.karasulab.data.remote.AuthApi
 import com.karasu256.karasulab.data.remote.CustomTokenAuthenticator
 import com.karasu256.karasulab.data.remote.CustomTokenInterceptor
+import com.karasu256.karasulab.data.remote.HttpErrorLoggingInterceptor
 import com.karasu256.karasulab.data.remote.UserApi
 import com.karasu256.karasulab.data.remote.OriginInterceptor
 import dagger.Binds
@@ -60,6 +61,7 @@ object AppModule {
         val authUrl = BuildConfig.AUTH_BASE_URL.toHttpUrl()
         return OkHttpClient.Builder()
             .addInterceptor(OriginInterceptor("${authUrl.scheme}://${authUrl.host}"))
+            .addNetworkInterceptor(HttpErrorLoggingInterceptor())
             .build()
     }
 
@@ -72,6 +74,7 @@ object AppModule {
         authenticator: CustomTokenAuthenticator,
     ): OkHttpClient = OkHttpClient.Builder()
         .addInterceptor(interceptor)
+        .addNetworkInterceptor(HttpErrorLoggingInterceptor())
         .authenticator(authenticator)
         .build()
 
