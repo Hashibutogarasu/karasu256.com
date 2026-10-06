@@ -11,6 +11,27 @@ if (!workerName || !alias || !branch) {
   process.exit(1);
 }
 
+const { CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID } = process.env;
+if (!CLOUDFLARE_API_TOKEN || !CLOUDFLARE_ACCOUNT_ID) {
+  console.error('CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID are required');
+  process.exit(1);
+}
+
+async function workerExists() {
+  const res = await fetch(`https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/workers/scripts/${workerName}/settings`, {
+    headers: { Authorization: `Bearer ${CLOUDFLARE_API_TOKEN}` },
+  });
+  if (res.status === 404) return false;
+  if (!res.ok) throw new Error(`Cloudflare API responded ${res.status}`);
+  return true;
+}
+
+/** `versions upload` refuses to create a Worker, so the shared preview worker is deployed once on first use. */
+if (!(await workerExists())) {
+  const deploy = spawnSync('pnpm', ['exec', 'wrangler', 'deploy', '--name', workerName], { stdio: 'inherit' });
+  if (deploy.status !== 0) process.exit(deploy.status ?? 1);
+}
+
 const secrets = Object.fromEntries(SECRET_NAMES.filter((name) => process.env[name]).map((name) => [name, process.env[name]]));
 
 /**
