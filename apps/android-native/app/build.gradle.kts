@@ -14,6 +14,14 @@ val localProperties = Properties().apply {
     if (file.exists()) file.inputStream().use { load(it) }
 }
 
+/** Returns the Gradle property [name], from the project's or the user's `gradle.properties`, or null when unset. */
+fun signingProperty(name: String): String? = providers.gradleProperty(name).orNull
+
+/** The keystore holding the `debug` and `release` keys, with a leading `~` expanded to the user's home directory. */
+val signingStoreFile: File? = signingProperty("signing.storeFile")
+    ?.replaceFirst(Regex("^~"), Regex.escapeReplacement(System.getProperty("user.home")))
+    ?.let(::file)
+
 android {
     namespace = "com.karasu256.karasulab"
     compileSdk {
@@ -38,8 +46,26 @@ android {
         )
     }
 
+    signingConfigs {
+        if (signingStoreFile != null) {
+            getByName("debug") {
+                storeFile = signingStoreFile
+                storePassword = localProperties.getProperty("signing.storePassword")
+                keyAlias = "debug"
+                keyPassword = localProperties.getProperty("signing.debugKeyPassword")
+            }
+            create("release") {
+                storeFile = signingStoreFile
+                storePassword = localProperties.getProperty("signing.storePassword")
+                keyAlias = "release"
+                keyPassword = localProperties.getProperty("signing.releaseKeyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
+            signingConfig = signingConfigs.findByName("release")
             optimization {
                 enable = false
             }
