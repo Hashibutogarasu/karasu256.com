@@ -26,42 +26,46 @@ async function workerExists() {
   return true;
 }
 
-/** `versions upload` refuses to create a Worker, so the shared preview worker is deployed once on first use. */
-if (!(await workerExists())) {
+/** Deploys the shared preview worker on first use, since `versions upload` refuses to create a Worker. */
+async function ensureWorker() {
+  if (await workerExists()) return;
   const deploy = spawnSync('pnpm', ['exec', 'wrangler', 'deploy', '--name', workerName], { stdio: 'inherit' });
   if (deploy.status !== 0) process.exit(deploy.status ?? 1);
 }
 
-const secrets = Object.fromEntries(SECRET_NAMES.filter((name) => process.env[name]).map((name) => [name, process.env[name]]));
-
 /**
- * Secrets are bound to this version only, so each branch's alias keeps its own
- * DATABASE_URL. They go through a private temp file so their values never
- * appear in the command line or the job log.
+ * Uploads a version under the branch's preview alias with secrets scoped to that version, passed through a private
+ * temp file so their values never appear in the command line or the job log.
  */
-const dir = mkdtempSync(join(process.env.RUNNER_TEMP ?? tmpdir(), 'api-preview-'));
-const secretsFile = join(dir, 'secrets.json');
-try {
-  writeFileSync(secretsFile, JSON.stringify(secrets), { mode: 0o600 });
-  const result = spawnSync(
-    'pnpm',
-    [
-      'exec',
-      'wrangler',
-      'versions',
-      'upload',
-      '--name',
-      workerName,
-      '--preview-alias',
-      alias,
-      '--var',
-      `GIT_BRANCH:${branch}`,
-      '--secrets-file',
-      secretsFile,
-    ],
-    { stdio: 'inherit' }
-  );
-  process.exitCode = result.status ?? 1;
-} finally {
-  rmSync(dir, { recursive: true, force: true });
+function uploadVersion() {
+  const secrets = Object.fromEntries(SECRET_NAMES.filter((name) => process.env[name]).map((name) => [name, process.env[name]]));
+  const dir = mkdtempSync(join(process.env.RUNNER_TEMP ?? tmpdir(), 'api-preview-'));
+  const secretsFile = join(dir, 'secrets.json');
+  try {
+    writeFileSync(secretsFile, JSON.stringify(secrets), { mode: 0o600 });
+    const result = spawnSync(
+      'pnpm',
+      [
+        'exec',
+        'wrangler',
+        'versions',
+        'upload',
+        '--name',
+        workerName,
+        '--preview-alias',
+        alias,
+        '--var',
+        `GIT_BRANCH:${branch}`,
+        '--secrets-file',
+        secretsFile,
+      ],
+      { stdio: 'inherit' }
+    );
+    return result.status ?? 1;
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
 }
+
+await ensureWorker();
+process.exitCode = uploadVersion();

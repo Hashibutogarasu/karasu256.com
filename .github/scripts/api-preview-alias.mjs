@@ -1,13 +1,12 @@
 import { createHash } from 'node:crypto';
 import { appendFileSync } from 'node:fs';
 
-/** The alias and worker name share one DNS label (`<alias>-<worker>`), which is capped at 63 characters. */
 const MAX_LABEL_LENGTH = 63;
 const HASH_LENGTH = 8;
 
 /**
- * Derives a stable preview alias from a git branch, so every push of a branch
- * updates the same preview URL on the shared branch-preview worker.
+ * Derives a stable preview alias from a git branch, so every push of a branch updates the same preview URL on the
+ * shared branch-preview worker. The alias is shortened so `<alias>-<worker>` fits in one 63-character DNS label.
  */
 export function previewAliasForBranch(branch, workerName) {
   const maxLength = MAX_LABEL_LENGTH - workerName.length - 1;
