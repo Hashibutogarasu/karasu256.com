@@ -1,11 +1,11 @@
 import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
 
-export const SIGNATURE_HEADER = 'x-karasu-signature';
-export const SIGNATURE_TIMESTAMP_HEADER = 'x-karasu-timestamp';
-export const SIGNED_DB_BRANCH_HEADER = 'x-karasu-db-branch';
+export const SIGNATURE_HEADER = 'x-signature';
+export const SIGNATURE_TIMESTAMP_HEADER = 'x-signature-timestamp';
+export const SIGNED_DB_BRANCH_HEADER = 'x-db-branch';
 
 const MAX_CLOCK_SKEW_MS = 5 * 60 * 1000;
-const KEY_LABEL = 'karasu256:auth-request-signature:v1';
+const KEY_LABEL = 'auth-request-signature:v1';
 
 export interface SignRequestInput {
   secret: string;
