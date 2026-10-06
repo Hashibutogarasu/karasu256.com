@@ -5,54 +5,37 @@ on:
     branches-ignore:
       - main
       - dev
-  deployment_status:
 
 concurrency:
-  group: api-branch-preview-${{ github.event_name == 'deployment_status' && github.event.deployment.ref || github.ref_name }}
+  group: api-branch-preview-${{ github.ref_name }}
   cancel-in-progress: true
+
+env:
+  BRANCH: ${{ github.ref_name }}
+  WORKER_NAME: api-karasu256-com-branch
 
 jobs:
   deploy:
-    if: >-
-      github.event_name == 'push' ||
-      (github.event.deployment_status.state == 'success' &&
-       startsWith(github.event.deployment.environment, 'Preview') &&
-       contains(github.event.deployment.environment, 'accounts.karasu256.com') &&
-       github.event.deployment.ref != 'main' &&
-       github.event.deployment.ref != 'dev')
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    env:
-      BRANCH: ${{ github.event_name == 'deployment_status' && github.event.deployment.ref || github.ref_name }}
-      WORKER_NAME: api-karasu256-com-branch
+    outputs:
+      url: ${{ steps.worker_url.outputs.url }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event_name == 'deployment_status' && github.event.deployment.sha || github.sha }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 24
 
-      - name: Resolve accounts preview URL
-        id: accounts
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID_ACCOUNTS: ${{ vars.VERCEL_PROJECT_ID_ACCOUNTS }}
-        run: node .github/scripts/accounts-branch-url.mjs "$BRANCH"
-
       - name: Resolve preview alias
-        if: steps.accounts.outputs.found == 'true'
         id: preview
         run: node .github/scripts/api-preview-alias.mjs "$BRANCH" "$WORKER_NAME"
 
       - name: Resolve Neon branch
-        if: steps.accounts.outputs.found == 'true'
         id: neon
         env:
           NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
@@ -60,19 +43,15 @@ jobs:
         run: node .github/scripts/neon-preview-branch.mjs "preview/$BRANCH" main
 
       - name: Set up pnpm
-        if: steps.accounts.outputs.found == 'true'
         uses: pnpm/action-setup@v4
 
       - name: Install dependencies
-        if: steps.accounts.outputs.found == 'true'
         run: pnpm install --frozen-lockfile
 
       - name: Build worker
-        if: steps.accounts.outputs.found == 'true'
         run: pnpm --filter api.karasu256.com build:branch
 
       - name: Upload preview version
-        if: steps.accounts.outputs.found == 'true'
         working-directory: apps/api.karasu256.com
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -83,17 +62,30 @@ jobs:
         run: node ../../.github/scripts/api-upload-preview.mjs "$WORKER_NAME" "${{ steps.preview.outputs.alias }}" "$BRANCH"
 
       - name: Resolve preview URL
-        if: steps.accounts.outputs.found == 'true'
         id: worker_url
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
         run: node .github/scripts/api-worker-url.mjs "$WORKER_NAME" "${{ steps.preview.outputs.alias }}"
 
+  sync-vercel:
+    needs: deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
       - name: Point Vercel branch previews at the worker
-        if: steps.accounts.outputs.found == 'true'
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
           VERCEL_PROJECT_IDS: ${{ vars.VERCEL_PROJECT_ID_ACCOUNTS }},${{ vars.VERCEL_PROJECT_ID_KARASU256 }}
-        run: node .github/scripts/sync-vercel-branch-api-url.mjs "$BRANCH" "${{ steps.worker_url.outputs.url }}"
+        run: node .github/scripts/sync-vercel-branch-api-url.mjs "$BRANCH" "${{ needs.deploy.outputs.url }}"
