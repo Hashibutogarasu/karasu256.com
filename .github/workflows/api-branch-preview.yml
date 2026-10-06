@@ -54,12 +54,10 @@ jobs:
       - name: Resolve Neon branch
         if: steps.accounts.outputs.found == 'true'
         id: neon
-        uses: neondatabase/create-branch-action@v6
-        with:
-          project_id: ${{ vars.NEON_PROJECT_ID }}
-          api_key: ${{ secrets.NEON_API_KEY }}
-          branch_name: preview/${{ env.BRANCH }}
-          parent_branch: main
+        env:
+          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+          NEON_PROJECT_ID: ${{ vars.NEON_PROJECT_ID }}
+        run: node .github/scripts/neon-preview-branch.mjs "preview/$BRANCH" main
 
       - name: Set up pnpm
         if: steps.accounts.outputs.found == 'true'
