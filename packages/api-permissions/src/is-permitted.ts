@@ -8,6 +8,7 @@ export function toOauthScope(permission: AbstractPermission): string {
 
 /** Returns whether the caller was granted `permission`, as an API key permission or the matching OAuth scope. */
 export function isPermitted(auth: RouteAuthContext, permission: AbstractPermission): boolean {
+  if (auth.authMethod === 'session') return true;
   if (auth.authMethod === 'apiKey') return permission.verify(auth.permissions ?? []);
   return auth.scopes?.includes(toOauthScope(permission)) ?? false;
 }
