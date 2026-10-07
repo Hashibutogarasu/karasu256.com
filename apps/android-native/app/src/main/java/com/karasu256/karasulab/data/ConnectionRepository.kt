@@ -1,5 +1,6 @@
 package com.karasu256.karasulab.data
 
+import android.util.Log
 import com.karasu256.karasulab.data.remote.AuthApi
 import com.karasu256.karasulab.data.remote.RemoteHostConfig
 import com.karasu256.karasulab.data.remote.UserApi
@@ -40,25 +41,37 @@ class ConnectionRepository @Inject constructor(
         }
 
         launch {
-            val (status, meta) = probe { userApi.meta() }
+            val (status, meta) = probe(hosts.apiHost) { userApi.meta() }
             update { it.copy(api = HostConnection(meta?.apiUrl?.toHttpUrl()?.host ?: hosts.apiHost, status), branch = meta?.gitBranch) }
         }
         launch {
-            val (status) = probe { authApi.ok() }
+            val (status) = probe(hosts.authHost) { authApi.ok() }
             update { it.copy(auth = it.auth.copy(status = status)) }
         }
     }
 
-    /** [TimeoutCancellationException] is a [CancellationException], so it has to be caught first or a timeout would cancel the caller. */
-    private suspend fun <T> probe(block: suspend () -> T): Pair<HostStatus, T?> = try {
+    /**
+     * [TimeoutCancellationException] is a [CancellationException], so it has to be caught first or a timeout would
+     * cancel the caller. Failures are logged here because the screen only shows an icon, which cannot tell a refused
+     * connection from an HTTP error. The exception is part of the message because [Log.w] prints an empty stack trace
+     * for `UnknownHostException`, which would hide a DNS failure.
+     */
+    private suspend fun <T> probe(host: String, block: suspend () -> T): Pair<HostStatus, T?> = try {
         HostStatus.Connected to withTimeout(5.seconds) { block() }
-    } catch (_: TimeoutCancellationException) {
+    } catch (e: TimeoutCancellationException) {
+        Log.w(TAG, "$host did not answer within 5 seconds: $e", e)
         HostStatus.TimedOut to null
     } catch (e: CancellationException) {
         throw e
-    } catch (_: SocketTimeoutException) {
+    } catch (e: SocketTimeoutException) {
+        Log.w(TAG, "$host timed out: $e", e)
         HostStatus.TimedOut to null
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        Log.w(TAG, "$host could not be reached: $e", e)
         HostStatus.Failed to null
+    }
+
+    private companion object {
+        const val TAG = "ConnectionProbe"
     }
 }
