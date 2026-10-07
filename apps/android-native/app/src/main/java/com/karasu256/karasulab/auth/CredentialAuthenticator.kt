@@ -1,6 +1,7 @@
 package com.karasu256.karasulab.auth
 
 import android.app.Activity
+import android.util.Log
 import androidx.credentials.Credential
 import androidx.credentials.CredentialManager
 import androidx.credentials.CredentialOption
@@ -9,6 +10,7 @@ import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetPublicKeyCredentialOption
 import androidx.credentials.PublicKeyCredential
 import androidx.credentials.exceptions.GetCredentialCancellationException
+import androidx.credentials.exceptions.GetCredentialException
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.karasu256.karasulab.BuildConfig
@@ -35,9 +37,22 @@ class CredentialAuthenticator(private val activity: Activity) : CredentialProvid
         return credential.authenticationResponseJson
     }
 
+    /**
+     * Returns the credential the user picked, or null when the request was cancelled. Providers
+     * such as Google Play services also report their own failures as cancellations, so every
+     * failure is logged with its type and message before being handled.
+     */
     private suspend fun request(option: CredentialOption): Credential? = try {
         credentialManager.getCredential(activity, GetCredentialRequest(listOf(option))).credential
-    } catch (_: GetCredentialCancellationException) {
+    } catch (e: GetCredentialCancellationException) {
+        Log.w(TAG, e.type, e)
         null
+    } catch (e: GetCredentialException) {
+        Log.e(TAG, e.type, e)
+        throw e
+    }
+
+    private companion object {
+        const val TAG = "CredentialAuthenticator"
     }
 }

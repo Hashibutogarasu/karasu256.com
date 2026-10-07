@@ -8,8 +8,8 @@ on:
       - .github/workflows/accounts-neon-pr-migrate.yml
 
 concurrency:
-  group: accounts-neon-pr-${{ github.head_ref }}
-  cancel-in-progress: true
+  group: accounts-neon-dev-migrate
+  cancel-in-progress: false
 
 jobs:
   migrate:
@@ -22,14 +22,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Get Neon branch
+      - name: Resolve the dev database
         id: neon
-        uses: neondatabase/create-branch-action@v6
-        with:
-          project_id: ${{ vars.NEON_PROJECT_ID }}
-          api_key: ${{ secrets.NEON_API_KEY }}
-          branch_name: preview/${{ github.head_ref }}
-          parent_branch: main
+        env:
+          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+          NEON_PROJECT_ID: ${{ vars.NEON_PROJECT_ID }}
+        run: node .github/scripts/neon-branch-url.mjs dev
 
       - name: Set up pnpm
         uses: pnpm/action-setup@v4

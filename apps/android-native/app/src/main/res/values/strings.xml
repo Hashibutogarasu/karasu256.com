@@ -3,7 +3,7 @@
     <string name="brand_title">Karasu LAB</string>
     <string name="email_label">メールアドレス</string>
     <string name="password_label">パスワード</string>
-    <string name="sign_in">ログイン</string>
+    <string name="sign_in">サインイン</string>
     <string name="or_divider">または</string>
     <string name="continue_with_google">Googleで続行</string>
     <string name="sign_in_with_passkey">パスキーでサインイン</string>
@@ -14,4 +14,10 @@
     <string name="error_passkey_failed">パスキーでのサインインに失敗しました</string>
     <string name="error_network">ネットワークに接続できませんでした</string>
     <string name="error_generic">サインインに失敗しました</string>
+    <string name="splash_karasu">Karasu</string>
+    <string name="splash_lab">LAB</string>
+    <string name="step_app_title">アプリ初期化</string>
+    <string name="step_app_description">アプリを初期化しています</string>
+    <string name="step_firebase_title">Firebase初期化</string>
+    <string name="step_firebase_description">Firebaseを初期化しています</string>
 </resources>
