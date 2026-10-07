@@ -19,4 +19,6 @@ ingress:
     service: http://localhost:8788
   - hostname: local-api.karasu256.com
     service: http://localhost:8789
+  - hostname: local-api-auth.karasu256.com
+    service: http://localhost:8790
   - service: http_status:404

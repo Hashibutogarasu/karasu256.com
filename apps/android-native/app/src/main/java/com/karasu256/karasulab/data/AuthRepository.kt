@@ -23,7 +23,7 @@ import javax.inject.Singleton
 import kotlin.coroutines.cancellation.CancellationException
 
 /**
- * Signs the user in and out through better-auth on auth.karasu256.com.
+ * Signs the user in and out through better-auth on api-auth.karasu256.com.
  *
  * Every sign-in method ends in the same workflow: the session cookie is exchanged for the custom token,
  * both are stored, and the profile is fetched from the API with that token and cached.
@@ -51,7 +51,7 @@ class AuthRepository @Inject constructor(
     suspend fun signInWithGoogle(idToken: String): SignInResult =
         signIn { authApi.signInSocial(SocialSignInRequest(provider = GOOGLE_PROVIDER, idToken = IdTokenPayload(idToken))) }
 
-    /** Requests a passkey challenge. Throws when auth.karasu256.com cannot issue one. */
+    /** Requests a passkey challenge. Throws when api-auth.karasu256.com cannot issue one. */
     suspend fun requestPasskeyChallenge(): PasskeyChallenge {
         val response = authApi.generatePasskeyAuthenticateOptions()
         if (!response.isSuccessful) throw HttpException(response)

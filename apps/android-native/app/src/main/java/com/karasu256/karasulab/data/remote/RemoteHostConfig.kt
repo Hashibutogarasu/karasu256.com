@@ -2,7 +2,7 @@ package com.karasu256.karasulab.data.remote
 
 /** The hosts of the remote servers the app talks to. */
 interface RemoteHostConfig {
-    /** The host of the authentication server, e.g. `auth.karasu256.com`. */
+    /** The host of the authentication server, e.g. `api-auth.karasu256.com`. */
     val authHost: String
 
     /** The host of the API server, e.g. `api.karasu256.com`. */
@@ -22,7 +22,7 @@ interface RemoteHostConfig {
  * @property apiHost the host of the local API server.
  */
 data class DebugRemoteHostConfig(
-    override val authHost: String = "local-auth.karasu256.com",
+    override val authHost: String = "local-api-auth.karasu256.com",
     override val apiHost: String = "local-api.karasu256.com",
 ) : RemoteHostConfig
 
@@ -33,6 +33,6 @@ data class DebugRemoteHostConfig(
  * @property apiHost the host of the main API server.
  */
 data class ReleaseRemoteHostConfig(
-    override val authHost: String = "auth.karasu256.com",
+    override val authHost: String = "api-auth.karasu256.com",
     override val apiHost: String = "api.karasu256.com",
 ) : RemoteHostConfig

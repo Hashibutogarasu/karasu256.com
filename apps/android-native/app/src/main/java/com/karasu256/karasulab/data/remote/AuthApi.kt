@@ -9,7 +9,7 @@ import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Query
 
-/** better-auth endpoints served by auth.karasu256.com under `/api/auth`. */
+/** better-auth endpoints served by api-auth.karasu256.com under `/api/auth`. */
 interface AuthApi {
     /** Signs in with an email address and password; the session cookie comes back in `Set-Cookie`. */
     @POST("api/auth/sign-in/email")
