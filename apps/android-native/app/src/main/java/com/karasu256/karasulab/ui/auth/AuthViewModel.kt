@@ -39,8 +39,9 @@ class AuthViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val info = connectionRepository.load()
-            _uiState.update { it.copy(connection = ConnectionState.Loaded(info)) }
+            connectionRepository.observe().collect { info ->
+                _uiState.update { it.copy(connection = info) }
+            }
         }
     }
 

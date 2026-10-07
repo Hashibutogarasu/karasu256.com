@@ -27,19 +27,6 @@ enum class AuthMethod {
     Passkey,
 }
 
-/** Where the connection info shown at the bottom of the auth screen stands. */
-sealed interface ConnectionState {
-    /** The info is still being fetched. */
-    data object Loading : ConnectionState
-
-    /**
-     * The info has been fetched.
-     *
-     * @property info where the app is connected to.
-     */
-    data class Loaded(val info: ConnectionInfo) : ConnectionState
-}
-
 /**
  * State of the auth screen.
  *
@@ -49,7 +36,7 @@ sealed interface ConnectionState {
  * @property password the password typed so far.
  * @property busyMethod the method in progress, or null when idle.
  * @property errorMessage message describing the last failure, or null when there is none.
- * @property connection where the connection info at the bottom of the screen stands.
+ * @property connection the hosts shown at the bottom of the screen and how reaching each stands, or null before they are known.
  */
 data class AuthUiState(
     val mode: AuthMode = AuthMode.SignIn,
@@ -58,7 +45,7 @@ data class AuthUiState(
     val password: String = "",
     val busyMethod: AuthMethod? = null,
     @param:StringRes val errorMessage: Int? = null,
-    val connection: ConnectionState = ConnectionState.Loading,
+    val connection: ConnectionInfo? = null,
 ) {
     /** Whether any method is in progress. */
     val isBusy: Boolean get() = busyMethod != null

@@ -26,6 +26,9 @@
     <string name="error_network">ネットワークに接続できませんでした</string>
     <string name="error_generic">サインインに失敗しました</string>
     <string name="error_sign_up_failed">アカウントを作成できませんでした</string>
+    <string name="connection_connected">接続済み</string>
+    <string name="connection_failed">接続できません</string>
+    <string name="connection_timed_out">応答がありません</string>
     <string name="splash_karasu">Karasu</string>
     <string name="splash_lab">LAB</string>
     <string name="step_app_title">アプリ初期化</string>

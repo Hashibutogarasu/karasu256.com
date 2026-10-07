@@ -1,14 +1,20 @@
 package com.karasu256.karasulab.data
 
-/**
- * Where the app is connected to.
- *
- * @property apiHost the host the API reports it is served from.
- * @property authHost the host of the authentication server.
- * @property branch the git branch the API was built from, or null when the API could not be reached.
- */
+enum class HostStatus {
+    Connecting,
+    Connected,
+    Failed,
+    TimedOut,
+}
+
+data class HostConnection(
+    val host: String,
+    val status: HostStatus,
+)
+
+/** [branch] is null until the API answers, since only the API knows which branch it was built from. */
 data class ConnectionInfo(
-    val apiHost: String,
-    val authHost: String,
+    val api: HostConnection,
+    val auth: HostConnection,
     val branch: String?,
 )

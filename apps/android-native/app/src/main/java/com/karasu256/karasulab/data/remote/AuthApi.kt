@@ -55,6 +55,9 @@ interface AuthApi {
         @Body body: DeletePasskeyRequest,
     ): Response<ResponseBody>
 
+    @GET("api/auth/ok")
+    suspend fun ok()
+
     /** Returns the session for [cookie], with the custom token in the `set-auth-jwt` header. */
     @GET("api/auth/get-session")
     suspend fun getSession(@Header("Cookie") cookie: String): Response<ResponseBody>
