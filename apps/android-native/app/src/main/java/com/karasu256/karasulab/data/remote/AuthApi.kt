@@ -7,6 +7,7 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.Query
 
 /** better-auth endpoints served by auth.karasu256.com under `/api/auth`. */
 interface AuthApi {
@@ -31,6 +32,27 @@ interface AuthApi {
     suspend fun verifyPasskeyAuthentication(
         @Header("Cookie") cookie: String,
         @Body body: PasskeyVerifyRequest,
+    ): Response<ResponseBody>
+
+    @GET("api/auth/passkey/generate-register-options")
+    suspend fun generatePasskeyRegisterOptions(
+        @Header("Cookie") cookie: String,
+        @Query("name") name: String,
+    ): Response<ResponseBody>
+
+    @POST("api/auth/passkey/verify-registration")
+    suspend fun verifyPasskeyRegistration(
+        @Header("Cookie") cookie: String,
+        @Body body: PasskeyRegisterRequest,
+    ): Response<ResponseBody>
+
+    @GET("api/auth/passkey/list-user-passkeys")
+    suspend fun listPasskeys(@Header("Cookie") cookie: String): List<PasskeyResponse>
+
+    @POST("api/auth/passkey/delete-passkey")
+    suspend fun deletePasskey(
+        @Header("Cookie") cookie: String,
+        @Body body: DeletePasskeyRequest,
     ): Response<ResponseBody>
 
     /** Returns the session for [cookie], with the custom token in the `set-auth-jwt` header. */

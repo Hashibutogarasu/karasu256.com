@@ -61,6 +61,24 @@ data class PasskeyVerifyRequest(
     val response: JsonElement,
 )
 
+@Serializable
+data class PasskeyRegisterRequest(
+    val response: JsonElement,
+    val name: String,
+)
+
+@Serializable
+data class DeletePasskeyRequest(
+    val id: String,
+)
+
+@Serializable
+data class PasskeyResponse(
+    val id: String,
+    val name: String? = null,
+    val createdAt: String? = null,
+)
+
 /**
  * The part of better-auth's `GET /api/auth/get-session` body the app reads. The body is `null` when the session is invalid.
  *
