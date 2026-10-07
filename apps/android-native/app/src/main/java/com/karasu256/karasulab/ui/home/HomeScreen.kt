@@ -21,7 +21,7 @@ import com.karasu256.karasulab.ui.components.BaseButton
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.NavGraphs
-import com.ramcosta.composedestinations.generated.destinations.SignInScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.AuthScreenDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
 /** Placeholder home screen showing the signed-in user's name and a sign-out button. */
@@ -36,7 +36,7 @@ fun HomeScreen(
 
     LaunchedEffect(viewModel) {
         viewModel.signedOut.collect {
-            navigator.navigate(SignInScreenDestination) {
+            navigator.navigate(AuthScreenDestination) {
                 popUpTo(NavGraphs.root) { inclusive = true }
             }
         }

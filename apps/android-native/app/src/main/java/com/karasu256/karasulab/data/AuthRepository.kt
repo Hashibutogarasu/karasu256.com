@@ -4,6 +4,7 @@ import com.karasu256.karasulab.data.auth.SessionTokenExchanger
 import com.karasu256.karasulab.data.local.SessionStore
 import com.karasu256.karasulab.data.remote.AuthApi
 import com.karasu256.karasulab.data.remote.EmailSignInRequest
+import com.karasu256.karasulab.data.remote.EmailSignUpRequest
 import com.karasu256.karasulab.data.remote.IdTokenPayload
 import com.karasu256.karasulab.data.remote.PasskeyVerifyRequest
 import com.karasu256.karasulab.data.remote.SessionCookie
@@ -41,6 +42,10 @@ class AuthRepository @Inject constructor(
     /** Signs in with an email address and password. */
     suspend fun signInWithEmail(email: String, password: String): SignInResult =
         signIn { authApi.signInEmail(EmailSignInRequest(email = email, password = password)) }
+
+    /** Creates an account with a display name, an email address and a password, and signs in to it. */
+    suspend fun signUpWithEmail(name: String, email: String, password: String): SignInResult =
+        signIn { authApi.signUpEmail(EmailSignUpRequest(name = name, email = email, password = password)) }
 
     /** Signs in with a Google ID token obtained through Credential Manager. */
     suspend fun signInWithGoogle(idToken: String): SignInResult =

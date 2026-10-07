@@ -14,6 +14,10 @@ interface AuthApi {
     @POST("api/auth/sign-in/email")
     suspend fun signInEmail(@Body body: EmailSignInRequest): Response<ResponseBody>
 
+    /** Creates an account with an email address and password; the session cookie comes back in `Set-Cookie`. */
+    @POST("api/auth/sign-up/email")
+    suspend fun signUpEmail(@Body body: EmailSignUpRequest): Response<ResponseBody>
+
     /** Signs in with a natively obtained provider ID token; the session cookie comes back in `Set-Cookie`. */
     @POST("api/auth/sign-in/social")
     suspend fun signInSocial(@Body body: SocialSignInRequest): Response<ResponseBody>
