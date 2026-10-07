@@ -32,7 +32,7 @@ import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
-/** Marks the [OkHttpClient] that talks to auth.karasu256.com. */
+/** Marks the [OkHttpClient] that talks to api-auth.karasu256.com. */
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class AuthHttpClient
