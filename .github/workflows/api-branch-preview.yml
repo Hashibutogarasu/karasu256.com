@@ -35,12 +35,12 @@ jobs:
         id: preview
         run: node .github/scripts/api-preview-alias.mjs "$BRANCH" "$WORKER_NAME"
 
-      - name: Resolve Neon branch
+      - name: Resolve the dev database
         id: neon
         env:
           NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
           NEON_PROJECT_ID: ${{ vars.NEON_PROJECT_ID }}
-        run: node .github/scripts/neon-preview-branch.mjs "preview/$BRANCH" main
+        run: node .github/scripts/neon-branch-url.mjs dev
 
       - name: Set up pnpm
         uses: pnpm/action-setup@v4
