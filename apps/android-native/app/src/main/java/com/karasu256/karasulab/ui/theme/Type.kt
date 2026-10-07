@@ -9,6 +9,7 @@ import androidx.compose.ui.unit.sp
 
 import androidx.compose.ui.text.googlefonts.GoogleFont
 import androidx.compose.ui.text.googlefonts.Font
+import kotlin.coroutines.cancellation.CancellationException
 
 val provider = GoogleFont.Provider(
     providerAuthority = "com.google.android.gms.fonts",
@@ -50,4 +51,20 @@ val AppTypography = Typography(
     labelMedium = baseline.labelMedium.copy(fontFamily = bodyFontFamily),
     labelSmall = baseline.labelSmall.copy(fontFamily = bodyFontFamily),
 )
+
+/**
+ * Downloads and caches every font [AppTypography] uses, so screens render with them from their first frame.
+ *
+ * A font that fails to load is skipped, leaving its text on the system fallback.
+ */
+suspend fun FontFamily.Resolver.preloadAppFonts() {
+    listOf(displayFontFamily, bodyFontFamily).forEach { family ->
+        try {
+            preload(family)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+        }
+    }
+}
 
