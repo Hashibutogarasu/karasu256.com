@@ -16,15 +16,11 @@ export interface ListAccountsResult {
 }
 
 function accountsUrl(path: string): string {
-  return `${process.env.NEXT_PUBLIC_ACCOUNTS_URL}/api/auth/accounts${path}`;
+  return `${process.env.NEXT_PUBLIC_ACCOUNTS_URL}/api/accounts${path}`;
 }
 
 /**
- * Lists the accounts bridged into `multiSession` on this device, by proxying
- * to accounts.karasu256.com — the only app with a better-auth instance.
- * `credentials: 'include'` carries the shared `.BASE_DOMAIN`-scoped Firebase
- * session cookie cross-subdomain, the same mechanism the better-auth client's
- * cross-origin `baseURL` already relies on.
+ * Lists the accounts in `multiSession` on this device via accounts.karasu256.com.
  *
  * @throws {ApiError} When the request fails with a non-ok HTTP status.
  */

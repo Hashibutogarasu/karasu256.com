@@ -13,6 +13,7 @@
     "./constants": "./src/constants/index.ts"
   },
   "dependencies": {
+    "@Hashibutogarasu/api-permissions": "workspace:*",
     "@better-auth/oauth-provider": "^1.6.23",
     "@better-auth/passkey": "1.6.23",
     "@react-email/components": "^1.0.12",

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { Header as UiHeader, AccountMenu, NavigationMenuLink, navigationMenuTriggerStyle, type CountryCode } from '@Hashibutogarasu/ui';
-import { getRootAppUrl, signOutAction, setLocaleAction } from '@Hashibutogarasu/utils/server';
+import { getRootAppUrl, getSignInUrl, signOutAction, setLocaleAction } from '@Hashibutogarasu/utils/server';
 import { locales } from '@/i18n/locales';
 
 const localeLabels: Record<(typeof locales)[number], { label: string; countryCode: CountryCode }> = {
@@ -16,7 +16,7 @@ const localeLabels: Record<(typeof locales)[number], { label: string; countryCod
  * button when not, plus a language switcher.
  */
 const Header = async () => {
-  const accountsUrl = process.env.NEXT_PUBLIC_ACCOUNTS_URL;
+  const signInUrl = await getSignInUrl(process.env.NEXT_PUBLIC_AUTH_URL);
   const rootUrl = await getRootAppUrl();
   const t = await getTranslations('header');
   const currentLocale = await getLocale();
@@ -38,7 +38,7 @@ const Header = async () => {
       onLocaleChange={setLocaleAction}
     >
       <AccountMenu
-        signInHref={accountsUrl}
+        signInHref={signInUrl}
         settingsHref={`${rootUrl}/settings`}
         onSignOut={signOutAction}
         labels={{ signIn: t('signIn'), settings: t('settings'), signOut: t('signOut') }}

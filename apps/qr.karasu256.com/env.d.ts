@@ -4,7 +4,7 @@ declare global {
   namespace NodeJS {
     interface ProcessEnv {
       NODE_ENV: NodeEnv;
-      NEXT_PUBLIC_ACCOUNTS_URL: string;
+      NEXT_PUBLIC_AUTH_URL: string;
       /**
        * Server-only base URL of the image API Worker (see `qr.ts`'s
        * `getImageApiUrl` and `R2StorageProvider`). Deliberately not

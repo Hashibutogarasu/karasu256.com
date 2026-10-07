@@ -4,7 +4,7 @@ import { users } from './users';
 /**
  * `@better-auth/oauth-provider`'s `oauthClient` model. Replaces the old
  * `oauth_clients` table — third-party apps registered against the
- * authorization server hosted on accounts.karasu256.com.
+ * authorization server hosted on auth.karasu256.com.
  */
 export const oauthClients = pgTable(
   'oauth_client',

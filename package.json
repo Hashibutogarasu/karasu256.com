@@ -9,6 +9,7 @@
     "deploy": "turbo deploy",
     "deploy:prod": "turbo deploy:prod",
     "lint": "turbo lint",
+    "test:e2e": "turbo test:e2e --concurrency=1",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "simple-git-hooks"

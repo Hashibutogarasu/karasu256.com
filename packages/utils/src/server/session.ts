@@ -15,31 +15,10 @@ interface GetSessionResponse {
   user?: { id: string; email?: string | null; name?: string | null; image?: string | null } | null;
 }
 
-/**
- * Reads and verifies the current session by forwarding this request's
- * headers to accounts.karasu256.com's better-auth instance
- * (`GET /api/auth/get-session`), the monorepo's single source of truth for
- * "who is logged in". Returns `null` when signed out, the accounts app is
- * unreachable, or `accountsUrl` isn't given.
- *
- * Calling apps never hold Firebase credentials of their own — this remote
- * check is what lets them verify sessions without one. `getSessionCookie`
- * only checks the cookie's presence (accounting for the `__Secure-` prefix
- * better-auth adds under HTTPS/production) to skip the network round trip
- * when signed out; it never inspects individual cookie names for the
- * forwarded request.
- *
- * `accountsUrl` and `protectionBypassSecret` are supplied by the caller
- * (e.g. from its own environment variables) rather than read here, since
- * this package doesn't read environment variables itself.
- * `protectionBypassSecret`, when given, is sent as
- * `x-vercel-protection-bypass` so this request reaches
- * accounts.karasu256.com even when its deployment has Vercel Deployment
- * Protection enabled (e.g. a protected Preview).
- */
-export async function getSessionUser(accountsUrl: string | undefined, protectionBypassSecret?: string): Promise<SessionUser | null> {
-  if (!accountsUrl) {
-    logError('get_session_user', { result: 'failure', reason: 'missing_accounts_url' });
+/** Verifies the current session against auth.karasu256.com, since calling apps hold no auth credentials of their own. */
+export async function getSessionUser(authUrl: string | undefined, protectionBypassSecret?: string): Promise<SessionUser | null> {
+  if (!authUrl) {
+    logInfo('get_session_user', { result: 'skipped', reason: 'missing_auth_url' });
     return null;
   }
 
@@ -49,7 +28,7 @@ export async function getSessionUser(accountsUrl: string | undefined, protection
     return null;
   }
 
-  const url = `${accountsUrl}/api/auth/get-session`;
+  const url = `${authUrl}/api/auth/get-session`;
   try {
     const res = await fetch(url, {
       headers: { cookie: requestHeaders.get('cookie') ?? '', ...vercelProtectionBypassHeaders(protectionBypassSecret) },

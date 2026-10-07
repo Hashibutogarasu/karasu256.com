@@ -1,9 +1,6 @@
-import { eq } from 'drizzle-orm';
 import { oauthProviderResourceClient } from '@better-auth/oauth-provider/resource-client';
-import { createRouteAuth } from '@Hashibutogarasu/utils/server';
-import { getDb } from '@Hashibutogarasu/db';
-import { apiKeys } from '@Hashibutogarasu/db/schema';
-import { hashSecret } from '@/lib/crypto';
+import { permissionBitmask, type AbstractPermission } from '@Hashibutogarasu/api-permissions';
+import { createRouteAuth, vercelProtectionBypassHeaders } from '@Hashibutogarasu/utils/server';
 
 /**
  * better-auth's internal `baseURL` — and therefore the JWT `iss`/`aud` and
@@ -15,24 +12,25 @@ const OAUTH_ISSUER = `${process.env.OAUTH_ISSUER_URL}/api/auth`;
 
 const resourceClient = oauthProviderResourceClient();
 
-/**
- * Looks up a raw API key token and returns its owner, or `null` if the key
- * is unknown. API keys are unscoped, so no permission bitmask is returned.
- */
-async function validateApiKey(token: string): Promise<{ userId: string } | null> {
-  const db = getDb();
-  const tokenHash = await hashSecret(token);
-
-  const [row] = await db.select({ id: apiKeys.id, userId: apiKeys.userId }).from(apiKeys).where(eq(apiKeys.keyHash, tokenHash));
-
-  if (!row) return null;
-
-  await db.update(apiKeys).set({ lastUsedAt: new Date() }).where(eq(apiKeys.id, row.id));
-  return { userId: row.userId };
+/** api.karasu256.com owns permission resolution, so keys are verified there rather than against accounts directly. */
+async function validateApiKey(token: string): Promise<{ userId: string; permissions: AbstractPermission[] } | null> {
+  try {
+    const res = await fetch(`${process.env.API_URL}/api-keys/verify`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...vercelProtectionBypassHeaders(process.env.VERCEL_PROTECTION_BYPASS_SECRET) },
+      body: JSON.stringify({ key: token }),
+      cache: 'no-store',
+    });
+    if (!res.ok) return null;
+    const { userId, permissions } = (await res.json()) as { userId: string; permissions: string };
+    return { userId, permissions: permissionBitmask.parse(BigInt(permissions)) };
+  } catch {
+    return null;
+  }
 }
 
 /**
- * Verifies a bearer token issued by accounts.karasu256.com's OAuth/OIDC
+ * Verifies a bearer token issued by auth.karasu256.com's OAuth/OIDC
  * authorization server. Access tokens are JWTs, so this is a local,
  * DB-independent verification against the authorization server's published
  * JWKS — see `@better-auth/oauth-provider`'s recommendations for why this is
@@ -52,17 +50,6 @@ async function validateOauthToken(token: string): Promise<{ userId: string; scop
   }
 }
 
-/**
- * Derives the permission section key for a request from its API route path,
- * e.g. `/api/profile` -> `"profile"`.
- */
-function deriveSectionKey(request: Request): string {
-  const segments = new URL(request.url).pathname.split('/').filter(Boolean);
-  const apiIndex = segments.indexOf('api');
-  return segments[apiIndex + 1] ?? '';
-}
-
-export const { APIKeyRoute, OauthAppRoute, Read, Write } = createRouteAuth({
+export const { APIKeyRoute, OauthAppRoute, RequirePermission } = createRouteAuth({
   validator: { validateApiKey, validateOauthToken },
-  deriveSectionKey,
 });

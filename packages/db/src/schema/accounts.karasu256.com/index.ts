@@ -7,6 +7,8 @@
  */
 export { users, type User, type NewUser } from '../users';
 export { apiKeys, type ApiKey, type NewApiKey } from '../api-keys';
+export { permissions, type PermissionRow, type NewPermissionRow } from '../permissions';
+export { apiKeyPermissions, type ApiKeyPermission, type NewApiKeyPermission } from '../api-key-permissions';
 export { passkeys, type Passkey, type NewPasskey } from '../passkeys';
 export { sessions, type Session, type NewSession } from '../auth-sessions';
 export { accounts, type Account, type NewAccount } from '../auth-accounts';

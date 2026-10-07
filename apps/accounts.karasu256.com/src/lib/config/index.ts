@@ -21,19 +21,11 @@ const envSchema = z.object({
     privateKey: z.string().min(1),
     databaseURL: z.string().url(),
   }),
-  resend: z.object({
-    apiKey: z.string().min(1),
-    fromEmail: z.string().email(),
-  }),
-  baseDomain: z.string().optional(),
 });
 
 export type ServerConfig = {
   webauthn: z.infer<typeof webauthnSchema>;
   firebaseAdmin: z.infer<typeof envSchema>['firebaseAdmin'];
-  resend: z.infer<typeof envSchema>['resend'];
-  baseDomain?: string;
-  /** Origins allowed to make credentialed cross-origin calls into this app's better-auth instance (see `auth-options.ts`'s `trustedOrigins` and `lib/auth/cors.ts`). */
   trustedOrigins: string[];
 };
 
@@ -58,6 +50,24 @@ function getEnvConfigFileName(): string {
 }
 
 /**
+ * Returns the `*.vercel.app` origins of a preview deployment built from a branch
+ * other than `dev`, or `undefined` elsewhere. Such deployments have no custom
+ * domain, so `config.preview.yml` (written for dev.accounts.karasu256.com) does
+ * not match the host they are served from. The branch URL is stable across
+ * pushes, so it doubles as the WebAuthn RP ID.
+ */
+function getBranchPreviewOrigins(): { branchOrigin: string; deploymentOrigin?: string } | undefined {
+  if (process.env.VERCEL_ENV !== 'preview' || process.env.VERCEL_GIT_COMMIT_REF === 'dev') return undefined;
+  const branchHost = process.env.VERCEL_BRANCH_URL;
+  if (!branchHost) return undefined;
+  const deploymentHost = process.env.VERCEL_URL;
+  return {
+    branchOrigin: `https://${branchHost}`,
+    deploymentOrigin: deploymentHost ? `https://${deploymentHost}` : undefined,
+  };
+}
+
+/**
  * Returns the validated server configuration, merging `config/config.default.yml`
  * with the environment-specific config file (the latter overriding the
  * former) and server-only environment variables. Result is cached for the
@@ -70,8 +80,15 @@ export function getServerConfig(): ServerConfig {
 
   const defaults = readConfigFile('config.default.yml');
   const overrides = readConfigFile(getEnvConfigFileName());
-  const webauthn = webauthnSchema.parse({ ...defaults.webauthn, ...overrides.webauthn });
-  const trustedOrigins = overrides.trustedOrigins ?? defaults.trustedOrigins ?? [];
+  const preview = getBranchPreviewOrigins();
+  const previewOrigins = preview ? [preview.branchOrigin, ...(preview.deploymentOrigin ? [preview.deploymentOrigin] : [])] : [];
+
+  const webauthn = webauthnSchema.parse({
+    ...defaults.webauthn,
+    ...overrides.webauthn,
+    ...(preview ? { rpId: new URL(preview.branchOrigin).hostname, expectedOrigins: previewOrigins } : {}),
+  });
+  const trustedOrigins = [...(overrides.trustedOrigins ?? defaults.trustedOrigins ?? []), ...previewOrigins];
 
   const envData = envSchema.parse({
     firebaseAdmin: {
@@ -80,11 +97,6 @@ export function getServerConfig(): ServerConfig {
       privateKey: process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, '\n'),
       databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL,
     },
-    resend: {
-      apiKey: process.env.RESEND_API_KEY,
-      fromEmail: process.env.RESEND_FROM_EMAIL,
-    },
-    baseDomain: process.env.BASE_DOMAIN,
   });
 
   cached = { webauthn, trustedOrigins, ...envData };

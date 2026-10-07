@@ -17,7 +17,7 @@ id = "dda7387a349f4de3b1698f20e713294d"
 
 [env.production.vars]
 CDN_BASE_URL = "https://cdn.karasu256.com"
-ACCOUNTS_URL = "https://accounts.karasu256.com"
+AUTH_URL = "https://auth.karasu256.com"
 
 [env.dev]
 routes = []
@@ -36,7 +36,24 @@ remote = true
 
 [env.dev.vars]
 CDN_BASE_URL = "http://localhost:8788"
-ACCOUNTS_URL = "http://localhost:3001"
+AUTH_URL = "http://localhost:3004"
+
+[env.local]
+routes = []
+
+[[env.local.r2_buckets]]
+binding = "IMAGES"
+bucket_name = "karasu-lab-cdn-local"
+
+[[env.local.kv_namespaces]]
+binding = "RATE_LIMIT_KV"
+id = "local-rate-limit-kv"
+
+[env.local.vars]
+CDN_BASE_URL = "http://localhost:8788"
+AUTH_URL = "http://localhost:3004"
+UPLOAD_TICKET_SECRET = "local-development-upload-ticket-secret"
+CRON_JOBS_API_KEY = "local-development-cron-jobs-api-key"
 
 [[env.preview.routes]]
 pattern = "dev.cdn.karasu256.com"
@@ -56,7 +73,7 @@ remote = true
 
 [env.preview.vars]
 CDN_BASE_URL = "https://dev.cdn.karasu256.com"
-ACCOUNTS_URL = "https://dev.accounts.karasu256.com"
+AUTH_URL = "https://dev-auth.karasu256.com"
 
 [observability.logs]
 enabled = true

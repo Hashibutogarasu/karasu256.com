@@ -1,7 +1,9 @@
 import Link from 'next/link';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { Header as UiHeader, AccountMenu, type CountryCode } from '@Hashibutogarasu/ui';
-import { getRootAppUrl, signOutAction, setLocaleAction } from '@Hashibutogarasu/utils/server';
+import { getRootAppUrl, getSignInUrl, signOutAction, setLocaleAction } from '@Hashibutogarasu/utils/server';
+import { VercelConnectionStore } from '@/lib/vercel';
+import { VercelConnectButton } from './vercel-connect-button';
 
 const localeLabels: Record<'en' | 'ja', { label: string; countryCode: CountryCode }> = {
   en: { label: 'English', countryCode: 'US' },
@@ -14,10 +16,11 @@ const localeLabels: Record<'en' | 'ja', { label: string; countryCode: CountryCod
  * button when not, plus a language switcher.
  */
 export async function Header() {
-  const accountsUrl = process.env.NEXT_PUBLIC_ACCOUNTS_URL;
+  const signInUrl = await getSignInUrl(process.env.NEXT_PUBLIC_AUTH_URL);
   const rootUrl = await getRootAppUrl();
   const t = await getTranslations('header');
   const currentLocale = await getLocale();
+  const vercelConnection = await new VercelConnectionStore().get();
 
   return (
     <UiHeader
@@ -30,8 +33,9 @@ export async function Header() {
       currentLocale={currentLocale}
       onLocaleChange={setLocaleAction}
     >
+      <VercelConnectButton connected={vercelConnection !== null} connectLabel={t('connectVercel')} connectedLabel={t('vercelConnected')} />
       <AccountMenu
-        signInHref={accountsUrl}
+        signInHref={signInUrl}
         settingsHref={`${rootUrl}/settings`}
         onSignOut={signOutAction}
         labels={{ signIn: t('signIn'), settings: t('settings'), signOut: t('signOut') }}
