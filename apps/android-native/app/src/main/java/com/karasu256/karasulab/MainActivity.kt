@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.MaterialTheme
@@ -12,11 +13,16 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
+import com.karasu256.karasulab.ui.loading.LoadingScreen
+import com.karasu256.karasulab.ui.splash.SplashScreen
 import com.karasu256.karasulab.ui.theme.AppTheme
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.generated.NavGraphs
@@ -31,13 +37,36 @@ class MainActivity : ComponentActivity() {
     private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        installSplashScreen().setKeepOnScreenCondition { viewModel.isSignedIn.value == null }
+        installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             AppTheme {
-                AppContent(viewModel)
+                Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                    LaunchFlow(viewModel)
+                }
             }
+        }
+    }
+}
+
+/** The stages the app goes through on launch, in order. */
+private enum class LaunchPhase {
+    Splash,
+    Loading,
+    Content,
+}
+
+/** Shows the splash screen, then the loading screen, then the app's first screen. */
+@Composable
+private fun LaunchFlow(viewModel: MainViewModel) {
+    var phase by rememberSaveable { mutableStateOf(LaunchPhase.Splash) }
+
+    Crossfade(targetState = phase, label = "launch") { current ->
+        when (current) {
+            LaunchPhase.Splash -> SplashScreen(onFinished = { phase = LaunchPhase.Loading })
+            LaunchPhase.Loading -> LoadingScreen(onFinished = { phase = LaunchPhase.Content })
+            LaunchPhase.Content -> AppContent(viewModel)
         }
     }
 }
@@ -59,12 +88,10 @@ private fun AppContent(viewModel: MainViewModel) {
         }
     }
 
-    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-        DestinationsNavHost(
-            navGraph = NavGraphs.root,
-            modifier = Modifier.safeDrawingPadding(),
-            start = start,
-            navController = navController,
-        )
-    }
+    DestinationsNavHost(
+        navGraph = NavGraphs.root,
+        modifier = Modifier.safeDrawingPadding(),
+        start = start,
+        navController = navController,
+    )
 }
