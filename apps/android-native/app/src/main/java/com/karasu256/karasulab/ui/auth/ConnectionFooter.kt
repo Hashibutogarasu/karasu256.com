@@ -1,71 +1,99 @@
 package com.karasu256.karasulab.ui.auth
 
-import androidx.compose.animation.Crossfade
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.karasu256.karasulab.R
+import com.karasu256.karasulab.data.ConnectionInfo
+import com.karasu256.karasulab.data.HostConnection
+import com.karasu256.karasulab.data.HostStatus
 
-/**
- * Small text at the bottom of the auth screen showing the API host, the authentication server host and
- * the connected branch as bare values. A ghost of those lines pulses until [state] is loaded.
- *
- * @param state where the connection info stands.
- * @param modifier modifier applied to the footer.
- */
+/** The rows share the widest host's width through [IntrinsicSize.Max], so the status icons line up in one column. */
 @Composable
-fun ConnectionFooter(state: ConnectionState, modifier: Modifier = Modifier) {
-    Crossfade(targetState = state, modifier = modifier, label = "connectionFooter") { current ->
-        when (current) {
-            ConnectionState.Loading -> ConnectionGhost()
-            is ConnectionState.Loaded -> Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                listOfNotNull(current.info.apiHost, current.info.authHost, current.info.branch).forEach { line ->
-                    Text(
-                        text = line,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
+fun ConnectionFooter(info: ConnectionInfo?, modifier: Modifier = Modifier) {
+    if (info == null) return
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        Column(
+            modifier = Modifier.width(IntrinsicSize.Max),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            HostRow(info.api)
+            HostRow(info.auth)
+        }
+        info.branch?.let { branch ->
+            Text(
+                text = branch,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
     }
 }
 
-/** Pulsing placeholder bars standing in for the connection lines while they load. */
 @Composable
-private fun ConnectionGhost() {
-    val alpha by rememberInfiniteTransition(label = "ghost").animateFloat(
-        initialValue = 0.2f,
-        targetValue = 0.6f,
-        animationSpec = infiniteRepeatable(tween(durationMillis = 800), RepeatMode.Reverse),
-        label = "ghostAlpha",
-    )
-    Column(
-        modifier = Modifier.alpha(alpha),
-        horizontalAlignment = Alignment.CenterHorizontally,
+private fun HostRow(connection: HostConnection) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        listOf(120.dp, 144.dp, 72.dp).forEachIndexed { index, barWidth ->
-            if (index > 0) Spacer(Modifier.height(4.dp))
-            Spacer(
-                Modifier
-                    .width(barWidth)
-                    .height(10.dp)
-                    .background(MaterialTheme.colorScheme.onSurfaceVariant, RoundedCornerShape(percent = 50)),
+        Text(
+            text = connection.host,
+            modifier = Modifier.weight(1f),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        StatusIcon(connection.status)
+    }
+}
+
+@Composable
+private fun StatusIcon(status: HostStatus) {
+    Box(modifier = Modifier.size(14.dp), contentAlignment = Alignment.Center) {
+        when (status) {
+            HostStatus.Connecting -> CircularProgressIndicator(
+                modifier = Modifier.fillMaxSize(),
+                strokeWidth = 2.dp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            HostStatus.Connected -> Icon(
+                imageVector = Icons.Filled.Check,
+                contentDescription = stringResource(R.string.connection_connected),
+                modifier = Modifier.fillMaxSize(),
+                tint = MaterialTheme.colorScheme.primary,
+            )
+            HostStatus.Failed -> Icon(
+                imageVector = Icons.Filled.Close,
+                contentDescription = stringResource(R.string.connection_failed),
+                modifier = Modifier.fillMaxSize(),
+                tint = MaterialTheme.colorScheme.error,
+            )
+            HostStatus.TimedOut -> Icon(
+                imageVector = Icons.Filled.Schedule,
+                contentDescription = stringResource(R.string.connection_timed_out),
+                modifier = Modifier.fillMaxSize(),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }

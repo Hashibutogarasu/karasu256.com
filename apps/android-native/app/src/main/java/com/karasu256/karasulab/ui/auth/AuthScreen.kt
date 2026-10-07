@@ -153,7 +153,7 @@ private fun AuthContent(
             }
         }
         ConnectionFooter(
-            state = state.connection,
+            info = state.connection,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 16.dp),
