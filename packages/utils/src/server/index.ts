@@ -17,7 +17,6 @@ export {
   verifyRequest,
   SIGNATURE_HEADER,
   SIGNATURE_TIMESTAMP_HEADER,
-  SIGNED_DB_BRANCH_HEADER,
   type SignRequestInput,
   type VerifyRequestInput,
   type VerifyRequestResult,

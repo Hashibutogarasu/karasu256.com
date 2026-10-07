@@ -33,7 +33,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.karasu256.karasulab.R
 import com.karasu256.karasulab.auth.CredentialAuthenticator
 import com.karasu256.karasulab.ui.components.BaseButton
-import com.karasu256.karasulab.ui.components.BaseButtonStyle
+import com.karasu256.karasulab.ui.components.BrandGoogleIconButton
+import com.karasu256.karasulab.ui.components.BrandPasskeyIconButton
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.NavGraphs
@@ -145,22 +146,21 @@ private fun SignInContent(
             HorizontalDivider(Modifier.weight(1f))
         }
         Spacer(Modifier.height(24.dp))
-        BaseButton(
-            text = stringResource(R.string.continue_with_google),
-            onClick = onGoogle,
+        Row(
             modifier = Modifier.fillMaxWidth(),
-            enabled = !state.isBusy,
-            isBusy = state.busyMethod == SignInMethod.Google,
-            style = BaseButtonStyle.Outlined,
-        )
-        Spacer(Modifier.height(12.dp))
-        BaseButton(
-            text = stringResource(R.string.sign_in_with_passkey),
-            onClick = onPasskey,
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !state.isBusy,
-            isBusy = state.busyMethod == SignInMethod.Passkey,
-            style = BaseButtonStyle.Outlined,
-        )
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            BrandGoogleIconButton(
+                onClick = onGoogle,
+                enabled = !state.isBusy,
+                isBusy = state.busyMethod == SignInMethod.Google,
+            )
+            BrandPasskeyIconButton(
+                onClick = onPasskey,
+                enabled = !state.isBusy,
+                isBusy = state.busyMethod == SignInMethod.Passkey,
+            )
+        }
     }
 }

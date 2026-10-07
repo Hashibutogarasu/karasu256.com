@@ -3,7 +3,7 @@
     <string name="brand_title">Karasu LAB</string>
     <string name="email_label">メールアドレス</string>
     <string name="password_label">パスワード</string>
-    <string name="sign_in">ログイン</string>
+    <string name="sign_in">サインイン</string>
     <string name="or_divider">または</string>
     <string name="continue_with_google">Googleで続行</string>
     <string name="sign_in_with_passkey">パスキーでサインイン</string>
